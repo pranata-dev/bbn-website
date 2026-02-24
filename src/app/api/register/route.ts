@@ -154,6 +154,18 @@ export async function POST(request: NextRequest) {
             .from("payment-proofs")
             .getPublicUrl(fileName)
 
+        // Server-side price calculation (never trust client)
+        let calculatedPrice: number | null = null
+        let pricingTier: string | null = null
+
+        if (type === "REGULAR") {
+            const groupSize = parseInt(formData.get("groupSize") as string)
+            const sessionCount = parseInt(formData.get("sessionCount") as string)
+            const pricing = calculatePrice(groupSize, sessionCount)
+            calculatedPrice = pricing.subtotal
+            pricingTier = pricing.tier
+        }
+
         // Insert into registrations table
         const { data: registration, error: regError } = await supabase
             .from("registrations")
@@ -164,6 +176,8 @@ export async function POST(request: NextRequest) {
                 subject,
                 whatsapp,
                 payment_proof_url: publicUrl,
+                calculated_price: calculatedPrice,
+                pricing_tier: pricingTier,
                 status: "PENDING",
             })
             .select()
