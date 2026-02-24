@@ -2,10 +2,41 @@ import { createServerClient } from "@supabase/ssr"
 import { NextResponse, type NextRequest } from "next/server"
 
 const publicPaths = ["/", "/login", "/register", "/verify", "/set-password", "/auth/callback"]
-const adminPaths = ["/admin"]
-const dashboardPaths = ["/dashboard"]
 
 export async function middleware(request: NextRequest) {
+    const pathname = request.nextUrl.pathname
+
+    // 1. STRICTOR Admin Route Protection (Priority #1)
+    // Intercept early to bypass Supabase auth completely for admin routes
+    if (pathname.startsWith("/admin")) {
+        const authHeader = request.headers.get("authorization")
+
+        if (authHeader) {
+            try {
+                const authValue = authHeader.split(" ")[1]
+                const [username, password] = Buffer.from(authValue, "base64").toString().split(":")
+
+                const adminUser = process.env.ADMIN_USERNAME
+                const adminPass = process.env.ADMIN_PASSWORD
+
+                // Strict check: credentials must exist in env and match
+                if (adminUser && adminPass && username === adminUser && password === adminPass) {
+                    return NextResponse.next()
+                }
+            } catch (error) {
+                console.error("Basic Auth decode error:", error)
+            }
+        }
+
+        return new NextResponse("Auth required", {
+            status: 401,
+            headers: {
+                "WWW-Authenticate": 'Basic realm="Secure Area"',
+            },
+        })
+    }
+
+    // 2. Supabase SSR Authentication & Cookie Management
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
     const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
@@ -17,8 +48,8 @@ export async function middleware(request: NextRequest) {
     let supabaseResponse = NextResponse.next({ request })
 
     const supabase = createServerClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        supabaseUrl,
+        supabaseKey,
         {
             cookies: {
                 getAll() {
@@ -37,37 +68,13 @@ export async function middleware(request: NextRequest) {
         }
     )
 
+    // IMPORTANT: Refresh session if expired
     const {
         data: { user },
     } = await supabase.auth.getUser()
 
-    const pathname = request.nextUrl.pathname
-
-    // 1. HTTP Basic Auth for Admin Routes
-    if (pathname.startsWith("/admin")) {
-        const authHeader = request.headers.get("authorization")
-
-        if (authHeader) {
-            const authValue = authHeader.split(" ")[1]
-            const [username, password] = Buffer.from(authValue, "base64").toString().split(":")
-
-            const adminUser = process.env.ADMIN_USERNAME
-            const adminPass = process.env.ADMIN_PASSWORD
-
-            if (username === adminUser && password === adminPass) {
-                return NextResponse.next()
-            }
-        }
-
-        return new NextResponse("Unauthorized", {
-            status: 401,
-            headers: {
-                "WWW-Authenticate": 'Basic realm="Secure Area"',
-            },
-        })
-    }
-
-    // Improved path matching using startsWith for nested routes
+    // 3. Path Routing Logic
+    // Enhanced matching for nested public routes
     const isPublicPath = publicPaths.some((path) =>
         path === "/" ? pathname === "/" : pathname === path || pathname.startsWith(`${path}/`)
     )
@@ -82,7 +89,7 @@ export async function middleware(request: NextRequest) {
         return supabaseResponse
     }
 
-    // Redirect unauthenticated users to login
+    // 4. Redirect unauthenticated users to login for protected routes (e.g., /dashboard)
     if (!user) {
         const url = request.nextUrl.clone()
         url.pathname = "/login"
