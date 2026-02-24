@@ -212,7 +212,7 @@ export default function RegisterPage() {
                 <div className="absolute bottom-20 left-20 w-96 h-96 bg-soft-brown/8 rounded-full blur-3xl" />
             </div>
 
-            <div className="w-full max-w-2xl">
+            <div className="w-full max-w-5xl px-4 sm:px-6 lg:px-8">
                 {/* Back link */}
                 <Link
                     href="/"
