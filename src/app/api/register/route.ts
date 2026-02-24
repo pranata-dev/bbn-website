@@ -1,12 +1,17 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createAdminClient } from "@/lib/supabase/server"
 import { WHATSAPP_REGEX } from "@/constants"
+import { checkRateLimit } from "@/lib/rate-limit"
 
 const ACCEPTED_TYPES = ["REGULAR", "UTS"] as const
 const ACCEPTED_FILE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"]
 const MAX_FILE_SIZE = 5 * 1024 * 1024
 
 export async function POST(request: NextRequest) {
+    // Check rate limit
+    const rateLimitResponse = checkRateLimit(request)
+    if (rateLimitResponse) return rateLimitResponse
+
     try {
         const formData = await request.formData()
 
