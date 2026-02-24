@@ -216,14 +216,14 @@ export default function RegisterPage() {
                 {/* Back link */}
                 <Link
                     href="/"
-                    className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-8"
+                    className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-10"
                 >
                     <ArrowLeft className="w-4 h-4" />
                     Kembali ke beranda
                 </Link>
 
-                <Card className="border-warm-gray/60 shadow-lg shadow-soft-brown/5">
-                    <CardHeader className="text-center space-y-4">
+                <Card className="border-warm-gray/60 shadow-lg shadow-soft-brown/5 overflow-hidden">
+                    <CardHeader className="text-center space-y-6 pt-10 pb-2">
                         <div className="mx-auto w-12 h-12 rounded-xl bg-dark-brown flex items-center justify-center">
                             <BookOpen className="w-6 h-6 text-cream" />
                         </div>
