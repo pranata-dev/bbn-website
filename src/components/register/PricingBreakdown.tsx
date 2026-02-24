@@ -1,6 +1,7 @@
 "use client"
 
-import { calculatePrice, formatRupiah, DISCOUNT_SESSION_THRESHOLD } from "@/lib/pricing"
+import { useMemo } from "react"
+import { calculatePrice, formatRupiah, DISCOUNT_SESSION_THRESHOLD, PRICING_TIERS } from "@/lib/pricing"
 
 interface PricingBreakdownProps {
     groupSize: number
@@ -8,7 +9,16 @@ interface PricingBreakdownProps {
 }
 
 export function PricingBreakdown({ groupSize, sessionCount }: PricingBreakdownProps) {
-    const pricing = calculatePrice(groupSize, sessionCount)
+    const pricing = useMemo(() => calculatePrice(groupSize, sessionCount), [groupSize, sessionCount])
+
+    // Get the normal price for strikethrough when discount is active
+    const normalPricePerPerson = useMemo(() => {
+        if (!pricing.isDiscounted) return null
+        const tier = PRICING_TIERS.find(
+            (t) => pricing.groupSize >= t.minGroupSize && pricing.groupSize <= t.maxGroupSize
+        )
+        return tier?.normalPrice ?? null
+    }, [pricing])
 
     return (
         <div className="rounded-xl border border-warm-gray bg-warm-beige/20 p-4 space-y-3 transition-all duration-300">
@@ -18,7 +28,7 @@ export function PricingBreakdown({ groupSize, sessionCount }: PricingBreakdownPr
                     Rincian Biaya
                 </h4>
                 {pricing.isDiscounted && (
-                    <span className="inline-flex items-center gap-1 text-xs font-medium bg-emerald-100 text-emerald-700 px-2.5 py-0.5 rounded-full">
+                    <span className="inline-flex items-center gap-1 text-xs font-medium bg-emerald-100 text-emerald-700 px-2.5 py-0.5 rounded-full animate-fade-up">
                         ✨ Paket Hemat {DISCOUNT_SESSION_THRESHOLD}+ Pertemuan
                     </span>
                 )}
@@ -26,9 +36,14 @@ export function PricingBreakdown({ groupSize, sessionCount }: PricingBreakdownPr
 
             {/* Breakdown lines */}
             <div className="space-y-1.5 text-sm text-muted-foreground">
-                <div className="flex justify-between">
+                <div className="flex justify-between items-center">
                     <span>Harga per orang / pertemuan</span>
-                    <span className="font-medium text-foreground">
+                    <span className="font-medium text-foreground flex items-center gap-2">
+                        {normalPricePerPerson && (
+                            <span className="text-xs line-through text-muted-foreground">
+                                {formatRupiah(normalPricePerPerson)}
+                            </span>
+                        )}
                         {formatRupiah(pricing.pricePerPerson)}
                     </span>
                 </div>
