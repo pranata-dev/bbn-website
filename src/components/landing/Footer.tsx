@@ -34,7 +34,7 @@ export function Footer() {
                         </p>
                         <div className="flex items-center gap-2 text-sm text-cream/60">
                             <Mail className="w-4 h-4" />
-                            <span>support@belajarbarengnata.com</span>
+                            <span>dzulfikaryudha@gmail.com</span>
                         </div>
                     </div>
 
@@ -78,7 +78,7 @@ export function Footer() {
                         © {new Date().getFullYear()} {APP_NAME}. All rights reserved.
                     </p>
                     <p className="text-sm text-cream/40">
-                        Dibuat dengan ❤️ untuk mahasiswa Fisika Indonesia
+                        Made with ❤️ by LumoraLabs
                     </p>
                 </div>
             </div>
