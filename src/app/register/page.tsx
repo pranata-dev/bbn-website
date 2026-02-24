@@ -222,7 +222,7 @@ export default function RegisterPage() {
                     Kembali ke beranda
                 </Link>
 
-                <Card className="border-warm-gray/60 shadow-lg shadow-soft-brown/5 overflow-hidden">
+                <Card className="border-dark-brown/10 shadow-xl shadow-dark-brown/5 overflow-hidden backdrop-blur-sm bg-white/95 shadow-[inset_0_1px_1px_rgba(255,255,255,0.8),inset_0_-1px_1px_rgba(0,0,0,0.02),0_10px_30px_-5px_rgba(107,91,62,0.1)]">
                     <CardHeader className="text-center space-y-6 pt-10 pb-2">
                         <div className="mx-auto w-12 h-12 rounded-xl bg-dark-brown flex items-center justify-center">
                             <BookOpen className="w-6 h-6 text-cream" />
