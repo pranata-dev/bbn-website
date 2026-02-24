@@ -11,11 +11,11 @@ export async function POST(request: NextRequest) {
         const formData = await request.formData()
 
         // Extract common fields
-        const type = formData.get("type") as string
-        const name = formData.get("name") as string
-        const nim = formData.get("nim") as string
-        const subject = formData.get("subject") as string
-        const whatsapp = formData.get("whatsapp") as string
+        const type = (formData.get("type") as string || "").trim()
+        const name = (formData.get("name") as string || "").trim()
+        const nim = (formData.get("nim") as string || "").trim()
+        const subject = (formData.get("subject") as string || "").trim()
+        const whatsapp = (formData.get("whatsapp") as string || "").trim()
         const paymentProof = formData.get("paymentProof") as File
 
         // Validate type
