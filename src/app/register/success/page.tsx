@@ -1,10 +1,20 @@
+"use client"
+
+import { Suspense } from "react"
 import Link from "next/link"
+import { useSearchParams } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { CheckCircle, ArrowLeft, Clock } from "lucide-react"
+import { CheckCircle, ArrowLeft, Clock, GraduationCap, Rocket } from "lucide-react"
 import { APP_NAME } from "@/constants"
 
-export default function RegisterSuccessPage() {
+function SuccessContent() {
+    const searchParams = useSearchParams()
+    const type = searchParams.get("type")
+
+    const isRegular = type === "REGULAR"
+    const Icon = isRegular ? GraduationCap : Rocket
+
     return (
         <div className="min-h-screen bg-cream flex items-center justify-center p-4">
             <div className="w-full max-w-md text-center">
@@ -18,6 +28,14 @@ export default function RegisterSuccessPage() {
                         </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-6">
+                        {/* Product type badge */}
+                        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-warm-beige border border-warm-gray/60">
+                            <Icon className="w-4 h-4 text-soft-brown" />
+                            <span className="text-sm font-medium text-foreground">
+                                {isRegular ? "Kelas Reguler" : "Persiapan UTS"}
+                            </span>
+                        </div>
+
                         <div className="space-y-3">
                             <p className="text-sm text-muted-foreground">
                                 Terima kasih sudah mendaftar di {APP_NAME}.
@@ -28,7 +46,10 @@ export default function RegisterSuccessPage() {
                                     <p className="text-sm font-medium text-foreground">Menunggu Verifikasi</p>
                                     <p className="text-xs text-muted-foreground mt-1">
                                         Admin akan memverifikasi pembayaranmu dalam 1x24 jam.
-                                        Kamu akan menerima email aktivasi setelah pembayaran disetujui.
+                                        {isRegular
+                                            ? " Kamu akan dihubungi via WhatsApp untuk konfirmasi jadwal."
+                                            : " Kamu akan menerima email aktivasi setelah pembayaran disetujui."
+                                        }
                                     </p>
                                 </div>
                             </div>
@@ -44,5 +65,17 @@ export default function RegisterSuccessPage() {
                 </Card>
             </div>
         </div>
+    )
+}
+
+export default function RegisterSuccessPage() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen bg-cream flex items-center justify-center">
+                <div className="animate-pulse text-muted-foreground">Memuat...</div>
+            </div>
+        }>
+            <SuccessContent />
+        </Suspense>
     )
 }
