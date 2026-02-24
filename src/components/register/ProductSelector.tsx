@@ -39,9 +39,9 @@ export function ProductSelector({ selected, onSelect }: ProductSelectorProps) {
                         key={product.type}
                         type="button"
                         onClick={() => onSelect(product.type)}
-                        className={`relative p-6 rounded-2xl border-2 text-left transition-all duration-300 group ${isSelected
-                                ? "border-dark-brown bg-dark-brown/[0.03] shadow-md shadow-soft-brown/10"
-                                : "border-warm-gray hover:border-soft-brown/40 hover:shadow-sm"
+                        className={`relative p-6 rounded-2xl border-2 text-left transition-all duration-300 group hover:scale-[1.02] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dark-brown/50 ${isSelected
+                            ? "border-dark-brown bg-dark-brown/[0.03] shadow-md shadow-soft-brown/10"
+                            : "border-warm-gray hover:border-soft-brown/40 hover:shadow-sm"
                             }`}
                     >
                         {/* Selected indicator */}
@@ -53,8 +53,8 @@ export function ProductSelector({ selected, onSelect }: ProductSelectorProps) {
 
                         {/* Icon */}
                         <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 transition-colors ${isSelected
-                                ? "bg-dark-brown text-cream"
-                                : "bg-warm-beige text-soft-brown group-hover:bg-soft-brown/15"
+                            ? "bg-dark-brown text-cream"
+                            : "bg-warm-beige text-soft-brown group-hover:bg-soft-brown/15"
                             }`}>
                             <Icon className="w-6 h-6" />
                         </div>
@@ -76,8 +76,8 @@ export function ProductSelector({ selected, onSelect }: ProductSelectorProps) {
                                 <span
                                     key={feature}
                                     className={`text-xs px-2.5 py-1 rounded-full transition-colors ${isSelected
-                                            ? "bg-dark-brown/10 text-dark-brown"
-                                            : "bg-warm-beige text-muted-foreground"
+                                        ? "bg-dark-brown/10 text-dark-brown"
+                                        : "bg-warm-beige text-muted-foreground"
                                         }`}
                                 >
                                     {feature}
