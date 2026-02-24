@@ -5,7 +5,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { BookOpen, Loader2, ArrowLeft, ArrowRight } from "lucide-react"
+import { BookOpen, Loader2, ArrowLeft } from "lucide-react"
 import { toast } from "sonner"
 import { APP_NAME } from "@/constants"
 import {
@@ -237,9 +237,12 @@ export default function RegisterPage() {
                         <form onSubmit={handleSubmit} className="space-y-6" aria-label="Formulir pendaftaran">
                             {/* Step 1: Product Selection */}
                             <div className="space-y-3">
-                                <p className="text-sm font-medium text-foreground">
-                                    Pilih Layanan
-                                </p>
+                                <div className="flex items-center gap-2">
+                                    <span className="w-6 h-6 rounded-full bg-dark-brown text-cream text-xs font-bold flex items-center justify-center">1</span>
+                                    <p className="text-sm font-medium text-foreground">
+                                        Pilih Layanan
+                                    </p>
+                                </div>
                                 <ProductSelector
                                     selected={selectedType}
                                     onSelect={handleProductSelect}
@@ -252,14 +255,12 @@ export default function RegisterPage() {
                                     className="animate-fade-up"
                                     style={{ animationDelay: "0.1s" }}
                                 >
-                                    {/* Divider */}
-                                    <div className="flex items-center gap-3 mb-6">
-                                        <div className="flex-1 h-px bg-warm-gray" />
-                                        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                                            <ArrowRight className="w-3 h-3" />
-                                            <span>Isi Detail</span>
-                                        </div>
-                                        <div className="flex-1 h-px bg-warm-gray" />
+                                    {/* Step 2 header */}
+                                    <div className="flex items-center gap-2 mb-4">
+                                        <span className="w-6 h-6 rounded-full bg-dark-brown text-cream text-xs font-bold flex items-center justify-center">2</span>
+                                        <p className="text-sm font-medium text-foreground">
+                                            Isi Detail
+                                        </p>
                                     </div>
 
                                     {selectedType === "REGULAR" ? (
