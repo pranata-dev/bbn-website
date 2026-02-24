@@ -205,14 +205,14 @@ export default function RegisterPage() {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-b from-[#F8F5F0] to-[#F1ECE4] flex items-center justify-center p-4 py-12">
+        <div className="min-h-screen bg-gradient-to-b from-[#F8F5F0] to-[#F1ECE4] flex items-center justify-center p-4 py-12 md:py-16">
             {/* Background decoration */}
             <div className="fixed inset-0 -z-10">
                 <div className="absolute top-20 right-20 w-72 h-72 bg-earthy-gold/10 rounded-full blur-3xl" />
                 <div className="absolute bottom-20 left-20 w-96 h-96 bg-soft-brown/8 rounded-full blur-3xl" />
             </div>
 
-            <div className="w-full max-w-5xl px-4 sm:px-6 lg:px-8">
+            <div className="w-full max-w-6xl px-4 sm:px-6 lg:px-8">
                 {/* Back link */}
                 <Link
                     href="/"
