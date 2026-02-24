@@ -93,8 +93,14 @@ export async function POST(request: NextRequest) {
             if (!groupSize || groupSize < 1) {
                 return NextResponse.json({ error: "Jumlah orang minimal 1." }, { status: 400 })
             }
+            if (groupSize > 20) {
+                return NextResponse.json({ error: "Jumlah orang maksimal 20." }, { status: 400 })
+            }
             if (!sessionCount || sessionCount < 1) {
                 return NextResponse.json({ error: "Jumlah pertemuan minimal 1." }, { status: 400 })
+            }
+            if (sessionCount > 30) {
+                return NextResponse.json({ error: "Jumlah pertemuan maksimal 30." }, { status: 400 })
             }
             if (!scheduledDate) {
                 return NextResponse.json({ error: "Pilih tanggal kelas." }, { status: 400 })
