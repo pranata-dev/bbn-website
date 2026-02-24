@@ -205,7 +205,7 @@ export default function RegisterPage() {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-b from-[#F8F5F0] to-[#F1ECE4] flex items-center justify-center p-4 py-12 md:py-16">
+        <div className="min-h-screen bg-gradient-to-b from-[#F8F5F0] to-[#EFE8DF] flex items-center justify-center p-4 py-12 md:py-16">
             {/* Background decoration */}
             <div className="fixed inset-0 -z-10">
                 <div className="absolute top-20 right-20 w-72 h-72 bg-earthy-gold/10 rounded-full blur-3xl" />
