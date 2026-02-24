@@ -167,3 +167,63 @@ model Answer {
   @@unique([submissionId, questionId])
   @@map("answers")
 }
+
+// ── Registration System ──────────────────────────────────────────────
+
+enum RegistrationType {
+  REGULAR
+  UTS
+}
+
+enum RegistrationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model Registration {
+  id               String             @id @default(uuid())
+  type             RegistrationType
+  name             String
+  nim              String
+  subject          String
+  whatsapp         String
+  paymentProofUrl  String             @map("payment_proof_url")
+  status           RegistrationStatus @default(PENDING)
+  reviewedBy       String?            @map("reviewed_by")
+  reviewedAt       DateTime?          @map("reviewed_at")
+  createdAt        DateTime           @default(now()) @map("created_at")
+  updatedAt        DateTime           @updatedAt @map("updated_at")
+
+  regularDetail    RegularClassDetail?
+  utsDetail        UTSPackageDetail?
+
+  @@index([nim, type])
+  @@map("registrations")
+}
+
+model RegularClassDetail {
+  id              String       @id @default(uuid())
+  registrationId  String       @unique @map("registration_id")
+  groupSize       Int          @map("group_size")
+  sessionCount    Int          @map("session_count")
+  scheduledDate   String       @map("scheduled_date")
+  scheduledTime   String       @map("scheduled_time")
+  notes           String?
+  createdAt       DateTime     @default(now()) @map("created_at")
+
+  registration Registration @relation(fields: [registrationId], references: [id], onDelete: Cascade)
+
+  @@map("regular_class_details")
+}
+
+model UTSPackageDetail {
+  id              String       @id @default(uuid())
+  registrationId  String       @unique @map("registration_id")
+  packageType     String       @map("package_type")
+  createdAt       DateTime     @default(now()) @map("created_at")
+
+  registration Registration @relation(fields: [registrationId], references: [id], onDelete: Cascade)
+
+  @@map("uts_package_details")
+}
