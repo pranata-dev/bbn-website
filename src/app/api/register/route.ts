@@ -235,7 +235,13 @@ export async function POST(request: NextRequest) {
         }
 
         return NextResponse.json(
-            { message: "Pendaftaran berhasil. Menunggu verifikasi admin.", id: registration.id },
+            {
+                message: "Pendaftaran berhasil. Menunggu verifikasi admin.",
+                id: registration.id,
+                ...(calculatedPrice !== null && {
+                    pricing: { total: calculatedPrice, tier: pricingTier },
+                }),
+            },
             { status: 201 }
         )
     } catch (error) {
