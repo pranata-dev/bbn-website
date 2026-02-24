@@ -11,6 +11,7 @@ import {
     SelectValue,
 } from "@/components/ui/select"
 import { PaymentUpload } from "./PaymentUpload"
+import { PricingBreakdown } from "./PricingBreakdown"
 import { SUBJECTS } from "@/constants"
 
 export interface RegularClassFormState {
@@ -121,6 +122,12 @@ export function RegularClassForm({
                     />
                 </div>
             </div>
+
+            {/* Pricing Breakdown */}
+            <PricingBreakdown
+                groupSize={formData.groupSize}
+                sessionCount={formData.sessionCount}
+            />
 
             {/* Date and Time */}
             <div className="grid grid-cols-2 gap-4">
