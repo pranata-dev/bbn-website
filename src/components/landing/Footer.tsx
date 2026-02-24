@@ -78,7 +78,7 @@ export function Footer() {
                         © {new Date().getFullYear()} {APP_NAME}. All rights reserved.
                     </p>
                     <p className="text-sm text-cream/40">
-                        Made with ❤️ by LumoraLabs
+                        Made with Love by LumoraLabs
                     </p>
                 </div>
             </div>
