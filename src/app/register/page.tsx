@@ -78,12 +78,12 @@ export default function RegisterPage() {
             toast.error("Pilih mata kuliah.")
             return false
         }
-        if (regularData.groupSize < 1) {
-            toast.error("Jumlah orang minimal 1.")
+        if (regularData.groupSize < 1 || regularData.groupSize > 20) {
+            toast.error("Jumlah orang harus antara 1–20.")
             return false
         }
-        if (regularData.sessionCount < 1) {
-            toast.error("Jumlah pertemuan minimal 1.")
+        if (regularData.sessionCount < 1 || regularData.sessionCount > 30) {
+            toast.error("Jumlah pertemuan harus antara 1–30.")
             return false
         }
         if (!regularData.scheduledDate) {
