@@ -161,6 +161,7 @@ export function RegularClassForm({
                     className="bg-warm-beige/30 border-warm-gray"
                     required
                 />
+                <p className="text-xs text-muted-foreground">Format: 08xx, 62xx, atau +62xx</p>
             </div>
 
             {/* Notes */}
