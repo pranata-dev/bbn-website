@@ -71,6 +71,15 @@ export function PricingBreakdown({ groupSize, sessionCount }: PricingBreakdownPr
                 </span>
             </div>
 
+            {/* Savings indicator */}
+            {normalPricePerPerson && (
+                <p className="text-xs text-emerald-600 font-medium text-right animate-fade-up">
+                    Hemat {formatRupiah(
+                        (normalPricePerPerson - pricing.pricePerPerson) * pricing.groupSize * pricing.sessionCount
+                    )}
+                </p>
+            )}
+
             {/* Tariff note */}
             <p className="text-xs text-muted-foreground leading-relaxed">
                 Tarif untuk 1 orang dan 1 pertemuan.
