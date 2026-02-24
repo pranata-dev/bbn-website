@@ -42,8 +42,8 @@ export function HeroSection() {
                             <ArrowRight className="ml-2 w-4 h-4" />
                         </Link>
                     </Button>
-                    <Button size="lg" variant="outline" asChild className="px-8 h-12 text-base border-warm-gray hover:bg-warm-beige">
-                        <a href="#fitur">Lihat Fitur</a>
+                    <Button size="lg" variant="outline" asChild className="px-8 h-12 text-base border-warm-gray text-dark-brown hover:bg-warm-beige hover:border-soft-brown transition-all">
+                        <a href="#fitur">Pelajari Lebih Lanjut</a>
                     </Button>
                 </div>
 
