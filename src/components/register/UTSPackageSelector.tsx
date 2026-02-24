@@ -20,15 +20,14 @@ export function UTSPackageSelector({ selected, onSelect }: UTSPackageSelectorPro
                     <div
                         key={pkg.value}
                         className={`relative flex flex-col rounded-2xl border-2 p-6 transition-all duration-300 cursor-pointer hover:shadow-lg ${isSelected
-                                ? "border-dark-brown bg-dark-brown/[0.02] shadow-md ring-1 ring-dark-brown"
-                                : "border-warm-gray bg-white/50 hover:border-soft-brown/40"
+                            ? "border-dark-brown bg-dark-brown/[0.02] shadow-md ring-1 ring-dark-brown"
+                            : "border-warm-gray bg-white/50 hover:border-soft-brown/40"
                             } ${isPopular ? "md:scale-[1.05] z-10" : "scale-100"}`}
                         onClick={() => onSelect(pkg.value)}
                     >
                         {isPopular && (
                             <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-dark-brown text-cream text-[10px] uppercase tracking-widest font-bold py-1 px-3 rounded-full shadow-sm flex items-center gap-1">
-                                <span>Most Popular</span>
-                                <span>🔥</span>
+                                <span>MOST POPULAR</span>
                             </div>
                         )}
 
@@ -70,8 +69,8 @@ export function UTSPackageSelector({ selected, onSelect }: UTSPackageSelectorPro
                         <button
                             type="button"
                             className={`w-full py-2.5 rounded-xl text-xs font-bold transition-all duration-300 ${isSelected
-                                    ? "bg-dark-brown text-cream shadow-sm"
-                                    : "bg-warm-beige text-dark-brown hover:bg-soft-brown/20"
+                                ? "bg-dark-brown text-cream shadow-sm"
+                                : "bg-warm-beige text-dark-brown hover:bg-soft-brown/20"
                                 }`}
                         >
                             {isSelected ? "Paket Terpilih" : "Pilih Paket"}
