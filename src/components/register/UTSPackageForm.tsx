@@ -105,6 +105,13 @@ export function UTSPackageForm({
                         ))}
                     </SelectContent>
                 </Select>
+                {formData.packageType && (
+                    <p className="text-xs text-muted-foreground pl-1">
+                        {formData.packageType === "flux-session" && "Sesi intensif singkat untuk review materi kunci."}
+                        {formData.packageType === "berotak-senku-mode" && "Latihan soal intensif dengan pembahasan mendalam."}
+                        {formData.packageType === "einstein-mode" && "Paket lengkap: tryout, pembahasan, dan analisis performa."}
+                    </p>
+                )}
             </div>
 
             {/* WhatsApp */}
