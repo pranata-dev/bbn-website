@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useRef } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -41,6 +41,7 @@ const initialUTSData: UTSPackageFormState = {
 export default function RegisterPage() {
     const router = useRouter()
     const [isLoading, setIsLoading] = useState(false)
+    const isSubmittingRef = useRef(false)
     const [selectedType, setSelectedType] = useState<RegistrationType | null>(null)
 
     // Form states
@@ -135,6 +136,10 @@ export default function RegisterPage() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
 
+        // Prevent double-click submission
+        if (isSubmittingRef.current) return
+        isSubmittingRef.current = true
+
         if (!selectedType) {
             toast.error("Pilih jenis layanan terlebih dahulu.")
             return
@@ -186,6 +191,7 @@ export default function RegisterPage() {
             toast.error(error instanceof Error ? error.message : "Terjadi kesalahan.")
         } finally {
             setIsLoading(false)
+            isSubmittingRef.current = false
         }
     }
 
