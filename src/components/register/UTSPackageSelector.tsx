@@ -20,7 +20,7 @@ export function UTSPackageSelector({ selected, onSelect }: UTSPackageSelectorPro
                     <div
                         key={pkg.value}
                         className={`relative flex flex-col rounded-2xl border-2 p-6 cursor-pointer transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] active:scale-[0.98] ${isSelected
-                            ? "border-dark-brown bg-warm-beige/50 shadow-2xl scale-105 -translate-y-2 z-10 ring-2 ring-soft-brown/40"
+                            ? `border-dark-brown bg-warm-beige/50 shadow-2xl scale-105 -translate-y-2 z-10 ring-2 ring-soft-brown/40 ${isPopular ? "shadow-[0_0_30px_rgba(107,91,62,0.2)] border-dark-brown/80" : ""}`
                             : "border-warm-gray bg-white/50 hover:border-soft-brown/40 hover:scale-[1.03] hover:-translate-y-1 hover:shadow-lg"
                             }`}
                         onClick={() => onSelect(pkg.value)}
