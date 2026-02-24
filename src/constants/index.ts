@@ -29,3 +29,17 @@ export const ADMIN_NAV = [
 
 export const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
 export const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"]
+
+// Registration constants
+export const SUBJECTS = [
+    { value: "fisika-dasar-2", label: "Fisika Dasar 2" },
+    { value: "fisika-matematika", label: "Fisika-Matematika" },
+] as const
+
+export const UTS_PACKAGES = [
+    { value: "flux-session", label: "Flux Session" },
+    { value: "berotak-senku-mode", label: "Berotak Senku Mode" },
+    { value: "einstein-mode", label: "Einstein Mode" },
+] as const
+
+export const WHATSAPP_REGEX = /^(\+62|62|08)\d{8,13}$/
