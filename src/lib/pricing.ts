@@ -53,3 +53,11 @@ export function calculatePrice(groupSize: number, sessionCount: number): Pricing
         isDiscounted,
     }
 }
+
+/**
+ * Format a number as Indonesian Rupiah string.
+ * Example: 60000 -> "Rp 60.000"
+ */
+export function formatRupiah(amount: number): string {
+    return `Rp ${amount.toLocaleString("id-ID")}`
+}
