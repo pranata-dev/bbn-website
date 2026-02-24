@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, Suspense } from "react"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -12,7 +12,7 @@ import { toast } from "sonner"
 import { createClient } from "@/lib/supabase/client"
 import { APP_NAME } from "@/constants"
 
-export default function LoginPage() {
+function LoginContent() {
     const router = useRouter()
     const searchParams = useSearchParams()
     const redirect = searchParams.get("redirect") || "/dashboard"
@@ -62,6 +62,76 @@ export default function LoginPage() {
     }
 
     return (
+        <Card className="border-warm-gray/60 shadow-lg shadow-soft-brown/5">
+            <CardHeader className="text-center space-y-4">
+                <div className="mx-auto w-12 h-12 rounded-xl bg-dark-brown flex items-center justify-center">
+                    <BookOpen className="w-6 h-6 text-cream" />
+                </div>
+                <div>
+                    <CardTitle className="text-xl font-bold text-foreground">Masuk</CardTitle>
+                    <CardDescription className="text-muted-foreground">
+                        Masuk ke akun {APP_NAME} kamu.
+                    </CardDescription>
+                </div>
+            </CardHeader>
+
+            <CardContent>
+                <form onSubmit={handleSubmit} className="space-y-4">
+                    <div className="space-y-2">
+                        <Label htmlFor="email">Email</Label>
+                        <Input
+                            id="email"
+                            type="email"
+                            placeholder="nama@email.com"
+                            value={formData.email}
+                            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                            className="bg-warm-beige/30 border-warm-gray"
+                            required
+                        />
+                    </div>
+
+                    <div className="space-y-2">
+                        <Label htmlFor="password">Password</Label>
+                        <Input
+                            id="password"
+                            type="password"
+                            placeholder="Masukkan password"
+                            value={formData.password}
+                            onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                            className="bg-warm-beige/30 border-warm-gray"
+                            required
+                        />
+                    </div>
+
+                    <Button
+                        type="submit"
+                        className="w-full bg-dark-brown hover:bg-soft-brown text-cream h-11"
+                        disabled={isLoading}
+                    >
+                        {isLoading ? (
+                            <>
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                Memproses...
+                            </>
+                        ) : (
+                            "Masuk"
+                        )}
+                    </Button>
+
+                    <p className="text-center text-sm text-muted-foreground">
+                        Belum punya akun?{" "}
+                        <Link href="/register" className="text-dark-brown font-medium hover:underline">
+                            Daftar Sekarang
+                        </Link>
+                    </p>
+                </form>
+            </CardContent>
+        </Card>
+    )
+}
+
+export default function LoginPage() {
+    return (
         <div className="min-h-screen bg-cream flex items-center justify-center p-4">
             <div className="fixed inset-0 -z-10">
                 <div className="absolute top-20 left-20 w-72 h-72 bg-earthy-gold/10 rounded-full blur-3xl" />
@@ -77,71 +147,15 @@ export default function LoginPage() {
                     Kembali ke beranda
                 </Link>
 
-                <Card className="border-warm-gray/60 shadow-lg shadow-soft-brown/5">
-                    <CardHeader className="text-center space-y-4">
-                        <div className="mx-auto w-12 h-12 rounded-xl bg-dark-brown flex items-center justify-center">
-                            <BookOpen className="w-6 h-6 text-cream" />
-                        </div>
-                        <div>
-                            <CardTitle className="text-xl font-bold text-foreground">Masuk</CardTitle>
-                            <CardDescription className="text-muted-foreground">
-                                Masuk ke akun {APP_NAME} kamu.
-                            </CardDescription>
-                        </div>
-                    </CardHeader>
-
-                    <CardContent>
-                        <form onSubmit={handleSubmit} className="space-y-4">
-                            <div className="space-y-2">
-                                <Label htmlFor="email">Email</Label>
-                                <Input
-                                    id="email"
-                                    type="email"
-                                    placeholder="nama@email.com"
-                                    value={formData.email}
-                                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                                    className="bg-warm-beige/30 border-warm-gray"
-                                    required
-                                />
-                            </div>
-
-                            <div className="space-y-2">
-                                <Label htmlFor="password">Password</Label>
-                                <Input
-                                    id="password"
-                                    type="password"
-                                    placeholder="Masukkan password"
-                                    value={formData.password}
-                                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                                    className="bg-warm-beige/30 border-warm-gray"
-                                    required
-                                />
-                            </div>
-
-                            <Button
-                                type="submit"
-                                className="w-full bg-dark-brown hover:bg-soft-brown text-cream h-11"
-                                disabled={isLoading}
-                            >
-                                {isLoading ? (
-                                    <>
-                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                        Memproses...
-                                    </>
-                                ) : (
-                                    "Masuk"
-                                )}
-                            </Button>
-
-                            <p className="text-center text-sm text-muted-foreground">
-                                Belum punya akun?{" "}
-                                <Link href="/register" className="text-dark-brown font-medium hover:underline">
-                                    Daftar Sekarang
-                                </Link>
-                            </p>
-                        </form>
-                    </CardContent>
-                </Card>
+                <Suspense fallback={
+                    <Card className="border-warm-gray/60 shadow-lg shadow-soft-brown/5">
+                        <CardContent className="flex items-center justify-center p-20">
+                            <Loader2 className="w-8 h-8 text-dark-brown animate-spin" />
+                        </CardContent>
+                    </Card>
+                }>
+                    <LoginContent />
+                </Suspense>
             </div>
         </div>
     )
