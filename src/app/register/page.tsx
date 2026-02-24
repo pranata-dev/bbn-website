@@ -4,63 +4,172 @@ import { useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { BookOpen, Upload, Loader2, ArrowLeft } from "lucide-react"
+import { BookOpen, Loader2, ArrowLeft, ArrowRight } from "lucide-react"
 import { toast } from "sonner"
-import { APP_NAME, MAX_FILE_SIZE, ACCEPTED_IMAGE_TYPES } from "@/constants"
+import { APP_NAME } from "@/constants"
+import {
+    ProductSelector,
+    RegularClassForm,
+    UTSPackageForm,
+} from "@/components/register"
+import type { RegularClassFormState } from "@/components/register"
+import type { UTSPackageFormState } from "@/components/register"
+import type { RegistrationType } from "@/lib/validators/registration"
+import { WHATSAPP_REGEX } from "@/constants"
+
+const initialRegularData: RegularClassFormState = {
+    name: "",
+    nim: "",
+    subject: "",
+    groupSize: 1,
+    sessionCount: 1,
+    scheduledDate: "",
+    scheduledTime: "",
+    whatsapp: "",
+    notes: "",
+}
+
+const initialUTSData: UTSPackageFormState = {
+    name: "",
+    nim: "",
+    subject: "",
+    packageType: "",
+    whatsapp: "",
+}
 
 export default function RegisterPage() {
     const router = useRouter()
     const [isLoading, setIsLoading] = useState(false)
-    const [formData, setFormData] = useState({
-        name: "",
-        email: "",
-    })
-    const [paymentProof, setPaymentProof] = useState<File | null>(null)
-    const [previewUrl, setPreviewUrl] = useState<string | null>(null)
+    const [selectedType, setSelectedType] = useState<RegistrationType | null>(null)
 
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0]
-        if (!file) return
+    // Form states
+    const [regularData, setRegularData] = useState<RegularClassFormState>(initialRegularData)
+    const [utsData, setUTSData] = useState<UTSPackageFormState>(initialUTSData)
 
-        if (!ACCEPTED_IMAGE_TYPES.includes(file.type)) {
-            toast.error("Format file tidak didukung. Gunakan JPG, PNG, atau WebP.")
-            return
+    // Payment file states
+    const [paymentFile, setPaymentFile] = useState<File | null>(null)
+    const [paymentPreview, setPaymentPreview] = useState<string | null>(null)
+
+    const handlePaymentChange = (file: File | null, preview: string | null) => {
+        setPaymentFile(file)
+        setPaymentPreview(preview)
+    }
+
+    const handleProductSelect = (type: RegistrationType) => {
+        setSelectedType(type)
+        // Reset payment when switching types
+        if (paymentPreview) URL.revokeObjectURL(paymentPreview)
+        setPaymentFile(null)
+        setPaymentPreview(null)
+    }
+
+    const validateRegular = (): boolean => {
+        if (!regularData.name || regularData.name.length < 3) {
+            toast.error("Nama minimal 3 karakter.")
+            return false
         }
-
-        if (file.size > MAX_FILE_SIZE) {
-            toast.error("Ukuran file maksimal 5MB.")
-            return
+        if (!regularData.nim || regularData.nim.length < 5) {
+            toast.error("NIM minimal 5 karakter.")
+            return false
         }
+        if (!regularData.subject) {
+            toast.error("Pilih mata kuliah.")
+            return false
+        }
+        if (regularData.groupSize < 1) {
+            toast.error("Jumlah orang minimal 1.")
+            return false
+        }
+        if (regularData.sessionCount < 1) {
+            toast.error("Jumlah pertemuan minimal 1.")
+            return false
+        }
+        if (!regularData.scheduledDate) {
+            toast.error("Pilih tanggal kelas.")
+            return false
+        }
+        if (!regularData.scheduledTime) {
+            toast.error("Pilih waktu kelas.")
+            return false
+        }
+        if (!WHATSAPP_REGEX.test(regularData.whatsapp)) {
+            toast.error("Format nomor WhatsApp tidak valid.")
+            return false
+        }
+        if (!paymentFile) {
+            toast.error("Mohon unggah bukti pembayaran.")
+            return false
+        }
+        return true
+    }
 
-        setPaymentProof(file)
-        setPreviewUrl(URL.createObjectURL(file))
+    const validateUTS = (): boolean => {
+        if (!utsData.name || utsData.name.length < 3) {
+            toast.error("Nama minimal 3 karakter.")
+            return false
+        }
+        if (!utsData.nim || utsData.nim.length < 5) {
+            toast.error("NIM minimal 5 karakter.")
+            return false
+        }
+        if (!utsData.subject) {
+            toast.error("Pilih mata kuliah.")
+            return false
+        }
+        if (!utsData.packageType) {
+            toast.error("Pilih tipe paket.")
+            return false
+        }
+        if (!WHATSAPP_REGEX.test(utsData.whatsapp)) {
+            toast.error("Format nomor WhatsApp tidak valid.")
+            return false
+        }
+        if (!paymentFile) {
+            toast.error("Mohon unggah bukti pembayaran.")
+            return false
+        }
+        return true
     }
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
 
-        if (!formData.name || !formData.email) {
-            toast.error("Mohon isi semua field yang diperlukan.")
+        if (!selectedType) {
+            toast.error("Pilih jenis layanan terlebih dahulu.")
             return
         }
 
-        if (!paymentProof) {
-            toast.error("Mohon unggah bukti pembayaran.")
-            return
-        }
+        // Validate based on type
+        if (selectedType === "REGULAR" && !validateRegular()) return
+        if (selectedType === "UTS" && !validateUTS()) return
 
         setIsLoading(true)
 
         try {
             const formPayload = new FormData()
-            formPayload.append("name", formData.name)
-            formPayload.append("email", formData.email)
-            formPayload.append("paymentProof", paymentProof)
+            formPayload.append("type", selectedType)
+            formPayload.append("paymentProof", paymentFile!)
 
-            const response = await fetch("/api/auth/register", {
+            if (selectedType === "REGULAR") {
+                formPayload.append("name", regularData.name)
+                formPayload.append("nim", regularData.nim)
+                formPayload.append("subject", regularData.subject)
+                formPayload.append("whatsapp", regularData.whatsapp)
+                formPayload.append("groupSize", String(regularData.groupSize))
+                formPayload.append("sessionCount", String(regularData.sessionCount))
+                formPayload.append("scheduledDate", regularData.scheduledDate)
+                formPayload.append("scheduledTime", regularData.scheduledTime)
+                formPayload.append("notes", regularData.notes)
+            } else {
+                formPayload.append("name", utsData.name)
+                formPayload.append("nim", utsData.nim)
+                formPayload.append("subject", utsData.subject)
+                formPayload.append("whatsapp", utsData.whatsapp)
+                formPayload.append("packageType", utsData.packageType)
+            }
+
+            const response = await fetch("/api/register", {
                 method: "POST",
                 body: formPayload,
             })
@@ -72,7 +181,7 @@ export default function RegisterPage() {
             }
 
             toast.success("Pendaftaran berhasil! Silakan tunggu verifikasi admin.")
-            router.push("/register/success")
+            router.push(`/register/success?type=${selectedType}`)
         } catch (error) {
             toast.error(error instanceof Error ? error.message : "Terjadi kesalahan.")
         } finally {
@@ -81,14 +190,14 @@ export default function RegisterPage() {
     }
 
     return (
-        <div className="min-h-screen bg-cream flex items-center justify-center p-4">
+        <div className="min-h-screen bg-cream flex items-center justify-center p-4 py-12">
             {/* Background decoration */}
             <div className="fixed inset-0 -z-10">
                 <div className="absolute top-20 right-20 w-72 h-72 bg-earthy-gold/10 rounded-full blur-3xl" />
                 <div className="absolute bottom-20 left-20 w-96 h-96 bg-soft-brown/8 rounded-full blur-3xl" />
             </div>
 
-            <div className="w-full max-w-md">
+            <div className="w-full max-w-2xl">
                 {/* Back link */}
                 <Link
                     href="/"
@@ -104,86 +213,77 @@ export default function RegisterPage() {
                             <BookOpen className="w-6 h-6 text-cream" />
                         </div>
                         <div>
-                            <CardTitle className="text-xl font-bold text-foreground">Daftar Akun</CardTitle>
+                            <CardTitle className="text-xl font-bold text-foreground">Daftar Sekarang</CardTitle>
                             <CardDescription className="text-muted-foreground">
-                                Bergabung dengan {APP_NAME} dan mulai persiapan ujianmu.
+                                Pilih layanan yang sesuai dengan kebutuhanmu di {APP_NAME}.
                             </CardDescription>
                         </div>
                     </CardHeader>
 
                     <CardContent>
-                        <form onSubmit={handleSubmit} className="space-y-4">
-                            <div className="space-y-2">
-                                <Label htmlFor="name">Nama Lengkap</Label>
-                                <Input
-                                    id="name"
-                                    placeholder="Masukkan nama lengkap"
-                                    value={formData.name}
-                                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                    className="bg-warm-beige/30 border-warm-gray"
-                                    required
+                        <form onSubmit={handleSubmit} className="space-y-6">
+                            {/* Step 1: Product Selection */}
+                            <div className="space-y-3">
+                                <p className="text-sm font-medium text-foreground">
+                                    Pilih Layanan
+                                </p>
+                                <ProductSelector
+                                    selected={selectedType}
+                                    onSelect={handleProductSelect}
                                 />
                             </div>
 
-                            <div className="space-y-2">
-                                <Label htmlFor="email">Email</Label>
-                                <Input
-                                    id="email"
-                                    type="email"
-                                    placeholder="nama@email.com"
-                                    value={formData.email}
-                                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                                    className="bg-warm-beige/30 border-warm-gray"
-                                    required
-                                />
-                            </div>
+                            {/* Step 2: Dynamic Form */}
+                            {selectedType && (
+                                <div
+                                    className="animate-fade-up"
+                                    style={{ animationDelay: "0.1s" }}
+                                >
+                                    {/* Divider */}
+                                    <div className="flex items-center gap-3 mb-6">
+                                        <div className="flex-1 h-px bg-warm-gray" />
+                                        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                                            <ArrowRight className="w-3 h-3" />
+                                            <span>Isi Detail</span>
+                                        </div>
+                                        <div className="flex-1 h-px bg-warm-gray" />
+                                    </div>
 
-                            {/* Payment proof upload */}
-                            <div className="space-y-2">
-                                <Label htmlFor="payment-proof">Bukti Pembayaran</Label>
-                                <div className="relative">
-                                    <input
-                                        id="payment-proof"
-                                        type="file"
-                                        accept="image/*"
-                                        onChange={handleFileChange}
-                                        className="hidden"
-                                    />
-                                    <label
-                                        htmlFor="payment-proof"
-                                        className="flex flex-col items-center justify-center w-full h-36 border-2 border-dashed border-warm-gray rounded-xl cursor-pointer hover:border-soft-brown/50 transition-colors bg-warm-beige/20"
+                                    {selectedType === "REGULAR" ? (
+                                        <RegularClassForm
+                                            formData={regularData}
+                                            onChange={setRegularData}
+                                            paymentFile={paymentFile}
+                                            paymentPreview={paymentPreview}
+                                            onPaymentChange={handlePaymentChange}
+                                        />
+                                    ) : (
+                                        <UTSPackageForm
+                                            formData={utsData}
+                                            onChange={setUTSData}
+                                            paymentFile={paymentFile}
+                                            paymentPreview={paymentPreview}
+                                            onPaymentChange={handlePaymentChange}
+                                        />
+                                    )}
+
+                                    {/* Submit */}
+                                    <Button
+                                        type="submit"
+                                        className="w-full bg-dark-brown hover:bg-soft-brown text-cream h-11 mt-6"
+                                        disabled={isLoading}
                                     >
-                                        {previewUrl ? (
-                                            <img
-                                                src={previewUrl}
-                                                alt="Preview"
-                                                className="h-full w-full object-contain rounded-xl p-2"
-                                            />
+                                        {isLoading ? (
+                                            <>
+                                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                                Mendaftar...
+                                            </>
                                         ) : (
-                                            <div className="flex flex-col items-center gap-2 text-muted-foreground">
-                                                <Upload className="w-8 h-8" />
-                                                <span className="text-sm">Klik untuk unggah bukti transfer</span>
-                                                <span className="text-xs">JPG, PNG, WebP (max 5MB)</span>
-                                            </div>
+                                            "Daftar Sekarang"
                                         )}
-                                    </label>
+                                    </Button>
                                 </div>
-                            </div>
-
-                            <Button
-                                type="submit"
-                                className="w-full bg-dark-brown hover:bg-soft-brown text-cream h-11"
-                                disabled={isLoading}
-                            >
-                                {isLoading ? (
-                                    <>
-                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                        Mendaftar...
-                                    </>
-                                ) : (
-                                    "Daftar Sekarang"
-                                )}
-                            </Button>
+                            )}
 
                             <p className="text-center text-sm text-muted-foreground">
                                 Sudah punya akun?{" "}
