@@ -19,7 +19,7 @@ export function UTSPackageSelector({ selected, onSelect }: UTSPackageSelectorPro
                 return (
                     <div
                         key={pkg.value}
-                        className={`relative flex flex-col rounded-2xl border-2 p-6 cursor-pointer transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${isSelected
+                        className={`relative flex flex-col rounded-2xl border-2 p-6 cursor-pointer transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] active:scale-[0.98] ${isSelected
                             ? "border-dark-brown bg-warm-beige/50 shadow-2xl scale-105 -translate-y-2 z-10 ring-2 ring-soft-brown/40"
                             : "border-warm-gray bg-white/50 hover:border-soft-brown/40 hover:scale-[1.03] hover:-translate-y-1 hover:shadow-lg"
                             }`}
