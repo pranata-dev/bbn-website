@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/select"
 import { PaymentUpload } from "./PaymentUpload"
 import { PricingBreakdown } from "./PricingBreakdown"
+import { BankTransferInfo } from "./BankTransferInfo"
 import { SUBJECTS } from "@/constants"
 
 export interface RegularClassFormState {
@@ -186,6 +187,9 @@ export function RegularClassForm({
                     {formData.notes.length}/500
                 </p>
             </div>
+
+            {/* Bank Transfer Info */}
+            <BankTransferInfo />
 
             {/* Payment Upload */}
             <PaymentUpload
