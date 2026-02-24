@@ -67,6 +67,7 @@ export function PaymentUpload({ file, previewUrl, onFileChange }: PaymentUploadP
                     <button
                         type="button"
                         onClick={handleClear}
+                        aria-label="Hapus bukti pembayaran"
                         className="absolute top-2 right-2 w-6 h-6 rounded-full bg-dark-brown/80 text-cream flex items-center justify-center hover:bg-dark-brown transition-colors"
                     >
                         <X className="w-3 h-3" />
@@ -74,7 +75,9 @@ export function PaymentUpload({ file, previewUrl, onFileChange }: PaymentUploadP
                 )}
             </div>
             {file && (
-                <p className="text-xs text-muted-foreground">{file.name}</p>
+                <p className="text-xs text-muted-foreground">
+                    {file.name} ({(file.size / 1024 / 1024).toFixed(2)} MB)
+                </p>
             )}
         </div>
     )
