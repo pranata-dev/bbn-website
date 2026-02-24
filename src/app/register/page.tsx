@@ -235,13 +235,13 @@ export default function RegisterPage() {
                         </div>
                     </CardHeader>
 
-                    <CardContent>
-                        <form onSubmit={handleSubmit} className="space-y-6" aria-label="Formulir pendaftaran">
+                    <CardContent className="p-6 md:p-10">
+                        <form onSubmit={handleSubmit} className="space-y-12" aria-label="Formulir pendaftaran">
                             {/* Step 1: Product Selection */}
-                            <div className="space-y-3">
+                            <div className="space-y-5">
                                 <div className="flex items-center gap-2">
                                     <span className="w-6 h-6 rounded-full bg-dark-brown text-cream text-xs font-bold flex items-center justify-center">1</span>
-                                    <p className="text-sm font-medium text-foreground">
+                                    <p className="text-sm font-semibold text-foreground tracking-tight">
                                         Pilih Layanan
                                     </p>
                                 </div>
@@ -258,9 +258,9 @@ export default function RegisterPage() {
                                     style={{ animationDelay: "0.1s" }}
                                 >
                                     {/* Step 2 header */}
-                                    <div className="flex items-center gap-2 mb-4">
+                                    <div className="flex items-center gap-2 mb-8">
                                         <span className="w-6 h-6 rounded-full bg-dark-brown text-cream text-xs font-bold flex items-center justify-center">2</span>
-                                        <p className="text-sm font-medium text-foreground">
+                                        <p className="text-sm font-semibold text-foreground tracking-tight">
                                             Isi Detail
                                         </p>
                                     </div>
