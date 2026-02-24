@@ -207,9 +207,9 @@ export default function RegisterPage() {
     return (
         <div className="min-h-screen bg-gradient-to-b from-[#F8F5F0] to-[#EFE8DF] flex items-center justify-center p-4 py-12 md:py-16">
             {/* Background decoration */}
-            <div className="fixed inset-0 -z-10">
-                <div className="absolute top-20 right-20 w-72 h-72 bg-earthy-gold/10 rounded-full blur-3xl" />
-                <div className="absolute bottom-20 left-20 w-96 h-96 bg-soft-brown/8 rounded-full blur-3xl" />
+            <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
+                <div className="absolute -top-[10%] -left-[10%] w-[40%] h-[40%] bg-soft-brown/8 rounded-full blur-[120px]" />
+                <div className="absolute -bottom-[10%] -right-[10%] w-[50%] h-[50%] bg-soft-brown/6 rounded-full blur-[120px]" />
             </div>
 
             <div className="w-full max-w-6xl px-4 sm:px-6 lg:px-8">
