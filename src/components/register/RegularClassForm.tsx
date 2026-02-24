@@ -130,6 +130,7 @@ export function RegularClassForm({
                         id="reg-date"
                         type="date"
                         value={formData.scheduledDate}
+                        min={new Date().toISOString().split("T")[0]}
                         onChange={(e) => update("scheduledDate", e.target.value)}
                         className="bg-warm-beige/30 border-warm-gray"
                         required
