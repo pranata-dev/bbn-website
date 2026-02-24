@@ -26,7 +26,7 @@ export function UTSPackageSelector({ selected, onSelect }: UTSPackageSelectorPro
                         onClick={() => onSelect(pkg.value)}
                     >
                         {isPopular && (
-                            <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#8B7E74] text-cream text-[9px] uppercase tracking-wider font-medium py-1 px-3.5 rounded-full shadow-sm z-20 border border-white/10">
+                            <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#8B7E74] text-cream text-[9px] uppercase tracking-wider font-medium py-1 px-3.5 rounded-full shadow-sm z-20 border border-white/10 animate-badge-pop">
                                 MOST POPULAR
                             </div>
                         )}
