@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/select"
 import { PaymentUpload } from "./PaymentUpload"
 import { BankTransferInfo } from "./BankTransferInfo"
+import { UTSPackageSelector } from "./UTSPackageSelector"
 import { SUBJECTS, UTS_PACKAGES } from "@/constants"
 
 export interface UTSPackageFormState {
@@ -18,6 +19,7 @@ export interface UTSPackageFormState {
     nim: string
     subject: string
     packageType: string
+    price: number
     whatsapp: string
 }
 
@@ -89,30 +91,43 @@ export function UTSPackageForm({
             </div>
 
             {/* Package type */}
-            <div className="space-y-2">
-                <Label>Tipe Paket</Label>
-                <Select
-                    value={formData.packageType}
-                    onValueChange={(v) => update("packageType", v)}
-                >
-                    <SelectTrigger className="bg-warm-beige/30 border-warm-gray">
-                        <SelectValue placeholder="Pilih tipe paket" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        {UTS_PACKAGES.map((p) => (
-                            <SelectItem key={p.value} value={p.value}>
-                                {p.label}
-                            </SelectItem>
+            <div className="space-y-4">
+                <div className="flex flex-col gap-1">
+                    <Label className="text-base font-bold text-dark-brown">Pilih Tipe Paket</Label>
+                    <p className="text-xs text-muted-foreground">Pilih paket yang paling sesuai dengan target belajarmu.</p>
+                </div>
+
+                <UTSPackageSelector
+                    selected={formData.packageType}
+                    onSelect={(v: string) => {
+                        const pkg = UTS_PACKAGES.find(p => p.value === v)
+                        if (pkg) {
+                            onChange({ ...formData, packageType: v, price: pkg.price })
+                        }
+                    }}
+                />
+
+                {/* Additional Benefits Section */}
+                <div className="mt-8 rounded-2xl bg-dark-brown/5 border border-dark-brown/10 p-6">
+                    <h4 className="text-sm font-bold text-dark-brown mb-4 flex items-center gap-2">
+                        <span className="w-1.5 h-4 bg-dark-brown rounded-full"></span>
+                        Kenapa Belajar Bareng Nata?
+                    </h4>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-3 gap-x-6">
+                        {[
+                            "Prediksi aman di UTS atau lanjut balas di UAS",
+                            "Analisis performa per materi",
+                            "Sistem auto-save jawaban (anti koneksi putus)",
+                            "Akses penuh 24/7 selama 30 hari",
+                            "Ranking system (Mode Kompe)",
+                        ].map((benefit, i) => (
+                            <div key={i} className="flex items-center gap-2.5 text-[11px] text-foreground/80">
+                                <div className="w-1 h-1 rounded-full bg-soft-brown"></div>
+                                <span>{benefit}</span>
+                            </div>
                         ))}
-                    </SelectContent>
-                </Select>
-                {formData.packageType && (
-                    <p className="text-xs text-muted-foreground pl-1">
-                        {formData.packageType === "flux-session" && "Sesi intensif singkat untuk review materi kunci."}
-                        {formData.packageType === "berotak-senku-mode" && "Latihan soal intensif dengan pembahasan mendalam."}
-                        {formData.packageType === "einstein-mode" && "Paket lengkap: tryout, pembahasan, dan analisis performa."}
-                    </p>
-                )}
+                    </div>
+                </div>
             </div>
 
             {/* WhatsApp */}

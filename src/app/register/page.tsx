@@ -35,6 +35,7 @@ const initialUTSData: UTSPackageFormState = {
     nim: "",
     subject: "",
     packageType: "",
+    price: 0,
     whatsapp: "",
 }
 
@@ -179,6 +180,7 @@ export default function RegisterPage() {
                 formPayload.append("subject", utsData.subject)
                 formPayload.append("whatsapp", utsData.whatsapp)
                 formPayload.append("packageType", utsData.packageType)
+                formPayload.append("price", utsData.price.toString())
             }
 
             const response = await fetch("/api/register", {
