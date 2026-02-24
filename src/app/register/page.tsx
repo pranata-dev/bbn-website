@@ -142,12 +142,19 @@ export default function RegisterPage() {
 
         if (!selectedType) {
             toast.error("Pilih jenis layanan terlebih dahulu.")
+            isSubmittingRef.current = false
             return
         }
 
         // Validate based on type
-        if (selectedType === "REGULAR" && !validateRegular()) return
-        if (selectedType === "UTS" && !validateUTS()) return
+        if (selectedType === "REGULAR" && !validateRegular()) {
+            isSubmittingRef.current = false
+            return
+        }
+        if (selectedType === "UTS" && !validateUTS()) {
+            isSubmittingRef.current = false
+            return
+        }
 
         setIsLoading(true)
 
