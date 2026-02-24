@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { createAdminClient } from "@/lib/supabase/server"
 import { WHATSAPP_REGEX } from "@/constants"
 import { checkRateLimit } from "@/lib/rate-limit"
+import { calculatePrice } from "@/lib/pricing"
 
 const ACCEPTED_TYPES = ["REGULAR", "UTS"] as const
 const ACCEPTED_FILE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"]
