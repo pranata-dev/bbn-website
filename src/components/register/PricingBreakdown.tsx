@@ -65,7 +65,8 @@ export function PricingBreakdown({ groupSize, sessionCount }: PricingBreakdownPr
                 <span className="text-sm font-medium text-foreground">
                     Total yang harus dibayarkan
                 </span>
-                <span className="text-lg font-bold text-dark-brown">
+                <span className={`text-lg font-bold transition-colors duration-300 ${pricing.isDiscounted ? "text-emerald-700" : "text-dark-brown"
+                    }`}>
                     {formatRupiah(pricing.subtotal)}
                 </span>
             </div>
