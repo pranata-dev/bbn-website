@@ -189,6 +189,8 @@ model Registration {
   subject          String
   whatsapp         String
   paymentProofUrl  String             @map("payment_proof_url")
+  calculatedPrice  Int?               @map("calculated_price")
+  pricingTier      String?            @map("pricing_tier")
   status           RegistrationStatus @default(PENDING)
   reviewedBy       String?            @map("reviewed_by")
   reviewedAt       DateTime?          @map("reviewed_at")
