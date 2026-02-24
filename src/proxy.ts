@@ -3,7 +3,7 @@ import { NextResponse, type NextRequest } from "next/server"
 
 const publicPaths = ["/", "/login", "/register", "/verify", "/set-password", "/auth/callback"]
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
     const pathname = request.nextUrl.pathname
 
     // 1. STRICTOR Admin Route Protection (Priority #1)
