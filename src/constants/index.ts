@@ -36,7 +36,7 @@ export const SUBJECTS = [
     { value: "fisika-matematika", label: "Fisika-Matematika" },
 ] as const
 
-export interface UTSPackageConfig {
+export interface UTSPackage {
     value: string
     label: string
     headline: string
@@ -46,52 +46,47 @@ export interface UTSPackageConfig {
     isPopular?: boolean
 }
 
-export const UTS_PACKAGES: readonly UTSPackageConfig[] = [
+export const UTS_PACKAGES: UTSPackage[] = [
     {
-        value: "flux-session",
+        value: "flux_session",
         label: "Flux Session",
         headline: "Bangun Fondasi Kuat Sebelum UTS",
-        description:
-            "Mulai dari dasar yang benar. Flux Session dirancang untuk kamu yang ingin memahami konsep secara bertahap melalui latihan intensif dan pembahasan lengkap. Cocok untuk memperkuat materi sebelum naik level ke simulasi ujian.",
+        description: "Mulai dari dasar yang benar. Flux Session dirancang untuk kamu yang ingin memahami konsep secara bertahap melalui latihan intensif dan pembahasan lengkap. Cocok untuk memperkuat materi sebelum naik level ke simulasi ujian.",
+        price: 50_000,
         features: [
             "Latihan soal pekan 1–7 (20–30 soal setiap pekan)",
             "Pembahasan lengkap dan terstruktur",
             "Auto-save jawaban",
             "Akses fleksibel 24/7 selama 30 hari",
         ],
-        price: 50_000,
     },
     {
-        value: "senku-mode",
+        value: "senku_mode",
         label: "Berotak Senku Mode",
         headline: "Latihan + Simulasi Realistis Selevel UTS Asli",
-        description:
-            "Naik satu level. Selain latihan lengkap, kamu akan menghadapi simulasi Try Out 120 menit dengan sistem soal variatif yang benar-benar menguji logika dan pemahaman konsep secara mendalam.",
+        description: "Naik satu level. Selain latihan lengkap, kamu akan menghadapi simulasi Try Out 120 menit dengan sistem soal variatif yang benar-benar menguji logika dan pemahaman konsep secara mendalam.",
+        price: 50_000,
         features: [
             "Semua benefit Flux Session",
             "Try Out UTS 120 menit (50 soal)",
-            "Format: sebab-akibat, benar-salah, kombinasi 1-2-3-4 benar, dan lainnya",
-            "Pembahasan detail",
-            "Analisis skor performa",
-            "Analisis per materi",
-            "Ranking (Mode Kompe)",
+            "Format: sebab-akibat, benar-salah, kombinasi 1-2-3-4 benar, dll",
+            "Pembahasan detail & Analisis skor performa",
+            "Analisis per materi & Ranking (Mode Kompe)",
         ],
-        price: 50_000,
     },
     {
-        value: "einstein-mode",
+        value: "einstein_mode",
         label: "Einstein Mode",
-        headline: "Strategi Lengkap untuk Target Aman UTS (Dan Siap Balas di UAS)",
-        description:
-            "Ini bukan sekadar paket latihan. Ini paket pengamanan nilai. Dirancang untuk kamu yang serius ingin hasil maksimal, dengan try out tambahan, video pembahasan soal sulit, dan analisis performa mendalam.\n\nPilihan paling lengkap. Paling strategis. Paling worth it.",
-        features: [
-            "Semua benefit Flux Session & Berotak Senku Mode",
-            "Tambahan hingga 2× Try Out (soal berbeda)",
-            "Video pembahasan soal-soal sulit",
-            "Analisis performa lanjutan dan evaluasi kelemahan",
-        ],
+        headline: "Strategi Lengkap untuk Target Aman UTS",
+        description: "Ini bukan sekadar paket latihan. Ini paket pengamanan nilai. Dirancang untuk kamu yang serius ingin hasil maksimal, dengan try out tambahan, video pembahasan soal sulit, dan analisis performa mendalam.",
         price: 50_000,
         isPopular: true,
+        features: [
+            "Semua benefit Flux Session & Berotak Senku Mode",
+            "Tambahan hingga 2x Try Out (soal berbeda)",
+            "Video pembahasan soal-soal sulit",
+            "Analisis performa lanjutan & evaluasi kelemahan",
+        ],
     },
 ] as const
 
