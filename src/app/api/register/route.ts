@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createAdminClient } from "@/lib/supabase/server"
-import { WHATSAPP_REGEX } from "@/constants"
+import { WHATSAPP_REGEX, UTS_PACKAGES } from "@/constants"
 import { checkRateLimit } from "@/lib/rate-limit"
 import { calculatePrice } from "@/lib/pricing"
 
@@ -170,6 +170,13 @@ export async function POST(request: NextRequest) {
             const pricing = calculatePrice(groupSize, sessionCount)
             calculatedPrice = pricing.subtotal
             pricingTier = pricing.tier
+        } else if (type === "UTS") {
+            const packageType = formData.get("packageType") as string
+            const pkg = UTS_PACKAGES.find(p => p.value === packageType)
+            if (pkg) {
+                calculatedPrice = pkg.price
+                pricingTier = pkg.value.toUpperCase()
+            }
         }
 
         // Insert into registrations table
