@@ -234,7 +234,7 @@ export default function RegisterPage() {
                     </CardHeader>
 
                     <CardContent>
-                        <form onSubmit={handleSubmit} className="space-y-6">
+                        <form onSubmit={handleSubmit} className="space-y-6" aria-label="Formulir pendaftaran">
                             {/* Step 1: Product Selection */}
                             <div className="space-y-3">
                                 <p className="text-sm font-medium text-foreground">
