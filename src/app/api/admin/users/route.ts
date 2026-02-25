@@ -1,7 +1,12 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createClient, createAdminClient } from "@/lib/supabase/server"
+import { checkRateLimit } from "@/lib/rate-limit"
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+    // Check rate limit
+    const rateLimitResponse = checkRateLimit(request)
+    if (rateLimitResponse) return rateLimitResponse
+
     try {
         const supabase = await createClient()
         const { data: { user } } = await supabase.auth.getUser()
@@ -37,6 +42,10 @@ export async function GET() {
 
 // PATCH - Update user role or status
 export async function PATCH(request: NextRequest) {
+    // Check rate limit
+    const rateLimitResponse = checkRateLimit(request)
+    if (rateLimitResponse) return rateLimitResponse
+
     try {
         const supabase = await createClient()
         const { data: { user } } = await supabase.auth.getUser()

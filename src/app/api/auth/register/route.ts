@@ -1,7 +1,12 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createClient, createAdminClient } from "@/lib/supabase/server"
+import { checkRateLimit } from "@/lib/rate-limit"
 
 export async function POST(request: NextRequest) {
+    // Check rate limit
+    const rateLimitResponse = checkRateLimit(request)
+    if (rateLimitResponse) return rateLimitResponse
+
     try {
         const formData = await request.formData()
         const name = formData.get("name") as string
@@ -39,7 +44,7 @@ export async function POST(request: NextRequest) {
             )
         }
 
-        // Upload payment proof to Supabase Storage
+        // 1. Upload payment proof to Supabase Storage
         const fileName = `${Date.now()}-${paymentProof.name}`
         const { data: uploadData, error: uploadError } = await supabase.storage
             .from("payment-proofs")
@@ -49,6 +54,7 @@ export async function POST(request: NextRequest) {
             })
 
         if (uploadError) {
+            console.error("Upload error:", uploadError)
             return NextResponse.json(
                 { error: "Gagal mengunggah bukti pembayaran." },
                 { status: 500 }
@@ -60,46 +66,53 @@ export async function POST(request: NextRequest) {
             .from("payment-proofs")
             .getPublicUrl(fileName)
 
-        // Create user record (without auth - will be created on approval)
-        const { data: user, error: userError } = await supabase
-            .from("users")
-            .insert({
-                email,
-                name,
-                role: "STUDENT_BASIC",
-                is_active: false,
-                auth_id: `pending-${Date.now()}`,
-            })
-            .select()
-            .single()
+        // 2. Create user and payment records with rollback logic
+        try {
+            // Create user record (without auth - will be created on approval)
+            const { data: user, error: userError } = await supabase
+                .from("users")
+                .insert({
+                    email,
+                    name,
+                    role: "STUDENT_BASIC",
+                    is_active: false,
+                    auth_id: `pending-${Date.now()}`,
+                })
+                .select()
+                .single()
 
-        if (userError) {
+            if (userError) throw userError
+
+            // Create payment record
+            const { error: paymentError } = await supabase
+                .from("payments")
+                .insert({
+                    user_id: user.id,
+                    proof_url: publicUrl,
+                    status: "PENDING",
+                })
+
+            if (paymentError) {
+                // Secondary check: remove partially created user
+                await supabase.from("users").delete().eq("id", user.id)
+                throw paymentError
+            }
+
             return NextResponse.json(
-                { error: "Gagal membuat akun." },
+                { message: "Pendaftaran berhasil. Menunggu verifikasi admin." },
+                { status: 201 }
+            )
+        } catch (dbError) {
+            console.error("Registration DB error:", dbError)
+
+            // ROLLBACK: Remove uploaded file
+            await supabase.storage.from("payment-proofs").remove([fileName])
+
+            return NextResponse.json(
+                { error: "Gagal memproses pendaftaran. Silakan coba lagi." },
                 { status: 500 }
             )
         }
-
-        // Create payment record
-        const { error: paymentError } = await supabase
-            .from("payments")
-            .insert({
-                user_id: user.id,
-                proof_url: publicUrl,
-                status: "PENDING",
-            })
-
-        if (paymentError) {
-            return NextResponse.json(
-                { error: "Gagal menyimpan data pembayaran." },
-                { status: 500 }
-            )
-        }
-
-        return NextResponse.json(
-            { message: "Pendaftaran berhasil. Menunggu verifikasi admin." },
-            { status: 201 }
-        )
     } catch (error) {
         console.error("Registration error:", error)
         return NextResponse.json(

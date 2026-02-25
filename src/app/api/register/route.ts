@@ -137,7 +137,7 @@ export async function POST(request: NextRequest) {
             )
         }
 
-        // Upload payment proof
+        // 1. Upload payment proof
         const fileExt = paymentProof.name.split(".").pop()
         const fileName = `registrations/${Date.now()}-${nim}.${fileExt}`
         const { error: uploadError } = await supabase.storage
@@ -160,7 +160,7 @@ export async function POST(request: NextRequest) {
             .from("payment-proofs")
             .getPublicUrl(fileName)
 
-        // Server-side price calculation (never trust client)
+        // 2. Server-side price calculation
         let calculatedPrice: number | null = null
         let pricingTier: string | null = null
 
@@ -179,7 +179,7 @@ export async function POST(request: NextRequest) {
             }
         }
 
-        // Insert into registrations table
+        // 3. Create Registration Record
         const { data: registration, error: regError } = await supabase
             .from("registrations")
             .insert({
@@ -198,53 +198,52 @@ export async function POST(request: NextRequest) {
 
         if (regError) {
             console.error("Registration insert error:", regError)
+            // ROLLBACK: Delete uploaded file
+            await supabase.storage.from("payment-proofs").remove([fileName])
+
             return NextResponse.json(
                 { error: "Gagal menyimpan data pendaftaran." },
                 { status: 500 }
             )
         }
 
-        // Insert type-specific details
-        if (type === "REGULAR") {
-            const notes = (formData.get("notes") as string) || ""
-            const { error: detailError } = await supabase
-                .from("regular_class_details")
-                .insert({
-                    registration_id: registration.id,
-                    group_size: parseInt(formData.get("groupSize") as string),
-                    session_count: parseInt(formData.get("sessionCount") as string),
-                    scheduled_date: formData.get("scheduledDate") as string,
-                    scheduled_time: formData.get("scheduledTime") as string,
-                    notes,
-                })
+        // 4. Create Details Record
+        try {
+            if (type === "REGULAR") {
+                const notes = (formData.get("notes") as string) || ""
+                const { error: detailError } = await supabase
+                    .from("regular_class_details")
+                    .insert({
+                        registration_id: registration.id,
+                        group_size: parseInt(formData.get("groupSize") as string),
+                        session_count: parseInt(formData.get("sessionCount") as string),
+                        scheduled_date: formData.get("scheduledDate") as string,
+                        scheduled_time: formData.get("scheduledTime") as string,
+                        notes,
+                    })
 
-            if (detailError) {
-                console.error("Regular detail insert error:", detailError)
-                // Clean up registration on failure
-                await supabase.from("registrations").delete().eq("id", registration.id)
-                return NextResponse.json(
-                    { error: "Gagal menyimpan detail kelas." },
-                    { status: 500 }
-                )
+                if (detailError) throw detailError
+            } else if (type === "UTS") {
+                const { error: detailError } = await supabase
+                    .from("uts_package_details")
+                    .insert({
+                        registration_id: registration.id,
+                        package_type: formData.get("packageType") as string,
+                    })
+
+                if (detailError) throw detailError
             }
-        }
+        } catch (detailError) {
+            console.error("Detail insert error:", detailError)
 
-        if (type === "UTS") {
-            const { error: detailError } = await supabase
-                .from("uts_package_details")
-                .insert({
-                    registration_id: registration.id,
-                    package_type: formData.get("packageType") as string,
-                })
+            // ROLLBACK: Delete registration record AND storage file
+            await supabase.from("registrations").delete().eq("id", registration.id)
+            await supabase.storage.from("payment-proofs").remove([fileName])
 
-            if (detailError) {
-                console.error("UTS detail insert error:", detailError)
-                await supabase.from("registrations").delete().eq("id", registration.id)
-                return NextResponse.json(
-                    { error: "Gagal menyimpan detail paket." },
-                    { status: 500 }
-                )
-            }
+            return NextResponse.json(
+                { error: "Gagal menyimpan detail pendaftaran." },
+                { status: 500 }
+            )
         }
 
         return NextResponse.json(

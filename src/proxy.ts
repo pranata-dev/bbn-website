@@ -8,7 +8,7 @@ export async function proxy(request: NextRequest) {
 
     // 1. STRICTOR Admin Route Protection (Priority #1)
     // Intercept early to bypass Supabase auth completely for admin routes
-    if (pathname.startsWith("/admin")) {
+    if (pathname.startsWith("/admin") || pathname.startsWith("/api/admin")) {
         const authHeader = request.headers.get("authorization")
 
         if (authHeader) {

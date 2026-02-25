@@ -1,7 +1,12 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createClient, createAdminClient } from "@/lib/supabase/server"
+import { checkRateLimit } from "@/lib/rate-limit"
 
 export async function POST(request: NextRequest) {
+    // Check rate limit
+    const rateLimitResponse = checkRateLimit(request)
+    if (rateLimitResponse) return rateLimitResponse
+
     try {
         const supabase = await createClient()
         const { data: { user } } = await supabase.auth.getUser()
@@ -71,13 +76,23 @@ export async function POST(request: NextRequest) {
 
             // Update user with real auth_id and activate
             if (authData.user) {
-                await adminClient
+                const { error: updateError } = await adminClient
                     .from("users")
                     .update({
                         auth_id: authData.user.id,
                         is_active: true,
                     })
                     .eq("id", payment.user_id)
+
+                if (updateError) {
+                    console.error("User activation update error:", updateError)
+                    // Note: Auth account is already created/invited. 
+                    // This is a partial failure state that needs attention.
+                    return NextResponse.json(
+                        { error: "Bukti pembayaran disetujui, tapi pendaftaran profil gagal. Mohon hubungi admin." },
+                        { status: 500 }
+                    )
+                }
             }
         }
 
