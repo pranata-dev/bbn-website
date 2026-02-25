@@ -1,12 +1,41 @@
+"use client"
+
+import { useState, useEffect } from "react"
 import { Card, CardContent } from "@/components/ui/card"
-import { Users, CreditCard, FileText, HelpCircle, TrendingUp, Trophy } from "lucide-react"
+import { Users, CreditCard, FileText, HelpCircle, TrendingUp, Trophy, Loader2 } from "lucide-react"
+
+interface DashboardStats {
+    totalUsers: number
+    pendingVerifications: number
+    totalTryouts: number
+    totalQuestions: number
+}
 
 export default function AdminDashboardPage() {
-    const stats = [
-        { label: "Total Pengguna", value: "0", icon: Users, change: "" },
-        { label: "Menunggu Verifikasi", value: "0", icon: CreditCard, change: "" },
-        { label: "Total Tryout", value: "0", icon: FileText, change: "" },
-        { label: "Total Soal", value: "0", icon: HelpCircle, change: "" },
+    const [stats, setStats] = useState<DashboardStats | null>(null)
+    const [loading, setLoading] = useState(true)
+
+    useEffect(() => {
+        const fetchStats = async () => {
+            try {
+                const res = await fetch("/api/admin/stats")
+                if (!res.ok) throw new Error("Failed to fetch stats")
+                const data = await res.json()
+                setStats(data.stats)
+            } catch (error) {
+                console.error("Failed to load dashboard stats:", error)
+            } finally {
+                setLoading(false)
+            }
+        }
+        fetchStats()
+    }, [])
+
+    const statCards = [
+        { label: "Total Pengguna", value: stats?.totalUsers ?? "0", icon: Users },
+        { label: "Menunggu Verifikasi", value: stats?.pendingVerifications ?? "0", icon: CreditCard },
+        { label: "Total Tryout", value: stats?.totalTryouts ?? "0", icon: FileText },
+        { label: "Total Soal", value: stats?.totalQuestions ?? "0", icon: HelpCircle },
     ]
 
     return (
@@ -17,13 +46,19 @@ export default function AdminDashboardPage() {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                {stats.map((stat) => (
+                {statCards.map((stat) => (
                     <Card key={stat.label} className="border-warm-gray/60 hover:shadow-md transition-shadow">
                         <CardContent className="p-5">
                             <div className="flex items-center justify-between">
                                 <div>
                                     <p className="text-sm text-muted-foreground">{stat.label}</p>
-                                    <p className="text-2xl font-bold text-foreground mt-1">{stat.value}</p>
+                                    <div className="flex items-center gap-2 mt-1">
+                                        {loading ? (
+                                            <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
+                                        ) : (
+                                            <p className="text-2xl font-bold text-foreground">{stat.value}</p>
+                                        )}
+                                    </div>
                                 </div>
                                 <div className="w-10 h-10 rounded-xl bg-warm-beige flex items-center justify-center">
                                     <stat.icon className="w-5 h-5 text-dark-brown" />
