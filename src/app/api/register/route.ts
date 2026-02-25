@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-import { createAdminClient } from "@/lib/supabase/server"
+import { createServiceClient } from "@/lib/supabase/server"
 import { WHATSAPP_REGEX, UTS_PACKAGES } from "@/constants"
 import { checkRateLimit } from "@/lib/rate-limit"
 import { calculatePrice } from "@/lib/pricing"
@@ -117,7 +117,7 @@ export async function POST(request: NextRequest) {
             }
         }
 
-        const supabase = await createAdminClient()
+        const supabase = createServiceClient()
 
         // Check for duplicate submission (same NIM + type within last 24h)
         const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
