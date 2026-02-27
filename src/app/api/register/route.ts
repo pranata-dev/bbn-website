@@ -199,9 +199,11 @@ export async function POST(request: NextRequest) {
         }
 
         // 3. Create Registration Record
+        const registrationId = crypto.randomUUID()
         const { data: registration, error: regError } = await supabase
             .from("registrations")
             .insert({
+                id: registrationId,
                 type,
                 name,
                 email,
@@ -234,6 +236,7 @@ export async function POST(request: NextRequest) {
                 const { error: detailError } = await supabase
                     .from("regular_class_details")
                     .insert({
+                        id: crypto.randomUUID(),
                         registration_id: registration.id,
                         group_size: parseInt(formData.get("groupSize") as string),
                         session_count: parseInt(formData.get("sessionCount") as string),
@@ -247,6 +250,7 @@ export async function POST(request: NextRequest) {
                 const { error: detailError } = await supabase
                     .from("uts_package_details")
                     .insert({
+                        id: crypto.randomUUID(),
                         registration_id: registration.id,
                         package_type: formData.get("packageType") as string,
                     })
