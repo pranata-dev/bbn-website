@@ -20,6 +20,7 @@ export async function POST(request: NextRequest) {
         const type = (formData.get("type") as string || "").trim()
         const name = (formData.get("name") as string || "").trim()
         const email = (formData.get("email") as string || "").trim()
+        const password = (formData.get("password") as string || "").trim()
         const nim = (formData.get("nim") as string || "").trim()
         const subject = (formData.get("subject") as string || "").trim()
         const whatsapp = (formData.get("whatsapp") as string || "").trim()
@@ -44,6 +45,13 @@ export async function POST(request: NextRequest) {
         if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
             return NextResponse.json(
                 { error: "Email tidak valid." },
+                { status: 400 }
+            )
+        }
+
+        if (!password || password.length < 6) {
+            return NextResponse.json(
+                { error: "Password minimal 6 karakter." },
                 { status: 400 }
             )
         }
@@ -156,7 +164,29 @@ export async function POST(request: NextRequest) {
             )
         }
 
-        // 1. Upload payment proof
+        // 1. Create Supabase Auth User with password
+        const { data: authData, error: authError } = await supabase.auth.admin.createUser({
+            email,
+            password,
+            email_confirm: true, // Auto-confirm for now until we implement email verification
+        })
+
+        if (authError) {
+            console.error("Auth creation error:", authError)
+            return NextResponse.json(
+                {
+                    error: authError.message.includes("already registered")
+                        ? "Email sudah terdaftar di sistem otentikasi. Silakan gunakan email lain."
+                        : "Gagal membuat identitas pengguna."
+                },
+                { status: 400 }
+            )
+        }
+
+        // Keep the auth ID for rollback if necessary
+        const newAuthId = authData.user.id
+
+        // 2. Upload payment proof
         const fileExt = paymentProof.name.split(".").pop()
         const fileName = `registrations/${Date.now()}-${nim}.${fileExt}`
         const { error: uploadError } = await supabase.storage
@@ -220,8 +250,9 @@ export async function POST(request: NextRequest) {
 
         if (regError) {
             console.error("Registration insert error:", regError)
-            // ROLLBACK: Delete uploaded file
+            // ROLLBACK: Delete uploaded file and auth user
             await supabase.storage.from("payment-proofs").remove([fileName])
+            await supabase.auth.admin.deleteUser(newAuthId)
 
             return NextResponse.json(
                 { error: "Gagal menyimpan data pendaftaran." },
@@ -260,9 +291,10 @@ export async function POST(request: NextRequest) {
         } catch (detailError) {
             console.error("Detail insert error:", detailError)
 
-            // ROLLBACK: Delete registration record AND storage file
+            // ROLLBACK: Delete registration record, storage file AND auth user
             await supabase.from("registrations").delete().eq("id", registration.id)
             await supabase.storage.from("payment-proofs").remove([fileName])
+            await supabase.auth.admin.deleteUser(newAuthId)
 
             return NextResponse.json(
                 { error: "Gagal menyimpan detail pendaftaran." },
