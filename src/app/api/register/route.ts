@@ -186,7 +186,31 @@ export async function POST(request: NextRequest) {
         // Keep the auth ID for rollback if necessary
         const newAuthId = authData.user.id
 
-        // 2. Upload payment proof
+        // 2. Insert into local users table
+        const localUserId = crypto.randomUUID()
+        const { error: userInsertError } = await supabase
+            .from("users")
+            .insert({
+                id: localUserId,
+                email,
+                name,
+                role: "STUDENT_BASIC",
+                is_active: false,
+                auth_id: newAuthId,
+            })
+
+        if (userInsertError) {
+            console.error("Local user insert error:", userInsertError)
+            // ROLLBACK: Delete auth user
+            await supabase.auth.admin.deleteUser(newAuthId)
+
+            return NextResponse.json(
+                { error: "Gagal membuat profil pengguna." },
+                { status: 500 }
+            )
+        }
+
+        // 3. Upload payment proof
         const fileExt = paymentProof.name.split(".").pop()
         const fileName = `registrations/${Date.now()}-${nim}.${fileExt}`
         const { error: uploadError } = await supabase.storage
@@ -250,9 +274,10 @@ export async function POST(request: NextRequest) {
 
         if (regError) {
             console.error("Registration insert error:", regError)
-            // ROLLBACK: Delete uploaded file and auth user
+            // ROLLBACK: Delete uploaded file, auth user, and local user
             await supabase.storage.from("payment-proofs").remove([fileName])
             await supabase.auth.admin.deleteUser(newAuthId)
+            await supabase.from("users").delete().eq("id", localUserId)
 
             return NextResponse.json(
                 { error: "Gagal menyimpan data pendaftaran." },
@@ -291,10 +316,11 @@ export async function POST(request: NextRequest) {
         } catch (detailError) {
             console.error("Detail insert error:", detailError)
 
-            // ROLLBACK: Delete registration record, storage file AND auth user
+            // ROLLBACK: Delete registration record, storage file, auth user, and local user
             await supabase.from("registrations").delete().eq("id", registration.id)
             await supabase.storage.from("payment-proofs").remove([fileName])
             await supabase.auth.admin.deleteUser(newAuthId)
+            await supabase.from("users").delete().eq("id", localUserId)
 
             return NextResponse.json(
                 { error: "Gagal menyimpan detail pendaftaran." },
