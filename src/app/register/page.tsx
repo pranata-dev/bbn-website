@@ -79,6 +79,10 @@ export default function RegisterPage() {
             toast.error("Email tidak valid.")
             return false
         }
+        if (!regularData.password || regularData.password.length < 6) {
+            toast.error("Password minimal 6 karakter.")
+            return false
+        }
         if (!regularData.nim || regularData.nim.length < 5) {
             toast.error("NIM minimal 5 karakter.")
             return false
@@ -121,6 +125,10 @@ export default function RegisterPage() {
         }
         if (!utsData.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(utsData.email)) {
             toast.error("Email tidak valid.")
+            return false
+        }
+        if (!utsData.password || utsData.password.length < 6) {
+            toast.error("Password minimal 6 karakter.")
             return false
         }
         if (!utsData.nim || utsData.nim.length < 5) {
@@ -179,6 +187,7 @@ export default function RegisterPage() {
             if (selectedType === "REGULAR") {
                 formPayload.append("name", regularData.name)
                 formPayload.append("email", regularData.email)
+                formPayload.append("password", regularData.password)
                 formPayload.append("nim", regularData.nim)
                 formPayload.append("subject", regularData.subject)
                 formPayload.append("whatsapp", regularData.whatsapp)
@@ -190,6 +199,7 @@ export default function RegisterPage() {
             } else {
                 formPayload.append("name", utsData.name)
                 formPayload.append("email", utsData.email)
+                formPayload.append("password", utsData.password)
                 formPayload.append("nim", utsData.nim)
                 formPayload.append("subject", utsData.subject)
                 formPayload.append("whatsapp", utsData.whatsapp)
