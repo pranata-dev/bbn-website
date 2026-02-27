@@ -42,9 +42,8 @@ export default function AdminClientLayout({
     const [sidebarOpen, setSidebarOpen] = useState(false)
 
     const handleLogout = async () => {
-        const supabase = createClient()
-        await supabase.auth.signOut()
-        router.push("/login")
+        await fetch("/api/admin/auth/logout", { method: "POST" })
+        router.push("/admin/login")
         router.refresh()
     }
 
