@@ -18,15 +18,15 @@ import { toast } from "sonner"
 
 interface PaymentItem {
     id: string
-    user_id: string
-    proof_url: string
+    type: string
+    name: string
+    email: string
+    nim: string
+    subject: string
+    payment_proof_url: string
     status: string
     notes: string | null
     created_at: string
-    users: {
-        name: string
-        email: string
-    }
 }
 
 export default function PaymentsPage() {
@@ -62,7 +62,7 @@ export default function PaymentsPage() {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    paymentId: selectedPayment.id,
+                    registrationId: selectedPayment.id,
                     action,
                     notes,
                 }),
@@ -123,11 +123,17 @@ export default function PaymentsPage() {
                                 >
                                     <div className="flex-1 min-w-0 mr-4">
                                         <p className="text-sm font-semibold text-foreground">
-                                            {payment.users?.name || "Unknown"}
+                                            {payment.name}
                                         </p>
-                                        <p className="text-xs text-muted-foreground">
-                                            {payment.users?.email}
-                                        </p>
+                                        <div className="flex items-center gap-2">
+                                            <p className="text-xs font-medium text-dark-brown">
+                                                {payment.type} - {payment.subject}
+                                            </p>
+                                            <span className="w-1 h-1 rounded-full bg-warm-gray"></span>
+                                            <p className="text-xs text-muted-foreground truncate">
+                                                {payment.email}
+                                            </p>
+                                        </div>
                                         <p className="text-xs text-muted-foreground mt-1">
                                             {new Date(payment.created_at).toLocaleDateString("id-ID")}
                                         </p>
@@ -139,7 +145,7 @@ export default function PaymentsPage() {
                                         <Button
                                             variant="ghost"
                                             size="sm"
-                                            onClick={() => setPreviewUrl(payment.proof_url)}
+                                            onClick={() => setPreviewUrl(payment.payment_proof_url)}
                                         >
                                             <Eye className="w-4 h-4" />
                                         </Button>
@@ -176,9 +182,9 @@ export default function PaymentsPage() {
             <Dialog open={!!selectedPayment} onOpenChange={() => setSelectedPayment(null)}>
                 <DialogContent>
                     <DialogHeader>
-                        <DialogTitle>Verifikasi Pembayaran</DialogTitle>
+                        <DialogTitle>Verifikasi Pendaftaran</DialogTitle>
                         <DialogDescription>
-                            {selectedPayment?.users?.name} - {selectedPayment?.users?.email}
+                            {selectedPayment?.name} - {selectedPayment?.email} ({selectedPayment?.type})
                         </DialogDescription>
                     </DialogHeader>
                     <div className="space-y-4">

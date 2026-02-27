@@ -20,6 +20,7 @@ import { WHATSAPP_REGEX } from "@/constants"
 
 const initialRegularData: RegularClassFormState = {
     name: "",
+    email: "",
     nim: "",
     subject: "",
     groupSize: 1,
@@ -32,6 +33,7 @@ const initialRegularData: RegularClassFormState = {
 
 const initialUTSData: UTSPackageFormState = {
     name: "",
+    email: "",
     nim: "",
     subject: "",
     packageType: "",
@@ -69,6 +71,10 @@ export default function RegisterPage() {
     const validateRegular = (): boolean => {
         if (!regularData.name || regularData.name.length < 3) {
             toast.error("Nama minimal 3 karakter.")
+            return false
+        }
+        if (!regularData.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(regularData.email)) {
+            toast.error("Email tidak valid.")
             return false
         }
         if (!regularData.nim || regularData.nim.length < 5) {
@@ -109,6 +115,10 @@ export default function RegisterPage() {
     const validateUTS = (): boolean => {
         if (!utsData.name || utsData.name.length < 3) {
             toast.error("Nama minimal 3 karakter.")
+            return false
+        }
+        if (!utsData.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(utsData.email)) {
+            toast.error("Email tidak valid.")
             return false
         }
         if (!utsData.nim || utsData.nim.length < 5) {
@@ -166,6 +176,7 @@ export default function RegisterPage() {
 
             if (selectedType === "REGULAR") {
                 formPayload.append("name", regularData.name)
+                formPayload.append("email", regularData.email)
                 formPayload.append("nim", regularData.nim)
                 formPayload.append("subject", regularData.subject)
                 formPayload.append("whatsapp", regularData.whatsapp)
@@ -176,6 +187,7 @@ export default function RegisterPage() {
                 formPayload.append("notes", regularData.notes)
             } else {
                 formPayload.append("name", utsData.name)
+                formPayload.append("email", utsData.email)
                 formPayload.append("nim", utsData.nim)
                 formPayload.append("subject", utsData.subject)
                 formPayload.append("whatsapp", utsData.whatsapp)

@@ -17,6 +17,7 @@ import { SUBJECTS } from "@/constants"
 
 export interface RegularClassFormState {
     name: string
+    email: string
     nim: string
     subject: string
     groupSize: number
@@ -56,6 +57,20 @@ export function RegularClassForm({
                     placeholder="Masukkan nama lengkap"
                     value={formData.name}
                     onChange={(e) => update("name", e.target.value)}
+                    className="bg-warm-beige/30 border-warm-gray"
+                    required
+                />
+            </div>
+
+            {/* Email */}
+            <div className="space-y-2">
+                <Label htmlFor="reg-email">Email</Label>
+                <Input
+                    id="reg-email"
+                    type="email"
+                    placeholder="Masukkan alamat email"
+                    value={formData.email}
+                    onChange={(e) => update("email", e.target.value)}
                     className="bg-warm-beige/30 border-warm-gray"
                     required
                 />

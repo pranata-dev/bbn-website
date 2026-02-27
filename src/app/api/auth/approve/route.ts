@@ -27,40 +27,61 @@ export async function POST(request: NextRequest) {
         }
 
         const body = await request.json()
-        const { paymentId, action, notes } = body
+        const { registrationId, action, notes } = body
 
-        if (!paymentId || !["APPROVED", "REJECTED"].includes(action)) {
+        if (!registrationId || !["APPROVED", "REJECTED"].includes(action)) {
             return NextResponse.json({ error: "Invalid request" }, { status: 400 })
         }
 
         const adminClient = await createAdminClient()
 
-        // Get payment and associated user
-        const { data: payment, error: paymentError } = await adminClient
-            .from("payments")
-            .select("*, users(*)")
-            .eq("id", paymentId)
+        // Get registration data
+        const { data: registration, error: regError } = await adminClient
+            .from("registrations")
+            .select("*")
+            .eq("id", registrationId)
             .single()
 
-        if (paymentError || !payment) {
-            return NextResponse.json({ error: "Payment not found" }, { status: 404 })
+        if (regError || !registration) {
+            return NextResponse.json({ error: "Registration not found" }, { status: 404 })
         }
 
-        // Update payment status
+        // Prevent re-approval (especially important to avoid duplicate account provisioning)
+        if (registration.status === "APPROVED" && action === "APPROVED") {
+            return NextResponse.json({ error: "Pendaftaran ini sudah disetujui sebelumnya." }, { status: 400 })
+        }
+
+        // Update registration status
         await adminClient
-            .from("payments")
+            .from("registrations")
             .update({
                 status: action,
-                notes,
                 reviewed_by: user.id,
                 reviewed_at: new Date().toISOString(),
+                // If there's a custom DB column for notes in registrations, you can add it to the schema, 
+                // but currently schema.prisma doesn't have it for `registrations`. 
+                // Proceeding without notes column logic for Registration unless added later.
             })
-            .eq("id", paymentId)
+            .eq("id", registrationId)
 
         if (action === "APPROVED") {
-            // Create Supabase auth user and send invitation email
+            // Check if user account already exists (edge case fallback)
+            const { data: existingUser } = await adminClient
+                .from("users")
+                .select("id")
+                .eq("email", registration.email)
+                .maybeSingle()
+
+            if (existingUser) {
+                return NextResponse.json(
+                    { error: "Pendaftaran disetujui, namun akun pengguna sudah ada. Lanjutkan secara manual." },
+                    { status: 500 }
+                )
+            }
+
+            // Create Supabase auth user identity & send invitation email
             const { data: authData, error: authError } = await adminClient.auth.admin.inviteUserByEmail(
-                payment.users.email,
+                registration.email,
                 {
                     redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/set-password`,
                 }
@@ -69,27 +90,27 @@ export async function POST(request: NextRequest) {
             if (authError) {
                 console.error("Auth invite error:", authError)
                 return NextResponse.json(
-                    { error: "Gagal mengirim email aktivasi." },
+                    { error: "Pendaftaran disetujui, namun gagal mengirim email profil aktivasi." },
                     { status: 500 }
                 )
             }
 
-            // Update user with real auth_id and activate
+            // Insert new user record locally 
             if (authData.user) {
-                const { error: updateError } = await adminClient
+                const { error: insertError } = await adminClient
                     .from("users")
-                    .update({
-                        auth_id: authData.user.id,
+                    .insert({
+                        email: registration.email,
+                        name: registration.name,
+                        role: "STUDENT_BASIC",
                         is_active: true,
+                        auth_id: authData.user.id,
                     })
-                    .eq("id", payment.user_id)
 
-                if (updateError) {
-                    console.error("User activation update error:", updateError)
-                    // Note: Auth account is already created/invited. 
-                    // This is a partial failure state that needs attention.
+                if (insertError) {
+                    console.error("User synthesis insert error:", insertError)
                     return NextResponse.json(
-                        { error: "Bukti pembayaran disetujui, tapi pendaftaran profil gagal. Mohon hubungi admin." },
+                        { error: "Pendaftaran disetujui, tapi sinkronisasi profil gagal. Mohon hubungi admin teknis." },
                         { status: 500 }
                     )
                 }
@@ -98,8 +119,8 @@ export async function POST(request: NextRequest) {
 
         return NextResponse.json({
             message: action === "APPROVED"
-                ? "Pembayaran disetujui. Email aktivasi telah dikirim."
-                : "Pembayaran ditolak.",
+                ? "Pendaftaran disetujui. Akun berhasil dibuat dan email aktivasi telah dikirim."
+                : "Pendaftaran ditolak.",
         })
     } catch (error) {
         console.error("Approval error:", error)

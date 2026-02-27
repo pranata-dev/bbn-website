@@ -19,6 +19,7 @@ export async function POST(request: NextRequest) {
         // Extract common fields
         const type = (formData.get("type") as string || "").trim()
         const name = (formData.get("name") as string || "").trim()
+        const email = (formData.get("email") as string || "").trim()
         const nim = (formData.get("nim") as string || "").trim()
         const subject = (formData.get("subject") as string || "").trim()
         const whatsapp = (formData.get("whatsapp") as string || "").trim()
@@ -36,6 +37,13 @@ export async function POST(request: NextRequest) {
         if (!name || name.length < 3) {
             return NextResponse.json(
                 { error: "Nama minimal 3 karakter." },
+                { status: 400 }
+            )
+        }
+
+        if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            return NextResponse.json(
+                { error: "Email tidak valid." },
                 { status: 400 }
             )
         }
@@ -119,20 +127,31 @@ export async function POST(request: NextRequest) {
 
         const supabase = createServiceClient()
 
-        // Check for duplicate submission (same NIM + type within last 24h)
+        // Check for duplicate submission (same email or NIM + type within last 24h)
         const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
-        const { data: existing } = await supabase
+        const { data: existingReg } = await supabase
             .from("registrations")
             .select("id")
-            .eq("nim", nim)
-            .eq("type", type)
-            .eq("status", "PENDING")
-            .gte("created_at", oneDayAgo)
+            .or(`email.eq.${email},and(nim.eq.${nim},type.eq.${type},status.eq.PENDING,created_at.gte.${oneDayAgo})`)
             .maybeSingle()
 
-        if (existing) {
+        if (existingReg) {
             return NextResponse.json(
-                { error: "Kamu sudah memiliki pendaftaran yang sedang diproses. Mohon tunggu verifikasi admin." },
+                { error: "Email sudah digunakan atau kamu sudah memiliki pendaftaran yang sedang diproses." },
+                { status: 409 }
+            )
+        }
+
+        // Check if user account already exists for this email
+        const { data: existingUser } = await supabase
+            .from("users")
+            .select("id")
+            .eq("email", email)
+            .maybeSingle()
+
+        if (existingUser) {
+            return NextResponse.json(
+                { error: "Email ini sudah memiliki akun di sistem. Harap gunakan email lain atau hubungi Admin." },
                 { status: 409 }
             )
         }
@@ -185,6 +204,7 @@ export async function POST(request: NextRequest) {
             .insert({
                 type,
                 name,
+                email,
                 nim,
                 subject,
                 whatsapp,

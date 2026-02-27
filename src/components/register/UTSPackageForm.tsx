@@ -16,6 +16,7 @@ import { SUBJECTS, UTS_PACKAGES } from "@/constants"
 
 export interface UTSPackageFormState {
     name: string
+    email: string
     nim: string
     subject: string
     packageType: string
@@ -52,6 +53,20 @@ export function UTSPackageForm({
                     placeholder="Masukkan nama lengkap"
                     value={formData.name}
                     onChange={(e) => update("name", e.target.value)}
+                    className="bg-warm-beige/30 border-warm-gray"
+                    required
+                />
+            </div>
+
+            {/* Email */}
+            <div className="space-y-2">
+                <Label htmlFor="uts-email">Email</Label>
+                <Input
+                    id="uts-email"
+                    type="email"
+                    placeholder="Masukkan alamat email"
+                    value={formData.email}
+                    onChange={(e) => update("email", e.target.value)}
                     className="bg-warm-beige/30 border-warm-gray"
                     required
                 />

@@ -185,6 +185,7 @@ model Registration {
   id               String             @id @default(uuid())
   type             RegistrationType
   name             String
+  email            String             @unique
   nim              String
   subject          String
   whatsapp         String
