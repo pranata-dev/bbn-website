@@ -10,6 +10,9 @@ enum Role {
   ADMIN
   STUDENT_BASIC
   STUDENT_PREMIUM
+  UTS_FLUX
+  UTS_SENKU
+  UTS_EINSTEIN
 }
 
 enum PaymentStatus {
