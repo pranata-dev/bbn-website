@@ -8,22 +8,6 @@ export async function GET(request: NextRequest) {
     if (rateLimitResponse) return rateLimitResponse
 
     try {
-        const supabase = await createClient()
-        const { data: { user } } = await supabase.auth.getUser()
-
-        if (!user) {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-        }
-
-        const { data: adminProfile } = await supabase
-            .from("users")
-            .select("role")
-            .eq("auth_id", user.id)
-            .single()
-
-        if (!adminProfile || adminProfile.role !== "ADMIN") {
-            return NextResponse.json({ error: "Forbidden" }, { status: 403 })
-        }
 
         const adminSupabase = await createAdminClient()
         const { data: users, error } = await adminSupabase
@@ -48,22 +32,6 @@ export async function PATCH(request: NextRequest) {
     if (rateLimitResponse) return rateLimitResponse
 
     try {
-        const supabase = await createClient()
-        const { data: { user } } = await supabase.auth.getUser()
-
-        if (!user) {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-        }
-
-        const { data: adminProfile } = await supabase
-            .from("users")
-            .select("role")
-            .eq("auth_id", user.id)
-            .single()
-
-        if (!adminProfile || adminProfile.role !== "ADMIN") {
-            return NextResponse.json({ error: "Forbidden" }, { status: 403 })
-        }
 
         const body = await request.json()
         const { userId, role, isActive } = body
