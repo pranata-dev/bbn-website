@@ -197,6 +197,7 @@ export async function POST(request: NextRequest) {
                 role: "STUDENT_BASIC",
                 is_active: false,
                 auth_id: newAuthId,
+                updated_at: new Date().toISOString(),
             })
 
         if (userInsertError) {
