@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
-import { createClient, createAdminClient } from "@/lib/supabase/server"
+import { createAdminClient } from "@/lib/supabase/server"
 import { checkRateLimit } from "@/lib/rate-limit"
+import { verifyAdminToken } from "@/lib/admin-auth"
 
 export async function POST(request: NextRequest) {
     // Check rate limit
@@ -8,22 +9,18 @@ export async function POST(request: NextRequest) {
     if (rateLimitResponse) return rateLimitResponse
 
     try {
-        const supabase = await createClient()
-        const { data: { user } } = await supabase.auth.getUser()
-
-        if (!user) {
+        const adminSessionCookie = request.cookies.get("admin_session")?.value
+        if (!adminSessionCookie) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
         }
 
-        // Check admin role
-        const { data: adminProfile } = await supabase
-            .from("users")
-            .select("role")
-            .eq("auth_id", user.id)
-            .single()
-
-        if (!adminProfile || adminProfile.role !== "ADMIN") {
-            return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+        try {
+            const payload = await verifyAdminToken(adminSessionCookie)
+            if (payload.role !== "ADMIN") {
+                return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+            }
+        } catch (err) {
+            return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
         }
 
         const body = await request.json()
@@ -56,7 +53,7 @@ export async function POST(request: NextRequest) {
             .from("registrations")
             .update({
                 status: action,
-                reviewed_by: user.id,
+                reviewed_by: "ADMIN_SYSTEM", // Admin is purely static based on env via custom JWT
                 reviewed_at: new Date().toISOString(),
                 // If there's a custom DB column for notes in registrations, you can add it to the schema, 
                 // but currently schema.prisma doesn't have it for `registrations`. 
