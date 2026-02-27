@@ -6,35 +6,6 @@ const publicPaths = ["/", "/login", "/register", "/verify", "/set-password", "/a
 export async function proxy(request: NextRequest) {
     const pathname = request.nextUrl.pathname
 
-    // 1. STRICTOR Admin Route Protection (Priority #1)
-    // Intercept early to bypass Supabase auth completely for admin routes
-    if (pathname.startsWith("/admin") || pathname.startsWith("/api/admin")) {
-        const authHeader = request.headers.get("authorization")
-
-        if (authHeader) {
-            try {
-                const authValue = authHeader.split(" ")[1]
-                const [username, password] = Buffer.from(authValue, "base64").toString().split(":")
-
-                const adminUser = process.env.ADMIN_USERNAME
-                const adminPass = process.env.ADMIN_PASSWORD
-
-                // Strict check: credentials must exist in env and match
-                if (adminUser && adminPass && username === adminUser && password === adminPass) {
-                    return NextResponse.next()
-                }
-            } catch (error) {
-                console.error("Basic Auth decode error:", error)
-            }
-        }
-
-        return new NextResponse("Auth required", {
-            status: 401,
-            headers: {
-                "WWW-Authenticate": 'Basic realm="Secure Area"',
-            },
-        })
-    }
 
     // 2. Supabase SSR Authentication & Cookie Management
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
