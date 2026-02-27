@@ -26,6 +26,10 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: "Profile not found" }, { status: 404 })
         }
 
+        if (!profile.is_active) {
+            return NextResponse.json({ error: "Akun kamu sedang menunggu persetujuan admin." }, { status: 403 })
+        }
+
         // Update session token for concurrent login prevention
         const sessionToken = crypto.randomUUID()
         await supabase
