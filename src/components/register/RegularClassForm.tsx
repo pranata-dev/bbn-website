@@ -18,6 +18,7 @@ import { SUBJECTS } from "@/constants"
 export interface RegularClassFormState {
     name: string
     email: string
+    password: string
     nim: string
     subject: string
     groupSize: number
@@ -73,6 +74,21 @@ export function RegularClassForm({
                     onChange={(e) => update("email", e.target.value)}
                     className="bg-warm-beige/30 border-warm-gray"
                     required
+                />
+            </div>
+
+            {/* Password */}
+            <div className="space-y-2">
+                <Label htmlFor="reg-password">Password Baru</Label>
+                <Input
+                    id="reg-password"
+                    type="password"
+                    placeholder="Minimal 6 karakter"
+                    value={formData.password}
+                    onChange={(e) => update("password", e.target.value)}
+                    className="bg-warm-beige/30 border-warm-gray"
+                    required
+                    minLength={6}
                 />
             </div>
 

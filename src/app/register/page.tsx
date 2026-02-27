@@ -21,6 +21,7 @@ import { WHATSAPP_REGEX } from "@/constants"
 const initialRegularData: RegularClassFormState = {
     name: "",
     email: "",
+    password: "",
     nim: "",
     subject: "",
     groupSize: 1,
@@ -34,6 +35,7 @@ const initialRegularData: RegularClassFormState = {
 const initialUTSData: UTSPackageFormState = {
     name: "",
     email: "",
+    password: "",
     nim: "",
     subject: "",
     packageType: "",
