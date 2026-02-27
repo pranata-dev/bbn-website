@@ -69,9 +69,11 @@ export async function POST(request: NextRequest) {
         // 2. Create user and payment records with rollback logic
         try {
             // Create user record (without auth - will be created on approval)
+            const userId = crypto.randomUUID()
             const { data: user, error: userError } = await supabase
                 .from("users")
                 .insert({
+                    id: userId,
                     email,
                     name,
                     role: "STUDENT_BASIC",
@@ -87,6 +89,7 @@ export async function POST(request: NextRequest) {
             const { error: paymentError } = await supabase
                 .from("payments")
                 .insert({
+                    id: crypto.randomUUID(),
                     user_id: user.id,
                     proof_url: publicUrl,
                     status: "PENDING",
