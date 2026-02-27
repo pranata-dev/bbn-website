@@ -127,6 +127,9 @@ export default function UsersPage() {
                                             <SelectContent>
                                                 <SelectItem value="STUDENT_BASIC">Student Basic</SelectItem>
                                                 <SelectItem value="STUDENT_PREMIUM">Student Premium</SelectItem>
+                                                <SelectItem value="UTS_FLUX">UTS Flux</SelectItem>
+                                                <SelectItem value="UTS_SENKU">UTS Senku</SelectItem>
+                                                <SelectItem value="UTS_EINSTEIN">UTS Einstein</SelectItem>
                                                 <SelectItem value="ADMIN">Admin</SelectItem>
                                             </SelectContent>
                                         </Select>
