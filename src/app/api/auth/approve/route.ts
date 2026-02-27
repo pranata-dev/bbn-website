@@ -2,6 +2,13 @@ import { NextRequest, NextResponse } from "next/server"
 import { createAdminClient } from "@/lib/supabase/server"
 import { checkRateLimit } from "@/lib/rate-limit"
 import { verifyAdminToken } from "@/lib/admin-auth"
+import * as brevo from "@getbrevo/brevo"
+
+const apiInstance = new brevo.TransactionalEmailsApi()
+apiInstance.setApiKey(
+    brevo.TransactionalEmailsApiApiKeys.apiKey,
+    process.env.BREVO_API_KEY || ""
+)
 
 export async function POST(request: NextRequest) {
     // Check rate limit
@@ -116,6 +123,30 @@ export async function POST(request: NextRequest) {
                     { error: "Pendaftaran disetujui, tapi gagal mengaktifkan akun. Mohon hubungi admin teknis." },
                     { status: 500 }
                 )
+            }
+
+            // Send activation email via Brevo
+            try {
+                const sendSmtpEmail = new brevo.SendSmtpEmail()
+                sendSmtpEmail.subject = "Akun Belajar Bareng Nata Telah Aktif!"
+                sendSmtpEmail.htmlContent = `
+                    <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
+                        <h2 style="color: #4A3C31;">Halo, ${registration.name}!</h2>
+                        <p>Pembayaran kamu untuk pendaftaran <strong>${registration.type === "REGULAR" ? "Kelas Reguler" : "Persiapan UTS"}</strong> telah berhasil diverifikasi oleh Admin.</p>
+                        <p>Akun kamu kini sudah <strong>AKTIF</strong> dan kamu dapat langsung masuk ke dashboard belajar.</p>
+                        <br/>
+                        <a href="${process.env.NEXT_PUBLIC_APP_URL}/login" style="background-color: #4A3C31; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: bold;">Login ke Dashboard</a>
+                        <br/><br/>
+                        <p>Selamat belajar dan semoga sukses!<br/>Tim Belajar Bareng Nata</p>
+                    </div>
+                `
+                sendSmtpEmail.sender = { name: "Belajar Bareng Nata", email: "noreply@belajarbarengnata.com" } // MUST BE VERIFIED SENDER ON BREVO
+                sendSmtpEmail.to = [{ email: registration.email, name: registration.name }]
+
+                await apiInstance.sendTransacEmail(sendSmtpEmail)
+            } catch (emailError) {
+                console.error("Failed to send activation email via Brevo:", emailError)
+                // We choose not to fail the whole approval process if just the email fails
             }
         }
 
