@@ -195,7 +195,7 @@ export async function POST(request: NextRequest) {
                 email,
                 name,
                 role: "STUDENT_BASIC",
-                is_active: false,
+                is_active: type === "REGULAR",
                 auth_id: newAuthId,
                 updated_at: new Date().toISOString(),
             })
@@ -268,7 +268,7 @@ export async function POST(request: NextRequest) {
                 payment_proof_url: publicUrl,
                 calculated_price: calculatedPrice,
                 pricing_tier: pricingTier,
-                status: "PENDING",
+                status: type === "REGULAR" ? "APPROVED" : "PENDING",
             })
             .select()
             .single()
@@ -331,7 +331,9 @@ export async function POST(request: NextRequest) {
 
         return NextResponse.json(
             {
-                message: "Pendaftaran berhasil. Menunggu verifikasi admin.",
+                message: type === "REGULAR"
+                    ? "Pendaftaran berhasil! Akun kamu sudah aktif dan dapat digunakan untuk login."
+                    : "Pendaftaran berhasil. Menunggu verifikasi admin.",
                 id: registration.id,
                 ...(calculatedPrice !== null && {
                     pricing: { total: calculatedPrice, tier: pricingTier },
