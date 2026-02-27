@@ -1,5 +1,7 @@
 "use client"
 
+import "katex/dist/katex.min.css"
+import Latex from "react-latex-next"
 import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -167,7 +169,9 @@ export default function QuestionsPage() {
                                                     Bobot: {q.weight}
                                                 </Badge>
                                             </div>
-                                            <p className="text-sm text-foreground line-clamp-2">{q.text}</p>
+                                            <div className="text-sm text-foreground line-clamp-2">
+                                                <Latex>{q.text}</Latex>
+                                            </div>
                                             <p className="text-xs text-muted-foreground mt-1">
                                                 Jawaban: {q.correct_answer}
                                             </p>
@@ -193,9 +197,15 @@ export default function QuestionsPage() {
                             <Textarea
                                 value={formData.text}
                                 onChange={(e) => setFormData({ ...formData, text: e.target.value })}
-                                placeholder="Tulis soal di sini..."
+                                placeholder="Tulis soal di sini... (mendukung LaTeX dengan $$...$$ atau $...$)"
                                 className="border-warm-gray min-h-[80px]"
                             />
+                            {formData.text && (
+                                <div className="mt-2 p-3 bg-white rounded-md border border-warm-gray overflow-x-auto prose prose-sm max-w-none">
+                                    <span className="text-xs text-muted-foreground block mb-2 font-semibold">Preview:</span>
+                                    <Latex>{formData.text}</Latex>
+                                </div>
+                            )}
                         </div>
 
                         <div className="grid grid-cols-2 gap-4">
@@ -230,9 +240,14 @@ export default function QuestionsPage() {
                                 <Input
                                     value={formData[`option${opt}` as keyof typeof formData] as string}
                                     onChange={(e) => setFormData({ ...formData, [`option${opt}`]: e.target.value })}
-                                    placeholder={`Opsi ${opt}`}
+                                    placeholder={`Opsi ${opt} (mendukung LaTeX)`}
                                     className="border-warm-gray"
                                 />
+                                {formData[`option${opt}` as keyof typeof formData] && (
+                                    <div className="mt-1 p-2 bg-white rounded-md border border-warm-gray overflow-x-auto prose prose-sm max-w-none">
+                                        <Latex>{formData[`option${opt}` as keyof typeof formData] as string}</Latex>
+                                    </div>
+                                )}
                             </div>
                         ))}
 
@@ -253,9 +268,15 @@ export default function QuestionsPage() {
                             <Textarea
                                 value={formData.explanation}
                                 onChange={(e) => setFormData({ ...formData, explanation: e.target.value })}
-                                placeholder="Jelaskan jawaban yang benar..."
+                                placeholder="Jelaskan jawaban yang benar... (mendukung LaTeX)"
                                 className="border-warm-gray"
                             />
+                            {formData.explanation && (
+                                <div className="mt-2 p-3 bg-white rounded-md border border-warm-gray overflow-x-auto prose prose-sm max-w-none">
+                                    <span className="text-xs text-muted-foreground block mb-2 font-semibold">Preview:</span>
+                                    <Latex>{formData.explanation}</Latex>
+                                </div>
+                            )}
                         </div>
                     </div>
 

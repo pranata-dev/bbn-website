@@ -1,5 +1,7 @@
 "use client"
 
+import "katex/dist/katex.min.css"
+import Latex from "react-latex-next"
 import { useState, useEffect, useCallback, useRef } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { Card, CardContent } from "@/components/ui/card"
@@ -199,10 +201,10 @@ export default function TryoutAttemptPage() {
                         </Badge>
                     </div>
                     <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg font-mono text-sm font-bold ${timeLeft <= 60
-                            ? "bg-red-50 text-red-600 animate-pulse"
-                            : timeLeft <= 300
-                                ? "bg-amber-50 text-amber-600"
-                                : "bg-warm-beige text-dark-brown"
+                        ? "bg-red-50 text-red-600 animate-pulse"
+                        : timeLeft <= 300
+                            ? "bg-amber-50 text-amber-600"
+                            : "bg-warm-beige text-dark-brown"
                         }`}>
                         <Clock className="w-4 h-4" />
                         {formatTimer(timeLeft)}
@@ -215,9 +217,9 @@ export default function TryoutAttemptPage() {
             <Card className="border-warm-gray/60 shadow-sm">
                 <CardContent className="p-6 sm:p-8">
                     <div className="mb-6">
-                        <p className="text-base font-medium text-foreground leading-relaxed">
-                            {currentQuestion.text}
-                        </p>
+                        <div className="text-base font-medium text-foreground leading-relaxed prose prose-sm max-w-none">
+                            <Latex>{currentQuestion.text}</Latex>
+                        </div>>
                         {currentQuestion.image_url && (
                             <img
                                 src={currentQuestion.image_url}
@@ -240,18 +242,20 @@ export default function TryoutAttemptPage() {
                                 <button
                                     key={opt}
                                     onClick={() => handleAnswer(currentQuestion.id, opt)}
-                                    className={`w-full text-left p-4 rounded-xl border-2 transition-all text-sm ${isSelected
-                                            ? "border-dark-brown bg-dark-brown/5 text-foreground"
-                                            : "border-warm-gray/60 hover:border-soft-brown/40 text-foreground/80 hover:bg-warm-beige/50"
+                                    className={`w-full text-left p-4 rounded-xl border-2 transition-all text-sm flex items-center ${isSelected
+                                        ? "border-dark-brown bg-dark-brown/5 text-foreground"
+                                        : "border-warm-gray/60 hover:border-soft-brown/40 text-foreground/80 hover:bg-warm-beige/50"
                                         }`}
                                 >
-                                    <span className={`inline-flex items-center justify-center w-7 h-7 rounded-full text-xs font-bold mr-3 ${isSelected
-                                            ? "bg-dark-brown text-cream"
-                                            : "bg-warm-beige text-soft-brown"
+                                    <span className={`inline-flex items-center justify-center min-w-7 h-7 rounded-full text-xs font-bold mr-3 ${isSelected
+                                        ? "bg-dark-brown text-cream"
+                                        : "bg-warm-beige text-soft-brown"
                                         }`}>
                                         {opt}
                                     </span>
-                                    {optionText}
+                                    <div className="prose prose-sm max-w-none">
+                                        <Latex>{optionText}</Latex>
+                                    </div>
                                 </button>
                             )
                         })}
@@ -301,10 +305,10 @@ export default function TryoutAttemptPage() {
                                 key={q.id}
                                 onClick={() => setCurrentIndex(i)}
                                 className={`w-9 h-9 rounded-lg text-xs font-medium transition-all ${i === currentIndex
-                                        ? "bg-dark-brown text-cream"
-                                        : answers[q.id]
-                                            ? "bg-earthy-green/15 text-earthy-green border border-earthy-green/30"
-                                            : "bg-warm-beige text-muted-foreground hover:bg-warm-gray"
+                                    ? "bg-dark-brown text-cream"
+                                    : answers[q.id]
+                                        ? "bg-earthy-green/15 text-earthy-green border border-earthy-green/30"
+                                        : "bg-warm-beige text-muted-foreground hover:bg-warm-gray"
                                     }`}
                             >
                                 {i + 1}
