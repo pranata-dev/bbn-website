@@ -65,55 +65,32 @@ export async function POST(request: NextRequest) {
             .eq("id", registrationId)
 
         if (action === "APPROVED") {
-            // Check if user account already exists (edge case fallback)
+            // Check if user account already exists (it should, from registration)
             const { data: existingUser } = await adminClient
                 .from("users")
                 .select("id")
                 .eq("email", registration.email)
                 .maybeSingle()
 
-            if (existingUser) {
+            if (!existingUser) {
                 return NextResponse.json(
-                    { error: "Pendaftaran disetujui, namun akun pengguna sudah ada. Lanjutkan secara manual." },
+                    { error: "Akun pengguna tidak ditemukan. Tidak dapat mengaktifkan akun." },
                     { status: 500 }
                 )
             }
 
-            // Create Supabase auth user identity & send invitation email
-            const { data: authData, error: authError } = await adminClient.auth.admin.inviteUserByEmail(
-                registration.email,
-                {
-                    redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/set-password`,
-                }
-            )
+            // Update user status to active
+            const { error: updateError } = await adminClient
+                .from("users")
+                .update({ is_active: true })
+                .eq("id", existingUser.id)
 
-            if (authError) {
-                console.error("Auth invite error:", authError)
+            if (updateError) {
+                console.error("User activation update error:", updateError)
                 return NextResponse.json(
-                    { error: "Pendaftaran disetujui, namun gagal mengirim email profil aktivasi." },
+                    { error: "Pendaftaran disetujui, tapi gagal mengaktifkan akun. Mohon hubungi admin teknis." },
                     { status: 500 }
                 )
-            }
-
-            // Insert new user record locally 
-            if (authData.user) {
-                const { error: insertError } = await adminClient
-                    .from("users")
-                    .insert({
-                        email: registration.email,
-                        name: registration.name,
-                        role: "STUDENT_BASIC",
-                        is_active: true,
-                        auth_id: authData.user.id,
-                    })
-
-                if (insertError) {
-                    console.error("User synthesis insert error:", insertError)
-                    return NextResponse.json(
-                        { error: "Pendaftaran disetujui, tapi sinkronisasi profil gagal. Mohon hubungi admin teknis." },
-                        { status: 500 }
-                    )
-                }
             }
         }
 
