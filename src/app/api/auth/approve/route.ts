@@ -76,10 +76,38 @@ export async function POST(request: NextRequest) {
                 )
             }
 
-            // Update user status to active
+            // Determine correct role based on registration type and details
+            let userRole = "STUDENT_BASIC"
+
+            if (registration.type === "UTS") {
+                const { data: utsDetail } = await adminClient
+                    .from("uts_package_details")
+                    .select("package_type")
+                    .eq("registration_id", registration.id)
+                    .maybeSingle()
+
+                if (utsDetail) {
+                    switch (utsDetail.package_type) {
+                        case "flux_session":
+                            userRole = "UTS_FLUX"
+                            break
+                        case "senku_mode":
+                            userRole = "UTS_SENKU"
+                            break
+                        case "einstein_mode":
+                            userRole = "UTS_EINSTEIN"
+                            break
+                    }
+                }
+            }
+
+            // Update user status to active and sync role
             const { error: updateError } = await adminClient
                 .from("users")
-                .update({ is_active: true })
+                .update({
+                    is_active: true,
+                    role: userRole
+                })
                 .eq("id", existingUser.id)
 
             if (updateError) {
