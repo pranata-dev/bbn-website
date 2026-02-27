@@ -25,7 +25,8 @@ export async function GET(request: NextRequest) {
             return NextResponse.json({ error: "Forbidden" }, { status: 403 })
         }
 
-        const { data: users, error } = await supabase
+        const adminSupabase = await createAdminClient()
+        const { data: users, error } = await adminSupabase
             .from("users")
             .select("*")
             .order("created_at", { ascending: false })
@@ -71,7 +72,8 @@ export async function PATCH(request: NextRequest) {
         if (role) updateData.role = role
         if (typeof isActive === "boolean") updateData.is_active = isActive
 
-        const { error } = await supabase
+        const adminSupabase = await createAdminClient()
+        const { error } = await adminSupabase
             .from("users")
             .update(updateData)
             .eq("id", userId)

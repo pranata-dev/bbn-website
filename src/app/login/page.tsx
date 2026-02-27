@@ -45,6 +45,16 @@ function LoginContent() {
                 const res = await fetch(`/api/auth/session`, { method: "POST" })
                 const data = await res.json()
 
+                if (!res.ok) {
+                    await supabase.auth.signOut()
+                    throw new Error(data.error || "Gagal mengambil sesi.")
+                }
+
+                if (!data.isActive) {
+                    await supabase.auth.signOut()
+                    throw new Error("Akun kamu sedang menunggu persetujuan admin.")
+                }
+
                 if (data.role === "ADMIN") {
                     router.push("/admin")
                 } else {
