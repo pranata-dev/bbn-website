@@ -219,7 +219,7 @@ export default function TryoutAttemptPage() {
                     <div className="mb-6">
                         <div className="text-base font-medium text-foreground leading-relaxed prose prose-sm max-w-none">
                             <Latex>{currentQuestion.text}</Latex>
-                        </div>>
+                        </div>
                         {currentQuestion.image_url && (
                             <img
                                 src={currentQuestion.image_url}
