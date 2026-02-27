@@ -50,11 +50,6 @@ function LoginContent() {
                     throw new Error(data.error || "Gagal mengambil sesi.")
                 }
 
-                if (!data.isActive) {
-                    await supabase.auth.signOut()
-                    throw new Error("Akun kamu sedang menunggu persetujuan admin.")
-                }
-
                 if (data.role === "ADMIN") {
                     router.push("/admin")
                 } else {
