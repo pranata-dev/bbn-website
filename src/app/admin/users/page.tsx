@@ -118,7 +118,7 @@ export default function UsersPage() {
                                         </Badge>
 
                                         <Select
-                                            value={u.role}
+                                            value={u.role === "STUDENT_BASIC" ? "STUDENT_PREMIUM" : u.role}
                                             onValueChange={(value) => handleUpdateRole(u.id, value)}
                                         >
                                             <SelectTrigger className="w-[140px] h-8 text-xs border-warm-gray">

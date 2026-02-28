@@ -1,5 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card"
-import { User, Mail, Shield, Calendar, Package } from "lucide-react"
+import { User, Mail, Calendar, Package } from "lucide-react"
 import { createClient } from "@/lib/supabase/server"
 import { format } from "date-fns"
 import { id } from "date-fns/locale"
@@ -20,8 +20,31 @@ export default async function ProfilePage() {
 
     const userName = dbUser?.name || "User"
     const userEmail = dbUser?.email || authUser?.email || "-"
-    const userRole = dbUser?.role || "STUDENT_BASIC"
-    const userPackage = dbUser?.package_type || "Belum Ada Paket"
+    const userRole = dbUser?.role || "STUDENT_PREMIUM"
+
+    let userPackage = dbUser?.package_type
+
+    // Fallback logic for unsynced historic data
+    if (!userPackage) {
+        switch (userRole) {
+            case "UTS_EINSTEIN":
+                userPackage = "EINSTEIN"
+                break
+            case "UTS_SENKU":
+                userPackage = "SENKU"
+                break
+            case "UTS_FLUX":
+                userPackage = "FLUX"
+                break
+            case "STUDENT_PREMIUM":
+                userPackage = "REGULER"
+                break
+            default:
+                userPackage = "Belum Ada Paket"
+                break
+        }
+    }
+
     const joinDate = dbUser?.created_at
         ? format(new Date(dbUser.created_at), "dd MMMM yyyy", { locale: id })
         : "-"
@@ -50,13 +73,6 @@ export default async function ProfilePage() {
                             <div>
                                 <p className="text-xs text-muted-foreground">Email</p>
                                 <p className="text-sm font-medium text-foreground">{userEmail}</p>
-                            </div>
-                        </div>
-                        <div className="flex items-center gap-3 p-4 rounded-xl bg-warm-beige">
-                            <Shield className="w-5 h-5 text-soft-brown" />
-                            <div>
-                                <p className="text-xs text-muted-foreground">Role</p>
-                                <p className="text-sm font-medium text-foreground">{userRole}</p>
                             </div>
                         </div>
                         <div className="flex items-center gap-3 p-4 rounded-xl bg-warm-beige">
