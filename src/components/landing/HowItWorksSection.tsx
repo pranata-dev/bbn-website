@@ -1,4 +1,5 @@
 import { UserPlus, CreditCard, CheckCircle, BookOpen } from "lucide-react"
+import { FadeInUp, StaggerContainer, StaggerItem } from "@/components/animations"
 
 const steps = [
     {
@@ -32,7 +33,7 @@ export function HowItWorksSection() {
         <section id="cara-kerja" className="section-padding">
             <div className="container-narrow mx-auto">
                 {/* Section header */}
-                <div className="text-center mb-16">
+                <FadeInUp className="text-center mb-16">
                     <span className="inline-block text-sm font-semibold text-soft-brown uppercase tracking-wider mb-3">
                         Cara Kerja
                     </span>
@@ -42,12 +43,12 @@ export function HowItWorksSection() {
                     <p className="text-muted-foreground max-w-2xl mx-auto text-balance">
                         Proses pendaftaran yang simpel. Fokusmu hanya satu: belajar fisika.
                     </p>
-                </div>
+                </FadeInUp>
 
                 {/* Steps */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                     {steps.map((step, index) => (
-                        <div key={step.step} className="relative text-center group">
+                        <StaggerItem key={step.step} className="relative text-center group">
                             {/* Connector line */}
                             {index < steps.length - 1 && (
                                 <div className="hidden lg:block absolute top-10 left-[60%] w-[80%] h-[2px] bg-gradient-to-r from-warm-gray to-warm-gray/30" />
@@ -63,9 +64,9 @@ export function HowItWorksSection() {
                                 <h3 className="text-lg font-semibold text-foreground mb-2">{step.title}</h3>
                                 <p className="text-sm text-muted-foreground">{step.description}</p>
                             </div>
-                        </div>
+                        </StaggerItem>
                     ))}
-                </div>
+                </StaggerContainer>
             </div>
         </section>
     )

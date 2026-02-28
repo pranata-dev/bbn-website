@@ -1,6 +1,7 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Check, ArrowRight } from "lucide-react"
+import { FadeInUp, HoverScale, StaggerContainer, StaggerItem } from "@/components/animations"
 
 const plans = [
     {
@@ -39,7 +40,7 @@ export function PricingSection() {
         <section id="harga" className="section-padding">
             <div className="container-narrow mx-auto">
                 {/* Section header */}
-                <div className="text-center mb-16">
+                <FadeInUp className="text-center mb-16">
                     <span className="inline-block text-sm font-semibold text-soft-brown uppercase tracking-wider mb-3">
                         Harga
                     </span>
@@ -49,12 +50,12 @@ export function PricingSection() {
                     <p className="text-muted-foreground max-w-2xl mx-auto text-balance">
                         Pilih paket yang sesuai dengan kebutuhanmu. Upgrade kapan saja.
                     </p>
-                </div>
+                </FadeInUp>
 
                 {/* Pricing cards */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-3xl mx-auto">
+                <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-3xl mx-auto">
                     {plans.map((plan) => (
-                        <div
+                        <StaggerItem
                             key={plan.name}
                             className={`relative p-8 rounded-2xl border transition-all duration-300 ${plan.highlighted
                                 ? "bg-dark-brown text-cream border-dark-brown shadow-xl shadow-dark-brown/20"
@@ -97,21 +98,23 @@ export function PricingSection() {
                                 ))}
                             </ul>
 
-                            <Button
-                                asChild
-                                className={`w-full h-11 ${plan.highlighted
-                                    ? "bg-cream text-dark-brown hover:bg-warm-beige"
-                                    : "bg-dark-brown text-cream hover:bg-soft-brown"
-                                    }`}
-                            >
-                                <Link href={plan.href}>
-                                    {plan.cta}
-                                    <ArrowRight className="ml-2 w-4 h-4" />
-                                </Link>
-                            </Button>
-                        </div>
+                            <HoverScale>
+                                <Button
+                                    asChild
+                                    className={`w-full h-11 ${plan.highlighted
+                                        ? "bg-cream text-dark-brown hover:bg-warm-beige"
+                                        : "bg-dark-brown text-cream hover:bg-soft-brown"
+                                        }`}
+                                >
+                                    <Link href={plan.href}>
+                                        {plan.cta}
+                                        <ArrowRight className="ml-2 w-4 h-4" />
+                                    </Link>
+                                </Button>
+                            </HoverScale>
+                        </StaggerItem>
                     ))}
-                </div>
+                </StaggerContainer>
             </div>
         </section>
     )

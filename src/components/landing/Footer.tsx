@@ -1,6 +1,7 @@
 import Link from "next/link"
 import { BookOpen, Mail } from "lucide-react"
 import { APP_NAME } from "@/constants"
+import { FadeInUp } from "@/components/animations"
 
 const footerLinks = {
     platform: [
@@ -18,7 +19,7 @@ const footerLinks = {
 export function Footer() {
     return (
         <footer className="bg-dark-brown text-cream">
-            <div className="container-narrow mx-auto px-4 sm:px-6 lg:px-8 py-16">
+            <FadeInUp className="container-narrow mx-auto px-4 sm:px-6 lg:px-8 py-16">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
                     {/* Brand */}
                     <div className="md:col-span-1">
@@ -81,7 +82,7 @@ export function Footer() {
                         Made with Love by LumoraLabs
                     </p>
                 </div>
-            </div>
+            </FadeInUp>
         </footer>
     )
 }

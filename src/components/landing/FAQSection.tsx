@@ -4,6 +4,7 @@ import {
     AccordionItem,
     AccordionTrigger,
 } from "@/components/ui/accordion"
+import { FadeInUp } from "@/components/animations"
 
 const faqs = [
     {
@@ -52,7 +53,7 @@ export function FAQSection() {
     return (
         <section id="faq" className="section-padding bg-warm-beige/40">
             <div className="container-narrow mx-auto">
-                <div className="text-center mb-16">
+                <FadeInUp className="text-center mb-16">
                     <span className="inline-block text-sm font-semibold text-soft-brown uppercase tracking-wider mb-3">
                         FAQ
                     </span>
@@ -62,9 +63,9 @@ export function FAQSection() {
                     <p className="text-muted-foreground max-w-2xl mx-auto text-balance">
                         Temukan jawaban untuk pertanyaan umum tentang platform kami.
                     </p>
-                </div>
+                </FadeInUp>
 
-                <div className="max-w-3xl mx-auto">
+                <FadeInUp className="max-w-3xl mx-auto">
                     <Accordion type="single" collapsible className="space-y-3">
                         {faqs.map((faq, index) => (
                             <AccordionItem
@@ -81,7 +82,7 @@ export function FAQSection() {
                             </AccordionItem>
                         ))}
                     </Accordion>
-                </div>
+                </FadeInUp>
             </div>
         </section>
     )

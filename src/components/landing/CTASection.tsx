@@ -1,6 +1,7 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { ArrowRight } from "lucide-react"
+import { FadeInUp, HoverScale } from "@/components/animations"
 
 export function CTASection() {
     return (
@@ -13,7 +14,7 @@ export function CTASection() {
                         <div className="absolute bottom-0 left-0 w-48 h-48 bg-earthy-gold/15 rounded-full blur-3xl" />
                     </div>
 
-                    <div className="relative z-10">
+                    <FadeInUp className="relative z-10">
                         <h2 className="text-3xl sm:text-4xl font-bold text-cream mb-4 text-balance">
                             Siap Tingkatkan Nilai Fisikamu?
                         </h2>
@@ -22,25 +23,29 @@ export function CTASection() {
                             terstruktur dan menyenangkan.
                         </p>
                         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                            <Button
-                                size="lg"
-                                asChild
-                                className="bg-cream text-dark-brown hover:bg-warm-beige px-8 h-12 text-base"
-                            >
-                                <Link href="/register">
-                                    Daftar Sekarang
-                                    <ArrowRight className="ml-2 w-4 h-4" />
-                                </Link>
-                            </Button>
-                            <Button
-                                size="lg"
-                                asChild
-                                className="bg-transparent shadow-none border-2 border-cream/50 text-cream hover:bg-cream hover:text-dark-brown px-8 h-12 text-base"
-                            >
-                                <a href="#cara-kerja">Pelajari Lebih Lanjut</a>
-                            </Button>
+                            <HoverScale>
+                                <Button
+                                    size="lg"
+                                    asChild
+                                    className="bg-cream text-dark-brown hover:bg-warm-beige px-8 h-12 text-base"
+                                >
+                                    <Link href="/register">
+                                        Daftar Sekarang
+                                        <ArrowRight className="ml-2 w-4 h-4" />
+                                    </Link>
+                                </Button>
+                            </HoverScale>
+                            <HoverScale>
+                                <Button
+                                    size="lg"
+                                    asChild
+                                    className="bg-transparent shadow-none border-2 border-cream/50 text-cream hover:bg-cream hover:text-dark-brown px-8 h-12 text-base"
+                                >
+                                    <a href="#cara-kerja">Pelajari Lebih Lanjut</a>
+                                </Button>
+                            </HoverScale>
                         </div>
-                    </div>
+                    </FadeInUp>
                 </div>
             </div>
         </section>

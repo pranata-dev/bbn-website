@@ -6,6 +6,7 @@ import {
     ShieldCheck,
     Layers,
 } from "lucide-react"
+import { FadeInUp, StaggerContainer, StaggerItem } from "@/components/animations"
 
 const features = [
     {
@@ -51,7 +52,7 @@ export function FeaturesSection() {
         <section id="fitur" className="section-padding bg-warm-beige/40">
             <div className="container-narrow mx-auto">
                 {/* Section header */}
-                <div className="text-center mb-16">
+                <FadeInUp className="text-center mb-16">
                     <span className="inline-block text-sm font-semibold text-soft-brown uppercase tracking-wider mb-3">
                         Fitur Unggulan
                     </span>
@@ -62,12 +63,12 @@ export function FeaturesSection() {
                         Dirancang khusus untuk mahasiswa Fisika semester 1 dan 2 yang ingin mempersiapkan diri
                         dengan lebih terstruktur dan efisien.
                     </p>
-                </div>
+                </FadeInUp>
 
                 {/* Features grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {features.map((feature, index) => (
-                        <div
+                        <StaggerItem
                             key={feature.title}
                             className="group p-6 rounded-2xl bg-white border border-warm-gray/60 hover:border-soft-brown/30 hover:shadow-lg hover:shadow-soft-brown/5 transition-all duration-300"
                         >
@@ -76,9 +77,9 @@ export function FeaturesSection() {
                             </div>
                             <h3 className="text-lg font-semibold text-foreground mb-2">{feature.title}</h3>
                             <p className="text-sm text-muted-foreground leading-relaxed">{feature.description}</p>
-                        </div>
+                        </StaggerItem>
                     ))}
-                </div>
+                </StaggerContainer>
             </div>
         </section>
     )
