@@ -9,9 +9,34 @@ import {
     TrendingUp,
     ArrowRight,
     Clock,
+    Lock,
+    Unlock,
 } from "lucide-react"
+import { createClient } from "@/lib/supabase/server"
+import { getPackageFeatures } from "@/lib/package-features"
+import { PackageType } from "@prisma/client"
 
-export default function DashboardPage() {
+export default async function DashboardPage() {
+    const supabase = await createClient()
+    const { data: { user: authUser } } = await supabase.auth.getUser()
+
+    let dbUser = null
+    if (authUser) {
+        const { data } = await supabase
+            .from("users")
+            .select("package_type, tryout_attempt_used")
+            .eq("auth_id", authUser.id)
+            .single()
+
+        dbUser = data
+    }
+
+    const packageType = (dbUser?.package_type as PackageType) || null
+    const tryoutAttemptUsed = dbUser?.tryout_attempt_used || 0
+    const features = getPackageFeatures(packageType)
+
+    // Remaining Tryout Quotas
+    const remainingTryouts = Math.max(0, features.tryoutLimit - tryoutAttemptUsed)
     // These would be fetched from API in production
     const stats = [
         { label: "Tryout Selesai", value: "0", icon: FileText, color: "text-dark-brown" },
@@ -49,30 +74,103 @@ export default function DashboardPage() {
                 ))}
             </div>
 
-            {/* Quick actions */}
+            {/* Quick actions & Package specifics */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Available tryouts */}
-                <Card className="border-warm-gray/60">
-                    <CardHeader className="flex flex-row items-center justify-between">
-                        <CardTitle className="text-lg">Tryout Tersedia</CardTitle>
-                        <Button variant="ghost" size="sm" asChild>
-                            <Link href="/dashboard/tryouts">
-                                Lihat Semua
-                                <ArrowRight className="ml-1 w-4 h-4" />
-                            </Link>
-                        </Button>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="flex flex-col items-center justify-center py-8 text-center">
-                            <div className="w-12 h-12 rounded-full bg-warm-beige flex items-center justify-center mb-3">
-                                <FileText className="w-6 h-6 text-muted-foreground" />
+                {/* Dynamically Replaced Available Tryouts based on Package */}
+                {packageType === "FLUX" ? (
+                    <Card className="border-warm-gray/60 bg-warm-gray/10">
+                        <CardHeader className="flex flex-row items-center justify-between pb-2">
+                            <CardTitle className="text-lg text-muted-foreground flex items-center gap-2">
+                                <Lock className="w-4 h-4" /> Tryout Terkunci
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="flex flex-col items-center justify-center py-6 text-center">
+                                <div className="w-12 h-12 rounded-full bg-warm-gray/20 flex items-center justify-center mb-3">
+                                    <FileText className="w-6 h-6 text-muted-foreground/50" />
+                                </div>
+                                <p className="text-sm font-medium text-foreground mb-1">
+                                    Fitur TryOut tidak tersedia di paket ini.
+                                </p>
+                                <p className="text-xs text-muted-foreground mb-4">
+                                    Upgrade ke Berotak Senku Mode untuk membuka akses TryOut.
+                                </p>
+                                <Button variant="outline" className="w-full text-xs" asChild>
+                                    <a href="https://wa.me/6281234567890?text=Halo%20Admin%2C%20saya%20ingin%20upgrade%20paket%20ke%20Senku%20Mode" target="_blank" rel="noopener noreferrer">
+                                        Upgrade Sekarang
+                                    </a>
+                                </Button>
                             </div>
-                            <p className="text-sm text-muted-foreground">
-                                Belum ada tryout aktif. Cek kembali nanti!
-                            </p>
-                        </div>
-                    </CardContent>
-                </Card>
+                        </CardContent>
+                    </Card>
+                ) : packageType === "SENKU" || packageType === "EINSTEIN" ? (
+                    <Card className="border-earthy-gold/50 shadow-sm shadow-earthy-gold/10">
+                        <CardHeader className="flex flex-row items-center justify-between pb-2">
+                            <CardTitle className="text-lg flex items-center gap-2">
+                                <Unlock className="w-4 h-4 text-earthy-gold" /> Kuota Tryout
+                            </CardTitle>
+                            <Badge variant={remainingTryouts > 0 ? "default" : "destructive"}>
+                                {remainingTryouts} Tersisa
+                            </Badge>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="flex flex-col items-center justify-center py-6 text-center">
+                                <div className="w-12 h-12 rounded-full bg-earthy-gold/20 flex items-center justify-center mb-3">
+                                    <FileText className="w-6 h-6 text-earthy-gold" />
+                                </div>
+                                {remainingTryouts === 0 ? (
+                                    <>
+                                        <p className="text-sm font-medium text-destructive mb-1">
+                                            Kuota TryOut telah habis.
+                                        </p>
+                                        <p className="text-xs text-muted-foreground mb-4">
+                                            {packageType === "SENKU" ? "Upgrade ke Einstein Mode untuk tambahan kuota!" : "Hubungi admin untuk menambah kuota Tryout kamu."}
+                                        </p>
+                                        <Button variant="outline" className="w-full text-xs" asChild>
+                                            <a href="https://wa.me/6281234567890" target="_blank" rel="noopener noreferrer">
+                                                {packageType === "SENKU" ? "Upgrade Sekarang" : "Hubungi Admin"}
+                                            </a>
+                                        </Button>
+                                    </>
+                                ) : (
+                                    <>
+                                        <p className="text-sm font-medium text-foreground mb-1">
+                                            Kamu memiliki {remainingTryouts} kuota tryout.
+                                        </p>
+                                        <p className="text-xs text-muted-foreground mb-4">
+                                            Persiapkan dirimu dan mulai ujian simulasi sekarang.
+                                        </p>
+                                        <Button className="w-full text-xs bg-dark-brown text-cream hover:bg-soft-brown" asChild>
+                                            <Link href="/dashboard/tryouts">Mulai Tryout</Link>
+                                        </Button>
+                                    </>
+                                )}
+                            </div>
+                        </CardContent>
+                    </Card>
+                ) : (
+                    <Card className="border-warm-gray/60">
+                        <CardHeader className="flex flex-row items-center justify-between pb-2">
+                            <CardTitle className="text-lg">Tryout Tersedia</CardTitle>
+                            <Button variant="ghost" size="sm" asChild>
+                                <Link href="/dashboard/tryouts">
+                                    Lihat Semua
+                                    <ArrowRight className="ml-1 w-4 h-4" />
+                                </Link>
+                            </Button>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="flex flex-col items-center justify-center py-8 text-center">
+                                <div className="w-12 h-12 rounded-full bg-warm-beige flex items-center justify-center mb-3">
+                                    <FileText className="w-6 h-6 text-muted-foreground" />
+                                </div>
+                                <p className="text-sm text-muted-foreground">
+                                    Belum ada tryout aktif. Cek kembali nanti!
+                                </p>
+                            </div>
+                        </CardContent>
+                    </Card>
+                )}
 
                 {/* Recent activity */}
                 <Card className="border-warm-gray/60">
