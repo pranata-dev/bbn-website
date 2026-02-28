@@ -15,16 +15,23 @@ import {
     Menu,
     X,
 } from "lucide-react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { APP_NAME } from "@/constants"
+import { getPackageFeatures, PackageFeatures } from "@/lib/package-features"
+import { PackageType } from "@prisma/client"
+import { Lock } from "lucide-react"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 
+// Base nav structure without features
 const navItems = [
-    { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { href: "/dashboard/tryouts", label: "Tryout", icon: FileText },
-    { href: "/dashboard/leaderboard", label: "Leaderboard", icon: Trophy },
-    { href: "/dashboard/history", label: "Riwayat", icon: History },
-    { href: "/dashboard/profile", label: "Profil", icon: User },
+    { id: "dashboard", href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, requiredFeature: null },
+    { id: "materi", href: "/dashboard/materi", label: "Materi", icon: BookOpen, requiredFeature: null },
+    { id: "latihan", href: "/dashboard/latihan", label: "Latihan Soal", icon: FileText, requiredFeature: "canAccessLatihan" as keyof PackageFeatures },
+    { id: "tryouts", href: "/dashboard/tryouts", label: "Tryout", icon: FileText, requiredFeature: "canAccessTryout" as keyof PackageFeatures },
+    { id: "leaderboard", href: "/dashboard/leaderboard", label: "Leaderboard", icon: Trophy, requiredFeature: null },
+    { id: "history", href: "/dashboard/history", label: "Riwayat", icon: History, requiredFeature: null },
+    { id: "profile", href: "/dashboard/profile", label: "Profil", icon: User, requiredFeature: null },
 ]
 
 export default function DashboardLayout({
@@ -35,6 +42,35 @@ export default function DashboardLayout({
     const pathname = usePathname()
     const router = useRouter()
     const [sidebarOpen, setSidebarOpen] = useState(false)
+    const [packageType, setPackageType] = useState<PackageType | null>(null)
+    const [isLoadingUser, setIsLoadingUser] = useState(true)
+
+    useEffect(() => {
+        const fetchUserPackage = async () => {
+            const supabase = createClient()
+            const { data: { user } } = await supabase.auth.getUser()
+
+            if (user) {
+                // In a real app we'd fetch this from our DB API, but for immediate rendering
+                // we'll assume the API provides it or we default to null pending an API call.
+                // Let's create an API call to get the current user's DB profile.
+                try {
+                    const response = await fetch('/api/user/profile')
+                    if (response.ok) {
+                        const data = await response.json()
+                        setPackageType(data.packageType || null)
+                    }
+                } catch (error) {
+                    console.error("Failed to fetch user profile", error)
+                }
+            }
+            setIsLoadingUser(false)
+        }
+
+        fetchUserPackage()
+    }, [])
+
+    const packageFeatures = getPackageFeatures(packageType)
 
     const handleLogout = async () => {
         const supabase = createClient()
@@ -58,23 +94,66 @@ export default function DashboardLayout({
             {/* Navigation */}
             <ScrollArea className="flex-1 p-4">
                 <nav className="space-y-1">
-                    {navItems.map((item) => {
-                        const isActive = pathname === item.href
-                        return (
-                            <Link
-                                key={item.href}
-                                href={item.href}
-                                onClick={() => setSidebarOpen(false)}
-                                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${isActive
+                    <TooltipProvider>
+                        {navItems.map((item) => {
+                            const isActive = pathname === item.href
+                            // Check if item is locked based on features
+                            let isLocked = false
+                            if (item.requiredFeature && !packageFeatures[item.requiredFeature]) {
+                                isLocked = true
+                            }
+
+                            // Do not show tryout menu if they are explicitly reguler (as per design spec, but wait, the spec said "Tryout (locked for flux)". So we explicitly check logic matching the instructions.
+                            if (item.id === "tryouts" && packageType === "FLUX") {
+                                isLocked = true
+                            }
+
+                            const navContent = (
+                                <div
+                                    className={`flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${isActive && !isLocked
                                         ? "bg-dark-brown text-cream"
-                                        : "text-muted-foreground hover:bg-warm-beige hover:text-foreground"
-                                    }`}
-                            >
-                                <item.icon className="w-4 h-4" />
-                                {item.label}
-                            </Link>
-                        )
-                    })}
+                                        : isLocked
+                                            ? "text-muted-foreground/50 bg-warm-gray/10 cursor-not-allowed"
+                                            : "text-muted-foreground hover:bg-warm-beige hover:text-foreground"
+                                        }`}
+                                >
+                                    <div className="flex items-center gap-3">
+                                        <item.icon className="w-4 h-4" />
+                                        {item.label}
+                                    </div>
+                                    {isLocked && <Lock className="w-4 h-4 text-muted-foreground/60" />}
+                                </div>
+                            )
+
+                            if (isLocked) {
+                                // specifically for Tryout -> Flux spec
+                                let lockdownMessage = "Fitur ini tidak tersedia di paket Anda."
+                                if (item.id === "tryouts" && packageType === "FLUX") {
+                                    lockdownMessage = "Upgrade ke Berotak Senku Mode untuk membuka TryOut"
+                                }
+                                return (
+                                    <Tooltip key={item.id}>
+                                        <TooltipTrigger asChild>
+                                            <div className="w-full text-left">{navContent}</div>
+                                        </TooltipTrigger>
+                                        <TooltipContent side="right">
+                                            <p>{lockdownMessage}</p>
+                                        </TooltipContent>
+                                    </Tooltip>
+                                )
+                            }
+
+                            return (
+                                <Link
+                                    key={item.id}
+                                    href={item.href}
+                                    onClick={() => setSidebarOpen(false)}
+                                >
+                                    {navContent}
+                                </Link>
+                            )
+                        })}
+                    </TooltipProvider>
                 </nav>
             </ScrollArea>
 
