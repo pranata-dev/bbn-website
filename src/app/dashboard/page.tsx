@@ -24,7 +24,7 @@ export default async function DashboardPage() {
     if (authUser) {
         const { data } = await supabase
             .from("users")
-            .select("package_type, tryout_attempt_used")
+            .select("package_type, tryout_attempt_used, role")
             .eq("auth_id", authUser.id)
             .single()
 
@@ -33,7 +33,7 @@ export default async function DashboardPage() {
 
     const packageType = (dbUser?.package_type as PackageType) || null
     const tryoutAttemptUsed = dbUser?.tryout_attempt_used || 0
-    const features = getPackageFeatures(packageType)
+    const features = getPackageFeatures(packageType, dbUser?.role)
 
     // Remaining Tryout Quotas
     const remainingTryouts = Math.max(0, features.tryoutLimit - tryoutAttemptUsed)
@@ -77,7 +77,7 @@ export default async function DashboardPage() {
             {/* Quick actions & Package specifics */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Dynamically Replaced Available Tryouts based on Package */}
-                {packageType === "FLUX" ? (
+                {!features.canAccessTryout ? (
                     <Card className="border-warm-gray/60 bg-warm-gray/10">
                         <CardHeader className="flex flex-row items-center justify-between pb-2">
                             <CardTitle className="text-lg text-muted-foreground flex items-center gap-2">
