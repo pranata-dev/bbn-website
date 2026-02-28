@@ -138,7 +138,7 @@ export async function POST(request: NextRequest) {
                             <p>Selamat belajar dan semoga sukses!<br/>Tim Belajar Bareng Nata</p>
                         </div>
                     `,
-                    sender: { name: "Belajar Bareng Nata", email: "noreply@belajarbarengnata.com" },
+                    sender: { name: "Belajar Bareng Nata", email: "dzulfikaryudha@gmail.com" },
                     to: [{ email: registration.email, name: registration.name }]
                 })
             } catch (emailError) {
