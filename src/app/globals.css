@@ -2,8 +2,6 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
-@custom-variant dark (&:is(.dark *));
-
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -92,64 +90,7 @@
   --sidebar-ring: #8B7355;
 }
 
-:root.dark {
-  /* Base background: Deep warm charcoal */
-  --background: #23211D;
 
-  /* Surface cards: Slightly lighter, subtle elevation */
-  --card: #2B2824;
-  --card-foreground: #EAE4D9;
-
-  --popover: #2B2824;
-  --popover-foreground: #EAE4D9;
-
-  /* Text Colors */
-  --foreground: #EAE4D9;
-  /* Primary text: soft warm off-white */
-  --muted-foreground: #A39B8E;
-  /* Secondary text: muted beige/stone */
-
-  /* Accent color: Muted gold / bronze */
-  --primary: #AF9153;
-  --primary-foreground: #23211D;
-  /* Dark text for primary buttons */
-
-  /* Secondary / Hover elements */
-  --secondary: #36322C;
-  --secondary-foreground: #EAE4D9;
-
-  --muted: #36322C;
-
-  --accent: #36322C;
-  --accent-foreground: #EAE4D9;
-
-  /* Borders and Disabled text (low opacity warm gray) */
-  --border: #3E3A33;
-  --input: #3E3A33;
-  --ring: #AF9153;
-
-  /* Charts & UI Indicators - Warm, low contrast */
-  --chart-1: #AF9153;
-  /* Muted gold */
-  --chart-2: #84917A;
-  /* Muted earthy green */
-  --chart-3: #9F8D77;
-  /* Muted stone */
-  --chart-4: #8B7C67;
-  /* Warm gray-brown */
-  --chart-5: #6E6352;
-  /* Darker warm gray */
-
-  /* Sidebar */
-  --sidebar: #282521;
-  --sidebar-foreground: #EAE4D9;
-  --sidebar-primary: #AF9153;
-  --sidebar-primary-foreground: #23211D;
-  --sidebar-accent: #36322C;
-  --sidebar-accent-foreground: #EAE4D9;
-  --sidebar-border: #3E3A33;
-  --sidebar-ring: #AF9153;
-}
 
 
 @layer base {
