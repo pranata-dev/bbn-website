@@ -17,7 +17,7 @@ export default function HomePage() {
       <HeroSection />
       <FeaturesSection />
       <HowItWorksSection />
-      <TestimonialsSection />
+      {/* <TestimonialsSection /> */}
       <PricingSection />
       <FAQSection />
       <CTASection />

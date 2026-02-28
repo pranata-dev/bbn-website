@@ -9,7 +9,7 @@ const faqs = [
     {
         question: "Apa itu Belajar Bareng Nata?",
         answer:
-            "Belajar Bareng Nata adalah platform tutor fisika personal yang dirancang khusus untuk mahasiswa Fisika semester 2. Platform ini menyediakan tryout online, bank soal, analisis performa, dan leaderboard untuk membantu persiapan ujian Fisika Dasar 2.",
+            "Belajar Bareng Nata adalah platform tutor fisika personal yang dirancang khusus untuk mahasiswa Fisika semester 1 dan 2. Platform ini menyediakan tryout online, bank soal, analisis performa, dan leaderboard untuk membantu persiapan ujian Fisika!",
     },
     {
         question: "Bagaimana cara mendaftar?",
@@ -17,9 +17,9 @@ const faqs = [
             "Kamu bisa mendaftar dengan mengisi formulir registrasi dan mengunggah bukti pembayaran. Setelah admin memverifikasi pembayaran, kamu akan menerima email aktivasi untuk mengatur password dan mulai menggunakan platform.",
     },
     {
-        question: "Materi apa saja yang tersedia?",
+        question: "Mata kuliah dan materi apa saja yang tersedia?",
         answer:
-            "Platform ini mencakup materi Fisika Dasar 2 seperti Listrik, Magnetisme, Hukum Gauss, Kapasitansi, Induksi Elektromagnetik, Rangkaian AC, Gelombang Elektromagnetik, dan Optika.",
+            "Saat ini tersedia mata kuliah Fisika Dasar 2 dan Fisika-Matematika! Materi yang tersedia mulai dari pekan 1 hingga pekan 7 perkuliahan!",
     },
     {
         question: "Apakah soal-soalnya diacak?",

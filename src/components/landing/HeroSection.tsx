@@ -30,8 +30,8 @@ export function HeroSection() {
 
                 {/* Subtitle */}
                 <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 animate-fade-up text-balance" style={{ animationDelay: "0.1s" }}>
-                    Platform tryout dan latihan soal Fisika Dasar 2 yang dirancang untuk membantumu
-                    memahami konsep, mengukur kemampuan, dan siap menghadapi ujian.
+                    Platform tryout dan latihan soal mata kuliah Fisika yang dirancang untuk membantumu
+                    memahami konsep, mengukur kemampuan, dan pastinya siap menghadapi ujian!
                 </p>
 
                 {/* CTA Buttons */}

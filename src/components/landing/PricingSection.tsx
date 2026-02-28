@@ -4,35 +4,32 @@ import { Check, ArrowRight } from "lucide-react"
 
 const plans = [
     {
-        name: "Basic",
-        price: "Gratis",
-        period: "",
-        description: "Akses dasar untuk memulai latihan fisika.",
+        name: "Kelas Reguler",
+        price: "Mulai Rp 40.000",
+        period: "/ sesi",
+        description: "Belajar fisika secara privat atau dalam grup kecil dengan jadwal yang fleksibel. Tentukan sendiri materi dan target belajarmu!",
         features: [
-            "Akses tryout terbatas",
-            "Lihat skor dan jawaban benar",
-            "Riwayat tryout",
-            "Ranking leaderboard",
+            "Jadwal fleksibel",
+            "Bisa grup/privat",
+            "Materi custom",
         ],
-        cta: "Daftar Gratis",
-        href: "/register",
+        cta: "Daftar Kelas Reguler",
+        href: "/register?type=REGULAR",
         highlighted: false,
     },
     {
-        name: "Premium",
-        price: "Rp 49.000",
-        period: "/semester",
-        description: "Akses penuh semua fitur dan materi.",
+        name: "Persiapan UTS",
+        price: "Mulai Rp 50.000",
+        period: "/ paket",
+        description: "Siapkan dirimu menghadapi UTS dengan penuh percaya diri lewat simulasi ujian, pembahasan terperinci, dan analisis mendalam.",
         features: [
-            "Semua fitur Basic",
-            "Akses semua tryout",
-            "Analisis performa per materi",
-            "Pembahasan soal lengkap",
-            "Soal premium eksklusif",
-            "Prioritas support",
+            "Latihan soal terstruktur",
+            "Simulasi Try Out UTS",
+            "Pembahasan lengkap",
+            "Analisis performa mendalam",
         ],
-        cta: "Daftar Premium",
-        href: "/register?plan=premium",
+        cta: "Lihat Paket UTS",
+        href: "/register?type=UTS",
         highlighted: true,
     },
 ]
@@ -60,8 +57,8 @@ export function PricingSection() {
                         <div
                             key={plan.name}
                             className={`relative p-8 rounded-2xl border transition-all duration-300 ${plan.highlighted
-                                    ? "bg-dark-brown text-cream border-dark-brown shadow-xl shadow-dark-brown/20"
-                                    : "bg-white border-warm-gray/60 hover:border-soft-brown/30 hover:shadow-lg"
+                                ? "bg-dark-brown text-cream border-dark-brown shadow-xl shadow-dark-brown/20"
+                                : "bg-white border-warm-gray/60 hover:border-soft-brown/30 hover:shadow-lg"
                                 }`}
                         >
                             {plan.highlighted && (
@@ -103,8 +100,8 @@ export function PricingSection() {
                             <Button
                                 asChild
                                 className={`w-full h-11 ${plan.highlighted
-                                        ? "bg-cream text-dark-brown hover:bg-warm-beige"
-                                        : "bg-dark-brown text-cream hover:bg-soft-brown"
+                                    ? "bg-cream text-dark-brown hover:bg-warm-beige"
+                                    : "bg-dark-brown text-cream hover:bg-soft-brown"
                                     }`}
                             >
                                 <Link href={plan.href}>

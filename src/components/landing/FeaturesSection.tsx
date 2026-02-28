@@ -12,7 +12,7 @@ const features = [
         icon: FileText,
         title: "Bank Soal Lengkap",
         description:
-            "Ratusan soal Fisika Dasar 2 yang dikategorikan berdasarkan materi, dari Listrik hingga Optika.",
+            "Ratusan soal dari berbagai mata kuliah Fisika yang dikategorikan berdasarkan bab dan materi per minggu!",
     },
     {
         icon: Clock,
@@ -59,7 +59,7 @@ export function FeaturesSection() {
                         Semua yang Kamu Butuhkan untuk Siap Ujian
                     </h2>
                     <p className="text-muted-foreground max-w-2xl mx-auto text-balance">
-                        Dirancang khusus untuk mahasiswa Fisika semester 2 yang ingin mempersiapkan diri
+                        Dirancang khusus untuk mahasiswa Fisika semester 1 dan 2 yang ingin mempersiapkan diri
                         dengan lebih terstruktur dan efisien.
                     </p>
                 </div>

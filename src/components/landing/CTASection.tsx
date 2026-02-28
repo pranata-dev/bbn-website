@@ -18,7 +18,7 @@ export function CTASection() {
                             Siap Tingkatkan Nilai Fisikamu?
                         </h2>
                         <p className="text-cream/70 max-w-xl mx-auto mb-8 text-balance">
-                            Bergabung sekarang dan mulai latihan soal Fisika Dasar 2 dengan cara yang lebih
+                            Bergabung sekarang dan mulai latihan soal Fisika dengan cara yang lebih
                             terstruktur dan menyenangkan.
                         </p>
                         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -34,9 +34,8 @@ export function CTASection() {
                             </Button>
                             <Button
                                 size="lg"
-                                variant="outline"
                                 asChild
-                                className="border-cream/30 text-cream hover:bg-cream/10 px-8 h-12 text-base"
+                                className="bg-transparent shadow-none border-2 border-cream/50 text-cream hover:bg-cream hover:text-dark-brown px-8 h-12 text-base"
                             >
                                 <a href="#cara-kerja">Pelajari Lebih Lanjut</a>
                             </Button>
