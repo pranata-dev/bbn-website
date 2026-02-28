@@ -81,8 +81,9 @@ export async function POST(request: NextRequest) {
                 )
             }
 
-            // Determine correct role based on registration type and details
+            // Determine correct role and package_type based on registration type
             let userRole = "STUDENT_BASIC"
+            let packageType = "REGULER" // Default
 
             if (registration.type === "UTS") {
                 const { data: utsDetail } = await adminClient
@@ -95,23 +96,30 @@ export async function POST(request: NextRequest) {
                     switch (utsDetail.package_type) {
                         case "flux_session":
                             userRole = "UTS_FLUX"
+                            packageType = "FLUX"
                             break
                         case "senku_mode":
                             userRole = "UTS_SENKU"
+                            packageType = "SENKU"
                             break
                         case "einstein_mode":
                             userRole = "UTS_EINSTEIN"
+                            packageType = "EINSTEIN"
                             break
                     }
                 }
+            } else if (registration.type === "REGULAR") {
+                userRole = "STUDENT_BASIC"
+                packageType = "REGULER"
             }
 
-            // Update user status to active and sync role
+            // Update user status to active, sync role, and set package architecture
             const { error: updateError } = await adminClient
                 .from("users")
                 .update({
                     is_active: true,
-                    role: userRole
+                    role: userRole,
+                    package_type: packageType
                 })
                 .eq("id", existingUser.id)
 
