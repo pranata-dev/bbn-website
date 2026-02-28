@@ -177,7 +177,7 @@ export async function POST(request: NextRequest) {
                 {
                     error: authError.message.includes("already registered")
                         ? "Email sudah terdaftar di sistem otentikasi. Silakan gunakan email lain."
-                        : "Gagal membuat identitas pengguna."
+                        : `Gagal membuat identitas pengguna. Supabase Error: ${authError.message}`
                 },
                 { status: 400 }
             )
