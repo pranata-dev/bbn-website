@@ -1,4 +1,4 @@
-import { PackageType } from "@prisma/client"
+import { PackageType, Role } from "@prisma/client"
 
 export interface PackageFeatures {
     canAccessLatihan: boolean
@@ -7,7 +7,7 @@ export interface PackageFeatures {
     hasVideoExplanation: boolean
 }
 
-export function getPackageFeatures(packageType: PackageType | null | undefined): PackageFeatures {
+export function getPackageFeatures(packageType: PackageType | null | undefined, role?: Role | string): PackageFeatures {
     // Default features for users without a specific package (e.g., ADMIN or basic)
     const defaultFeatures: PackageFeatures = {
         canAccessLatihan: false,
@@ -16,9 +16,28 @@ export function getPackageFeatures(packageType: PackageType | null | undefined):
         hasVideoExplanation: false,
     }
 
-    if (!packageType) return defaultFeatures
+    // Fallback logic for legacy accounts that have a Role but no PackageType yet
+    let activePackage = packageType
+    if (!activePackage && role) {
+        switch (role) {
+            case "UTS_EINSTEIN":
+                activePackage = "EINSTEIN"
+                break
+            case "UTS_SENKU":
+                activePackage = "SENKU"
+                break
+            case "UTS_FLUX":
+                activePackage = "FLUX"
+                break
+            case "STUDENT_PREMIUM":
+                activePackage = "REGULER"
+                break
+        }
+    }
 
-    switch (packageType) {
+    if (!activePackage) return defaultFeatures
+
+    switch (activePackage) {
         case "REGULER":
             return {
                 canAccessLatihan: false, // Explicitly no defined benefits for regular yet as per spec

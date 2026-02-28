@@ -125,7 +125,6 @@ export default function UsersPage() {
                                                 <SelectValue />
                                             </SelectTrigger>
                                             <SelectContent>
-                                                <SelectItem value="STUDENT_BASIC">Student Basic</SelectItem>
                                                 <SelectItem value="STUDENT_PREMIUM">Student Premium</SelectItem>
                                                 <SelectItem value="UTS_FLUX">UTS Flux</SelectItem>
                                                 <SelectItem value="UTS_SENKU">UTS Senku</SelectItem>

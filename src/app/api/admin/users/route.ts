@@ -37,7 +37,29 @@ export async function PATCH(request: NextRequest) {
         const { userId, role, isActive } = body
 
         const updateData: Record<string, unknown> = {}
-        if (role) updateData.role = role
+        if (role) {
+            updateData.role = role
+
+            // Sync PackageType with Role
+            switch (role) {
+                case "UTS_EINSTEIN":
+                    updateData.package_type = "EINSTEIN"
+                    break
+                case "UTS_SENKU":
+                    updateData.package_type = "SENKU"
+                    break
+                case "UTS_FLUX":
+                    updateData.package_type = "FLUX"
+                    break
+                case "STUDENT_PREMIUM":
+                    updateData.package_type = "REGULER"
+                    break
+                default:
+                    // If ADMIN or unknown, do not explicitly overwrite package_type
+                    // Or set it to null if that's the preferred behavior for admins
+                    break
+            }
+        }
         if (typeof isActive === "boolean") updateData.is_active = isActive
 
         const adminSupabase = await createAdminClient()

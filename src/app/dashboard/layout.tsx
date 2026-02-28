@@ -43,6 +43,7 @@ export default function DashboardLayout({
     const router = useRouter()
     const [sidebarOpen, setSidebarOpen] = useState(false)
     const [packageType, setPackageType] = useState<PackageType | null>(null)
+    const [userRole, setUserRole] = useState<string | undefined>(undefined)
     const [isLoadingUser, setIsLoadingUser] = useState(true)
 
     useEffect(() => {
@@ -51,14 +52,17 @@ export default function DashboardLayout({
             const { data: { user } } = await supabase.auth.getUser()
 
             if (user) {
-                // In a real app we'd fetch this from our DB API, but for immediate rendering
-                // we'll assume the API provides it or we default to null pending an API call.
-                // Let's create an API call to get the current user's DB profile.
                 try {
-                    const response = await fetch('/api/user/profile')
-                    if (response.ok) {
-                        const data = await response.json()
-                        setPackageType(data.packageType || null)
+                    // Using direct supabase client instead of fetch
+                    const { data: profile } = await supabase
+                        .from('users')
+                        .select('package_type, role')
+                        .eq('auth_id', user.id)
+                        .single()
+
+                    if (profile) {
+                        setPackageType(profile.package_type as PackageType || null)
+                        setUserRole(profile.role)
                     }
                 } catch (error) {
                     console.error("Failed to fetch user profile", error)
@@ -70,7 +74,7 @@ export default function DashboardLayout({
         fetchUserPackage()
     }, [])
 
-    const packageFeatures = getPackageFeatures(packageType)
+    const packageFeatures = getPackageFeatures(packageType, userRole)
 
     const handleLogout = async () => {
         const supabase = createClient()
