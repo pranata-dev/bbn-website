@@ -22,8 +22,8 @@ export function Navbar() {
     return (
         <header
             className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled
-                    ? "bg-white/90 backdrop-blur-md shadow-sm border-b border-warm-gray/50"
-                    : "bg-transparent"
+                ? "bg-white/90 backdrop-blur-md shadow-sm border-b border-warm-gray/50"
+                : "bg-transparent"
                 }`}
         >
             <nav className="container-narrow mx-auto flex items-center justify-between px-4 sm:px-6 lg:px-8 h-16">
@@ -65,7 +65,7 @@ export function Navbar() {
                             <Menu className="w-5 h-5" />
                         </Button>
                     </SheetTrigger>
-                    <SheetContent side="right" className="w-[280px] bg-cream">
+                    <SheetContent side="right" className="w-[300px] bg-cream p-6">
                         <div className="flex flex-col gap-6 mt-8">
                             {NAV_LINKS.map((link) => (
                                 <a
