@@ -15,6 +15,13 @@ enum Role {
   UTS_EINSTEIN
 }
 
+enum PackageType {
+  REGULER
+  FLUX
+  SENKU
+  EINSTEIN
+}
+
 enum PaymentStatus {
   PENDING
   APPROVED
@@ -45,17 +52,19 @@ enum QuestionCategory {
 }
 
 model User {
-  id            String    @id @default(uuid())
-  authId        String    @unique @map("auth_id")
-  email         String    @unique
-  name          String
-  role          Role      @default(STUDENT_BASIC)
-  isActive      Boolean   @default(false) @map("is_active")
-  avatarUrl     String?   @map("avatar_url")
-  lastLoginAt   DateTime? @map("last_login_at")
-  sessionToken  String?   @map("session_token")
-  createdAt     DateTime  @default(now()) @map("created_at")
-  updatedAt     DateTime  @updatedAt @map("updated_at")
+  id                String       @id @default(uuid())
+  authId            String       @unique @map("auth_id")
+  email             String       @unique
+  name              String
+  role              Role         @default(STUDENT_BASIC)
+  packageType       PackageType? @map("package_type")
+  tryoutAttemptUsed Int          @default(0) @map("tryout_attempt_used")
+  isActive          Boolean      @default(false) @map("is_active")
+  avatarUrl         String?      @map("avatar_url")
+  lastLoginAt       DateTime?    @map("last_login_at")
+  sessionToken      String?      @map("session_token")
+  createdAt         DateTime     @default(now()) @map("created_at")
+  updatedAt         DateTime     @updatedAt @map("updated_at")
 
   payments    Payment[]
   submissions Submission[]
@@ -64,16 +73,16 @@ model User {
 }
 
 model Payment {
-  id          String        @id @default(uuid())
-  userId      String        @map("user_id")
-  proofUrl    String        @map("proof_url")
-  amount      Float?
-  status      PaymentStatus @default(PENDING)
-  notes       String?
-  reviewedBy  String?       @map("reviewed_by")
-  reviewedAt  DateTime?     @map("reviewed_at")
-  createdAt   DateTime      @default(now()) @map("created_at")
-  updatedAt   DateTime      @updatedAt @map("updated_at")
+  id         String        @id @default(uuid())
+  userId     String        @map("user_id")
+  proofUrl   String        @map("proof_url")
+  amount     Float?
+  status     PaymentStatus @default(PENDING)
+  notes      String?
+  reviewedBy String?       @map("reviewed_by")
+  reviewedAt DateTime?     @map("reviewed_at")
+  createdAt  DateTime      @default(now()) @map("created_at")
+  updatedAt  DateTime      @updatedAt @map("updated_at")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -81,39 +90,39 @@ model Payment {
 }
 
 model Tryout {
-  id          String       @id @default(uuid())
+  id          String           @id @default(uuid())
   title       String
   description String?
   category    QuestionCategory
-  duration    Int          // in minutes
-  status      TryoutStatus @default(DRAFT)
-  maxAttempts Int          @default(1) @map("max_attempts")
-  startDate   DateTime?    @map("start_date")
-  endDate     DateTime?    @map("end_date")
-  createdAt   DateTime     @default(now()) @map("created_at")
-  updatedAt   DateTime     @updatedAt @map("updated_at")
+  duration    Int // in minutes
+  status      TryoutStatus     @default(DRAFT)
+  maxAttempts Int              @default(1) @map("max_attempts")
+  startDate   DateTime?        @map("start_date")
+  endDate     DateTime?        @map("end_date")
+  createdAt   DateTime         @default(now()) @map("created_at")
+  updatedAt   DateTime         @updatedAt @map("updated_at")
 
-  questions      TryoutQuestion[]
-  submissions    Submission[]
+  questions   TryoutQuestion[]
+  submissions Submission[]
 
   @@map("tryouts")
 }
 
 model Question {
-  id          String           @id @default(uuid())
-  text        String
-  category    QuestionCategory
-  optionA     String           @map("option_a")
-  optionB     String           @map("option_b")
-  optionC     String           @map("option_c")
-  optionD     String           @map("option_d")
-  optionE     String?          @map("option_e")
-  correctAnswer String         @map("correct_answer") // "A", "B", "C", "D", "E"
-  explanation String?
-  weight      Float            @default(1)
-  imageUrl    String?          @map("image_url")
-  createdAt   DateTime         @default(now()) @map("created_at")
-  updatedAt   DateTime         @updatedAt @map("updated_at")
+  id            String           @id @default(uuid())
+  text          String
+  category      QuestionCategory
+  optionA       String           @map("option_a")
+  optionB       String           @map("option_b")
+  optionC       String           @map("option_c")
+  optionD       String           @map("option_d")
+  optionE       String?          @map("option_e")
+  correctAnswer String           @map("correct_answer") // "A", "B", "C", "D", "E"
+  explanation   String?
+  weight        Float            @default(1)
+  imageUrl      String?          @map("image_url")
+  createdAt     DateTime         @default(now()) @map("created_at")
+  updatedAt     DateTime         @updatedAt @map("updated_at")
 
   tryouts TryoutQuestion[]
   answers Answer[]
@@ -135,30 +144,30 @@ model TryoutQuestion {
 }
 
 model Submission {
-  id           String           @id @default(uuid())
-  userId       String           @map("user_id")
-  tryoutId     String           @map("tryout_id")
-  status       SubmissionStatus @default(IN_PROGRESS)
-  score        Float?
-  totalWeight  Float?           @map("total_weight")
-  correctCount Int?             @map("correct_count")
-  totalCount   Int?             @map("total_count")
-  startedAt    DateTime         @default(now()) @map("started_at")
-  submittedAt  DateTime?        @map("submitted_at")
-  questionOrder String[]        @map("question_order") // Array of question IDs in randomized order
-  createdAt    DateTime         @default(now()) @map("created_at")
+  id            String           @id @default(uuid())
+  userId        String           @map("user_id")
+  tryoutId      String           @map("tryout_id")
+  status        SubmissionStatus @default(IN_PROGRESS)
+  score         Float?
+  totalWeight   Float?           @map("total_weight")
+  correctCount  Int?             @map("correct_count")
+  totalCount    Int?             @map("total_count")
+  startedAt     DateTime         @default(now()) @map("started_at")
+  submittedAt   DateTime?        @map("submitted_at")
+  questionOrder String[]         @map("question_order") // Array of question IDs in randomized order
+  createdAt     DateTime         @default(now()) @map("created_at")
 
-  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  tryout  Tryout @relation(fields: [tryoutId], references: [id], onDelete: Cascade)
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tryout  Tryout   @relation(fields: [tryoutId], references: [id], onDelete: Cascade)
   answers Answer[]
 
   @@map("submissions")
 }
 
 model Answer {
-  id           String  @id @default(uuid())
-  submissionId String  @map("submission_id")
-  questionId   String  @map("question_id")
+  id           String   @id @default(uuid())
+  submissionId String   @map("submission_id")
+  questionId   String   @map("question_id")
   answer       String? // "A", "B", "C", "D", "E" or null
   isCorrect    Boolean? @map("is_correct")
   createdAt    DateTime @default(now()) @map("created_at")
@@ -184,38 +193,38 @@ enum RegistrationStatus {
 }
 
 model Registration {
-  id               String             @id @default(uuid())
-  type             RegistrationType
-  name             String
-  email            String             @unique
-  nim              String
-  subject          String
-  whatsapp         String
-  paymentProofUrl  String             @map("payment_proof_url")
-  calculatedPrice  Int?               @map("calculated_price")
-  pricingTier      String?            @map("pricing_tier")
-  status           RegistrationStatus @default(PENDING)
-  reviewedBy       String?            @map("reviewed_by")
-  reviewedAt       DateTime?          @map("reviewed_at")
-  createdAt        DateTime           @default(now()) @map("created_at")
-  updatedAt        DateTime           @updatedAt @map("updated_at")
+  id              String             @id @default(uuid())
+  type            RegistrationType
+  name            String
+  email           String             @unique
+  nim             String
+  subject         String
+  whatsapp        String
+  paymentProofUrl String             @map("payment_proof_url")
+  calculatedPrice Int?               @map("calculated_price")
+  pricingTier     String?            @map("pricing_tier")
+  status          RegistrationStatus @default(PENDING)
+  reviewedBy      String?            @map("reviewed_by")
+  reviewedAt      DateTime?          @map("reviewed_at")
+  createdAt       DateTime           @default(now()) @map("created_at")
+  updatedAt       DateTime           @updatedAt @map("updated_at")
 
-  regularDetail    RegularClassDetail?
-  utsDetail        UTSPackageDetail?
+  regularDetail RegularClassDetail?
+  utsDetail     UTSPackageDetail?
 
   @@index([nim, type])
   @@map("registrations")
 }
 
 model RegularClassDetail {
-  id              String       @id @default(uuid())
-  registrationId  String       @unique @map("registration_id")
-  groupSize       Int          @map("group_size")
-  sessionCount    Int          @map("session_count")
-  scheduledDate   String       @map("scheduled_date")
-  scheduledTime   String       @map("scheduled_time")
-  notes           String?
-  createdAt       DateTime     @default(now()) @map("created_at")
+  id             String   @id @default(uuid())
+  registrationId String   @unique @map("registration_id")
+  groupSize      Int      @map("group_size")
+  sessionCount   Int      @map("session_count")
+  scheduledDate  String   @map("scheduled_date")
+  scheduledTime  String   @map("scheduled_time")
+  notes          String?
+  createdAt      DateTime @default(now()) @map("created_at")
 
   registration Registration @relation(fields: [registrationId], references: [id], onDelete: Cascade)
 
@@ -223,10 +232,10 @@ model RegularClassDetail {
 }
 
 model UTSPackageDetail {
-  id              String       @id @default(uuid())
-  registrationId  String       @unique @map("registration_id")
-  packageType     String       @map("package_type")
-  createdAt       DateTime     @default(now()) @map("created_at")
+  id             String   @id @default(uuid())
+  registrationId String   @unique @map("registration_id")
+  packageType    String   @map("package_type")
+  createdAt      DateTime @default(now()) @map("created_at")
 
   registration Registration @relation(fields: [registrationId], references: [id], onDelete: Cascade)
 
