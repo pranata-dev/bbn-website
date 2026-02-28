@@ -92,6 +92,49 @@
   --sidebar-ring: #8B7355;
 }
 
+:root.dark {
+  --background: #1C1A17;
+  /* Deep earthy dark brown */
+  --foreground: #F5F0E8;
+  /* Warm beige */
+  --card: #27241F;
+  /* Slightly lighter deep earthy */
+  --card-foreground: #F5F0E8;
+  --popover: #27241F;
+  --popover-foreground: #F5F0E8;
+  --primary: #C4A35A;
+  /* Earthy gold for accents */
+  --primary-foreground: #1C1A17;
+  --secondary: #3D3225;
+  /* Dark brown */
+  --secondary-foreground: #F5F0E8;
+  --muted: #3D3225;
+  --muted-foreground: #A89279;
+  /* Light brown muted */
+  --accent: #3D3225;
+  --accent-foreground: #F5F0E8;
+  --destructive: oklch(0.577 0.245 27.325);
+  /* Kept original */
+  --border: #4A3E2D;
+  /* Dark border */
+  --input: #4A3E2D;
+  --ring: #C4A35A;
+  --chart-1: #C4A35A;
+  --chart-2: #7A8B6F;
+  --chart-3: #A89279;
+  --chart-4: #8B7355;
+  --chart-5: #6B5B3E;
+  --sidebar: #27241F;
+  --sidebar-foreground: #F5F0E8;
+  --sidebar-primary: #C4A35A;
+  --sidebar-primary-foreground: #1C1A17;
+  --sidebar-accent: #3D3225;
+  --sidebar-accent-foreground: #F5F0E8;
+  --sidebar-border: #4A3E2D;
+  --sidebar-ring: #C4A35A;
+}
+
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

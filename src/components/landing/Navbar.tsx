@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { Menu, X, BookOpen } from "lucide-react"
 import { NAV_LINKS, APP_NAME } from "@/constants"
+import { ThemeToggle } from "@/components/ThemeToggle"
 
 export function Navbar() {
     const [isScrolled, setIsScrolled] = useState(false)
@@ -50,6 +51,7 @@ export function Navbar() {
 
                 {/* Desktop CTA */}
                 <div className="hidden md:flex items-center gap-3">
+                    <ThemeToggle />
                     <Button variant="ghost" size="sm" asChild>
                         <Link href="/login">Masuk</Link>
                     </Button>
@@ -79,6 +81,10 @@ export function Navbar() {
                             ))}
                             <hr className="border-warm-gray" />
                             <div className="flex flex-col gap-3">
+                                <div className="flex items-center justify-between">
+                                    <span className="text-sm font-medium text-muted-foreground">Tema Tampilan</span>
+                                    <ThemeToggle />
+                                </div>
                                 <Button variant="outline" size="sm" asChild>
                                     <Link href="/login" onClick={() => setIsOpen(false)}>
                                         Masuk

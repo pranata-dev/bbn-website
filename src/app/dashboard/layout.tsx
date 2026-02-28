@@ -19,7 +19,8 @@ import { useState, useEffect } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { APP_NAME } from "@/constants"
 import { getPackageFeatures, PackageFeatures } from "@/lib/package-features"
-import { PackageType } from "@prisma/client"
+import { ThemeToggle } from "@/components/ThemeToggle"
+import { PackageType, Role } from "@prisma/client"
 import { Lock } from "lucide-react"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 
@@ -86,13 +87,16 @@ export default function DashboardLayout({
     const SidebarContent = () => (
         <div className="flex flex-col h-full">
             {/* Logo */}
-            <div className="p-6 border-b border-warm-gray/60">
+            <div className="p-6 border-b border-warm-gray/60 flex items-center justify-between">
                 <Link href="/dashboard" className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-lg bg-dark-brown flex items-center justify-center">
+                    <div className="w-8 h-8 rounded-lg bg-dark-brown flex items-center justify-center shrink-0">
                         <BookOpen className="w-4 h-4 text-cream" />
                     </div>
-                    <span className="font-semibold text-foreground">{APP_NAME}</span>
+                    <span className="font-semibold text-foreground tracking-tight">{APP_NAME}</span>
                 </Link>
+                <div className="ml-2 shrink-0">
+                    <ThemeToggle />
+                </div>
             </div>
 
             {/* Navigation */}
@@ -180,18 +184,21 @@ export default function DashboardLayout({
             {/* Mobile header */}
             <div className="lg:hidden flex items-center justify-between p-4 border-b border-warm-gray/60 bg-white">
                 <Link href="/dashboard" className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-lg bg-dark-brown flex items-center justify-center">
+                    <div className="w-8 h-8 rounded-lg bg-dark-brown flex items-center justify-center shrink-0">
                         <BookOpen className="w-4 h-4 text-cream" />
                     </div>
                     <span className="font-semibold text-sm text-foreground">{APP_NAME}</span>
                 </Link>
-                <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => setSidebarOpen(!sidebarOpen)}
-                >
-                    {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-                </Button>
+                <div className="flex items-center gap-2">
+                    <ThemeToggle />
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setSidebarOpen(!sidebarOpen)}
+                    >
+                        {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+                    </Button>
+                </div>
             </div>
 
             <div className="flex">
