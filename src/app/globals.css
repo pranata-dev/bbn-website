@@ -93,45 +93,62 @@
 }
 
 :root.dark {
-  --background: #1C1A17;
-  /* Deep earthy dark brown */
-  --foreground: #F5F0E8;
-  /* Warm beige */
-  --card: #27241F;
-  /* Slightly lighter deep earthy */
-  --card-foreground: #F5F0E8;
-  --popover: #27241F;
-  --popover-foreground: #F5F0E8;
-  --primary: #C4A35A;
-  /* Earthy gold for accents */
-  --primary-foreground: #1C1A17;
-  --secondary: #3D3225;
-  /* Dark brown */
-  --secondary-foreground: #F5F0E8;
-  --muted: #3D3225;
-  --muted-foreground: #A89279;
-  /* Light brown muted */
-  --accent: #3D3225;
-  --accent-foreground: #F5F0E8;
-  --destructive: oklch(0.577 0.245 27.325);
-  /* Kept original */
-  --border: #4A3E2D;
-  /* Dark border */
-  --input: #4A3E2D;
-  --ring: #C4A35A;
-  --chart-1: #C4A35A;
-  --chart-2: #7A8B6F;
-  --chart-3: #A89279;
-  --chart-4: #8B7355;
-  --chart-5: #6B5B3E;
-  --sidebar: #27241F;
-  --sidebar-foreground: #F5F0E8;
-  --sidebar-primary: #C4A35A;
-  --sidebar-primary-foreground: #1C1A17;
-  --sidebar-accent: #3D3225;
-  --sidebar-accent-foreground: #F5F0E8;
-  --sidebar-border: #4A3E2D;
-  --sidebar-ring: #C4A35A;
+  /* Base background: Deep warm charcoal */
+  --background: #23211D;
+
+  /* Surface cards: Slightly lighter, subtle elevation */
+  --card: #2B2824;
+  --card-foreground: #EAE4D9;
+
+  --popover: #2B2824;
+  --popover-foreground: #EAE4D9;
+
+  /* Text Colors */
+  --foreground: #EAE4D9;
+  /* Primary text: soft warm off-white */
+  --muted-foreground: #A39B8E;
+  /* Secondary text: muted beige/stone */
+
+  /* Accent color: Muted gold / bronze */
+  --primary: #AF9153;
+  --primary-foreground: #23211D;
+  /* Dark text for primary buttons */
+
+  /* Secondary / Hover elements */
+  --secondary: #36322C;
+  --secondary-foreground: #EAE4D9;
+
+  --muted: #36322C;
+
+  --accent: #36322C;
+  --accent-foreground: #EAE4D9;
+
+  /* Borders and Disabled text (low opacity warm gray) */
+  --border: #3E3A33;
+  --input: #3E3A33;
+  --ring: #AF9153;
+
+  /* Charts & UI Indicators - Warm, low contrast */
+  --chart-1: #AF9153;
+  /* Muted gold */
+  --chart-2: #84917A;
+  /* Muted earthy green */
+  --chart-3: #9F8D77;
+  /* Muted stone */
+  --chart-4: #8B7C67;
+  /* Warm gray-brown */
+  --chart-5: #6E6352;
+  /* Darker warm gray */
+
+  /* Sidebar */
+  --sidebar: #282521;
+  --sidebar-foreground: #EAE4D9;
+  --sidebar-primary: #AF9153;
+  --sidebar-primary-foreground: #23211D;
+  --sidebar-accent: #36322C;
+  --sidebar-accent-foreground: #EAE4D9;
+  --sidebar-border: #3E3A33;
+  --sidebar-ring: #AF9153;
 }
 
 
