@@ -48,6 +48,16 @@ export function RegularClassForm({
         onChange({ ...formData, [field]: value })
     }
 
+    const handleNumberChange = (field: keyof RegularClassFormState, val: string) => {
+        if (!val) {
+            update(field, "")
+            return
+        }
+        const numericVal = val.replace(/\D/g, "")
+        const cleaned = numericVal.replace(/^0+/, "")
+        update(field, cleaned || (numericVal === "0" ? "0" : ""))
+    }
+
     return (
         <div className="space-y-4">
             {/* Name */}
@@ -135,7 +145,7 @@ export function RegularClassForm({
                         min={1}
                         max={20}
                         value={formData.groupSize}
-                        onChange={(e) => update("groupSize", e.target.value)}
+                        onChange={(e) => handleNumberChange("groupSize", e.target.value)}
                         className="bg-warm-beige/30 border-warm-gray"
                         required
                     />
@@ -148,7 +158,7 @@ export function RegularClassForm({
                         min={1}
                         max={30}
                         value={formData.sessionCount}
-                        onChange={(e) => update("sessionCount", e.target.value)}
+                        onChange={(e) => handleNumberChange("sessionCount", e.target.value)}
                         className="bg-warm-beige/30 border-warm-gray"
                         required
                     />
