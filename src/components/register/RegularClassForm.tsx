@@ -21,8 +21,8 @@ export interface RegularClassFormState {
     password: string
     nim: string
     subject: string
-    groupSize: number
-    sessionCount: number
+    groupSize: string
+    sessionCount: string
     scheduledDate: string
     scheduledTime: string
     whatsapp: string
@@ -135,7 +135,7 @@ export function RegularClassForm({
                         min={1}
                         max={20}
                         value={formData.groupSize}
-                        onChange={(e) => update("groupSize", parseInt(e.target.value) || 1)}
+                        onChange={(e) => update("groupSize", String(parseInt(e.target.value) || 1))}
                         className="bg-warm-beige/30 border-warm-gray"
                         required
                     />
@@ -148,7 +148,7 @@ export function RegularClassForm({
                         min={1}
                         max={30}
                         value={formData.sessionCount}
-                        onChange={(e) => update("sessionCount", parseInt(e.target.value) || 1)}
+                        onChange={(e) => update("sessionCount", String(parseInt(e.target.value) || 1))}
                         className="bg-warm-beige/30 border-warm-gray"
                         required
                     />
@@ -157,8 +157,8 @@ export function RegularClassForm({
 
             {/* Pricing Breakdown */}
             <PricingBreakdown
-                groupSize={formData.groupSize}
-                sessionCount={formData.sessionCount}
+                groupSize={Number(formData.groupSize) || 0}
+                sessionCount={Number(formData.sessionCount) || 0}
             />
 
             {/* Date and Time */}

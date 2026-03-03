@@ -24,8 +24,8 @@ const initialRegularData: RegularClassFormState = {
     password: "",
     nim: "",
     subject: "",
-    groupSize: 1,
-    sessionCount: 1,
+    groupSize: "1",
+    sessionCount: "1",
     scheduledDate: "",
     scheduledTime: "",
     whatsapp: "",
@@ -91,11 +91,13 @@ export default function RegisterPage() {
             toast.error("Pilih mata kuliah.")
             return false
         }
-        if (regularData.groupSize < 1 || regularData.groupSize > 20) {
+        const groupSize = Number(regularData.groupSize)
+        if (groupSize < 1 || groupSize > 20) {
             toast.error("Jumlah orang harus antara 1–20.")
             return false
         }
-        if (regularData.sessionCount < 1 || regularData.sessionCount > 30) {
+        const sessionCount = Number(regularData.sessionCount)
+        if (sessionCount < 1 || sessionCount > 30) {
             toast.error("Jumlah pertemuan harus antara 1–30.")
             return false
         }
