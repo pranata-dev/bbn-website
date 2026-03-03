@@ -142,8 +142,6 @@ export function RegularClassForm({
                     <Input
                         id="reg-group"
                         type="number"
-                        min={1}
-                        max={20}
                         value={formData.groupSize}
                         onChange={(e) => handleNumberChange("groupSize", e.target.value)}
                         className="bg-warm-beige/30 border-warm-gray"
@@ -155,8 +153,6 @@ export function RegularClassForm({
                     <Input
                         id="reg-sessions"
                         type="number"
-                        min={1}
-                        max={30}
                         value={formData.sessionCount}
                         onChange={(e) => handleNumberChange("sessionCount", e.target.value)}
                         className="bg-warm-beige/30 border-warm-gray"
