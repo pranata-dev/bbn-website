@@ -44,7 +44,7 @@ export function RegularClassForm({
     paymentPreview,
     onPaymentChange,
 }: RegularClassFormProps) {
-    const update = (field: keyof RegularClassFormState, value: string | number) => {
+    const update = (field: keyof RegularClassFormState, value: string) => {
         onChange({ ...formData, [field]: value })
     }
 
@@ -163,8 +163,8 @@ export function RegularClassForm({
 
             {/* Pricing Breakdown */}
             <PricingBreakdown
-                groupSize={Number(formData.groupSize) || 0}
-                sessionCount={Number(formData.sessionCount) || 0}
+                groupSize={Number(formData.groupSize)}
+                sessionCount={Number(formData.sessionCount)}
             />
 
             {/* Date and Time */}
