@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
+import { createServiceClient } from "@/lib/supabase/server"
+import { v4 as uuidv4 } from "uuid"
 
 // POST /api/tryouts/[id]/submit - Submit tryout answers
 export async function POST(
@@ -8,12 +10,16 @@ export async function POST(
 ) {
     try {
         const { id: tryoutId } = await params
-        const supabase = await createClient()
-        const { data: { user } } = await supabase.auth.getUser()
+        // Auth client
+        const authClient = await createClient()
+        const { data: { user } } = await authClient.auth.getUser()
 
         if (!user) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
         }
+
+        // Service client for DB operations
+        const supabase = createServiceClient()
 
         const { data: profile } = await supabase
             .from("users")
@@ -29,7 +35,7 @@ export async function POST(
         const { submissionId, answers } = body
 
         // Validate submission exists and belongs to user
-        const { data: submission } = await supabase
+        const { data: submission, error: submissionError } = await supabase
             .from("submissions")
             .select("*, tryouts(*)")
             .eq("id", submissionId)
@@ -37,7 +43,8 @@ export async function POST(
             .eq("tryout_id", tryoutId)
             .single()
 
-        if (!submission) {
+        if (!submission || submissionError) {
+            console.error("Submission fetch error:", submissionError)
             return NextResponse.json({ error: "Submission tidak ditemukan." }, { status: 404 })
         }
 
@@ -78,20 +85,26 @@ export async function POST(
             }
 
             return {
+                id: uuidv4(),
                 submission_id: submissionId,
                 question_id: a.questionId,
                 answer: a.answer,
                 is_correct: isCorrect,
+                created_at: new Date().toISOString(),
             }
         })
 
         const score = totalWeight > 0 ? Math.round((correctWeight / totalWeight) * 10000) / 100 : 0
 
         // Save answers
-        await supabase.from("answers").insert(answerRecords)
+        const { error: answersError } = await supabase.from("answers").insert(answerRecords)
+        if (answersError) {
+            console.error("Failed to insert answers:", answersError)
+            return NextResponse.json({ error: "Gagal menyimpan jawaban." }, { status: 500 })
+        }
 
         // Update submission
-        await supabase
+        const { error: updateError } = await supabase
             .from("submissions")
             .update({
                 status,
@@ -101,6 +114,11 @@ export async function POST(
                 submitted_at: new Date().toISOString(),
             })
             .eq("id", submissionId)
+
+        if (updateError) {
+            console.error("Failed to update submission:", updateError)
+            return NextResponse.json({ error: "Gagal mengupdate status submission." }, { status: 500 })
+        }
 
         return NextResponse.json({
             score,
