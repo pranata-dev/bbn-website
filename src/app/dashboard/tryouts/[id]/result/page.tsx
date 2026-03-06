@@ -1,6 +1,6 @@
 "use client"
 
-import { useSearchParams } from "next/navigation"
+import { useSearchParams, useParams } from "next/navigation"
 import Link from "next/link"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -9,6 +9,9 @@ import { Trophy, Target, CheckCircle, ArrowRight, Home } from "lucide-react"
 
 export default function TryoutResultPage() {
     const searchParams = useSearchParams()
+    const params = useParams()
+    const id = params.id as string
+
     const score = parseFloat(searchParams.get("score") || "0")
     const correct = parseInt(searchParams.get("correct") || "0")
     const total = parseInt(searchParams.get("total") || "0")
@@ -71,7 +74,7 @@ export default function TryoutResultPage() {
                     {/* Actions */}
                     <div className="flex flex-col gap-3 pt-2">
                         <Button asChild className="bg-dark-brown hover:bg-soft-brown text-cream">
-                            <Link href={`/dashboard/tryouts/${searchParams.get("id") || ''}/discussion`}>
+                            <Link href={`/dashboard/tryouts/${id}/discussion`}>
                                 <Target className="mr-2 w-4 h-4" />
                                 Lihat Pembahasan
                             </Link>

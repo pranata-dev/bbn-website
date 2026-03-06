@@ -33,26 +33,37 @@ export default function TryoutDetailPage() {
     const { id } = useParams<{ id: string }>()
     const router = useRouter()
     const [tryout, setTryout] = useState<TryoutDetail | null>(null)
+    const [submission, setSubmission] = useState<any>(null)
     const [loading, setLoading] = useState(true)
     const [showConfirm, setShowConfirm] = useState(false)
 
     useEffect(() => {
-        const fetchTryout = async () => {
+        const loadPageData = async () => {
+            setLoading(true)
             try {
-                const res = await fetch("/api/tryouts")
-                const data = await res.json()
-                const found = (data.tryouts || []).find((t: any) => t.id === id)
+                // Fetch tryout details
+                const resTryout = await fetch("/api/tryouts")
+                const dataTryout = await resTryout.json()
+                const found = (dataTryout.tryouts || []).find((t: any) => t.id === id)
+                
                 if (found) {
                     setTryout(found)
+                    
+                    // Fetch submission status
+                    const resSub = await fetch(`/api/tryouts/${id}/submission`)
+                    if (resSub.ok) {
+                        const dataSub = await resSub.json()
+                        setSubmission(dataSub.submission)
+                    }
                 }
             } catch (error) {
-                console.error("Failed to fetch tryout:", error)
+                console.error("Failed to load tryout data:", error)
             } finally {
                 setLoading(false)
             }
         }
 
-        fetchTryout()
+        loadPageData()
     }, [id])
 
     if (loading) {
@@ -141,14 +152,33 @@ export default function TryoutDetailPage() {
                         </ul>
                     </div>
 
-                    {/* Start button */}
-                    <Button
-                        onClick={() => setShowConfirm(true)}
-                        className="w-full bg-dark-brown hover:bg-soft-brown text-cream h-12 text-base"
-                    >
-                        <Play className="w-5 h-5 mr-2" />
-                        Mulai Tryout
-                    </Button>
+                    {/* Action button */}
+                    {submission ? (
+                        <div className="space-y-3">
+                            <div className="p-4 rounded-xl bg-earthy-green/10 border border-earthy-green/20">
+                                <p className="text-sm font-semibold text-earthy-green text-center">
+                                    Kamu sudah menyelesaikan tryout ini dengan skor {submission.score}%.
+                                </p>
+                            </div>
+                            <Button
+                                asChild
+                                className="w-full bg-dark-brown hover:bg-soft-brown text-cream h-12 text-base"
+                            >
+                                <Link href={`/dashboard/tryouts/${id}/discussion`}>
+                                    <FileText className="w-5 h-5 mr-2" />
+                                    Lihat Pembahasan
+                                </Link>
+                            </Button>
+                        </div>
+                    ) : (
+                        <Button
+                            onClick={() => setShowConfirm(true)}
+                            className="w-full bg-dark-brown hover:bg-soft-brown text-cream h-12 text-base"
+                        >
+                            <Play className="w-5 h-5 mr-2" />
+                            Mulai Tryout
+                        </Button>
+                    )}
                 </CardContent>
             </Card>
 
