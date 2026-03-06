@@ -71,12 +71,18 @@ export default function TryoutResultPage() {
                     {/* Actions */}
                     <div className="flex flex-col gap-3 pt-2">
                         <Button asChild className="bg-dark-brown hover:bg-soft-brown text-cream">
+                            <Link href={`/dashboard/tryouts/${searchParams.get("id") || ''}/discussion`}>
+                                <Target className="mr-2 w-4 h-4" />
+                                Lihat Pembahasan
+                            </Link>
+                        </Button>
+                        <Button variant="outline" asChild className="border-warm-gray text-dark-brown hover:bg-warm-beige">
                             <Link href="/dashboard/leaderboard">
                                 <Trophy className="mr-2 w-4 h-4" />
                                 Lihat Leaderboard
                             </Link>
                         </Button>
-                        <Button variant="outline" asChild className="border-warm-gray">
+                        <Button variant="outline" asChild className="border-warm-gray text-muted-foreground">
                             <Link href="/dashboard">
                                 <Home className="mr-2 w-4 h-4" />
                                 Kembali ke Dashboard
