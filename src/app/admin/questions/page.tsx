@@ -240,7 +240,7 @@ export default function QuestionsPage() {
         try {
             const params = new URLSearchParams()
             if (filter !== "all") params.set("category", filter)
-            const res = await fetch(`/api/questions?${params}`)
+            const res = await fetch(`/api/admin/questions?${params}`)
             const data = await res.json()
             if (!res.ok) {
                 toast.error(data.error || "Gagal mengambil data soal.")

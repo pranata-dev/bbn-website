@@ -1,7 +1,33 @@
 import { NextRequest, NextResponse } from "next/server"
-import { createServiceClient } from "@/lib/supabase/server"
-
+import { createServiceClient, createAdminClient } from "@/lib/supabase/server"
 import { v4 as uuidv4 } from "uuid"
+
+export const dynamic = "force-dynamic"
+
+// GET /api/admin/questions - List questions for admin (bypasses regular user cookie check)
+export async function GET(request: NextRequest) {
+    try {
+        const adminSupabase = await createAdminClient()
+        const { searchParams } = new URL(request.url)
+        const category = searchParams.get("category")
+
+        let query = adminSupabase.from("questions").select("*").order("created_at", { ascending: false })
+
+        if (category && category !== "all") {
+            query = query.eq("category", category)
+        }
+
+        const { data: questions, error } = await query
+
+        if (error) {
+            return NextResponse.json({ error: `Fetch error: ${error.message}` }, { status: 500 })
+        }
+
+        return NextResponse.json({ questions })
+    } catch (error) {
+        return NextResponse.json({ error: "Internal error" }, { status: 500 })
+    }
+}
 
 // POST /api/admin/questions - Create a question with optional image upload
 export async function POST(request: NextRequest) {
