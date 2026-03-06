@@ -5,8 +5,7 @@ import { Plus, Loader2, FileText, CheckCircle2 } from "lucide-react"
 import { CATEGORY_LABELS } from "@/types"
 import type { QuestionCategory } from "@/types"
 import { toast } from "sonner"
-import Latex from "react-latex-next"
-import "katex/dist/katex.min.css"
+import MarkdownLatex from "@/components/ui/markdown-latex"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -342,7 +341,7 @@ export default function AdminTryoutsPage() {
                                                                     />
                                                                     <div className="flex-1 min-w-0">
                                                                         <div className="text-sm line-clamp-3">
-                                                                            <Latex>{q.text}</Latex>
+                                                                            <MarkdownLatex>{q.text}</MarkdownLatex>
                                                                         </div>
                                                                         <div className="flex items-center gap-2 mt-2">
                                                                             <Badge variant="outline" className="text-[10px] text-muted-foreground border-warm-gray/50">

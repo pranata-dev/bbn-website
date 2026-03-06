@@ -1,7 +1,6 @@
 "use client"
 
-import "katex/dist/katex.min.css"
-import Latex from "react-latex-next"
+import MarkdownLatex from "@/components/ui/markdown-latex"
 import { useState, useEffect, useCallback, useRef } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { Card, CardContent } from "@/components/ui/card"
@@ -218,7 +217,7 @@ export default function TryoutAttemptPage() {
                 <CardContent className="p-6 sm:p-8">
                     <div className="mb-6">
                         <div className="text-base font-medium text-foreground leading-relaxed prose prose-sm max-w-none">
-                            <Latex>{currentQuestion.text}</Latex>
+                            <MarkdownLatex>{currentQuestion.text}</MarkdownLatex>
                         </div>
                         {currentQuestion.image_url && (
                             <img
@@ -254,7 +253,7 @@ export default function TryoutAttemptPage() {
                                         {opt}
                                     </span>
                                     <div className="prose prose-sm max-w-none">
-                                        <Latex>{optionText}</Latex>
+                                        <MarkdownLatex>{optionText}</MarkdownLatex>
                                     </div>
                                 </button>
                             )

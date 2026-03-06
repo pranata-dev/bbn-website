@@ -1,7 +1,6 @@
 "use client"
 
-import "katex/dist/katex.min.css"
-import Latex from "react-latex-next"
+import MarkdownLatex from "@/components/ui/markdown-latex"
 import { useState, useEffect, useRef, useCallback } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -84,7 +83,7 @@ function LatexPreview({ content, label }: { content: string; label?: string }) {
                 </span>
             </div>
             <div className="prose prose-sm max-w-none text-foreground">
-                <Latex>{content}</Latex>
+                <MarkdownLatex>{content}</MarkdownLatex>
             </div>
         </div>
     )
@@ -457,7 +456,7 @@ export default function QuestionsPage() {
                                                 )}
                                             </div>
                                             <div className="text-sm text-foreground line-clamp-2 mt-2">
-                                                <Latex>{q.text}</Latex>
+                                                <MarkdownLatex>{q.text}</MarkdownLatex>
                                             </div>
                                             <p className="text-xs text-muted-foreground mt-2">
                                                 Jawaban: {q.correct_answer}
