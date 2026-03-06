@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
             if (uploadError) {
                 console.error("Storage upload error:", uploadError)
                 return NextResponse.json(
-                    { error: "Failed to upload image" },
+                    { error: `Upload error: ${uploadError.message}` },
                     { status: 500 }
                 )
             }
@@ -80,7 +80,7 @@ export async function POST(request: NextRequest) {
         if (insertError) {
             console.error("Insert error:", insertError)
             return NextResponse.json(
-                { error: "Failed to create question" },
+                { error: `Database error: ${insertError.message}` },
                 { status: 500 }
             )
         }
@@ -89,7 +89,7 @@ export async function POST(request: NextRequest) {
     } catch (error) {
         console.error("API error:", error)
         return NextResponse.json(
-            { error: "Internal server error" },
+            { error: error instanceof Error ? error.message : "Internal server error" },
             { status: 500 }
         )
     }
