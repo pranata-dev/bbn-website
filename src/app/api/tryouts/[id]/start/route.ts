@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
+import { createServiceClient } from "@/lib/supabase/server"
 
 // POST /api/tryouts/[id]/start - Start a tryout attempt
 export async function POST(
@@ -8,26 +9,32 @@ export async function POST(
 ) {
     try {
         const { id: tryoutId } = await params
-        const supabase = await createClient()
-        const { data: { user } } = await supabase.auth.getUser()
+
+        // Auth check using cookie-based client
+        const authClient = await createClient()
+        const { data: { user } } = await authClient.auth.getUser()
 
         if (!user) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
         }
 
+        // Use service client for all DB operations (bypasses RLS)
+        const supabase = createServiceClient()
+
         // Get user profile
-        const { data: profile } = await supabase
+        const { data: profile, error: profileError } = await supabase
             .from("users")
             .select("id")
             .eq("auth_id", user.id)
             .single()
 
         if (!profile) {
+            console.error("Profile not found for auth_id:", user.id, profileError)
             return NextResponse.json({ error: "Profile not found" }, { status: 404 })
         }
 
         // Get tryout details
-        const { data: tryout } = await supabase
+        const { data: tryout, error: tryoutError } = await supabase
             .from("tryouts")
             .select("*, tryout_questions(question_id)")
             .eq("id", tryoutId)
@@ -35,6 +42,7 @@ export async function POST(
             .single()
 
         if (!tryout) {
+            console.error("Tryout not found:", tryoutId, tryoutError)
             return NextResponse.json({ error: "Tryout tidak ditemukan." }, { status: 404 })
         }
 
@@ -87,6 +95,7 @@ export async function POST(
             .single()
 
         if (error) {
+            console.error("Failed to create submission:", error)
             return NextResponse.json({ error: "Gagal memulai tryout." }, { status: 500 })
         }
 
@@ -114,3 +123,4 @@ export async function POST(
         return NextResponse.json({ error: "Internal error" }, { status: 500 })
     }
 }
+
