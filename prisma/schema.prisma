@@ -92,7 +92,7 @@ model Tryout {
   id          String           @id @default(uuid())
   title       String
   description String?
-  category    QuestionCategory
+  category    QuestionCategory?
   duration    Int // in minutes
   status      TryoutStatus     @default(DRAFT)
   maxAttempts Int              @default(1) @map("max_attempts")
