@@ -33,6 +33,7 @@ import {
     Eye,
     ArrowRight,
     CheckCircle2,
+    Pencil,
 } from "lucide-react"
 import { toast } from "sonner"
 import { CATEGORY_LABELS } from "@/types"
@@ -95,15 +96,19 @@ function ImageUploadSection({
     compressionResult,
     isCompressing,
     previewUrl,
+    existingImageUrl,
     onFileSelect,
     onClear,
+    onRemoveExisting,
 }: {
     compressedImage: File | null
     compressionResult: CompressionResult | null
     isCompressing: boolean
     previewUrl: string | null
+    existingImageUrl?: string | null
     onFileSelect: (file: File) => void
     onClear: () => void
+    onRemoveExisting?: () => void
 }) {
     const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -118,6 +123,8 @@ function ImageUploadSection({
         [onFileSelect]
     )
 
+    const showExistingImage = !compressedImage && !isCompressing && existingImageUrl
+
     return (
         <div className="space-y-2">
             <Label className="flex items-center gap-2">
@@ -128,7 +135,7 @@ function ImageUploadSection({
                 Diagram atau grafik. Otomatis dikompresi ke WebP, maks 1024×1024, maks 100KB.
             </p>
 
-            {!compressedImage && !isCompressing ? (
+            {!compressedImage && !isCompressing && !showExistingImage ? (
                 <div
                     className="relative border-2 border-dashed border-warm-gray/60 rounded-lg p-6 text-center cursor-pointer hover:border-soft-brown/60 hover:bg-warm-beige/20 transition-all"
                     onClick={() => fileInputRef.current?.click()}
@@ -160,6 +167,31 @@ function ImageUploadSection({
                     <p className="text-sm text-muted-foreground">
                         Mengompresi gambar...
                     </p>
+                </div>
+            ) : showExistingImage ? (
+                <div className="border border-warm-gray/60 rounded-lg p-4 bg-white">
+                    <div className="flex items-start gap-4">
+                        <img
+                            src={existingImageUrl!}
+                            alt="Existing Preview"
+                            className="w-24 h-24 object-contain rounded-md border border-warm-gray/40 bg-warm-beige/20 shrink-0"
+                        />
+                        <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-2">
+                                <span className="text-sm font-medium text-foreground truncate">
+                                    Gambar Saat Ini
+                                </span>
+                            </div>
+                        </div>
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            className="shrink-0 text-muted-foreground hover:text-red-600"
+                            onClick={onRemoveExisting}
+                        >
+                            <X className="w-4 h-4" />
+                        </Button>
+                    </div>
                 </div>
             ) : (
                 <div className="border border-warm-gray/60 rounded-lg p-4 bg-white">
@@ -218,12 +250,14 @@ export default function QuestionsPage() {
     const [submitting, setSubmitting] = useState(false)
     const [filter, setFilter] = useState("all")
     const [formData, setFormData] = useState(INITIAL_FORM_DATA)
+    const [editingId, setEditingId] = useState<string | null>(null)
 
     // Image state
     const [compressedImage, setCompressedImage] = useState<File | null>(null)
     const [compressionResult, setCompressionResult] = useState<CompressionResult | null>(null)
     const [isCompressing, setIsCompressing] = useState(false)
     const [previewUrl, setPreviewUrl] = useState<string | null>(null)
+    const [removeImage, setRemoveImage] = useState(false)
 
     useEffect(() => {
         fetchQuestions()
@@ -281,7 +315,28 @@ export default function QuestionsPage() {
 
     const resetForm = () => {
         setFormData(INITIAL_FORM_DATA)
+        setEditingId(null)
+        setRemoveImage(false)
         handleClearImage()
+    }
+
+    const handleEdit = (q: QuestionItem) => {
+        setFormData({
+            text: q.text,
+            category: q.category,
+            optionA: q.option_a,
+            optionB: q.option_b,
+            optionC: q.option_c,
+            optionD: q.option_d,
+            optionE: q.option_e || "",
+            correctAnswer: q.correct_answer,
+            explanation: q.explanation || "",
+            weight: q.weight,
+        })
+        setEditingId(q.id)
+        setRemoveImage(false)
+        handleClearImage()
+        setShowForm(true)
     }
 
     const handleSubmit = async () => {
@@ -312,18 +367,27 @@ export default function QuestionsPage() {
             if (compressedImage) {
                 payload.append("image", compressedImage)
             }
+            if (removeImage) {
+                payload.append("removeImage", "true")
+            }
 
-            const res = await fetch("/api/admin/questions", {
-                method: "POST",
+            const endpoint = editingId
+                ? `/api/admin/questions/${editingId}`
+                : "/api/admin/questions"
+
+            const method = editingId ? "PATCH" : "POST"
+
+            const res = await fetch(endpoint, {
+                method,
                 body: payload,
             })
 
             if (!res.ok) {
                 const data = await res.json().catch(() => ({}))
-                throw new Error(data.error || "Failed to create question")
+                throw new Error(data.error || `Failed to ${editingId ? "update" : "create"} question`)
             }
 
-            toast.success("Soal berhasil ditambahkan.")
+            toast.success(editingId ? "Soal berhasil diperbarui." : "Soal berhasil ditambahkan.")
             setShowForm(false)
             resetForm()
             fetchQuestions()
@@ -392,12 +456,23 @@ export default function QuestionsPage() {
                                                     </Badge>
                                                 )}
                                             </div>
-                                            <div className="text-sm text-foreground line-clamp-2">
+                                            <div className="text-sm text-foreground line-clamp-2 mt-2">
                                                 <Latex>{q.text}</Latex>
                                             </div>
-                                            <p className="text-xs text-muted-foreground mt-1">
+                                            <p className="text-xs text-muted-foreground mt-2">
                                                 Jawaban: {q.correct_answer}
                                             </p>
+                                        </div>
+                                        <div className="shrink-0 flex items-center gap-2">
+                                            <Button
+                                                variant="ghost"
+                                                size="sm"
+                                                className="h-8 flex text-muted-foreground hover:text-soft-brown"
+                                                onClick={() => handleEdit(q)}
+                                            >
+                                                <Pencil className="w-4 h-4 mr-1.5" />
+                                                Edit
+                                            </Button>
                                         </div>
                                     </div>
                                 </div>
@@ -417,7 +492,7 @@ export default function QuestionsPage() {
             >
                 <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
                     <DialogHeader>
-                        <DialogTitle>Tambah Soal Baru</DialogTitle>
+                        <DialogTitle>{editingId ? "Edit Soal" : "Tambah Soal Baru"}</DialogTitle>
                     </DialogHeader>
 
                     <div className="space-y-5">
@@ -439,8 +514,10 @@ export default function QuestionsPage() {
                             compressionResult={compressionResult}
                             isCompressing={isCompressing}
                             previewUrl={previewUrl}
+                            existingImageUrl={editingId && !removeImage ? questions.find(q => q.id === editingId)?.image_url : null}
                             onFileSelect={handleFileSelect}
                             onClear={handleClearImage}
+                            onRemoveExisting={() => setRemoveImage(true)}
                         />
 
                         {/* Category + Weight */}
