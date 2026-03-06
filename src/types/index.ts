@@ -4,24 +4,22 @@ export type TryoutStatus = "DRAFT" | "ACTIVE" | "ARCHIVED"
 export type SubmissionStatus = "IN_PROGRESS" | "SUBMITTED" | "TIMED_OUT"
 
 export type QuestionCategory =
-    | "ELECTRICITY"
-    | "MAGNETISM"
-    | "GAUSS_LAW"
-    | "CAPACITANCE"
-    | "ELECTROMAGNETIC_INDUCTION"
-    | "AC_CIRCUITS"
-    | "ELECTROMAGNETIC_WAVES"
-    | "OPTICS"
+    | "WEEK_1"
+    | "WEEK_2"
+    | "WEEK_3"
+    | "WEEK_4"
+    | "WEEK_5"
+    | "WEEK_6"
+    | "WEEK_7"
 
 export const CATEGORY_LABELS: Record<QuestionCategory, string> = {
-    ELECTRICITY: "Listrik",
-    MAGNETISM: "Magnetisme",
-    GAUSS_LAW: "Hukum Gauss",
-    CAPACITANCE: "Kapasitansi",
-    ELECTROMAGNETIC_INDUCTION: "Induksi Elektromagnetik",
-    AC_CIRCUITS: "Rangkaian AC",
-    ELECTROMAGNETIC_WAVES: "Gelombang Elektromagnetik",
-    OPTICS: "Optika",
+    WEEK_1: "Week 1 (Coulomb's Law & Electric Fields)",
+    WEEK_2: "Week 2 (Gauss's Law)",
+    WEEK_3: "Week 3 (Electric Potential & Capacitance)",
+    WEEK_4: "Week 4 (Current and Resistance, Circuits)",
+    WEEK_5: "Week 5 (Magnetic Fields & Magnetic Fields Due to Current)",
+    WEEK_6: "Week 6 (Induction and Inductance)",
+    WEEK_7: "Week 7 (Electromagnetic Oscillations and Alternating Current)",
 }
 
 export interface UserProfile {

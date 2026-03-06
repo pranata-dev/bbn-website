@@ -41,14 +41,13 @@ enum SubmissionStatus {
 }
 
 enum QuestionCategory {
-  ELECTRICITY
-  MAGNETISM
-  GAUSS_LAW
-  CAPACITANCE
-  ELECTROMAGNETIC_INDUCTION
-  AC_CIRCUITS
-  ELECTROMAGNETIC_WAVES
-  OPTICS
+  WEEK_1
+  WEEK_2
+  WEEK_3
+  WEEK_4
+  WEEK_5
+  WEEK_6
+  WEEK_7
 }
 
 model User {
