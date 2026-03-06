@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
 import { createServiceClient } from "@/lib/supabase/server"
+import { v4 as uuidv4 } from "uuid"
 
 // POST /api/tryouts/[id]/start - Start a tryout attempt
 export async function POST(
@@ -81,15 +82,19 @@ export async function POST(
         const shuffled = [...questionIds].sort(() => Math.random() - 0.5)
 
         // Create submission
+        const submissionId = uuidv4()
+        const now = new Date().toISOString()
         const { data: submission, error } = await supabase
             .from("submissions")
             .insert({
+                id: submissionId,
                 user_id: profile.id,
                 tryout_id: tryoutId,
                 status: "IN_PROGRESS",
-                started_at: new Date().toISOString(),
+                started_at: now,
                 question_order: shuffled,
                 total_count: shuffled.length,
+                created_at: now,
             })
             .select()
             .single()
