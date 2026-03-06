@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createServiceClient } from "@/lib/supabase/server"
 
+import { v4 as uuidv4 } from "uuid"
+
 // POST /api/admin/questions - Create a question with optional image upload
 export async function POST(request: NextRequest) {
     try {
@@ -58,10 +60,14 @@ export async function POST(request: NextRequest) {
             imageUrl = publicUrlData.publicUrl
         }
 
+        // Generate UUID manually since Prisma's @default(uuid()) doesn't apply when using Supabase client directly
+        const questionId = uuidv4()
+
         // Insert question into the database
         const { data: question, error: insertError } = await supabase
             .from("questions")
             .insert({
+                id: questionId,
                 text,
                 category,
                 option_a: optionA,
