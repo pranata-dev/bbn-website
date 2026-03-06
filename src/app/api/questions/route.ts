@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
 
+export const dynamic = "force-dynamic"
+
 // GET /api/questions - List questions (admin only)
 export async function GET(request: NextRequest) {
     try {
@@ -11,14 +13,14 @@ export async function GET(request: NextRequest) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
         }
 
-        const { data: profile } = await supabase
+        const { data: profile, error: profileError } = await supabase
             .from("users")
             .select("role")
             .eq("auth_id", user.id)
             .single()
 
-        if (!profile || profile.role !== "ADMIN") {
-            return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+        if (profileError || !profile || profile.role !== "ADMIN") {
+            return NextResponse.json({ error: "Forbidden: Not an admin" }, { status: 403 })
         }
 
         const { searchParams } = new URL(request.url)
@@ -33,12 +35,12 @@ export async function GET(request: NextRequest) {
         const { data: questions, error } = await query
 
         if (error) {
-            return NextResponse.json({ error: "Failed to fetch questions" }, { status: 500 })
+            return NextResponse.json({ error: `Fetch error: ${error.message}` }, { status: 500 })
         }
 
         return NextResponse.json({ questions })
     } catch (error) {
-        return NextResponse.json({ error: "Internal error" }, { status: 500 })
+        return NextResponse.json({ error: error instanceof Error ? error.message : "Internal error" }, { status: 500 })
     }
 }
 

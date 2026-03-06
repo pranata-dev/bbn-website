@@ -242,6 +242,9 @@ export default function QuestionsPage() {
             if (filter !== "all") params.set("category", filter)
             const res = await fetch(`/api/questions?${params}`)
             const data = await res.json()
+            if (!res.ok) {
+                toast.error(data.error || "Gagal mengambil data soal.")
+            }
             setQuestions(data.questions || [])
         } catch (error) {
             console.error("Failed to fetch questions:", error)
