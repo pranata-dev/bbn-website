@@ -54,7 +54,7 @@ export async function POST(
             .eq("user_id", profile.id)
             .eq("tryout_id", tryoutId)
 
-        if (attemptCount && attemptCount >= tryout.max_attempts) {
+        if (!tryout.is_practice && attemptCount && attemptCount >= tryout.max_attempts) {
             return NextResponse.json(
                 { error: "Kamu sudah mencapai batas percobaan untuk tryout ini." },
                 { status: 400 }
@@ -64,17 +64,40 @@ export async function POST(
         // Check active submission
         const { data: activeSubmission } = await supabase
             .from("submissions")
-            .select("id")
+            .select("id, status, started_at, question_order")
             .eq("user_id", profile.id)
             .eq("tryout_id", tryoutId)
             .eq("status", "IN_PROGRESS")
             .single()
 
         if (activeSubmission) {
-            return NextResponse.json(
-                { error: "Kamu masih memiliki tryout yang sedang berjalan.", submissionId: activeSubmission.id },
-                { status: 400 }
-            )
+            if (tryout.is_practice) {
+                // Return existing submission for Practice
+                const { data: questionsData } = await supabase
+                    .from("questions")
+                    .select("*")
+                    .in("id", activeSubmission.question_order || [])
+                
+                // Format questions order
+                const orderedQuestions = (activeSubmission.question_order || []).map((qId: string) => {
+                    return questionsData?.find((q: any) => q.id === qId)
+                }).filter((q: any) => q)
+
+                return NextResponse.json({
+                    message: "Berhasil memuat latihan yang sedang berjalan",
+                    submission: {
+                        id: activeSubmission.id,
+                        status: activeSubmission.status,
+                        startedAt: activeSubmission.started_at,
+                    },
+                    questions: orderedQuestions
+                })
+            } else {
+                return NextResponse.json(
+                    { error: "Kamu masih memiliki tryout yang sedang berjalan.", submissionId: activeSubmission.id },
+                    { status: 400 }
+                )
+            }
         }
 
         // Randomize question order
