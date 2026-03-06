@@ -96,6 +96,7 @@ model Tryout {
   duration    Int // in minutes
   status      TryoutStatus     @default(DRAFT)
   maxAttempts Int              @default(1) @map("max_attempts")
+  isPractice  Boolean          @default(false) @map("is_practice")
   startDate   DateTime?        @map("start_date")
   endDate     DateTime?        @map("end_date")
   createdAt   DateTime         @default(now()) @map("created_at")

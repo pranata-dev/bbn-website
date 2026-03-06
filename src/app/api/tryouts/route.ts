@@ -11,11 +11,30 @@ export async function GET(request: NextRequest) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
         }
 
-        const { data: tryouts, error } = await supabase
+        const { data: profile } = await supabase
+            .from("users")
+            .select("role")
+            .eq("auth_id", user.id)
+            .single()
+
+        let query = supabase
             .from("tryouts")
             .select("*, tryout_questions(count)")
             .eq("status", "ACTIVE")
             .order("created_at", { ascending: false })
+
+        // Apply role-based filtering
+        const role = profile?.role || "STUDENT_BASIC"
+        if (role === "STUDENT_BASIC" || role === "STUDENT_PREMIUM") {
+            // Cannot access practice questions, only regular tryouts
+            query = query.eq("is_practice", false)
+        } else if (role === "UTS_FLUX") {
+            // Can ONLY access practice questions, no regular tryouts
+            query = query.eq("is_practice", true)
+        }
+        // UTS_SENKU, UTS_EINSTEIN, and ADMIN can access both, so no additional filter.
+
+        const { data: tryouts, error } = await query
 
         if (error) {
             return NextResponse.json({ error: "Failed to fetch tryouts" }, { status: 500 })

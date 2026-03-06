@@ -17,6 +17,7 @@ import {
     Menu,
     X,
     Shield,
+    BatteryWarning,
 } from "lucide-react"
 import { useState } from "react"
 import { createClient } from "@/lib/supabase/client"
@@ -28,6 +29,7 @@ const navItems = [
     { href: "/admin/users", label: "Pengguna", icon: Users },
     { href: "/admin/questions", label: "Soal", icon: HelpCircle },
     { href: "/admin/tryouts", label: "Tryout", icon: FileText },
+    { href: "/admin/latihan", label: "Latihan Soal", icon: BatteryWarning },
     { href: "/admin/leaderboard", label: "Leaderboard", icon: Trophy },
     { href: "/admin/statistics", label: "Statistik", icon: BarChart3 },
 ]

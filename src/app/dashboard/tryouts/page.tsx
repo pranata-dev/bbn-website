@@ -17,6 +17,7 @@ interface TryoutItem {
     category: QuestionCategory | null
     duration: number
     status: string
+    is_practice: boolean
     created_at: string
     tryout_questions: { count: number }[]
 }
@@ -34,7 +35,9 @@ export default function TryoutsPage() {
         try {
             const res = await fetch("/api/tryouts")
             const data = await res.json()
-            setTryouts(data.tryouts || [])
+            // Filter strictly for tryouts, excluding practice questions
+            const properTryouts = (data.tryouts || []).filter((t: any) => !t.is_practice)
+            setTryouts(properTryouts)
         } catch (error) {
             console.error("Failed to fetch tryouts:", error)
         } finally {

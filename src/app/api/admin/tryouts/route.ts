@@ -9,11 +9,19 @@ export async function GET(request: NextRequest) {
     try {
         const adminSupabase = await createAdminClient()
 
-        // Fetch tryouts
-        const { data: tryouts, error } = await adminSupabase
+        const url = new URL(request.url)
+        const isPractice = url.searchParams.get("isPractice")
+
+        let query = adminSupabase
             .from("tryouts")
             .select("*")
             .order("created_at", { ascending: false })
+
+        if (isPractice !== null) {
+            query = query.eq("is_practice", isPractice === "true")
+        }
+
+        const { data: tryouts, error } = await query
 
         if (error) {
             return NextResponse.json({ error: `Fetch error: ${error.message}` }, { status: 500 })
@@ -31,9 +39,9 @@ export async function POST(request: NextRequest) {
     try {
         const supabase = createServiceClient()
         const body = await request.json()
-        const { title, description, category, duration, questionIds } = body
+        const { title, description, category, duration, isPractice, questionIds } = body
 
-        if (!title || !duration || !Array.isArray(questionIds) || questionIds.length === 0) {
+        if (!title || typeof duration === 'undefined' || !Array.isArray(questionIds) || questionIds.length === 0) {
             return NextResponse.json({ error: "Missing required fields or no questions attached" }, { status: 400 })
         }
 
@@ -48,9 +56,10 @@ export async function POST(request: NextRequest) {
                 title,
                 description: description || null,
                 category: category || null,
-                duration: parseInt(duration, 10),
+                duration: parseInt(duration as string, 10),
                 status: "DRAFT", // Default state
                 max_attempts: 1,
+                is_practice: isPractice === true,
                 created_at: now,
                 updated_at: now,
             })

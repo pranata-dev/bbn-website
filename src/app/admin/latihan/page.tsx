@@ -27,7 +27,7 @@ const INITIAL_FORM_DATA = {
     duration: 120, // default 2 hours
 }
 
-export default function AdminTryoutsPage() {
+export default function AdminLatihanPage() {
     const [tryouts, setTryouts] = useState<any[]>([])
     const [loading, setLoading] = useState(true)
     const [showForm, setShowForm] = useState(false)
@@ -68,10 +68,10 @@ export default function AdminTryoutsPage() {
 
     const fetchTryouts = async () => {
         try {
-            const res = await fetch("/api/admin/tryouts?isPractice=false")
+            const res = await fetch("/api/admin/tryouts?isPractice=true")
             const data = await res.json()
             if (!res.ok) {
-                toast.error(data.error || "Gagal mengambil data tryout.")
+                toast.error(data.error || "Gagal mengambil data latihan.")
             }
             setTryouts(data.tryouts || [])
         } catch (error) {
@@ -126,6 +126,7 @@ export default function AdminTryoutsPage() {
                 title: formData.title,
                 description: formData.description,
                 duration: formData.duration,
+                isPractice: true,
                 questionIds: Array.from(selectedQuestionIds),
             }
 
@@ -196,12 +197,12 @@ export default function AdminTryoutsPage() {
         <div className="space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold text-foreground">Manajemen Tryout</h1>
-                    <p className="text-muted-foreground">Buat dan kelola tryout.</p>
+                    <h1 className="text-2xl font-bold text-foreground">Manajemen Latihan Soal</h1>
+                    <p className="text-muted-foreground">Buat dan kelola latihan soal.</p>
                 </div>
                 <Button onClick={() => setShowForm(true)} className="bg-dark-brown hover:bg-soft-brown text-cream">
                     <Plus className="w-4 h-4 mr-2" />
-                    Buat Tryout
+                    Buat Latihan
                 </Button>
             </div>
 
