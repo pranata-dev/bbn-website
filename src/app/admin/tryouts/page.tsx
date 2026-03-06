@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Plus, Loader2, FileText, CheckCircle2 } from "lucide-react"
+import { Plus, Loader2, FileText, CheckCircle2, Play, Archive, RotateCcw } from "lucide-react"
 import { CATEGORY_LABELS } from "@/types"
 import type { QuestionCategory } from "@/types"
 import { toast } from "sonner"
@@ -155,6 +155,32 @@ export default function AdminTryoutsPage() {
         .filter(q => selectedQuestionIds.has(q.id))
         .reduce((sum, q) => sum + (q.weight || 1), 0)
 
+    const toggleStatus = async (tryoutId: string, newStatus: string) => {
+        try {
+            const res = await fetch(`/api/admin/tryouts/${tryoutId}`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ status: newStatus }),
+            })
+
+            if (!res.ok) {
+                const data = await res.json().catch(() => ({}))
+                throw new Error(data.error || "Failed to update status")
+            }
+
+            toast.success(
+                newStatus === "ACTIVE"
+                    ? "Tryout berhasil diaktifkan."
+                    : newStatus === "ARCHIVED"
+                        ? "Tryout berhasil diarsipkan."
+                        : "Status tryout diperbarui."
+            )
+            fetchTryouts()
+        } catch (error) {
+            toast.error(error instanceof Error ? error.message : "Gagal mengubah status.")
+        }
+    }
+
     // Group questions by category
     const questionsByCategory = availableQuestions.reduce<Record<string, any[]>>((acc, q) => {
         const cat = q.category || "UNCATEGORIZED"
@@ -221,6 +247,40 @@ export default function AdminTryoutsPage() {
                                                 <span className="w-1 h-1 rounded-full bg-warm-gray" />
                                                 <span>Dibuat: {new Date(t.created_at).toLocaleDateString("id-ID")}</span>
                                             </div>
+                                        </div>
+                                        <div className="shrink-0 flex items-center gap-2">
+                                            {t.status === "DRAFT" && (
+                                                <Button
+                                                    size="sm"
+                                                    className="bg-emerald-600 hover:bg-emerald-700 text-white h-8"
+                                                    onClick={() => toggleStatus(t.id, "ACTIVE")}
+                                                >
+                                                    <Play className="w-3.5 h-3.5 mr-1.5" />
+                                                    Aktifkan
+                                                </Button>
+                                            )}
+                                            {t.status === "ACTIVE" && (
+                                                <Button
+                                                    size="sm"
+                                                    variant="outline"
+                                                    className="h-8 border-warm-gray text-muted-foreground hover:text-foreground"
+                                                    onClick={() => toggleStatus(t.id, "ARCHIVED")}
+                                                >
+                                                    <Archive className="w-3.5 h-3.5 mr-1.5" />
+                                                    Arsipkan
+                                                </Button>
+                                            )}
+                                            {t.status === "ARCHIVED" && (
+                                                <Button
+                                                    size="sm"
+                                                    variant="outline"
+                                                    className="h-8 border-warm-gray text-muted-foreground hover:text-foreground"
+                                                    onClick={() => toggleStatus(t.id, "ACTIVE")}
+                                                >
+                                                    <RotateCcw className="w-3.5 h-3.5 mr-1.5" />
+                                                    Aktifkan Ulang
+                                                </Button>
+                                            )}
                                         </div>
                                     </div>
                                 </div>
