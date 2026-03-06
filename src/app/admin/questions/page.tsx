@@ -286,23 +286,46 @@ export default function QuestionsPage() {
             toast.error("Mohon isi semua field yang diperlukan.")
             return
         }
+        if (!formData.optionA || !formData.optionB || !formData.optionC || !formData.optionD) {
+            toast.error("Mohon isi opsi A, B, C, dan D.")
+            return
+        }
 
         setSubmitting(true)
         try {
-            const res = await fetch("/api/questions", {
+            // Build FormData for multipart upload (text fields + image)
+            const payload = new FormData()
+            payload.append("text", formData.text)
+            payload.append("category", formData.category)
+            payload.append("optionA", formData.optionA)
+            payload.append("optionB", formData.optionB)
+            payload.append("optionC", formData.optionC)
+            payload.append("optionD", formData.optionD)
+            payload.append("optionE", formData.optionE)
+            payload.append("correctAnswer", formData.correctAnswer)
+            payload.append("explanation", formData.explanation)
+            payload.append("weight", String(formData.weight))
+
+            if (compressedImage) {
+                payload.append("image", compressedImage)
+            }
+
+            const res = await fetch("/api/admin/questions", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(formData),
+                body: payload,
             })
 
-            if (!res.ok) throw new Error("Failed to create question")
+            if (!res.ok) {
+                const data = await res.json().catch(() => ({}))
+                throw new Error(data.error || "Failed to create question")
+            }
 
             toast.success("Soal berhasil ditambahkan.")
             setShowForm(false)
             resetForm()
             fetchQuestions()
         } catch (error) {
-            toast.error("Gagal menambahkan soal.")
+            toast.error(error instanceof Error ? error.message : "Gagal menambahkan soal.")
         } finally {
             setSubmitting(false)
         }
