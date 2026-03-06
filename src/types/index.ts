@@ -50,7 +50,7 @@ export interface Tryout {
     id: string
     title: string
     description: string | null
-    category: QuestionCategory
+    category: QuestionCategory | null
     duration: number
     status: TryoutStatus
     maxAttempts: number

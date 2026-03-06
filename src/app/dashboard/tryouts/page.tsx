@@ -14,7 +14,7 @@ interface TryoutItem {
     id: string
     title: string
     description: string | null
-    category: QuestionCategory
+    category: QuestionCategory | null
     duration: number
     status: string
     created_at: string
@@ -84,7 +84,7 @@ export default function TryoutsPage() {
                         <div>
                             <p className="text-sm font-medium text-muted-foreground">Week 1–4</p>
                             <h3 className="text-2xl font-bold text-foreground">
-                                {tryouts.filter(t => ["WEEK_1", "WEEK_2", "WEEK_3", "WEEK_4"].includes(t.category)).length}
+                                {tryouts.filter(t => t.category && ["WEEK_1", "WEEK_2", "WEEK_3", "WEEK_4"].includes(t.category)).length}
                             </h3>
                         </div>
                         <div className="w-10 h-10 rounded-full bg-earthy-green/20 flex items-center justify-center">
@@ -97,7 +97,7 @@ export default function TryoutsPage() {
                         <div>
                             <p className="text-sm font-medium text-muted-foreground">Week 5–7</p>
                             <h3 className="text-2xl font-bold text-foreground">
-                                {tryouts.filter(t => ["WEEK_5", "WEEK_6", "WEEK_7"].includes(t.category)).length}
+                                {tryouts.filter(t => t.category && ["WEEK_5", "WEEK_6", "WEEK_7"].includes(t.category)).length}
                             </h3>
                         </div>
                         <div className="w-10 h-10 rounded-full bg-earthy-gold/20 flex items-center justify-center">
@@ -134,7 +134,9 @@ export default function TryoutsPage() {
                                 <div className="flex items-start justify-between">
                                     <div className="flex-1">
                                         <Badge variant="secondary" className="mb-2 bg-warm-beige text-soft-brown text-xs">
-                                            {CATEGORY_LABELS[tryout.category]}
+                                            {tryout.category
+                                                ? CATEGORY_LABELS[tryout.category]
+                                                : "Semua Materi"}
                                         </Badge>
                                         <CardTitle className="text-lg">{tryout.title}</CardTitle>
                                     </div>

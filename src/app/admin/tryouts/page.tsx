@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { Plus, Loader2, FileText, CheckCircle2 } from "lucide-react"
 import { CATEGORY_LABELS } from "@/types"
+import type { QuestionCategory } from "@/types"
 import { toast } from "sonner"
 import Latex from "react-latex-next"
 import "katex/dist/katex.min.css"
@@ -18,20 +19,12 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog"
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Badge } from "@/components/ui/badge"
 
 const INITIAL_FORM_DATA = {
     title: "",
     description: "",
-    category: "",
     duration: 120, // default 2 hours
 }
 
@@ -51,24 +44,19 @@ export default function AdminTryoutsPage() {
         fetchTryouts()
     }, [])
 
-    // Fetch questions when category changes
+    // Fetch ALL questions when the dialog opens
     useEffect(() => {
-        if (!formData.category) {
-            setAvailableQuestions([])
-            setSelectedQuestionIds(new Set())
-            return
-        }
+        if (!showForm) return
 
-        const fetchQuestions = async () => {
+        const fetchAllQuestions = async () => {
             setLoadingQuestions(true)
             try {
-                const res = await fetch(`/api/admin/questions?category=${formData.category}`)
+                const res = await fetch(`/api/admin/questions`)
                 const data = await res.json()
                 if (!res.ok) {
-                    toast.error(data.error || "Gagal mengambil soal untuk kategori ini.")
+                    toast.error(data.error || "Gagal mengambil soal.")
                 }
                 setAvailableQuestions(data.questions || [])
-                setSelectedQuestionIds(new Set()) // Reset selection on category change
             } catch (error) {
                 console.error("Failed to fetch questions:", error)
             } finally {
@@ -76,8 +64,8 @@ export default function AdminTryoutsPage() {
             }
         }
 
-        fetchQuestions()
-    }, [formData.category])
+        fetchAllQuestions()
+    }, [showForm])
 
     const fetchTryouts = async () => {
         try {
@@ -110,9 +98,22 @@ export default function AdminTryoutsPage() {
         setSelectedQuestionIds(newSet)
     }
 
+    const selectAllInCategory = (categoryQuestions: any[]) => {
+        const newSet = new Set(selectedQuestionIds)
+        const allSelected = categoryQuestions.every(q => newSet.has(q.id))
+        if (allSelected) {
+            // Deselect all in this category
+            categoryQuestions.forEach(q => newSet.delete(q.id))
+        } else {
+            // Select all in this category
+            categoryQuestions.forEach(q => newSet.add(q.id))
+        }
+        setSelectedQuestionIds(newSet)
+    }
+
     const handleSubmit = async () => {
-        if (!formData.title || !formData.category || !formData.duration) {
-            toast.error("Mohon isi judul, kategori, dan durasi.")
+        if (!formData.title || !formData.duration) {
+            toast.error("Mohon isi judul dan durasi.")
             return
         }
         if (selectedQuestionIds.size === 0) {
@@ -125,7 +126,6 @@ export default function AdminTryoutsPage() {
             const payload = {
                 title: formData.title,
                 description: formData.description,
-                category: formData.category,
                 duration: formData.duration,
                 questionIds: Array.from(selectedQuestionIds),
             }
@@ -155,6 +155,17 @@ export default function AdminTryoutsPage() {
     const totalWeight = availableQuestions
         .filter(q => selectedQuestionIds.has(q.id))
         .reduce((sum, q) => sum + (q.weight || 1), 0)
+
+    // Group questions by category
+    const questionsByCategory = availableQuestions.reduce<Record<string, any[]>>((acc, q) => {
+        const cat = q.category || "UNCATEGORIZED"
+        if (!acc[cat]) acc[cat] = []
+        acc[cat].push(q)
+        return acc
+    }, {})
+
+    // Order categories by CATEGORY_LABELS key order
+    const orderedCategories = Object.keys(CATEGORY_LABELS).filter(cat => questionsByCategory[cat]?.length > 0)
 
     return (
         <div className="space-y-6">
@@ -190,7 +201,9 @@ export default function AdminTryoutsPage() {
                                             <div className="flex items-center gap-2 mb-1">
                                                 <h3 className="font-semibold text-foreground text-lg">{t.title}</h3>
                                                 <Badge variant="secondary" className="bg-warm-beige text-soft-brown text-xs">
-                                                    {CATEGORY_LABELS[t.category as keyof typeof CATEGORY_LABELS] || t.category}
+                                                    {t.category
+                                                        ? CATEGORY_LABELS[t.category as keyof typeof CATEGORY_LABELS] || t.category
+                                                        : "Semua Materi"}
                                                 </Badge>
                                                 <Badge
                                                     variant="outline"
@@ -240,32 +253,7 @@ export default function AdminTryoutsPage() {
                                     <Input
                                         value={formData.title}
                                         onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                                        placeholder="Misal: Tryout Listrik Statis & Dinamis"
-                                    />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label>Kategori (Materi)</Label>
-                                    <Select
-                                        value={formData.category}
-                                        onValueChange={(val) => setFormData({ ...formData, category: val })}
-                                    >
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Pilih kategori" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {Object.entries(CATEGORY_LABELS).map(([key, label]) => (
-                                                <SelectItem key={key} value={key}>{label}</SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                                <div className="space-y-2 md:col-span-2">
-                                    <Label>Deskripsi (opsional)</Label>
-                                    <Textarea
-                                        value={formData.description}
-                                        onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                                        placeholder="Penjelasan singkat mengenai tryout ini..."
-                                        rows={2}
+                                        placeholder="Misal: Tryout UTS Fisika II"
                                     />
                                 </div>
                                 <div className="space-y-2">
@@ -277,11 +265,20 @@ export default function AdminTryoutsPage() {
                                         onChange={(e) => setFormData({ ...formData, duration: parseInt(e.target.value) || 0 })}
                                     />
                                 </div>
+                                <div className="space-y-2 md:col-span-2">
+                                    <Label>Deskripsi (opsional)</Label>
+                                    <Textarea
+                                        value={formData.description}
+                                        onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                                        placeholder="Penjelasan singkat mengenai tryout ini..."
+                                        rows={2}
+                                    />
+                                </div>
                             </div>
 
                             <hr className="border-warm-gray/30" />
 
-                            {/* Question Selection */}
+                            {/* Question Selection - Grouped by Category */}
                             <div className="space-y-4">
                                 <div className="flex items-center justify-between">
                                     <Label className="text-lg">Pilih Soal</Label>
@@ -290,47 +287,77 @@ export default function AdminTryoutsPage() {
                                     </div>
                                 </div>
 
-                                {!formData.category ? (
-                                    <div className="p-8 text-center text-muted-foreground border border-dashed border-warm-gray rounded-lg bg-warm-beige/10">
-                                        Pilih kategori terlebih dahulu untuk melihat daftar soal yang tersedia.
-                                    </div>
-                                ) : loadingQuestions ? (
+                                {loadingQuestions ? (
                                     <div className="flex items-center justify-center p-8 border border-warm-gray/20 rounded-lg">
                                         <Loader2 className="w-6 h-6 animate-spin text-soft-brown" />
                                     </div>
                                 ) : availableQuestions.length === 0 ? (
                                     <div className="p-8 text-center text-muted-foreground border border-dashed border-warm-gray rounded-lg bg-warm-beige/10">
-                                        Tidak ada soal di Bank Soal untuk kategori ini.
+                                        Tidak ada soal di Bank Soal.
                                     </div>
                                 ) : (
-                                    <div className="border border-warm-gray/40 rounded-lg max-h-[400px] overflow-y-auto divide-y divide-warm-gray/20">
-                                        {availableQuestions.map((q) => {
-                                            const isSelected = selectedQuestionIds.has(q.id)
+                                    <div className="space-y-4">
+                                        {orderedCategories.map((cat) => {
+                                            const catQuestions = questionsByCategory[cat]
+                                            const allSelected = catQuestions.every((q: any) => selectedQuestionIds.has(q.id))
+                                            const someSelected = catQuestions.some((q: any) => selectedQuestionIds.has(q.id))
+                                            const selectedCount = catQuestions.filter((q: any) => selectedQuestionIds.has(q.id)).length
+
                                             return (
-                                                <div
-                                                    key={q.id}
-                                                    className={`p-4 flex items-start gap-4 transition-colors cursor-pointer ${isSelected ? "bg-emerald-50/50" : "hover:bg-warm-beige/30"}`}
-                                                    onClick={() => toggleQuestion(q.id)}
-                                                >
-                                                    <Checkbox
-                                                        checked={isSelected}
-                                                        onCheckedChange={() => toggleQuestion(q.id)}
-                                                        className="mt-1"
-                                                    />
-                                                    <div className="flex-1 min-w-0">
-                                                        <div className="text-sm line-clamp-3">
-                                                            <Latex>{q.text}</Latex>
+                                                <div key={cat} className="border border-warm-gray/40 rounded-lg overflow-hidden">
+                                                    {/* Category Header */}
+                                                    <div
+                                                        className="flex items-center justify-between px-4 py-3 bg-warm-beige/30 border-b border-warm-gray/20 cursor-pointer hover:bg-warm-beige/50 transition-colors"
+                                                        onClick={() => selectAllInCategory(catQuestions)}
+                                                    >
+                                                        <div className="flex items-center gap-3">
+                                                            <Checkbox
+                                                                checked={allSelected}
+                                                                className={someSelected && !allSelected ? "opacity-60" : ""}
+                                                                onCheckedChange={() => selectAllInCategory(catQuestions)}
+                                                            />
+                                                            <span className="font-semibold text-sm text-foreground">
+                                                                {CATEGORY_LABELS[cat as QuestionCategory] || cat}
+                                                            </span>
                                                         </div>
-                                                        <div className="flex items-center gap-2 mt-2">
-                                                            <Badge variant="outline" className="text-[10px] text-muted-foreground border-warm-gray/50">
-                                                                Bobot: {q.weight}
-                                                            </Badge>
-                                                            {q.image_url && (
-                                                                <Badge variant="outline" className="text-[10px] text-muted-foreground border-warm-gray/50">
-                                                                    Gambar
-                                                                </Badge>
-                                                            )}
-                                                        </div>
+                                                        <Badge variant="outline" className="text-xs border-warm-gray/50 text-muted-foreground">
+                                                            {selectedCount}/{catQuestions.length} dipilih
+                                                        </Badge>
+                                                    </div>
+
+                                                    {/* Questions in this category */}
+                                                    <div className="max-h-[250px] overflow-y-auto divide-y divide-warm-gray/20">
+                                                        {catQuestions.map((q: any) => {
+                                                            const isSelected = selectedQuestionIds.has(q.id)
+                                                            return (
+                                                                <div
+                                                                    key={q.id}
+                                                                    className={`p-4 flex items-start gap-4 transition-colors cursor-pointer ${isSelected ? "bg-emerald-50/50" : "hover:bg-warm-beige/30"}`}
+                                                                    onClick={() => toggleQuestion(q.id)}
+                                                                >
+                                                                    <Checkbox
+                                                                        checked={isSelected}
+                                                                        onCheckedChange={() => toggleQuestion(q.id)}
+                                                                        className="mt-1"
+                                                                    />
+                                                                    <div className="flex-1 min-w-0">
+                                                                        <div className="text-sm line-clamp-3">
+                                                                            <Latex>{q.text}</Latex>
+                                                                        </div>
+                                                                        <div className="flex items-center gap-2 mt-2">
+                                                                            <Badge variant="outline" className="text-[10px] text-muted-foreground border-warm-gray/50">
+                                                                                Bobot: {q.weight}
+                                                                            </Badge>
+                                                                            {q.image_url && (
+                                                                                <Badge variant="outline" className="text-[10px] text-muted-foreground border-warm-gray/50">
+                                                                                    Gambar
+                                                                                </Badge>
+                                                                            )}
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            )
+                                                        })}
                                                     </div>
                                                 </div>
                                             )

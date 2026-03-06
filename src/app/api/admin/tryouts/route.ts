@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
         const body = await request.json()
         const { title, description, category, duration, questionIds } = body
 
-        if (!title || !category || !duration || !Array.isArray(questionIds) || questionIds.length === 0) {
+        if (!title || !duration || !Array.isArray(questionIds) || questionIds.length === 0) {
             return NextResponse.json({ error: "Missing required fields or no questions attached" }, { status: 400 })
         }
 
@@ -47,7 +47,7 @@ export async function POST(request: NextRequest) {
                 id: tryoutId,
                 title,
                 description: description || null,
-                category,
+                category: category || null,
                 duration: parseInt(duration, 10),
                 status: "DRAFT", // Default state
                 max_attempts: 1,
