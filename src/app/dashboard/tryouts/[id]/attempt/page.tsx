@@ -64,8 +64,10 @@ export default function TryoutAttemptPage() {
                 setSubmissionId(data.submission.id)
                 setQuestions(data.questions)
 
-                // Calculate end time
-                const startTime = new Date(data.submission.startedAt).getTime()
+                // Calculate end time (ensure UTC parsing)
+                const startStr = data.submission.startedAt
+                const utcStartStr = startStr.endsWith("Z") ? startStr : startStr + "Z"
+                const startTime = new Date(utcStartStr).getTime()
                 const duration = data.submission.duration * 60 * 1000
                 endTimeRef.current = startTime + duration
 

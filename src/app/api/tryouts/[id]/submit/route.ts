@@ -53,7 +53,11 @@ export async function POST(
         }
 
         // Server-side time validation
-        const startTime = new Date(submission.started_at).getTime()
+        // PostgREST returns timestamps without 'Z' if the column is 'timestamp without time zone'.
+        // We know it's UTC since we inserted it using toISOString(). Force UTC parsing.
+        const startStr = submission.started_at
+        const utcStartStr = startStr.endsWith("Z") ? startStr : startStr + "Z"
+        const startTime = new Date(utcStartStr).getTime()
         const duration = submission.tryouts.duration * 60 * 1000 // Convert to ms
         const now = Date.now()
         const gracePeriod = 30000 // 30 seconds grace period
