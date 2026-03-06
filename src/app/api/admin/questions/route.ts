@@ -62,6 +62,7 @@ export async function POST(request: NextRequest) {
 
         // Generate UUID manually since Prisma's @default(uuid()) doesn't apply when using Supabase client directly
         const questionId = uuidv4()
+        const now = new Date().toISOString()
 
         // Insert question into the database
         const { data: question, error: insertError } = await supabase
@@ -79,6 +80,8 @@ export async function POST(request: NextRequest) {
                 explanation,
                 weight,
                 image_url: imageUrl,
+                created_at: now,
+                updated_at: now,
             })
             .select()
             .single()
