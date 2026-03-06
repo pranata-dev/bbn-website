@@ -14,6 +14,7 @@ export default function LatihanDetailPage() {
     const validId = typeof params?.id === "string" ? params.id : null
 
     const [latihan, setLatihan] = useState<any>(null)
+    const [previousSubmission, setPreviousSubmission] = useState<any>(null)
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
 
@@ -44,6 +45,31 @@ export default function LatihanDetailPage() {
                     ...data,
                     questionCount: data.tryout_questions?.[0]?.count || 0
                 })
+
+                // Fetch user submission history
+                const { data: { session } } = await supabase.auth.getSession()
+                if (session) {
+                    const { data: profile } = await supabase
+                        .from("users")
+                        .select("id")
+                        .eq("auth_id", session.user.id)
+                        .single()
+                    
+                    if (profile) {
+                        const { data: submissions } = await supabase
+                            .from("submissions")
+                            .select("id, status, score")
+                            .eq("user_id", profile.id)
+                            .eq("tryout_id", validId)
+                            .order("created_at", { ascending: false })
+                            .limit(1)
+
+                        if (submissions && submissions.length > 0) {
+                            setPreviousSubmission(submissions[0])
+                        }
+                    }
+                }
+
             } catch (err: any) {
                 console.error("Fetch error:", err)
                 setError(err.message || "Gagal memuat detail latihan.")
@@ -127,15 +153,50 @@ export default function LatihanDetailPage() {
                                     <p className="text-xs text-muted-foreground">Tidak ada batas waktu. Pelajari pembahasannya.</p>
                                 </div>
                             </div>
-                            <Button 
-                                asChild
-                                className="w-full sm:w-auto bg-dark-brown hover:bg-soft-brown text-cream shadow-sm transition-all hover:scale-[1.02]"
-                            >
-                                <Link href={`/dashboard/latihan/${validId}/practice`}>
-                                    Mulai Latihan
-                                    <ArrowRight className="w-4 h-4 ml-2" />
-                                </Link>
-                            </Button>
+                            {previousSubmission ? (
+                                previousSubmission.status === "IN_PROGRESS" ? (
+                                    <Button 
+                                        asChild
+                                        className="w-full sm:w-auto bg-dark-brown hover:bg-soft-brown text-cream shadow-sm transition-all hover:scale-[1.02]"
+                                    >
+                                        <Link href={`/dashboard/latihan/${validId}/practice`}>
+                                            Lanjutkan Latihan
+                                            <ArrowRight className="w-4 h-4 ml-2" />
+                                        </Link>
+                                    </Button>
+                                ) : (
+                                    <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+                                        <Button 
+                                            asChild
+                                            variant="outline"
+                                            className="w-full sm:w-auto border-warm-gray text-dark-brown hover:bg-warm-beige transition-all"
+                                        >
+                                            <Link href={`/dashboard/latihan/${validId}/discussion`}>
+                                                Lihat Pembahasan Terakhir
+                                            </Link>
+                                        </Button>
+                                        <Button 
+                                            asChild
+                                            className="w-full sm:w-auto bg-dark-brown hover:bg-soft-brown text-cream shadow-sm transition-all hover:scale-[1.02]"
+                                        >
+                                            <Link href={`/dashboard/latihan/${validId}/practice`}>
+                                                Ulangi Latihan
+                                                <ArrowRight className="w-4 h-4 ml-2" />
+                                            </Link>
+                                        </Button>
+                                    </div>
+                                )
+                            ) : (
+                                <Button 
+                                    asChild
+                                    className="w-full sm:w-auto bg-dark-brown hover:bg-soft-brown text-cream shadow-sm transition-all hover:scale-[1.02]"
+                                >
+                                    <Link href={`/dashboard/latihan/${validId}/practice`}>
+                                        Mulai Latihan
+                                        <ArrowRight className="w-4 h-4 ml-2" />
+                                    </Link>
+                                </Button>
+                            )}
                         </div>
                     </CardContent>
                 </Card>
@@ -160,8 +221,14 @@ export default function LatihanDetailPage() {
                                     <BatteryWarning className="w-4 h-4 text-soft-brown" />
                                 </div>
                                 <div>
-                                    <p className="text-sm font-medium text-foreground">Tipe Penilaian</p>
-                                    <p className="text-sm text-muted-foreground">Pembahasan interaktif langsung</p>
+                                    <p className="text-sm font-medium text-foreground">Status Latihan</p>
+                                    <p className="text-sm text-muted-foreground">
+                                        {previousSubmission 
+                                            ? previousSubmission.status === "IN_PROGRESS" 
+                                                ? "Sedang dikerjakan" 
+                                                : `Selesai ${previousSubmission.score !== null ? `(Skor: ${previousSubmission.score})` : ''}`
+                                            : "Belum dimulai"}
+                                    </p>
                                 </div>
                             </div>
                         </CardContent>
