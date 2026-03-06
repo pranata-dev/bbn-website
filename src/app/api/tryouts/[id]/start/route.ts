@@ -25,7 +25,7 @@ export async function POST(
         // Get user profile
         const { data: profile, error: profileError } = await supabase
             .from("users")
-            .select("id")
+            .select("id, role")
             .eq("auth_id", user.id)
             .single()
 
@@ -54,11 +54,29 @@ export async function POST(
             .eq("user_id", profile.id)
             .eq("tryout_id", tryoutId)
 
-        if (!tryout.is_practice && attemptCount && attemptCount >= tryout.max_attempts) {
-            return NextResponse.json(
-                { error: "Kamu sudah mencapai batas percobaan untuk tryout ini." },
-                { status: 400 }
-            )
+        if (tryout.is_practice) {
+            if (profile.role === "STUDENT_BASIC" || profile.role === "STUDENT_PREMIUM") {
+                return NextResponse.json({ error: "Akses latihan tidak diizinkan untuk role ini." }, { status: 403 })
+            }
+        } else {
+            let maxAttempts = tryout.max_attempts || 1;
+            
+            if (profile.role === "UTS_SENKU") {
+                maxAttempts = 1;
+            } else if (profile.role === "UTS_EINSTEIN") {
+                maxAttempts = 2;
+            } else if (profile.role === "ADMIN") {
+                maxAttempts = 9999;
+            } else if (profile.role === "UTS_FLUX" || profile.role === "STUDENT_BASIC" || profile.role === "STUDENT_PREMIUM") {
+                return NextResponse.json({ error: "Akses tryout tidak diizinkan untuk role ini." }, { status: 403 })
+            }
+
+            if (attemptCount !== null && attemptCount >= maxAttempts) {
+                return NextResponse.json(
+                    { error: `Kamu sudah mencapai batas percobaan untuk tryout ini (Maks ${maxAttempts} kali).` },
+                    { status: 400 }
+                )
+            }
         }
 
         // Check active submission

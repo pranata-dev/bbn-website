@@ -26,8 +26,8 @@ export async function GET(request: NextRequest) {
         // Apply role-based filtering
         const role = profile?.role || "STUDENT_BASIC"
         if (role === "STUDENT_BASIC" || role === "STUDENT_PREMIUM") {
-            // Cannot access practice questions, only regular tryouts
-            query = query.eq("is_practice", false)
+            // Cannot access practice questions AND tryouts (only Material)
+            return NextResponse.json({ tryouts: [] })
         } else if (role === "UTS_FLUX") {
             // Can ONLY access practice questions, no regular tryouts
             query = query.eq("is_practice", true)
