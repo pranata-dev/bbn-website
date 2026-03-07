@@ -112,11 +112,11 @@ async function seedDatabase() {
         process.exit(1);
     }
 
-    console.log(\`Successfully inserted \${data?.length || 0} questions into the database.\`);
+    console.log(`Successfully inserted ${data?.length || 0} questions into the database.`);
 }
 
 seedDatabase()
-  .catch((e) => {
-    console.error('Unhandled error during seeding:', e);
-    process.exit(1);
-  });
+    .catch((e) => {
+        console.error('Unhandled error during seeding:', e);
+        process.exit(1);
+    });
