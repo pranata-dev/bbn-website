@@ -39,7 +39,6 @@ interface RawQuestion {
 
 function normalize(q: RawQuestion) {
     return {
-        id: uuidv4(),
         text: q.text?.trim() || '',
         category: q.category?.trim() || '',
         option_a: (q.option_a || q.optionA || '').trim(),
@@ -53,59 +52,84 @@ function normalize(q: RawQuestion) {
     };
 }
 
-async function seedWeek(weekName: string, rawQuestions: any[]) {
-  console.log(`\n🚀 Seeding ${weekName}...`);
+async function seedWeek(weekName: string, rawQuestions: any[], existingMap: Map<string, any>) {
+  console.log(`\n🚀 Processing ${weekName}...`);
   
   if (!rawQuestions || rawQuestions.length === 0) {
     console.log(`⚠️ No questions found for ${weekName}. Skipping.`);
     return;
   }
 
-  // Normalize and validate
-  const normalized = rawQuestions.map(normalize);
-  const valid = normalized.filter(q => {
-      if (!q.text) return false;
-      if (!q.category) return false;
-      if (!q.option_a) return false;
-      if (!q.option_b) return false;
-      if (!q.option_c) return false;
-      if (!q.option_d) return false;
-      if (!['A','B','C','D','E'].includes(q.correct_answer)) return false;
-      return true;
-  });
+  // Deduplicate within the raw data first
+  const normalizedRaw = rawQuestions.map(normalize);
+  const uniqueInFile = Array.from(new Map(normalizedRaw.map(q => [q.text, q])).values());
 
-  // Deduplicate by text
-  const unique = Array.from(new Map(valid.map(q => [q.text, q])).values());
-  
-  console.log(`📊 Found ${rawQuestions.length} raw, ${valid.length} valid, ${unique.length} unique.`);
+  let inserted = 0;
+  let updated = 0;
+  let skipped = 0;
+  let failed = 0;
 
-  if (unique.length === 0) {
-      console.log('⚠️ No valid unique questions to seed.');
-      return;
+  for (const q of uniqueInFile) {
+      if (!q.text || !q.category || !q.option_a || !q.correct_answer) {
+          skipped++;
+          continue;
+      }
+
+      if (existingMap.has(q.text)) {
+          const existing = existingMap.get(q.text)!;
+          // Only update if category or something essential changed
+          if (existing.category !== q.category) {
+              const { error } = await supabase.from('questions').update(q).eq('id', existing.id);
+              if (error) {
+                  console.error(`❌ Failed to update [${existing.id}]:`, error.message);
+                  failed++;
+              } else {
+                  updated++;
+              }
+          } else {
+              skipped++;
+          }
+      } else {
+          // Insert new record, manually providing ID since DB default is missing/not working
+          const newId = uuidv4();
+          const { error } = await supabase.from('questions').insert({
+              ...q,
+              id: newId
+          });
+          if (error) {
+              console.error(`❌ Failed to insert:`, error.message);
+              failed++;
+          } else {
+              if (inserted === 0) console.log(`   First insert ID: ${newId}`);
+              inserted++;
+          }
+      }
   }
 
-  const { data, error } = await supabase
-    .from('questions')
-    .upsert(unique, { onConflict: 'text' })
-    .select();
-
-  if (error) {
-    console.error(`❌ Error seeding ${weekName}:`, error.message);
-  } else {
-    console.log(`✅ Successfully seeded/updated ${unique.length} questions for ${weekName}.`);
-  }
+  console.log(`✅ Results for ${weekName}: ${inserted} inserted, ${updated} updated, ${skipped} skipped, ${failed} failed.`);
 }
 
 async function main() {
-  console.log('🏁 Starting Modular Seeding Process...');
+  console.log('🏁 Starting Manual Deduplication Seeding Process...');
 
-  await seedWeek('Week 1', week1Questions);
-  await seedWeek('Week 6', week6Questions);
-  await seedWeek('Week 7', week7Questions);
+  // 1. Fetch all existing questions to create a lookup map
+  console.log('🔍 Fetching existing data for lookup...');
+  const { data: existing, error } = await supabase.from('questions').select('id, text, category');
+  if (error) {
+      console.error('❌ Failed to fetch existing records:', error.message);
+      process.exit(1);
+  }
+  const existingMap = new Map(existing.map(q => [q.text.trim(), q]));
+  console.log(`📊 Found ${existing.length} existing records.`);
+
+  // 2. Process each week
+  await seedWeek('Week 1', week1Questions, existingMap);
+  await seedWeek('Week 6', week6Questions, existingMap);
+  await seedWeek('Week 7', week7Questions, existingMap);
 
   console.log('\n✨ Seeding completed!');
   
-  // Verify final counts
+  // 3. Verify final counts
   const { data: finalData, error: finalError } = await supabase.from('questions').select('category');
   if (finalData) {
       const stats = finalData.reduce((acc: any, curr: any) => {
