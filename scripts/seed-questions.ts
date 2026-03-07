@@ -95,13 +95,20 @@ const questions = [
 async function seedDatabase() {
     console.log('Inserting questions into Supabase...');
 
+    const questionsWithId = questions.map(q => ({
+        ...q,
+        id: crypto.randomUUID(),
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+    }));
+
     const { data, error } = await supabase
         .from('questions')
-        .insert(questions)
+        .insert(questionsWithId)
         .select();
 
     if (error) {
-        console.error('Failed to seed database:', error.message, error.details);
+        console.error('Failed to seed database:', error.message, error.details, error.hint);
         process.exit(1);
     }
 
