@@ -23,6 +23,16 @@ import {
     DialogFooter,
 } from "@/components/ui/dialog"
 import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
+import {
     Plus,
     HelpCircle,
     Loader2,
@@ -33,6 +43,7 @@ import {
     ArrowRight,
     CheckCircle2,
     Pencil,
+    Trash2,
 } from "lucide-react"
 import { toast } from "sonner"
 import { CATEGORY_LABELS } from "@/types"
@@ -250,6 +261,7 @@ export default function QuestionsPage() {
     const [filter, setFilter] = useState("all")
     const [formData, setFormData] = useState(INITIAL_FORM_DATA)
     const [editingId, setEditingId] = useState<string | null>(null)
+    const [deletingId, setDeletingId] = useState<string | null>(null)
 
     // Image state
     const [compressedImage, setCompressedImage] = useState<File | null>(null)
@@ -336,6 +348,28 @@ export default function QuestionsPage() {
         setRemoveImage(false)
         handleClearImage()
         setShowForm(true)
+    }
+
+    const handleDelete = async () => {
+        if (!deletingId) return
+
+        try {
+            const res = await fetch(`/api/admin/questions/${deletingId}`, {
+                method: "DELETE",
+            })
+
+            if (!res.ok) {
+                const data = await res.json().catch(() => ({}))
+                throw new Error(data.error || "Gagal menghapus soal")
+            }
+
+            toast.success("Soal berhasil dihapus.")
+            fetchQuestions()
+        } catch (error) {
+            toast.error(error instanceof Error ? error.message : "Gagal menghapus soal.")
+        } finally {
+            setDeletingId(null)
+        }
     }
 
     const handleSubmit = async () => {
@@ -471,6 +505,15 @@ export default function QuestionsPage() {
                                             >
                                                 <Pencil className="w-4 h-4 mr-1.5" />
                                                 Edit
+                                            </Button>
+                                            <Button
+                                                variant="ghost"
+                                                size="sm"
+                                                className="h-8 flex text-muted-foreground hover:text-red-600"
+                                                onClick={() => setDeletingId(q.id)}
+                                            >
+                                                <Trash2 className="w-4 h-4 mr-1.5" />
+                                                Hapus
                                             </Button>
                                         </div>
                                     </div>
@@ -614,6 +657,27 @@ export default function QuestionsPage() {
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
+
+            {/* Delete Confirmation Dialog */}
+            <AlertDialog open={!!deletingId} onOpenChange={(open: boolean) => !open && setDeletingId(null)}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Hapus Soal?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            Tindakan ini tidak dapat dibatalkan. Soal ini akan dihapus secara permanen dari sistem.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Batal</AlertDialogCancel>
+                        <AlertDialogAction
+                            onClick={handleDelete}
+                            className="bg-red-600 hover:bg-red-700 text-white"
+                        >
+                            Ya, Hapus
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </div>
     )
 }

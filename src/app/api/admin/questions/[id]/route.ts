@@ -121,3 +121,40 @@ export async function PATCH(
         )
     }
 }
+
+// DELETE /api/admin/questions/[id] - Delete a question
+export async function DELETE(
+    request: NextRequest,
+    context: { params: Promise<{ id: string }> } | { params: { id: string } }
+) {
+    try {
+        const supabase = createServiceClient()
+        const { id } = await context.params
+
+        if (!id) {
+            return NextResponse.json({ error: "Missing question ID" }, { status: 400 })
+        }
+
+        // Delete question from the database
+        const { error: deleteError } = await supabase
+            .from("questions")
+            .delete()
+            .eq("id", id)
+
+        if (deleteError) {
+            console.error("Delete error:", deleteError)
+            return NextResponse.json(
+                { error: `Database error: ${deleteError.message}` },
+                { status: 500 }
+            )
+        }
+
+        return NextResponse.json({ success: true }, { status: 200 })
+    } catch (error) {
+        console.error("API error:", error)
+        return NextResponse.json(
+            { error: error instanceof Error ? error.message : "Internal server error" },
+            { status: 500 }
+        )
+    }
+}
