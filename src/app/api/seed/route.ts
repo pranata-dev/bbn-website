@@ -40,17 +40,18 @@ export async function GET(request: NextRequest) {
             // a. Process Questions
             for (const q of week.data) {
                 const text = q.text.trim();
+                const qAny = q as any;
                 const normalized = {
                     text,
                     category: week.id,
-                    option_a: (q.option_a || q.optionA || "").trim(),
-                    option_b: (q.option_b || q.optionB || "").trim(),
-                    option_c: (q.option_c || q.optionC || "").trim(),
-                    option_d: (q.option_d || q.optionD || "").trim(),
-                    option_e: (q.option_e || q.optionE || "").trim() || null,
-                    correct_answer: (q.correct_answer || q.correctAnswer || "").trim().toUpperCase(),
-                    explanation: q.explanation?.trim() || null,
-                    weight: q.weight || 1
+                    option_a: (qAny.option_a || qAny.optionA || "").trim(),
+                    option_b: (qAny.option_b || qAny.optionB || "").trim(),
+                    option_c: (qAny.option_c || qAny.optionC || "").trim(),
+                    option_d: (qAny.option_d || qAny.optionD || "").trim(),
+                    option_e: (qAny.option_e || qAny.optionE || "").trim() || null,
+                    correct_answer: (qAny.correct_answer || qAny.correctAnswer || "").trim().toUpperCase(),
+                    explanation: qAny.explanation?.trim() || null,
+                    weight: qAny.weight || 1
                 };
 
                 if (existingMap.has(text)) {
@@ -69,7 +70,7 @@ export async function GET(request: NextRequest) {
                     });
                     if (!error) {
                         inserted++;
-                        existingMap.set(text, { id: newId, category: week.id });
+                        existingMap.set(text, { id: newId, text, category: week.id });
                     }
                 }
             }
