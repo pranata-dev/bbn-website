@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase/server";
 import { week1Questions } from "@/lib/data/week1";
+import { week4Questions } from "@/lib/data/week4";
+import { week5Questions } from "@/lib/data/week5";
 import { week6Questions } from "@/lib/data/week6";
 import { week7Questions } from "@/lib/data/week7";
 
@@ -25,6 +27,8 @@ export async function GET(request: NextRequest) {
 
         const weeks = [
             { id: "WEEK_1", name: "Week 1", data: week1Questions },
+            { id: "WEEK_4", name: "Week 4", data: week4Questions },
+            { id: "WEEK_5", name: "Week 5", data: week5Questions },
             { id: "WEEK_6", name: "Week 6", data: week6Questions },
             { id: "WEEK_7", name: "Week 7", data: week7Questions }
         ];
