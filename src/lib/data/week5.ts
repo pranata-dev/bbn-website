@@ -2,36 +2,36 @@ export const week5Questions = [
     {
         text: `Satuan dari medan magnet dapat berupa:`,
         category: 'WEEK_5',
-        option_a: `$\text{C}\cdot\text{m/s}$`,
-        option_b: `$\text{C}\cdot\text{s/m}$`,
-        option_c: `$\text{C/kg}$`,
-        option_d: `$\text{kg/C}\cdot\text{s}$`,
-        option_e: `$\text{N/C}\cdot\text{m}$`,
+        option_a: `$\\text{C}\\cdot\\text{m/s}$`,
+        option_b: `$\\text{C}\\cdot\\text{s/m}$`,
+        option_c: `$\\text{C/kg}$`,
+        option_d: `$\\text{kg/C}\\cdot\\text{s}$`,
+        option_e: `$\\text{N/C}\\cdot\\text{m}$`,
         correct_answer: 'D',
         explanation: `Kita dapat menurunkan satuan medan magnet dari rumus Gaya Lorentz pada partikel yang bergerak lurus tegak lurus terhadap medan magnet:
-$$F = q \cdot v \cdot B$$
-$$B = \frac{F}{q \cdot v}$$
+$$F = q \\cdot v \\cdot B$$
+$$B = \\frac{F}{q \\cdot v}$$
 Mari kita urai satuannya ke dalam Satuan Internasional (SI) dasar:
-* Gaya ($F$) memiliki satuan Newton ($\text{N}$). $1 \text{ N} = 1 \text{ kg}\cdot\text{m/s}^2$
-* Muatan ($q$) memiliki satuan Coulomb ($\text{C}$)
-* Kecepatan ($v$) memiliki satuan $\text{m/s}$
+* Gaya ($F$) memiliki satuan Newton ($\\text{N}$). $1 \\text{ N} = 1 \\text{ kg}\\cdot\\text{m/s}^2$
+* Muatan ($q$) memiliki satuan Coulomb ($\\text{C}$)
+* Kecepatan ($v$) memiliki satuan $\\text{m/s}$
 Masukkan satuan-satuan tersebut:
-$$B = \frac{\text{kg}\cdot\text{m/s}^2}{\text{C} \cdot (\text{m/s})}$$
-$$B = \frac{\text{kg}\cdot\text{m/s}^2}{\text{C}\cdot\text{m} / \text{s}}$$
-$$B = \frac{\text{kg}}{\text{C}\cdot\text{s}}$$`,
+$$B = \\frac{\\text{kg}\\cdot\\text{m/s}^2}{\\text{C} \\cdot (\\text{m/s})}$$
+$$B = \\frac{\\text{kg}\\cdot\\text{m/s}^2}{\\text{C}\\cdot\\text{m} / \\text{s}}$$
+$$B = \\frac{\\text{kg}}{\\text{C}\\cdot\\text{s}}$$`,
         weight: 1
     },
     {
-        text: `Dalam rumus $\vec{F} = q\vec{v} \times \vec{B}$:`,
+        text: `Dalam rumus $\\vec{F} = q\\vec{v} \\times \\vec{B}$:`,
         category: 'WEEK_5',
-        option_a: `$\vec{F}$ harus tegak lurus terhadap $\vec{v}$ tetapi tidak harus terhadap $\vec{B}$`,
-        option_b: `$\vec{F}$ harus tegak lurus terhadap $\vec{B}$ tetapi tidak harus terhadap $\vec{v}$`,
-        option_c: `$\vec{v}$ harus tegak lurus terhadap $\vec{B}$ tetapi tidak harus terhadap $\vec{F}$`,
+        option_a: `$\\vec{F}$ harus tegak lurus terhadap $\\vec{v}$ tetapi tidak harus terhadap $\\vec{B}$`,
+        option_b: `$\\vec{F}$ harus tegak lurus terhadap $\\vec{B}$ tetapi tidak harus terhadap $\\vec{v}$`,
+        option_c: `$\\vec{v}$ harus tegak lurus terhadap $\\vec{B}$ tetapi tidak harus terhadap $\\vec{F}$`,
         option_d: `Ketiga vektor tersebut harus saling tegak lurus`,
-        option_e: `$\vec{F}$ harus tegak lurus terhadap $\vec{v}$ dan juga $\vec{B}$`,
+        option_e: `$\\vec{F}$ harus tegak lurus terhadap $\\vec{v}$ dan juga $\\vec{B}$`,
         correct_answer: 'E',
-        explanation: `Rumus di atas menggunakan operasi **perkalian silang vektor (cross product)** antara vektor kecepatan ($\vec{v}$) dan vektor medan magnet ($\vec{B}$). 
-Secara matematis, hasil dari perkalian silang dua buah vektor akan *selalu* menghasilkan vektor ketiga yang posisinya **tegak lurus terhadap kedua vektor pembentuknya**. Oleh karena itu, vektor gaya ($\vec{F}$) pasti akan selalu tegak lurus terhadap $\vec{v}$ dan sekaligus tegak lurus terhadap $\vec{B}$, berapapun sudut antara $\vec{v}$ dan $\vec{B}$ itu sendiri.`,
+        explanation: `Rumus di atas menggunakan operasi **perkalian silang vektor (cross product)** antara vektor kecepatan ($\\vec{v}$) dan vektor medan magnet ($\\vec{B}$). 
+Secara matematis, hasil dari perkalian silang dua buah vektor akan *selalu* menghasilkan vektor ketiga yang posisinya **tegak lurus terhadap kedua vektor pembentuknya**. Oleh karena itu, vektor gaya ($\\vec{F}$) pasti akan selalu tegak lurus terhadap $\\vec{v}$ dan sekaligus tegak lurus terhadap $\\vec{B}$, berapapun sudut antara $\\vec{v}$ dan $\\vec{B}$ itu sendiri.`,
         weight: 1
     },
     {
@@ -43,9 +43,9 @@ Secara matematis, hasil dari perkalian silang dua buah vektor akan *selalu* meng
         option_d: `Kecepatan partikel bermuatan negatif yang bergerak`,
         option_e: `Tidak ada pilihan di atas yang benar`,
         correct_answer: 'E',
-        explanation: `Garis-garis medan magnet merepresentasikan arah **medan magnet** ($\vec{B}$) itu sendiri. 
-* Gaya magnet ($\vec{F}$) selalu tegak lurus terhadap medan magnet (sehingga tidak mungkin searah).
-* Kecepatan partikel ($\vec{v}$) bisa mengarah ke mana saja bebas, tidak terikat secara absolut dengan arah medan magnet.
+        explanation: `Garis-garis medan magnet merepresentasikan arah **medan magnet** ($\\vec{B}$) itu sendiri. 
+* Gaya magnet ($\\vec{F}$) selalu tegak lurus terhadap medan magnet (sehingga tidak mungkin searah).
+* Kecepatan partikel ($\\vec{v}$) bisa mengarah ke mana saja bebas, tidak terikat secara absolut dengan arah medan magnet.
 Maka, garis medan magnet tidak searah dengan gaya maupun kecepatan pada umumnya.`,
         weight: 1
     },
@@ -58,7 +58,7 @@ Maka, garis medan magnet tidak searah dengan gaya maupun kecepatan pada umumnya.
         option_d: `Partikel bergerak ke arah lain`,
         option_e: `Tidak pernah`,
         correct_answer: 'E',
-        explanation: `Berdasarkan sifat perkalian silang ($\vec{F} = q\vec{v} \times \vec{B}$), vektor gaya Lorentz ($\vec{F}$) secara definitif **selalu tegak lurus** terhadap vektor kecepatannya ($\vec{v}$). Oleh karena itu, tidak akan pernah ada kondisi di mana gaya magnet bisa sejajar atau searah dengan arah gerak partikelnya.`,
+        explanation: `Berdasarkan sifat perkalian silang ($\\vec{F} = q\\vec{v} \\times \\vec{B}$), vektor gaya Lorentz ($\\vec{F}$) secara definitif **selalu tegak lurus** terhadap vektor kecepatannya ($\\vec{v}$). Oleh karena itu, tidak akan pernah ada kondisi di mana gaya magnet bisa sejajar atau searah dengan arah gerak partikelnya.`,
         weight: 1
     },
     {
@@ -71,11 +71,11 @@ Maka, garis medan magnet tidak searah dengan gaya maupun kecepatan pada umumnya.
         option_e: `Jika partikel dalam keadaan diam`,
         correct_answer: 'C',
         explanation: `Besar gaya magnet dirumuskan dengan:
-$$F = qvB \sin\theta$$
-Dimana $\theta$ adalah sudut antara kecepatan ($v$) dan medan magnet ($B$).
+$$F = qvB \\sin\\theta$$
+Dimana $\\theta$ adalah sudut antara kecepatan ($v$) dan medan magnet ($B$).
 * Jika diam ($v = 0$), maka $F = 0$.
-* Jika bergerak di sepanjang garis medan (sejajar, $\theta = 0^\circ$ atau $180^\circ$), maka $\sin(0) = 0$, sehingga $F = 0$.
-* Agar gaya dapat bekerja, partikel harus bergerak dan membentuk sudut memotong garis medan (misalnya tegak lurus), sehingga nilai $\sin\theta \neq 0$.`,
+* Jika bergerak di sepanjang garis medan (sejajar, $\\theta = 0^\\circ$ atau $180^\\circ$), maka $\\sin(0) = 0$, sehingga $F = 0$.
+* Agar gaya dapat bekerja, partikel harus bergerak dan membentuk sudut memotong garis medan (misalnya tegak lurus), sehingga nilai $\\sin\\theta \\neq 0$.`,
         weight: 1
     },
     {
@@ -87,9 +87,9 @@ Dimana $\theta$ adalah sudut antara kecepatan ($v$) dan medan magnet ($B$).
         option_d: `Tegak lurus terhadap kecepatan ketika gaya magnetnya bernilai nol`,
         option_e: `Tidak ada pilihan di atas yang benar`,
         correct_answer: 'A',
-        explanation: `Berdasarkan rumus gaya Lorentz $F = qvB \sin\theta$, gaya akan bernilai **nol** hanya jika $\sin\theta = 0$. Hal ini terjadi pada dua kondisi sudut:
-1. $\theta = 0^\circ$ (kecepatan partikel searah/sejajar dengan arah medan magnet).
-2. $\theta = 180^\circ$ (kecepatan partikel berlawanan arah secara persis dengan arah medan magnet).
+        explanation: `Berdasarkan rumus gaya Lorentz $F = qvB \\sin\\theta$, gaya akan bernilai **nol** hanya jika $\\sin\\theta = 0$. Hal ini terjadi pada dua kondisi sudut:
+1. $\\theta = 0^\\circ$ (kecepatan partikel searah/sejajar dengan arah medan magnet).
+2. $\\theta = 180^\\circ$ (kecepatan partikel berlawanan arah secara persis dengan arah medan magnet).
 Jadi, jika kita menemukan arah tembakan di mana partikel tidak mengalami gaya sama sekali ($F=0$), maka bisa dipastikan arah medan magnet tersebut sejajar dengan garis arah tembakan (kecepatan) tersebut.`,
         weight: 1
     },
@@ -103,9 +103,9 @@ Jadi, jika kita menemukan arah tembakan di mana partikel tidak mengalami gaya sa
         option_e: `Ke barat`,
         correct_answer: 'A',
         explanation: `Elektron bergerak ke **Utara**, sementara medan magnet mengarah ke **Selatan**. Ini berarti arah gerak elektron dan arah medan magnet berlawanan arah secara persis (anti-paralel).
-Sudut yang dibentuk antara kecepatan ($\vec{v}$) dan medan magnet ($\vec{B}$) adalah $\theta = 180^\circ$.
+Sudut yang dibentuk antara kecepatan ($\\vec{v}$) dan medan magnet ($\\vec{B}$) adalah $\\theta = 180^\\circ$.
 Besar gaya magnetnya:
-$$F = qvB \sin(180^\circ) = qvB (0) = 0$$
+$$F = qvB \\sin(180^\\circ) = qvB (0) = 0$$
 Maka, tidak ada gaya magnet yang bekerja pada elektron.`,
         weight: 1
     },
@@ -118,8 +118,8 @@ Maka, tidak ada gaya magnet yang bekerja pada elektron.`,
         option_d: `Mengubah energi kinetik dari partikel bermuatan`,
         option_e: `Mengubah lintasan dari partikel bermuatan`,
         correct_answer: 'D',
-        explanation: `Karena gaya magnet selalu tegak lurus terhadap arah gerak (perpindahan) partikel, maka usaha ($W$) yang dilakukan oleh gaya magnet adalah nol ($W = F \cdot s \cos 90^\circ = 0$).
-Berdasarkan Teorema Usaha-Energi, perubahan energi kinetik sama dengan usaha total yang dilakukan ($\Delta EK = W$). Karena usahanya nol, maka **energi kinetik partikel selalu konstan** (kelajuannya tidak bisa bertambah cepat atau lambat). Gaya magnet hanya bisa mengubah "arah" kecepatan partikel, bukan nilai kelajuannya.`,
+        explanation: `Karena gaya magnet selalu tegak lurus terhadap arah gerak (perpindahan) partikel, maka usaha ($W$) yang dilakukan oleh gaya magnet adalah nol ($W = F \\cdot s \\cos 90^\\circ = 0$).
+Berdasarkan Teorema Usaha-Energi, perubahan energi kinetik sama dengan usaha total yang dilakukan ($\\Delta EK = W$). Karena usahanya nol, maka **energi kinetik partikel selalu konstan** (kelajuannya tidak bisa bertambah cepat atau lambat). Gaya magnet hanya bisa mengubah "arah" kecepatan partikel, bukan nilai kelajuannya.`,
         weight: 1
     },
     {
@@ -131,15 +131,15 @@ Berdasarkan Teorema Usaha-Energi, perubahan energi kinetik sama dengan usaha tot
         option_d: `$4$`,
         option_e: `$8$`,
         correct_answer: 'C',
-        explanation: `Gaya Lorentz dirumuskan dengan $F = qvB \sin(90^\circ) = qvB$.
+        explanation: `Gaya Lorentz dirumuskan dengan $F = qvB \\sin(90^\\circ) = qvB$.
 Diketahui bahwa gaya pada proton sama dengan gaya pada partikel alfa:
 $$F_{proton} = F_{alfa}$$
-$$q_p \cdot v_p \cdot B = q_\alpha \cdot v_\alpha \cdot B$$
-Coret $B$ di kedua ruas dan masukkan nilai muatannya ($q_p = e$ dan $q_\alpha = 2e$):
-$$e \cdot v_p = (2e) \cdot v_\alpha$$
-$$v_p = 2 \cdot v_\alpha$$
+$$q_p \\cdot v_p \\cdot B = q_\\alpha \\cdot v_\\alpha \\cdot B$$
+Coret $B$ di kedua ruas dan masukkan nilai muatannya ($q_p = e$ dan $q_\\alpha = 2e$):
+$$e \\cdot v_p = (2e) \\cdot v_\\alpha$$
+$$v_p = 2 \\cdot v_\\alpha$$
 Maka rasio kecepatannya adalah:
-$$\frac{v_{proton}}{v_{alfa}} = \frac{v_p}{v_\alpha} = 2$$`,
+$$\\frac{v_{proton}}{v_{alfa}} = \\frac{v_p}{v_\\alpha} = 2$$`,
         weight: 1
     },
     {
@@ -153,46 +153,46 @@ $$\frac{v_{proton}}{v_{alfa}} = \frac{v_p}{v_\alpha} = 2$$`,
         correct_answer: 'A',
         explanation: `Atom hidrogen yang kehilangan elektronnya hanya tersisa intinya saja, yaitu sebuah **proton** yang bermuatan **positif**. 
 Gunakan Kaidah Tangan Kanan untuk muatan positif:
-* Ibu jari (kecepatan $\vec{v}$) menunjuk ke **Timur**.
-* Keempat jari telunjuk (medan magnet $\vec{B}$) menunjuk ke **Utara**.
-* Arah dorongan telapak tangan (gaya $\vec{F}$) menunjuk **ke Atas** (keluar dari bidang orientasi).
+* Ibu jari (kecepatan $\\vec{v}$) menunjuk ke **Timur**.
+* Keempat jari telunjuk (medan magnet $\\vec{B}$) menunjuk ke **Utara**.
+* Arah dorongan telapak tangan (gaya $\\vec{F}$) menunjuk **ke Atas** (keluar dari bidang orientasi).
 Oleh karena itu, proton tersebut akan didorong dan dibelokkan ke **atas**.`,
         weight: 1
     },
     {
-        text: `Satuan yang sesuai untuk permeabilitas ruang hampa ($\mu_0$) adalah:`,
+        text: `Satuan yang sesuai untuk permeabilitas ruang hampa ($\\mu_0$) adalah:`,
         category: 'WEEK_5',
-        option_a: `$\text{tesla}$`,
-        option_b: `$\text{newton/ampere}^2$`,
-        option_c: `$\text{weber/meter}$`,
-        option_d: `$\text{kilogram}\cdot\text{ampere/meter}$`,
-        option_e: `$\text{tesla}\cdot\text{meter/ampere}$`,
+        option_a: `$\\text{tesla}$`,
+        option_b: `$\\text{newton/ampere}^2$`,
+        option_c: `$\\text{weber/meter}$`,
+        option_d: `$\\text{kilogram}\\cdot\\text{ampere/meter}$`,
+        option_e: `$\\text{tesla}\\cdot\\text{meter/ampere}$`,
         correct_answer: 'E',
-        explanation: `Ambil salah satu rumus yang mengandung $\mu_0$, contohnya rumus medan magnet pada kawat lurus panjang (Hukum Ampere):
-$$B = \frac{\mu_0 \cdot I}{2\pi \cdot r}$$
-Susun ulang persamaan untuk mencari satuan $\mu_0$:
-$$\mu_0 = \frac{B \cdot 2\pi \cdot r}{I}$$
-Mengingat konstanta $2\pi$ tidak memiliki besaran dimensi, satuannya adalah:
-* $B$ = Tesla ($\text{T}$)
-* $r$ = meter ($\text{m}$)
-* $I$ = Ampere ($\text{A}$)
-Maka, satuan $\mu_0$ adalah **$\text{T}\cdot\text{m/A}$** (Tesla meter per Ampere).`,
+        explanation: `Ambil salah satu rumus yang mengandung $\\mu_0$, contohnya rumus medan magnet pada kawat lurus panjang (Hukum Ampere):
+$$B = \\frac{\\mu_0 \\cdot I}{2\\pi \\cdot r}$$
+Susun ulang persamaan untuk mencari satuan $\\mu_0$:
+$$\\mu_0 = \\frac{B \\cdot 2\\pi \\cdot r}{I}$$
+Mengingat konstanta $2\\pi$ tidak memiliki besaran dimensi, satuannya adalah:
+* $B$ = Tesla ($\\text{T}$)
+* $r$ = meter ($\\text{m}$)
+* $I$ = Ampere ($\\text{A}$)
+Maka, satuan $\\mu_0$ adalah **$\\text{T}\\cdot\\text{m/A}$** (Tesla meter per Ampere).`,
         weight: 1
     },
     {
         text: `Satu "coulomb" adalah:`,
         category: 'WEEK_5',
         option_a: `Satu ampere per detik`,
-        option_b: `Jumlah muatan yang akan memberikan gaya sebesar $1 \text{ N}$ pada muatan serupa pada jarak $1 \text{ m}$`,
-        option_c: `Jumlah arus pada masing-masing dari dua kawat panjang sejajar, yang terpisah sejauh $1 \text{ m}$, yang menghasilkan gaya sebesar $2 \times 10^{-7} \text{ N/m}$`,
-        option_d: `Jumlah muatan yang mengalir melewati suatu titik dalam satu detik ketika arusnya adalah $1 \text{ A}$`,
+        option_b: `Jumlah muatan yang akan memberikan gaya sebesar $1 \\text{ N}$ pada muatan serupa pada jarak $1 \\text{ m}$`,
+        option_c: `Jumlah arus pada masing-masing dari dua kawat panjang sejajar, yang terpisah sejauh $1 \\text{ m}$, yang menghasilkan gaya sebesar $2 \\times 10^{-7} \\text{ N/m}$`,
+        option_d: `Jumlah muatan yang mengalir melewati suatu titik dalam satu detik ketika arusnya adalah $1 \\text{ A}$`,
         option_e: `Sebuah singkatan untuk kombinasi tertentu dari kilogram, meter, dan detik`,
         correct_answer: 'D',
         explanation: `Secara fundamental, arus listrik ($I$) didefinisikan sebagai laju aliran muatan listrik ($q$) terhadap waktu ($t$):
-$$I = \frac{q}{t}$$
-$$q = I \cdot t$$
+$$I = \\frac{q}{t}$$
+$$q = I \\cdot t$$
 Dalam Satuan Internasional (SI):
-$$1 \text{ Coulomb} = 1 \text{ Ampere} \times 1 \text{ sekon}$$
+$$1 \\text{ Coulomb} = 1 \\text{ Ampere} \\times 1 \\text{ sekon}$$
 Jadi, 1 Coulomb secara definitif adalah jumlah muatan listrik yang mengalir melalui konduktor dalam waktu 1 detik saat arus yang mengalir adalah sebesar 1 Ampere.`,
         weight: 1
     },
@@ -251,31 +251,31 @@ Maka, jarum Utara kompas tersebut akan dipaksa menyimpang menunjuk ke arah **Sel
         option_e: `$1/R^{3/2}$`,
         correct_answer: 'B',
         explanation: `Rumus besar medan magnet ($B$) yang dihasilkan oleh kawat lurus panjang berarus sejauh $R$ dari kawat didasarkan pada Hukum Ampere (Hukum Biot-Savart):
-$$B = \frac{\mu_0 \cdot I}{2\pi \cdot R}$$
+$$B = \\frac{\\mu_0 \\cdot I}{2\\pi \\cdot R}$$
 Dari rumus di atas, terlihat jelas bahwa medan magnet berbanding lurus dengan arus ($I$) dan **berbanding terbalik dengan jaraknya ($R$)**, sehingga proporsional dengan $1/R$.`,
         weight: 1
     },
     {
-        text: `Medan magnet pada jarak $2 \text{ cm}$ dari sebuah kawat lurus panjang berarus adalah $2,0 \times 10^{-5} \text{ T}$. Arus dalam kawat tersebut adalah:`,
+        text: `Medan magnet pada jarak $2 \\text{ cm}$ dari sebuah kawat lurus panjang berarus adalah $2,0 \\times 10^{-5} \\text{ T}$. Arus dalam kawat tersebut adalah:`,
         category: 'WEEK_5',
-        option_a: `$0,16 \text{ A}$`,
-        option_b: `$1,0 \text{ A}$`,
-        option_c: `$2,0 \text{ A}$`,
-        option_d: `$4,0 \text{ A}$`,
-        option_e: `$25 \text{ A}$`,
+        option_a: `$0,16 \\text{ A}$`,
+        option_b: `$1,0 \\text{ A}$`,
+        option_c: `$2,0 \\text{ A}$`,
+        option_d: `$4,0 \\text{ A}$`,
+        option_e: `$25 \\text{ A}$`,
         correct_answer: 'C',
         explanation: `Gunakan rumus medan magnet kawat lurus sejajar:
-$$B = \frac{\mu_0 \cdot I}{2\pi \cdot a}$$
+$$B = \\frac{\\mu_0 \\cdot I}{2\\pi \\cdot a}$$
 Dimana:
-* $B = 2,0 \times 10^{-5} \text{ T}$
-* $a = 2 \text{ cm} = 0,02 \text{ m}$
-* $\mu_0 = 4\pi \times 10^{-7} \text{ T}\cdot\text{m/A}$
+* $B = 2,0 \\times 10^{-5} \\text{ T}$
+* $a = 2 \\text{ cm} = 0,02 \\text{ m}$
+* $\\mu_0 = 4\\pi \\times 10^{-7} \\text{ T}\\cdot\\text{m/A}$
 Susun ulang persamaan untuk mencari nilai arus ($I$):
-$$I = \frac{B \cdot 2\pi \cdot a}{\mu_0}$$
-$$I = \frac{(2,0 \times 10^{-5}) \cdot 2\pi \cdot (0,02)}{4\pi \times 10^{-7}}$$
-$$I = \frac{4\pi \times 10^{-7}}{4\pi \times 10^{-7}}$$
-$$I = 1,0 \times 2,0 \text{ A} = 2,0 \text{ A}$$
-*(Catatan perhitungan sederhana: $\frac{2\pi}{4\pi} = \frac{1}{2}$, maka $\frac{2,0 \times 10^{-5} \times 0,02}{2 \times 10^{-7}} = 2,0 \text{ A}$).*`,
+$$I = \\frac{B \\cdot 2\\pi \\cdot a}{\\mu_0}$$
+$$I = \\frac{(2,0 \\times 10^{-5}) \\cdot 2\\pi \\cdot (0,02)}{4\\pi \\times 10^{-7}}$$
+$$I = \\frac{4\\pi \\times 10^{-7}}{4\\pi \\times 10^{-7}}$$
+$$I = 1,0 \\times 2,0 \\text{ A} = 2,0 \\text{ A}$$
+*(Catatan perhitungan sederhana: $\\frac{2\\pi}{4\\pi} = \\frac{1}{2}$, maka $\\frac{2,0 \\times 10^{-5} \\times 0,02}{2 \\times 10^{-7}} = 2,0 \\text{ A}$).*`,
         weight: 1
     },
     {
@@ -295,41 +295,41 @@ Karena arah medannya sama-sama menembus, mereka tidak saling meniadakan, melaink
         weight: 1
     },
     {
-        text: `Dua kawat lurus panjang posisinya sejajar dan membawa arus searah. Arusnya masing-masing adalah $8,0 \text{ A}$ dan $12 \text{ A}$, dan kawat dipisahkan sejauh $0,40 \text{ cm}$. Medan magnet dalam satuan tesla pada titik tengah di antara kedua kawat adalah:`,
+        text: `Dua kawat lurus panjang posisinya sejajar dan membawa arus searah. Arusnya masing-masing adalah $8,0 \\text{ A}$ dan $12 \\text{ A}$, dan kawat dipisahkan sejauh $0,40 \\text{ cm}$. Medan magnet dalam satuan tesla pada titik tengah di antara kedua kawat adalah:`,
         category: 'WEEK_5',
         option_a: `$0$`,
-        option_b: `$4,0 \times 10^{-4}$`,
-        option_c: `$8,0 \times 10^{-4}$`,
-        option_d: `$12 \times 10^{-4}$`,
-        option_e: `$20 \times 10^{-4}$`,
+        option_b: `$4,0 \\times 10^{-4}$`,
+        option_c: `$8,0 \\times 10^{-4}$`,
+        option_d: `$12 \\times 10^{-4}$`,
+        option_e: `$20 \\times 10^{-4}$`,
         correct_answer: 'B',
-        explanation: `Titik tengah berada tepat di tengah-tengah jarak pisah, yaitu jaraknya $a_1 = a_2 = 0,20 \text{ cm} = 0,002 \text{ m}$ dari masing-masing kawat.
+        explanation: `Titik tengah berada tepat di tengah-tengah jarak pisah, yaitu jaraknya $a_1 = a_2 = 0,20 \\text{ cm} = 0,002 \\text{ m}$ dari masing-masing kawat.
 Karena arus **searah**, arah vektor medan magnet dari kedua kawat di titik tengah akan **saling berlawanan arah** (menggunakan kaidah tangan kanan: yang satu masuk bidang, yang satu keluar bidang). Maka resultannya saling mengurangi ($B_{tot} = |B_1 - B_2|$).
-Hitung $B_1$ (Kawat $8,0 \text{ A}$):
-$$B_1 = \frac{(4\pi \times 10^{-7}) \times 8,0}{2\pi \times 0,002} = \frac{(2 \times 10^{-7}) \times 8,0}{0,002} = \frac{16 \times 10^{-7}}{2 \times 10^{-3}} = 8,0 \times 10^{-4} \text{ T}$$
-Hitung $B_2$ (Kawat $12 \text{ A}$):
-$$B_2 = \frac{(4\pi \times 10^{-7}) \times 12}{2\pi \times 0,002} = \frac{(2 \times 10^{-7}) \times 12}{0,002} = \frac{24 \times 10^{-7}}{2 \times 10^{-3}} = 12 \times 10^{-4} \text{ T}$$
+Hitung $B_1$ (Kawat $8,0 \\text{ A}$):
+$$B_1 = \\frac{(4\\pi \\times 10^{-7}) \\times 8,0}{2\\pi \\times 0,002} = \\frac{(2 \\times 10^{-7}) \\times 8,0}{0,002} = \\frac{16 \\times 10^{-7}}{2 \\times 10^{-3}} = 8,0 \\times 10^{-4} \\text{ T}$$
+Hitung $B_2$ (Kawat $12 \\text{ A}$):
+$$B_2 = \\frac{(4\\pi \\times 10^{-7}) \\times 12}{2\\pi \\times 0,002} = \\frac{(2 \\times 10^{-7}) \\times 12}{0,002} = \\frac{24 \\times 10^{-7}}{2 \\times 10^{-3}} = 12 \\times 10^{-4} \\text{ T}$$
 Resultan Medan Magnet:
-$$B_{tot} = 12 \times 10^{-4} - 8,0 \times 10^{-4} = 4,0 \times 10^{-4} \text{ T}$$`,
+$$B_{tot} = 12 \\times 10^{-4} - 8,0 \\times 10^{-4} = 4,0 \\times 10^{-4} \\text{ T}$$`,
         weight: 1
     },
     {
-        text: `Dua kawat lurus panjang posisinya sejajar dan membawa arus dalam arah yang saling berlawanan. Arusnya masing-masing adalah $8,0 \text{ A}$ dan $12 \text{ A}$, dan kawat dipisahkan sejauh $0,40 \text{ cm}$. Medan magnet dalam satuan tesla pada titik tengah di antara kedua kawat adalah:`,
+        text: `Dua kawat lurus panjang posisinya sejajar dan membawa arus dalam arah yang saling berlawanan. Arusnya masing-masing adalah $8,0 \\text{ A}$ dan $12 \\text{ A}$, dan kawat dipisahkan sejauh $0,40 \\text{ cm}$. Medan magnet dalam satuan tesla pada titik tengah di antara kedua kawat adalah:`,
         category: 'WEEK_5',
         option_a: `$0$`,
-        option_b: `$4,0 \times 10^{-4}$`,
-        option_c: `$8,0 \times 10^{-4}$`,
-        option_d: `$12 \times 10^{-4}$`,
-        option_e: `$20 \times 10^{-4}$`,
+        option_b: `$4,0 \\times 10^{-4}$`,
+        option_c: `$8,0 \\times 10^{-4}$`,
+        option_d: `$12 \\times 10^{-4}$`,
+        option_e: `$20 \\times 10^{-4}$`,
         correct_answer: 'E',
         explanation: `Kondisi ini sama persis dengan soal nomor 19, namun arah arusnya **saling berlawanan**. 
 Sesuai prinsip yang kita bahas pada soal nomor 18, jika arus berlawanan arah, arah vektor medan magnet di titik tengah di antara keduanya akan menunjuk **ke arah yang sama persis**. Sehingga, resultan medan magnetnya saling **menjumlahkan** ($B_{tot} = B_1 + B_2$).
 Dari perhitungan sebelumnya:
-* $B_1 = 8,0 \times 10^{-4} \text{ T}$
-* $B_2 = 12 \times 10^{-4} \text{ T}$
+* $B_1 = 8,0 \\times 10^{-4} \\text{ T}$
+* $B_2 = 12 \\times 10^{-4} \\text{ T}$
 Maka Resultan Medan Magnetnya:
-$$B_{tot} = (8,0 \times 10^{-4}) + (12 \times 10^{-4})$$
-$$B_{tot} = 20 \times 10^{-4} \text{ T}$$`,
+$$B_{tot} = (8,0 \\times 10^{-4}) + (12 \\times 10^{-4})$$
+$$B_{tot} = 20 \\times 10^{-4} \\text{ T}$$`,
         weight: 1
     },
 ];

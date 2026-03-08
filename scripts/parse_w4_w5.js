@@ -26,14 +26,15 @@ function parseQuestions(filePath, category) {
         // Find options
         let currentOption = null;
         for (const line of qLines) {
-            const optMatch = line.match(/^([A-E])\.\s+(.*)$/);
+            const trimmedLine = line.trim();
+            const optMatch = trimmedLine.match(/^([A-E])\.\s+(.*)$/);
             if (optMatch) {
                 currentOption = optMatch[1];
                 options[currentOption] = optMatch[2].trim();
             } else if (currentOption) {
-                options[currentOption] += '\n' + line.trim();
+                options[currentOption] += '\n' + trimmedLine;
             } else {
-                qText += (qText ? '\n' : '') + line;
+                qText += (qText ? '\n' : '') + trimmedLine;
             }
         }
         
@@ -78,19 +79,19 @@ function writeTsFile(questions, outPath, varName) {
     let tsContent = `export const ${varName} = [\n`;
     for (const q of questions) {
         tsContent += `    {\n`;
-        tsContent += `        text: \`${q.text.replace(/`/g, '\\`')}\`,\n`;
+        tsContent += `        text: \`${q.text.replace(/\\/g, '\\\\').replace(/`/g, '\\`')}\`,\n`;
         tsContent += `        category: '${q.category}',\n`;
-        tsContent += `        option_a: \`${q.option_a.replace(/`/g, '\\`')}\`,\n`;
-        tsContent += `        option_b: \`${q.option_b.replace(/`/g, '\\`')}\`,\n`;
-        tsContent += `        option_c: \`${q.option_c.replace(/`/g, '\\`')}\`,\n`;
-        tsContent += `        option_d: \`${q.option_d.replace(/`/g, '\\`')}\`,\n`;
+        tsContent += `        option_a: \`${q.option_a.replace(/\\/g, '\\\\').replace(/`/g, '\\`')}\`,\n`;
+        tsContent += `        option_b: \`${q.option_b.replace(/\\/g, '\\\\').replace(/`/g, '\\`')}\`,\n`;
+        tsContent += `        option_c: \`${q.option_c.replace(/\\/g, '\\\\').replace(/`/g, '\\`')}\`,\n`;
+        tsContent += `        option_d: \`${q.option_d.replace(/\\/g, '\\\\').replace(/`/g, '\\`')}\`,\n`;
         if (q.option_e) {
-            tsContent += `        option_e: \`${q.option_e.replace(/`/g, '\\`')}\`,\n`;
+            tsContent += `        option_e: \`${q.option_e.replace(/\\/g, '\\\\').replace(/`/g, '\\`')}\`,\n`;
         } else {
             tsContent += `        option_e: null,\n`;
         }
         tsContent += `        correct_answer: '${q.correct_answer}',\n`;
-        tsContent += `        explanation: \`${q.explanation.replace(/`/g, '\\`')}\`,\n`;
+        tsContent += `        explanation: \`${q.explanation.replace(/\\/g, '\\\\').replace(/`/g, '\\`')}\`,\n`;
         tsContent += `        weight: 1\n`;
         tsContent += `    },\n`;
     }
