@@ -205,6 +205,9 @@ export default function TryoutAttemptPage() {
             }
 
             if (timerRef.current) clearInterval(timerRef.current)
+            
+            // Clear local storage on successful submit
+            localStorage.removeItem(`tryout_attempt_${tryoutId}`)
 
             toast.success(autoSubmit ? "Waktu habis! Jawaban telah di-submit otomatis." : "Tryout berhasil di-submit!")
 

@@ -147,6 +147,9 @@ export default function LatihanPracticePage() {
                 throw new Error(data.error)
             }
 
+            // Clear local storage on successful submit
+            localStorage.removeItem(`practice_attempt_${tryoutId}`)
+
             toast.success("Latihan berhasil diselesaikan!")
 
             // Redirect to result page
