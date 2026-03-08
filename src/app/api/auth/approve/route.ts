@@ -113,13 +113,18 @@ export async function POST(request: NextRequest) {
                 packageType = "REGULER"
             }
 
-            // Update user status to active, sync role, and set package architecture
+            // Calculate accessEndsAt (current date + 30 days)
+            const accessEndsAt = new Date()
+            accessEndsAt.setDate(accessEndsAt.getDate() + 30)
+
+            // Update user status to active, sync role, and set package architecture and access expiration
             const { error: updateError } = await adminClient
                 .from("users")
                 .update({
                     is_active: true,
                     role: userRole,
-                    package_type: packageType
+                    package_type: packageType,
+                    access_ends_at: accessEndsAt.toISOString()
                 })
                 .eq("id", existingUser.id)
 
