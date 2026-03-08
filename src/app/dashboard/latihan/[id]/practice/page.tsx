@@ -15,7 +15,8 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog"
-import { ChevronLeft, ChevronRight, Loader2, Send } from "lucide-react"
+import { Checkbox } from "@/components/ui/checkbox"
+import { ChevronLeft, ChevronRight, Loader2, Send, Flag } from "lucide-react"
 import { toast } from "sonner"
 
 interface Question {
@@ -108,6 +109,16 @@ export default function LatihanPracticePage() {
         setAnswers((prev) => ({
             ...prev,
             [questionId]: { ...prev[questionId], answer },
+        }))
+    }
+
+    const toggleDoubtful = (questionId: string) => {
+        setAnswers((prev) => ({
+            ...prev,
+            [questionId]: {
+                ...prev[questionId],
+                isDoubtful: !prev[questionId]?.isDoubtful,
+            },
         }))
     }
 
@@ -241,22 +252,42 @@ export default function LatihanPracticePage() {
                 </Button>
 
                 {currentIndex === questions.length - 1 ? (
-                    <Button
-                        onClick={() => setShowSubmitDialog(true)}
-                        className="bg-dark-brown hover:bg-soft-brown text-cream"
-                        disabled={submitting}
-                    >
-                        <Send className="w-4 h-4 mr-2" />
-                        Submit Jawaban
-                    </Button>
+                    <div className="flex items-center gap-3">
+                        <Button
+                            variant="outline"
+                            onClick={() => toggleDoubtful(currentQuestion.id)}
+                            className={`border-warm-gray transition-colors ${answers[currentQuestion.id]?.isDoubtful ? "bg-amber-100/50 text-amber-700 border-amber-300 hover:bg-amber-100" : "hover:bg-warm-beige"}`}
+                        >
+                            <Flag className={`w-4 h-4 mr-2 ${answers[currentQuestion.id]?.isDoubtful ? "fill-amber-500 text-amber-500" : ""}`} />
+                            Ragu-ragu
+                        </Button>
+                        <Button
+                            onClick={() => setShowSubmitDialog(true)}
+                            className="bg-dark-brown hover:bg-soft-brown text-cream"
+                            disabled={submitting}
+                        >
+                            <Send className="w-4 h-4 mr-2" />
+                            Submit Jawaban
+                        </Button>
+                    </div>
                 ) : (
-                    <Button
-                        onClick={() => setCurrentIndex(Math.min(questions.length - 1, currentIndex + 1))}
-                        className="bg-dark-brown hover:bg-soft-brown text-cream"
-                    >
-                        Selanjutnya
-                        <ChevronRight className="w-4 h-4 ml-1" />
-                    </Button>
+                    <div className="flex items-center gap-3">
+                        <Button
+                            variant="outline"
+                            onClick={() => toggleDoubtful(currentQuestion.id)}
+                            className={`border-warm-gray transition-colors ${answers[currentQuestion.id]?.isDoubtful ? "bg-amber-100/50 text-amber-700 border-amber-300 hover:bg-amber-100" : "hover:bg-warm-beige"}`}
+                        >
+                            <Flag className={`w-4 h-4 mr-2 ${answers[currentQuestion.id]?.isDoubtful ? "fill-amber-500 text-amber-500" : ""}`} />
+                            Ragu-ragu
+                        </Button>
+                        <Button
+                            onClick={() => setCurrentIndex(Math.min(questions.length - 1, currentIndex + 1))}
+                            className="bg-dark-brown hover:bg-soft-brown text-cream"
+                        >
+                            Selanjutnya
+                            <ChevronRight className="w-4 h-4 ml-1" />
+                        </Button>
+                    </div>
                 )}
             </div>
 
