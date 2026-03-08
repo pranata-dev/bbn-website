@@ -64,6 +64,7 @@ model User {
   sessionToken      String?      @map("session_token")
   createdAt         DateTime     @default(now()) @map("created_at")
   updatedAt         DateTime     @updatedAt @map("updated_at")
+  accessEndsAt      DateTime?    @map("access_ends_at")
 
   payments    Payment[]
   submissions Submission[]
@@ -89,18 +90,18 @@ model Payment {
 }
 
 model Tryout {
-  id          String           @id @default(uuid())
+  id          String            @id @default(uuid())
   title       String
   description String?
   category    QuestionCategory?
   duration    Int // in minutes
-  status      TryoutStatus     @default(DRAFT)
-  maxAttempts Int              @default(1) @map("max_attempts")
-  isPractice  Boolean          @default(false) @map("is_practice")
-  startDate   DateTime?        @map("start_date")
-  endDate     DateTime?        @map("end_date")
-  createdAt   DateTime         @default(now()) @map("created_at")
-  updatedAt   DateTime         @updatedAt @map("updated_at")
+  status      TryoutStatus      @default(DRAFT)
+  maxAttempts Int               @default(1) @map("max_attempts")
+  isPractice  Boolean           @default(false) @map("is_practice")
+  startDate   DateTime?         @map("start_date")
+  endDate     DateTime?         @map("end_date")
+  createdAt   DateTime          @default(now()) @map("created_at")
+  updatedAt   DateTime          @updatedAt @map("updated_at")
 
   questions   TryoutQuestion[]
   submissions Submission[]
