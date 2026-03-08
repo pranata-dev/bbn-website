@@ -1,0 +1,57 @@
+import { NextRequest, NextResponse } from "next/server"
+import { createAdminClient } from "@/lib/supabase/server"
+
+export const dynamic = "force-dynamic"
+
+// DELETE /api/admin/users/[id] - Delete a user
+export async function DELETE(
+    request: NextRequest,
+    { params }: { params: Promise<{ id: string }> }
+) {
+    try {
+        const { id } = await params
+        const supabase = await createAdminClient()
+
+        // Supabase REST API doesn't easily let us delete auth users without admin privileges,
+        // but Since we use service_role key derived adminClient, we can delete from the 'users' table 
+        // which might trigger cascading deletes or we can delete using the admin.auth.deleteUser API if needed.
+        // Usually, deleting the public.users record is the minimum requirement for the app.
+        // However, to fully clean up from Auth, we need to delete the Auth user.
+        
+        // 1. Get the auth_id from the public.users table (if it exists)
+        const { data: userProfile, error: fetchError } = await supabase
+            .from("users")
+            .select("auth_id")
+            .eq("id", id)
+            .single()
+
+        if (fetchError || !userProfile) {
+            return NextResponse.json({ error: "User not found" }, { status: 404 })
+        }
+
+        const authId = userProfile.auth_id
+
+        // 2. Delete the user from Supabase Auth (this should cascade to public.users if references are set up, but we'll manually ensure deletion)
+        const { error: authDeleteError } = await supabase.auth.admin.deleteUser(authId)
+        
+        if (authDeleteError) {
+             console.error("Failed to delete auth user:", authDeleteError)
+             // We fallback to deleting just the public record if we can't delete auth, though unlikely with service role
+        }
+
+        // 3. Delete from public.users (in case cascade isn't set up perfectly or authDeleteError occurred)
+        const { error: deleteError } = await supabase
+            .from("users")
+            .delete()
+            .eq("id", id)
+
+        if (deleteError) {
+            return NextResponse.json({ error: `Failed to delete user: ${deleteError.message}` }, { status: 500 })
+        }
+
+        return NextResponse.json({ success: true })
+    } catch (error) {
+        console.error("API error:", error)
+        return NextResponse.json({ error: "Internal error" }, { status: 500 })
+    }
+}

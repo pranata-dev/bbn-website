@@ -11,7 +11,17 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
-import { Users, Loader2, Shield, UserCheck, UserX } from "lucide-react"
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
+import { Users, Loader2, Shield, UserCheck, UserX, Trash2 } from "lucide-react"
 import { toast } from "sonner"
 
 interface UserItem {
@@ -26,6 +36,7 @@ interface UserItem {
 export default function UsersPage() {
     const [users, setUsers] = useState<UserItem[]>([])
     const [loading, setLoading] = useState(true)
+    const [deletingId, setDeletingId] = useState<string | null>(null)
 
     useEffect(() => {
         fetchUsers()
@@ -72,6 +83,25 @@ export default function UsersPage() {
             fetchUsers()
         } catch (error) {
             toast.error("Gagal mengubah status.")
+        }
+    }
+
+    const handleDelete = async () => {
+        if (!deletingId) return
+        try {
+            const res = await fetch(`/api/admin/users/${deletingId}`, {
+                method: "DELETE",
+            })
+            if (!res.ok) {
+                const data = await res.json()
+                throw new Error(data.error || "Gagal menghapus pengguna")
+            }
+            toast.success("Pengguna berhasil dihapus.")
+            fetchUsers()
+        } catch (error) {
+            toast.error(error instanceof Error ? error.message : "Terjadi kesalahan")
+        } finally {
+            setDeletingId(null)
         }
     }
 
@@ -144,6 +174,14 @@ export default function UsersPage() {
                                                 <UserCheck className="w-4 h-4 text-earthy-green" />
                                             )}
                                         </Button>
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            onClick={() => setDeletingId(u.id)}
+                                            className="text-muted-foreground hover:text-red-500 hover:bg-red-50"
+                                        >
+                                            <Trash2 className="w-4 h-4" />
+                                        </Button>
                                     </div>
                                 </div>
                             ))}
@@ -151,6 +189,23 @@ export default function UsersPage() {
                     )}
                 </CardContent>
             </Card>
+
+            <AlertDialog open={!!deletingId} onOpenChange={(open: boolean) => !open && setDeletingId(null)}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Hapus Pengguna?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            Tindakan ini tidak dapat dibatalkan. Data pengguna, riwayat tryout, dan pembayaran akan dihapus secara permanen.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Batal</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700 text-white">
+                            Ya, Hapus
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </div>
     )
 }
