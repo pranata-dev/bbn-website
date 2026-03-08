@@ -54,18 +54,17 @@ export default function DashboardLayout({
             if (user) {
                 try {
                     // Using direct supabase client instead of fetch
-                    const { data: profile } = await supabase
+                    const { data: profile, error: dbError } = await supabase
                         .from('users')
-                        .select('package_type, role, access_ends_at')
+                        .select('package_type, role') // removed access_ends_at as the col doesn't exist remote
                         .eq('auth_id', user.id)
                         .single()
+                        
+                    if (dbError) {
+                        console.error("Layout fetch DB error", dbError)
+                    }
 
                     if (profile) {
-                        if (profile.access_ends_at && new Date() > new Date(profile.access_ends_at)) {
-                            router.push('/expired')
-                            return
-                        }
-                        
                         setPackageType(profile.package_type as PackageType || null)
                         setUserRole(profile.role)
                     }
