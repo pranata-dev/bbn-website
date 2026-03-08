@@ -56,11 +56,16 @@ export default function DashboardLayout({
                     // Using direct supabase client instead of fetch
                     const { data: profile } = await supabase
                         .from('users')
-                        .select('package_type, role')
+                        .select('package_type, role, access_ends_at')
                         .eq('auth_id', user.id)
                         .single()
 
                     if (profile) {
+                        if (profile.access_ends_at && new Date() > new Date(profile.access_ends_at)) {
+                            router.push('/expired')
+                            return
+                        }
+                        
                         setPackageType(profile.package_type as PackageType || null)
                         setUserRole(profile.role)
                     }
