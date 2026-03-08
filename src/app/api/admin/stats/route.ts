@@ -25,10 +25,17 @@ export async function GET(request: NextRequest) {
             .select("*", { count: "exact", head: true })
             .eq("status", "PENDING")
 
-        // Tryouts count
+        // Regular Tryouts count
         const { count: tryoutCount } = await adminSupabase
             .from("tryouts")
             .select("*", { count: "exact", head: true })
+            .eq("is_practice", false)
+
+        // Practice Latihan count
+        const { count: practiceCount } = await adminSupabase
+            .from("tryouts")
+            .select("*", { count: "exact", head: true })
+            .eq("is_practice", true)
 
         // Questions count
         const { count: questionCount } = await adminSupabase
@@ -40,6 +47,7 @@ export async function GET(request: NextRequest) {
                 totalUsers: userCount || 0,
                 pendingVerifications: pendingCount || 0,
                 totalTryouts: tryoutCount || 0,
+                totalPractices: practiceCount || 0,
                 totalQuestions: questionCount || 0,
             }
         })

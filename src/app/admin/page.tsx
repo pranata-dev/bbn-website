@@ -2,12 +2,13 @@
 
 import { useState, useEffect } from "react"
 import { Card, CardContent } from "@/components/ui/card"
-import { Users, CreditCard, FileText, HelpCircle, TrendingUp, Trophy, Loader2 } from "lucide-react"
+import { Users, CreditCard, FileText, HelpCircle, TrendingUp, Trophy, Loader2, BookOpen } from "lucide-react"
 
 interface DashboardStats {
     totalUsers: number
     pendingVerifications: number
     totalTryouts: number
+    totalPractices: number
     totalQuestions: number
 }
 
@@ -33,8 +34,9 @@ export default function AdminDashboardPage() {
 
     const statCards = [
         { label: "Total Pengguna", value: stats?.totalUsers ?? "0", icon: Users },
-        { label: "Menunggu Verifikasi", value: stats?.pendingVerifications ?? "0", icon: CreditCard },
+        { label: "Pending Verifikasi", value: stats?.pendingVerifications ?? "0", icon: CreditCard },
         { label: "Total Tryout", value: stats?.totalTryouts ?? "0", icon: FileText },
+        { label: "Total Latihan", value: stats?.totalPractices ?? "0", icon: BookOpen },
         { label: "Total Soal", value: stats?.totalQuestions ?? "0", icon: HelpCircle },
     ]
 
@@ -45,7 +47,7 @@ export default function AdminDashboardPage() {
                 <p className="text-muted-foreground">Kelola platform Belajar Bareng Nata.</p>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
                 {statCards.map((stat) => (
                     <Card key={stat.label} className="border-warm-gray/60 hover:shadow-md transition-shadow">
                         <CardContent className="p-5">
