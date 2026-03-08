@@ -79,6 +79,7 @@ export async function POST(request: NextRequest) {
                     role: "STUDENT_BASIC",
                     is_active: false,
                     auth_id: `pending-${Date.now()}`,
+                    updated_at: new Date().toISOString(),
                 })
                 .select()
                 .single()
@@ -93,6 +94,7 @@ export async function POST(request: NextRequest) {
                     user_id: user.id,
                     proof_url: publicUrl,
                     status: "PENDING",
+                    updated_at: new Date().toISOString(),
                 })
 
             if (paymentError) {

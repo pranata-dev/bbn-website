@@ -269,6 +269,7 @@ export async function POST(request: NextRequest) {
                 calculated_price: calculatedPrice,
                 pricing_tier: pricingTier,
                 status: type === "REGULAR" ? "APPROVED" : "PENDING",
+                updated_at: new Date().toISOString(),
             })
             .select()
             .single()
