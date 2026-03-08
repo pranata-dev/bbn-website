@@ -124,7 +124,7 @@ export async function POST(request: NextRequest) {
                     is_active: true,
                     role: userRole,
                     package_type: packageType,
-                    access_ends_at: accessEndsAt.toISOString()
+                    // access_ends_at: accessEndsAt.toISOString() // Temporarily disabled due to missing db column
                 })
                 .eq("id", existingUser.id)
 
