@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Plus, Loader2, FileText, CheckCircle2, Play, Archive, RotateCcw } from "lucide-react"
+import { Plus, Loader2, FileText, CheckCircle2, Play, Archive, RotateCcw, Pencil } from "lucide-react"
 import { CATEGORY_LABELS } from "@/types"
 import type { QuestionCategory } from "@/types"
 import { toast } from "sonner"
@@ -32,6 +32,7 @@ export default function AdminTryoutsPage() {
     const [loading, setLoading] = useState(true)
     const [showForm, setShowForm] = useState(false)
     const [submitting, setSubmitting] = useState(false)
+    const [editingId, setEditingId] = useState<string | null>(null)
 
     // Form state
     const [formData, setFormData] = useState(INITIAL_FORM_DATA)
@@ -84,7 +85,27 @@ export default function AdminTryoutsPage() {
     const resetForm = () => {
         setFormData(INITIAL_FORM_DATA)
         setSelectedQuestionIds(new Set())
+        setEditingId(null)
         setAvailableQuestions([])
+    }
+
+    const handleEdit = async (tryout: any) => {
+        try {
+            const res = await fetch(`/api/admin/tryouts/${tryout.id}`)
+            if (!res.ok) throw new Error("Gagal mengambil detail tryout")
+            const data = await res.json()
+            
+            setFormData({
+                title: data.tryout.title,
+                description: data.tryout.description || "",
+                duration: data.tryout.duration,
+            })
+            setSelectedQuestionIds(new Set(data.questionIds || []))
+            setEditingId(tryout.id)
+            setShowForm(true)
+        } catch (error) {
+            toast.error(error instanceof Error ? error.message : "Terjadi kesalahan")
+        }
     }
 
     const toggleQuestion = (questionId: string) => {
@@ -129,18 +150,21 @@ export default function AdminTryoutsPage() {
                 questionIds: Array.from(selectedQuestionIds),
             }
 
-            const res = await fetch("/api/admin/tryouts", {
-                method: "POST",
+            const method = editingId ? "PATCH" : "POST"
+            const url = editingId ? `/api/admin/tryouts/${editingId}` : "/api/admin/tryouts"
+
+            const res = await fetch(url, {
+                method,
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload),
             })
 
             if (!res.ok) {
                 const data = await res.json().catch(() => ({}))
-                throw new Error(data.error || "Failed to create tryout")
+                throw new Error(data.error || `Failed to ${editingId ? "update" : "create"} tryout`)
             }
 
-            toast.success("Tryout berhasil dibuat.")
+            toast.success(`Tryout berhasil ${editingId ? "diperbarui" : "dibuat"}.`)
             setShowForm(false)
             resetForm()
             fetchTryouts()
@@ -249,6 +273,15 @@ export default function AdminTryoutsPage() {
                                             </div>
                                         </div>
                                         <div className="shrink-0 flex items-center gap-2">
+                                            <Button
+                                                size="sm"
+                                                variant="ghost"
+                                                className="h-8 text-muted-foreground hover:text-soft-brown"
+                                                onClick={() => handleEdit(t)}
+                                            >
+                                                <Pencil className="w-3.5 h-3.5 mr-1.5" />
+                                                Edit
+                                            </Button>
                                             {t.status === "DRAFT" && (
                                                 <Button
                                                     size="sm"
@@ -300,7 +333,7 @@ export default function AdminTryoutsPage() {
             >
                 <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col p-0 overflow-hidden">
                     <DialogHeader className="px-6 py-4 border-b border-warm-gray/30 shrink-0">
-                        <DialogTitle>Buat Tryout Baru</DialogTitle>
+                        <DialogTitle>{editingId ? "Edit Tryout" : "Buat Tryout Baru"}</DialogTitle>
                     </DialogHeader>
 
                     <div className="flex-1 overflow-y-auto px-6 py-4">
@@ -441,7 +474,7 @@ export default function AdminTryoutsPage() {
                             className="bg-dark-brown hover:bg-soft-brown text-cream"
                         >
                             {submitting && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-                            {submitting ? "Membuat..." : "Buat Tryout"}
+                            {submitting ? "Menyimpan..." : (editingId ? "Simpan Perubahan" : "Buat Tryout")}
                         </Button>
                     </div>
                 </DialogContent>
