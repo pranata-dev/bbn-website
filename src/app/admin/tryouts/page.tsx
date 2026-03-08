@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Plus, Loader2, FileText, CheckCircle2, Play, Archive, RotateCcw, Pencil } from "lucide-react"
+import { Plus, Loader2, FileText, CheckCircle2, Play, Archive, RotateCcw, Pencil, Trash2 } from "lucide-react"
 import { CATEGORY_LABELS } from "@/types"
 import type { QuestionCategory } from "@/types"
 import { toast } from "sonner"
@@ -20,6 +20,16 @@ import {
 } from "@/components/ui/dialog"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Badge } from "@/components/ui/badge"
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 
 const INITIAL_FORM_DATA = {
     title: "",
@@ -33,6 +43,7 @@ export default function AdminTryoutsPage() {
     const [showForm, setShowForm] = useState(false)
     const [submitting, setSubmitting] = useState(false)
     const [editingId, setEditingId] = useState<string | null>(null)
+    const [deletingId, setDeletingId] = useState<string | null>(null)
 
     // Form state
     const [formData, setFormData] = useState(INITIAL_FORM_DATA)
@@ -205,6 +216,25 @@ export default function AdminTryoutsPage() {
         }
     }
 
+    const handleDelete = async () => {
+        if (!deletingId) return
+        try {
+            const res = await fetch(`/api/admin/tryouts/${deletingId}`, {
+                method: "DELETE",
+            })
+            if (!res.ok) {
+                const data = await res.json()
+                throw new Error(data.error || "Gagal menghapus tryout")
+            }
+            toast.success("Tryout berhasil dihapus.")
+            fetchTryouts()
+        } catch (error) {
+            toast.error(error instanceof Error ? error.message : "Terjadi kesalahan")
+        } finally {
+            setDeletingId(null)
+        }
+    }
+
     // Group questions by category
     const questionsByCategory = availableQuestions.reduce<Record<string, any[]>>((acc, q) => {
         const cat = q.category || "UNCATEGORIZED"
@@ -314,6 +344,15 @@ export default function AdminTryoutsPage() {
                                                     Aktifkan Ulang
                                                 </Button>
                                             )}
+                                            <Button
+                                                size="sm"
+                                                variant="ghost"
+                                                className="h-8 text-muted-foreground hover:text-red-500 hover:bg-red-50"
+                                                onClick={() => setDeletingId(t.id)}
+                                            >
+                                                <Trash2 className="w-3.5 h-3.5 mr-1.5" />
+                                                Hapus
+                                            </Button>
                                         </div>
                                     </div>
                                 </div>
@@ -479,6 +518,23 @@ export default function AdminTryoutsPage() {
                     </div>
                 </DialogContent>
             </Dialog>
+
+            <AlertDialog open={!!deletingId} onOpenChange={(open: boolean) => !open && setDeletingId(null)}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Hapus Tryout?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            Tindakan ini tidak dapat dibatalkan. Pengaturan soal tryout dan riwayat ujian tryout ini akan dihapus permanen.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Batal</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700 text-white">
+                            Ya, Hapus
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </div>
     )
 }

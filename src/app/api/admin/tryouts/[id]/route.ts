@@ -110,3 +110,30 @@ export async function PATCH(
         return NextResponse.json({ error: error instanceof Error ? error.message : "Internal error" }, { status: 500 })
     }
 }
+
+// DELETE /api/admin/tryouts/[id] - Delete a tryout
+export async function DELETE(
+    request: NextRequest,
+    { params }: { params: Promise<{ id: string }> }
+) {
+    try {
+        const { id } = await params
+        const supabase = createServiceClient()
+
+        // Delete the tryout. Relational data (tryout_questions, submissions) should CASCADE delete
+        // according to Prisma schema settings (`onDelete: Cascade`).
+        const { error } = await supabase
+            .from("tryouts")
+            .delete()
+            .eq("id", id)
+
+        if (error) {
+            return NextResponse.json({ error: `Failed to delete tryout: ${error.message}` }, { status: 500 })
+        }
+
+        return NextResponse.json({ success: true })
+    } catch (error) {
+        console.error("API error:", error)
+        return NextResponse.json({ error: "Internal error" }, { status: 500 })
+    }
+}
