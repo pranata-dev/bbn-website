@@ -31,6 +31,11 @@ interface Question {
     image_url: string | null
 }
 
+interface AnswerState {
+    answer: string | null
+    isDoubtful: boolean
+}
+
 export default function LatihanPracticePage() {
     const { id: tryoutId } = useParams<{ id: string }>()
     const router = useRouter()
@@ -40,7 +45,7 @@ export default function LatihanPracticePage() {
     const [submissionId, setSubmissionId] = useState<string | null>(null)
     const [questions, setQuestions] = useState<Question[]>([])
     const [currentIndex, setCurrentIndex] = useState(0)
-    const [answers, setAnswers] = useState<Record<string, string | null>>({})
+    const [answers, setAnswers] = useState<Record<string, AnswerState>>({})
     const [showSubmitDialog, setShowSubmitDialog] = useState(false)
 
     // Start practice session
@@ -59,10 +64,27 @@ export default function LatihanPracticePage() {
                 setSubmissionId(data.submission.id)
                 setQuestions(data.questions)
 
-                // Initialize answers
-                const initialAnswers: Record<string, string | null> = {}
+                // Initialize answers or load from localStorage
+                const initialAnswers: Record<string, AnswerState> = {}
+                const savedState = localStorage.getItem(`practice_attempt_${tryoutId}`)
+
+                if (savedState) {
+                    try {
+                        const parsed = JSON.parse(savedState)
+                        // Verify the saved state matches current questions to avoid stale caches
+                        const hasAllKeys = data.questions.every((q: Question) => !!parsed[q.id])
+                        if (hasAllKeys) {
+                            setAnswers(parsed)
+                            setLoading(false)
+                            return
+                        }
+                    } catch (e) {
+                        console.error("Failed to parse saved practice answers", e)
+                    }
+                }
+
                 data.questions.forEach((q: Question) => {
-                    initialAnswers[q.id] = null
+                    initialAnswers[q.id] = { answer: null, isDoubtful: false }
                 })
                 setAnswers(initialAnswers)
                 setLoading(false)
@@ -75,8 +97,18 @@ export default function LatihanPracticePage() {
         startTryout()
     }, [tryoutId, router])
 
+    // Auto-save to localStorage
+    useEffect(() => {
+        if (!loading && Object.keys(answers).length > 0) {
+            localStorage.setItem(`practice_attempt_${tryoutId}`, JSON.stringify(answers))
+        }
+    }, [answers, tryoutId, loading])
+
     const handleAnswer = (questionId: string, answer: string) => {
-        setAnswers((prev) => ({ ...prev, [questionId]: answer }))
+        setAnswers((prev) => ({
+            ...prev,
+            [questionId]: { ...prev[questionId], answer },
+        }))
     }
 
     const handleSubmit = async () => {
@@ -84,9 +116,9 @@ export default function LatihanPracticePage() {
         setSubmitting(true)
 
         try {
-            const answerPayload = Object.entries(answers).map(([questionId, answer]) => ({
+            const answerPayload = Object.entries(answers).map(([questionId, state]) => ({
                 questionId,
-                answer,
+                answer: state.answer,
             }))
 
             const res = await fetch(`/api/tryouts/${tryoutId}/submit`, {
@@ -126,7 +158,7 @@ export default function LatihanPracticePage() {
     }
 
     const currentQuestion = questions[currentIndex]
-    const answeredCount = Object.values(answers).filter(Boolean).length
+    const answeredCount = Object.values(answers).filter((a) => a?.answer !== null).length
     const progress = (answeredCount / questions.length) * 100
 
     return (
@@ -169,7 +201,7 @@ export default function LatihanPracticePage() {
                             const optionText = currentQuestion[optKey] as string | null
                             if (!optionText) return null
 
-                            const isSelected = answers[currentQuestion.id] === opt
+                            const isSelected = answers[currentQuestion.id]?.answer === opt
 
                             return (
                                 <button
@@ -239,9 +271,11 @@ export default function LatihanPracticePage() {
                                 onClick={() => setCurrentIndex(i)}
                                 className={`w-9 h-9 rounded-lg text-xs font-medium transition-all ${i === currentIndex
                                     ? "bg-dark-brown text-cream"
-                                    : answers[q.id]
-                                        ? "bg-earthy-green/15 text-earthy-green border border-earthy-green/30"
-                                        : "bg-warm-beige text-muted-foreground hover:bg-warm-gray"
+                                    : answers[q.id]?.isDoubtful
+                                        ? "bg-amber-100 text-amber-700 border border-amber-300"
+                                        : answers[q.id]?.answer
+                                            ? "bg-earthy-green/15 text-earthy-green border border-earthy-green/30"
+                                            : "bg-warm-beige text-muted-foreground hover:bg-warm-gray"
                                     }`}
                             >
                                 {i + 1}
