@@ -61,6 +61,18 @@ export const week6Questions = [
         "weight": 1
     },
     {
+        "text": "$1 \\text{ weber}$ sama dengan:",
+        "category": "WEEK_6",
+        "option_a": "$1 \\text{ V/s}$",
+        "option_b": "$1 \\text{ T/s}$",
+        "option_c": "$1 \\text{ T/m}$",
+        "option_d": "$1 \\text{ T}\\cdot\\text{m}^2$",
+        "option_e": "$1 \\text{ T/m}^2$",
+        "correct_answer": "D",
+        "explanation": "**Pembahasan:**\r\n\r\n**Jawaban: D. $1 \\text{ T}\\cdot\\text{m}^2$**\r\n\r\nSatuan fluks magnetik adalah weber ($\\text{Wb}$). Dari rumus definisi fluks magnetik $\\Phi = B \\cdot A$, kita dapat menurunkan satuannya:\r\n* $B$ (Medan Magnet) memiliki satuan Tesla ($\\text{T}$)\r\n* $A$ (Luasan) memiliki satuan meter persegi ($\\text{m}^2$)\r\n\r\nOleh karena itu:\r\n$$1 \\text{ Wb} = 1 \\text{ T} \\cdot \\text{m}^2$$",
+        "weight": 1
+    },
+    {
         "text": "Satuan dari GGL induksi akibat gerak (*motional emf*) adalah:",
         "category": "WEEK_6",
         "option_a": "$\\text{volt/second}$",
