@@ -1,3 +1,6 @@
+"use client"
+
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -11,39 +14,87 @@ import {
     Clock,
     Lock,
     Unlock,
+    Loader2,
+    BookOpen,
+    BarChart3,
 } from "lucide-react"
-import { createClient } from "@/lib/supabase/server"
+import { createClient } from "@/lib/supabase/client"
 import { getPackageFeatures } from "@/lib/package-features"
 import { PackageType } from "@prisma/client"
 
-export default async function DashboardPage() {
-    const supabase = await createClient()
-    const { data: { user: authUser } } = await supabase.auth.getUser()
+interface DashboardData {
+    recentActivity: {
+        id: string
+        tryoutId: string
+        title: string
+        type: "Tryout" | "Latihan"
+        score: number | null
+        correctCount: number | null
+        totalCount: number | null
+        createdAt: string
+    }[]
+    tryoutStats: { completed: number; avgScore: number; highestScore: number }
+    latihanStats: { completed: number; avgScore: number; highestScore: number }
+    performancePerMateri: { category: string; avgScore: number; totalAttempts: number }[]
+}
 
-    let dbUser = null
-    if (authUser) {
-        const { data } = await supabase
-            .from("users")
-            .select("full_name, package_type, tryout_attempt_used, role")
-            .eq("auth_id", authUser.id)
-            .single()
+export default function DashboardPage() {
+    const [dbUser, setDbUser] = useState<any>(null)
+    const [dashboardData, setDashboardData] = useState<DashboardData | null>(null)
+    const [loading, setLoading] = useState(true)
 
-        dbUser = data
-    }
+    useEffect(() => {
+        const loadData = async () => {
+            try {
+                const supabase = createClient()
+                const { data: { user: authUser } } = await supabase.auth.getUser()
+
+                if (authUser) {
+                    const { data } = await supabase
+                        .from("users")
+                        .select("full_name, package_type, tryout_attempt_used, role")
+                        .eq("auth_id", authUser.id)
+                        .single()
+                    setDbUser(data)
+                }
+
+                // Fetch dashboard stats
+                const res = await fetch("/api/dashboard/stats")
+                if (res.ok) {
+                    const data = await res.json()
+                    setDashboardData(data)
+                }
+            } catch (error) {
+                console.error("Failed to load dashboard:", error)
+            } finally {
+                setLoading(false)
+            }
+        }
+        loadData()
+    }, [])
 
     const packageType = (dbUser?.package_type as PackageType) || null
     const tryoutAttemptUsed = dbUser?.tryout_attempt_used || 0
     const features = getPackageFeatures(packageType, dbUser?.role)
-
-    // Remaining Tryout Quotas
     const remainingTryouts = Math.max(0, features.tryoutLimit - tryoutAttemptUsed)
-    // These would be fetched from API in production
-    const stats = [
-        { label: "Tryout Selesai", value: "0", icon: FileText, color: "text-dark-brown" },
-        { label: "Rata-rata Skor", value: "0%", icon: Target, color: "text-earthy-green" },
-        { label: "Skor Tertinggi", value: "0%", icon: TrendingUp, color: "text-earthy-gold" },
+
+    const tryoutStats = [
+        { label: "Tryout Selesai", value: dashboardData?.tryoutStats.completed ?? 0, icon: FileText, color: "text-dark-brown" },
+        { label: "Rata-rata Skor", value: `${dashboardData?.tryoutStats.avgScore ?? 0}%`, icon: Target, color: "text-earthy-green" },
+        { label: "Skor Tertinggi", value: `${dashboardData?.tryoutStats.highestScore ?? 0}%`, icon: TrendingUp, color: "text-earthy-gold" },
         { label: "Peringkat", value: "-", icon: Trophy, color: "text-soft-brown" },
     ]
+
+    const latihanStats = [
+        { label: "Latihan Selesai", value: dashboardData?.latihanStats.completed ?? 0, icon: BookOpen, color: "text-dark-brown" },
+        { label: "Rata-rata Skor", value: `${dashboardData?.latihanStats.avgScore ?? 0}%`, icon: Target, color: "text-earthy-green" },
+        { label: "Skor Tertinggi", value: `${dashboardData?.latihanStats.highestScore ?? 0}%`, icon: TrendingUp, color: "text-earthy-gold" },
+    ]
+
+    const formatDate = (dateStr: string) => {
+        const date = new Date(dateStr)
+        return date.toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" })
+    }
 
     return (
         <div className="space-y-8">
@@ -55,23 +106,60 @@ export default async function DashboardPage() {
                 </p>
             </div>
 
-            {/* Stats grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                {stats.map((stat) => (
-                    <Card key={stat.label} className="border-warm-gray/60 hover:shadow-md transition-shadow">
-                        <CardContent className="p-5">
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <p className="text-sm text-muted-foreground">{stat.label}</p>
-                                    <p className="text-2xl font-bold text-foreground mt-1">{stat.value}</p>
+            {/* Tryout Stats grid */}
+            <div>
+                <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
+                    <FileText className="w-4 h-4" /> Statistik Tryout
+                </h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    {tryoutStats.map((stat) => (
+                        <Card key={stat.label} className="border-warm-gray/60 hover:shadow-md transition-shadow">
+                            <CardContent className="p-5">
+                                <div className="flex items-center justify-between">
+                                    <div>
+                                        <p className="text-sm text-muted-foreground">{stat.label}</p>
+                                        {loading ? (
+                                            <Loader2 className="w-4 h-4 animate-spin text-muted-foreground mt-2" />
+                                        ) : (
+                                            <p className="text-2xl font-bold text-foreground mt-1">{stat.value}</p>
+                                        )}
+                                    </div>
+                                    <div className="w-10 h-10 rounded-xl bg-warm-beige flex items-center justify-center">
+                                        <stat.icon className={`w-5 h-5 ${stat.color}`} />
+                                    </div>
                                 </div>
-                                <div className="w-10 h-10 rounded-xl bg-warm-beige flex items-center justify-center">
-                                    <stat.icon className={`w-5 h-5 ${stat.color}`} />
+                            </CardContent>
+                        </Card>
+                    ))}
+                </div>
+            </div>
+
+            {/* Latihan Stats grid */}
+            <div>
+                <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
+                    <BookOpen className="w-4 h-4" /> Statistik Latihan Soal
+                </h2>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    {latihanStats.map((stat) => (
+                        <Card key={stat.label} className="border-warm-gray/60 hover:shadow-md transition-shadow">
+                            <CardContent className="p-5">
+                                <div className="flex items-center justify-between">
+                                    <div>
+                                        <p className="text-sm text-muted-foreground">{stat.label}</p>
+                                        {loading ? (
+                                            <Loader2 className="w-4 h-4 animate-spin text-muted-foreground mt-2" />
+                                        ) : (
+                                            <p className="text-2xl font-bold text-foreground mt-1">{stat.value}</p>
+                                        )}
+                                    </div>
+                                    <div className="w-10 h-10 rounded-xl bg-earthy-green/10 flex items-center justify-center">
+                                        <stat.icon className={`w-5 h-5 ${stat.color}`} />
+                                    </div>
                                 </div>
-                            </div>
-                        </CardContent>
-                    </Card>
-                ))}
+                            </CardContent>
+                        </Card>
+                    ))}
+                </div>
             </div>
 
             {/* Quick actions & Package specifics */}
@@ -184,35 +272,127 @@ export default async function DashboardPage() {
                         </Button>
                     </CardHeader>
                     <CardContent>
-                        <div className="flex flex-col items-center justify-center py-8 text-center">
-                            <div className="w-12 h-12 rounded-full bg-warm-beige flex items-center justify-center mb-3">
-                                <Clock className="w-6 h-6 text-muted-foreground" />
+                        {loading ? (
+                            <div className="flex items-center justify-center py-8">
+                                <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
                             </div>
-                            <p className="text-sm text-muted-foreground">
-                                Belum ada aktivitas. Mulai tryout pertamamu!
-                            </p>
-                        </div>
+                        ) : dashboardData && dashboardData.recentActivity.length > 0 ? (
+                            <div className="space-y-3">
+                                {dashboardData.recentActivity.map((activity) => (
+                                    <Link
+                                        key={activity.id}
+                                        href={activity.type === "Tryout"
+                                            ? `/dashboard/tryouts/${activity.tryoutId}/result`
+                                            : `/dashboard/latihan/${activity.tryoutId}/result`}
+                                        className="flex items-center justify-between p-3 rounded-lg border border-warm-gray/40 hover:bg-warm-beige/30 transition-colors"
+                                    >
+                                        <div className="flex items-center gap-3 min-w-0">
+                                            <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
+                                                activity.type === "Tryout" ? "bg-earthy-gold/15" : "bg-earthy-green/15"
+                                            }`}>
+                                                {activity.type === "Tryout" ? (
+                                                    <FileText className="w-4 h-4 text-earthy-gold" />
+                                                ) : (
+                                                    <BookOpen className="w-4 h-4 text-earthy-green" />
+                                                )}
+                                            </div>
+                                            <div className="min-w-0">
+                                                <p className="text-sm font-medium text-foreground truncate">{activity.title}</p>
+                                                <div className="flex items-center gap-2">
+                                                    <Badge variant="secondary" className={`text-[10px] px-1.5 py-0 ${
+                                                        activity.type === "Tryout"
+                                                            ? "bg-earthy-gold/10 text-earthy-gold"
+                                                            : "bg-earthy-green/10 text-earthy-green"
+                                                    }`}>
+                                                        {activity.type}
+                                                    </Badge>
+                                                    <span className="text-[11px] text-muted-foreground">
+                                                        {formatDate(activity.createdAt)}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="text-right shrink-0 ml-2">
+                                            <p className="text-sm font-bold text-foreground">
+                                                {activity.score !== null ? `${Math.round(activity.score)}%` : "-"}
+                                            </p>
+                                            <p className="text-[11px] text-muted-foreground">
+                                                {activity.correctCount ?? 0}/{activity.totalCount ?? 0}
+                                            </p>
+                                        </div>
+                                    </Link>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="flex flex-col items-center justify-center py-8 text-center">
+                                <div className="w-12 h-12 rounded-full bg-warm-beige flex items-center justify-center mb-3">
+                                    <Clock className="w-6 h-6 text-muted-foreground" />
+                                </div>
+                                <p className="text-sm text-muted-foreground">
+                                    Belum ada aktivitas. Mulai tryout pertamamu!
+                                </p>
+                            </div>
+                        )}
                     </CardContent>
                 </Card>
             </div>
 
-            {/* Performance overview placeholder */}
+            {/* Performance overview (Tryout Only) */}
             <Card className="border-warm-gray/60">
                 <CardHeader>
-                    <CardTitle className="text-lg">Analisis Performa Per Materi</CardTitle>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                        <BarChart3 className="w-5 h-5 text-dark-brown" />
+                        Analisis Performa Per Materi
+                        <Badge variant="secondary" className="bg-warm-beige text-soft-brown text-[10px] ml-1">Tryout Only</Badge>
+                    </CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <div className="flex flex-col items-center justify-center py-12 text-center">
-                        <div className="w-16 h-16 rounded-full bg-warm-beige flex items-center justify-center mb-4">
-                            <TrendingUp className="w-8 h-8 text-muted-foreground" />
+                    {loading ? (
+                        <div className="flex items-center justify-center py-12">
+                            <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
                         </div>
-                        <p className="text-muted-foreground">
-                            Data analisis akan muncul setelah kamu menyelesaikan tryout.
-                        </p>
-                        <Button asChild className="mt-4 bg-dark-brown hover:bg-soft-brown text-cream">
-                            <Link href="/dashboard/tryouts">Mulai Tryout</Link>
-                        </Button>
-                    </div>
+                    ) : dashboardData && dashboardData.performancePerMateri.length > 0 ? (
+                        <div className="space-y-4">
+                            {dashboardData.performancePerMateri.map((materi) => {
+                                const label = materi.category.replace("_", " ")
+                                const barWidth = Math.max(5, materi.avgScore)
+                                return (
+                                    <div key={materi.category} className="space-y-1.5">
+                                        <div className="flex items-center justify-between text-sm">
+                                            <span className="font-medium text-foreground">{label}</span>
+                                            <span className="text-muted-foreground text-xs">
+                                                {materi.avgScore}% avg · {materi.totalAttempts} attempt{materi.totalAttempts > 1 ? "s" : ""}
+                                            </span>
+                                        </div>
+                                        <div className="w-full h-3 bg-warm-beige rounded-full overflow-hidden">
+                                            <div
+                                                className={`h-full rounded-full transition-all duration-500 ${
+                                                    materi.avgScore >= 80
+                                                        ? "bg-earthy-green"
+                                                        : materi.avgScore >= 60
+                                                            ? "bg-earthy-gold"
+                                                            : "bg-soft-brown"
+                                                }`}
+                                                style={{ width: `${barWidth}%` }}
+                                            />
+                                        </div>
+                                    </div>
+                                )
+                            })}
+                        </div>
+                    ) : (
+                        <div className="flex flex-col items-center justify-center py-12 text-center">
+                            <div className="w-16 h-16 rounded-full bg-warm-beige flex items-center justify-center mb-4">
+                                <TrendingUp className="w-8 h-8 text-muted-foreground" />
+                            </div>
+                            <p className="text-muted-foreground">
+                                Data analisis akan muncul setelah kamu menyelesaikan tryout.
+                            </p>
+                            <Button asChild className="mt-4 bg-dark-brown hover:bg-soft-brown text-cream">
+                                <Link href="/dashboard/tryouts">Mulai Tryout</Link>
+                            </Button>
+                        </div>
+                    )}
                 </CardContent>
             </Card>
         </div>
