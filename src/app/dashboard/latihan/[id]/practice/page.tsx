@@ -16,7 +16,7 @@ import {
     DialogTitle,
 } from "@/components/ui/dialog"
 import { Checkbox } from "@/components/ui/checkbox"
-import { ChevronLeft, ChevronRight, Loader2, Send, Flag } from "lucide-react"
+import { ChevronLeft, ChevronRight, Loader2, Send, Flag, AlertTriangle } from "lucide-react"
 import { toast } from "sonner"
 
 interface Question {
@@ -48,6 +48,7 @@ export default function LatihanPracticePage() {
     const [currentIndex, setCurrentIndex] = useState(0)
     const [answers, setAnswers] = useState<Record<string, AnswerState>>({})
     const [showSubmitDialog, setShowSubmitDialog] = useState(false)
+    const [showWarning, setShowWarning] = useState(false)
 
     // Start practice session
     useEffect(() => {
@@ -97,6 +98,19 @@ export default function LatihanPracticePage() {
 
         startTryout()
     }, [tryoutId, router])
+
+    // Anti-cheating: detect tab switching
+    useEffect(() => {
+        const handleVisibilityChange = () => {
+            if (document.hidden) {
+                setShowWarning(true)
+                toast.warning("Peringatan: Kamu terdeteksi pindah tab!")
+            }
+        }
+
+        document.addEventListener("visibilitychange", handleVisibilityChange)
+        return () => document.removeEventListener("visibilitychange", handleVisibilityChange)
+    }, [])
 
     // Auto-save to localStorage
     useEffect(() => {
@@ -193,7 +207,7 @@ export default function LatihanPracticePage() {
             </div>
 
             {/* Question card */}
-            <Card className="border-warm-gray/60 shadow-sm">
+            <Card className="border-warm-gray/60 shadow-sm select-none" onContextMenu={(e) => e.preventDefault()}>
                 <CardContent className="p-6 sm:p-8">
                     <div className="mb-6">
                         <div className="text-base font-medium text-foreground leading-relaxed prose prose-sm max-w-none">
@@ -350,6 +364,27 @@ export default function LatihanPracticePage() {
                             ) : (
                                 "Ya, Submit"
                             )}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            {/* Tab switch warning dialog */}
+            <Dialog open={showWarning} onOpenChange={setShowWarning}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle className="flex items-center gap-2 text-amber-600">
+                            <AlertTriangle className="w-5 h-5" />
+                            Peringatan!
+                        </DialogTitle>
+                        <DialogDescription>
+                            Kamu terdeteksi berpindah tab. Aktivitas ini akan dicatat.
+                            Mohon tetap di halaman latihan sampai selesai.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter>
+                        <Button onClick={() => setShowWarning(false)} className="bg-dark-brown hover:bg-soft-brown text-cream">
+                            Mengerti
                         </Button>
                     </DialogFooter>
                 </DialogContent>

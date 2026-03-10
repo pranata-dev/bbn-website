@@ -261,7 +261,7 @@ export default function TryoutAttemptPage() {
             </div>
 
             {/* Question card */}
-            <Card className="border-warm-gray/60 shadow-sm">
+            <Card className="border-warm-gray/60 shadow-sm select-none" onContextMenu={(e) => e.preventDefault()}>
                 <CardContent className="p-6 sm:p-8">
                     <div className="mb-6">
                         <div className="text-base font-medium text-foreground leading-relaxed prose prose-sm max-w-none">
