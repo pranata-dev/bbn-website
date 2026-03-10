@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 import * as dotenv from 'dotenv';
 import { v4 as uuidv4 } from 'uuid';
+import { week2Questions } from './data/week2';
 import { week3Questions } from './data/week3';
 import { week4Questions } from './data/week4';
 import { week5Questions } from './data/week5';
@@ -33,6 +34,7 @@ interface QuestionData {
 }
 
 const ALL_DATA: Record<string, QuestionData[]> = {
+    'WEEK_2': week2Questions,
     'WEEK_3': week3Questions,
     'WEEK_4': week4Questions,
     'WEEK_5': week5Questions,
@@ -41,9 +43,9 @@ const ALL_DATA: Record<string, QuestionData[]> = {
 };
 
 async function run() {
-    console.log('--- REORGANIZING PRACTICE QUESTIONS (WEEKS 3-7) ---');
+    console.log('--- REORGANIZING PRACTICE QUESTIONS (WEEKS 2-7) ---');
 
-    for (const weekKey of ['WEEK_3', 'WEEK_4', 'WEEK_5', 'WEEK_6', 'WEEK_7']) {
+    for (const weekKey of ['WEEK_2', 'WEEK_3', 'WEEK_4', 'WEEK_5', 'WEEK_6', 'WEEK_7']) {
         console.log(`\nProcessing ${weekKey}...`);
         
         // 1. Ensure all questions for this week exist in the 'questions' table
