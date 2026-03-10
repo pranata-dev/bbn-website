@@ -1,141 +1,98 @@
-"use client"
-
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
+import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { FileDown, BookOpen, Clock, Layers } from "lucide-react"
+import { Download, BookOpen, FileText } from "lucide-react"
 
-// Types for the placeholder data
-interface Material {
-    id: string
-    title: string
-    description: string
-    category: string
-    size: string
-    pages: number
-    dateAdded: string
-    downloadUrl: string // URL to actual PDF file
+export const metadata = {
+    title: "Materi Belajar - BBN",
+    description: "Unduh materi belajar Fisika Dasar BBN",
 }
 
-const PLACEHOLDER_MATERIALS: Material[] = [
+const materials = [
     {
-        id: "mat-001",
-        title: "Modul 1: Listrik Statis dan Hukum Coulomb",
-        description: "Materi pengantar kelistrikan mencakup muatan listrik, Hukum Coulomb, dan medan listrik titik muatan.",
-        category: "Listrik & Magnet",
-        size: "2.4 MB",
-        pages: 15,
-        dateAdded: "2024-02-15",
-        downloadUrl: "#", // Replace with real PDF url
+        title: "FISDAS PEKAN 1: COULOMB'S LAW AND ELECTRIC FIELDS",
+        link: "https://drive.google.com/uc?export=download&id=1KhY1W5Dg01rw3WA-qCTXdV8UXuhZtHW6",
+        icon: <BookOpen className="w-5 h-5 text-earthy-gold" />,
     },
     {
-        id: "mat-002",
-        title: "Modul 2: Hukum Gauss & Potensial Listrik",
-        description: "Pembahasan mendalam tentang fluks listrik, aplikasi Hukum Gauss, dan perhitungan energi potensial.",
-        category: "Listrik & Magnet",
-        size: "3.1 MB",
-        pages: 22,
-        dateAdded: "2024-02-22",
-        downloadUrl: "#",
+        title: "FISDAS PEKAN 2: GAUSS LAW",
+        link: "https://drive.google.com/uc?export=download&id=1XYG7Y2lteJJnY4urNSbxRkwYvNNb3zj9",
+        icon: <BookOpen className="w-5 h-5 text-earthy-gold" />,
     },
     {
-        id: "mat-003",
-        title: "Modul 3: Kapasitansi dan Dielektrik",
-        description: "Analisis rangkaian kapasitor seri/paralel, energi tersimpan, dan efek bahan dielektrik.",
-        category: "Listrik & Magnet",
-        size: "1.8 MB",
-        pages: 12,
-        dateAdded: "2024-03-01",
-        downloadUrl: "#",
+        title: "FISDAS PEKAN 3: ELECTRIC POTENTIAL & CAPACITANCE",
+        link: "https://drive.google.com/uc?export=download&id=1yL5m0YZ4Vd34os7ar-X93CkUzlCkqYs5",
+        icon: <BookOpen className="w-5 h-5 text-earthy-gold" />,
     },
     {
-        id: "mat-004",
-        title: "Modul 4: Optika Geometri",
-        description: "Prinsip pemantulan, pembiasan, cermin, dan lensa tipis beserta pembentukan bayangan.",
-        category: "Optika & Gelombang",
-        size: "4.5 MB",
-        pages: 28,
-        dateAdded: "2024-03-10",
-        downloadUrl: "#",
+        title: "FISDAS PEKAN 4: CURRENT AND RESISTANCE & CIRCUITS",
+        link: "https://drive.google.com/uc?export=download&id=1kT9Osca_OMPazH-2O7pcRkh6MII62G4U",
+        icon: <BookOpen className="w-5 h-5 text-earthy-gold" />,
+    },
+    {
+        title: "FISDAS PEKAN 5: MAGNETIC FIELDS & MAGNETIC FIELDS DUE TO CURRENT",
+        link: "https://drive.google.com/uc?export=download&id=1NWkzY-5o0tDf2MeiGlixy9eJ3ox_UvHr",
+        icon: <BookOpen className="w-5 h-5 text-earthy-gold" />,
+    },
+    {
+        title: "FISDAS PEKAN 6: INDUCTION & INDUCTANCE",
+        link: "https://drive.google.com/uc?export=download&id=15Rgo1ofJxVvUb14jTAOuUuNToWvLhx0m",
+        icon: <BookOpen className="w-5 h-5 text-earthy-gold" />,
     },
 ]
 
-export default function MaterialsPage() {
-
-    // In the future:
-    // const handleDownload = (url: string) => {
-    //    window.open(url, "_blank")
-    // }
-
+export default function MateriPage() {
     return (
-        <div className="space-y-6">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                <div>
-                    <h1 className="text-2xl font-bold text-foreground">Materi Belajar</h1>
-                    <p className="text-muted-foreground">Unduh modul dan rangkuman materi Fisika Dasar.</p>
-                </div>
+        <div className="space-y-8">
+            <div>
+                <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
+                    <FileText className="w-6 h-6 text-dark-brown" /> 
+                    Materi Belajar
+                </h1>
+                <p className="text-muted-foreground mt-2">
+                    Unduh materi belajar Fisika Dasar yang telah dirangkum khusus untuk persiapan ujianmu di bawah ini.
+                </p>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                {PLACEHOLDER_MATERIALS.map((material) => (
-                    <Card key={material.id} className="border-warm-gray/60 hover:shadow-md hover:border-soft-brown/30 transition-all">
-                        <CardHeader className="pb-3">
-                            <div className="flex justify-between items-start gap-4">
-                                <div>
-                                    <Badge variant="secondary" className="mb-2 bg-warm-beige text-soft-brown text-xs">
-                                        {material.category}
-                                    </Badge>
-                                    <CardTitle className="text-lg leading-tight uppercase tracking-tight">{material.title}</CardTitle>
-                                </div>
-                                <div className="w-10 h-10 rounded-xl bg-orange-100/50 flex items-center justify-center shrink-0">
-                                    <BookOpen className="w-5 h-5 text-orange-600" />
-                                </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {materials.map((materi, idx) => (
+                    <Card key={idx} className="border-warm-gray/60 hover:border-earthy-gold/50 hover:shadow-md transition-all group flex flex-col h-full">
+                        <CardContent className="p-6 flex flex-col flex-grow items-center text-center">
+                            <div className="w-14 h-14 rounded-full bg-earthy-gold/10 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
+                                {materi.icon}
                             </div>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="flex flex-col h-full">
-                                <p className="text-sm text-muted-foreground mb-6 line-clamp-2">
-                                    {material.description}
-                                </p>
+                            
+                            <h3 className="text-sm font-bold text-foreground leading-snug mb-6 flex-grow">
+                                {materi.title}
+                            </h3>
 
-                                <div className="flex items-center justify-between mt-auto">
-                                    <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                                        <div className="flex items-center gap-1.5">
-                                            <Layers className="w-3.5 h-3.5" />
-                                            <span>{material.pages} Halaman</span>
-                                        </div>
-                                        <div className="flex items-center gap-1.5">
-                                            <FileDown className="w-3.5 h-3.5" />
-                                            <span>{material.size}</span>
-                                        </div>
-                                    </div>
-
-                                    {/* Using an anchor tag with download attribute for native PDF downloads */}
-                                    <Button
-                                        asChild
-                                        size="sm"
-                                        className="bg-dark-brown hover:bg-soft-brown text-white"
-                                    >
-                                        <a href={material.downloadUrl} download>
-                                            Unduh PDF
-                                        </a>
-                                    </Button>
-                                </div>
-                            </div>
+                            <Button 
+                                asChild 
+                                className="w-full bg-dark-brown text-cream hover:bg-soft-brown shadow-sm group-hover:shadow transition-all"
+                            >
+                                <a 
+                                    href={materi.link} 
+                                    target="_blank" 
+                                    rel="noopener noreferrer"
+                                    download
+                                >
+                                    <Download className="w-4 h-4 mr-2" />
+                                    Unduh Materi
+                                </a>
+                            </Button>
                         </CardContent>
                     </Card>
                 ))}
             </div>
-
-            {PLACEHOLDER_MATERIALS.length === 0 && (
-                <Card className="border-warm-gray/60 mt-8">
-                    <CardContent className="flex flex-col items-center justify-center py-20 text-center">
-                        <div className="w-16 h-16 rounded-full bg-warm-beige flex items-center justify-center mb-4">
-                            <BookOpen className="w-8 h-8 text-muted-foreground" />
+            
+            {materials.length === 0 && (
+                <Card className="border-warm-gray/60 bg-warm-gray/5">
+                    <CardContent className="flex flex-col items-center justify-center py-16 text-center">
+                        <div className="w-16 h-16 rounded-full bg-warm-gray/20 flex items-center justify-center mb-4">
+                            <BookOpen className="w-8 h-8 text-muted-foreground/50" />
                         </div>
-                        <h3 className="text-lg font-semibold text-foreground mb-2">Belum Ada Materi</h3>
+                        <h3 className="text-lg font-medium text-foreground mb-1">Belum Ada Materi</h3>
                         <p className="text-sm text-muted-foreground max-w-sm">
-                            Modul pembelajaran sedang dalam tahap penyusunan dan akan segera tersedia.
+                            Materi belajar akan diunggah pada halaman ini saat sudah tersedia. Silakan cek kembali nanti.
                         </p>
                     </CardContent>
                 </Card>
