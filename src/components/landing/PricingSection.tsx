@@ -3,7 +3,19 @@ import { Button } from "@/components/ui/button"
 import { Check, ArrowRight } from "lucide-react"
 import { FadeInUp, HoverScale, StaggerContainer, StaggerItem } from "@/components/animations"
 
-const plans = [
+interface Plan {
+    name: string
+    price: string
+    originalPrice?: string
+    period?: string
+    description: string
+    features: string[]
+    cta: string
+    href: string
+    highlighted: boolean
+}
+
+const plans: Plan[] = [
     {
         name: "Kelas Reguler",
         price: "Mulai Rp 40.000",
@@ -20,7 +32,8 @@ const plans = [
     },
     {
         name: "Persiapan UTS",
-        price: "Mulai Rp 50.000",
+        price: "Rp 35.000",
+        originalPrice: "Rp 50.000",
         period: "/ paket",
         description: "Siapkan dirimu menghadapi UTS dengan penuh percaya diri lewat simulasi ujian, pembahasan terperinci, dan analisis mendalam.",
         features: [
@@ -72,10 +85,17 @@ export function PricingSection() {
                                 <h3 className={`text-lg font-semibold mb-2 ${plan.highlighted ? "text-cream" : "text-foreground"}`}>
                                     {plan.name}
                                 </h3>
-                                <div className="flex items-baseline gap-1">
-                                    <span className={`text-3xl font-bold ${plan.highlighted ? "text-cream" : "text-foreground"}`}>
-                                        {plan.price}
-                                    </span>
+                                <div className="flex items-baseline gap-2">
+                                    <div className="flex flex-col">
+                                        {plan.originalPrice && (
+                                            <span className={`text-xs line-through opacity-60 ${plan.highlighted ? "text-cream" : "text-muted-foreground"}`}>
+                                                {plan.originalPrice}
+                                            </span>
+                                        )}
+                                        <span className={`text-3xl font-bold ${plan.highlighted ? "text-cream" : "text-foreground"}`}>
+                                            {plan.price}
+                                        </span>
+                                    </div>
                                     {plan.period && (
                                         <span className={`text-sm ${plan.highlighted ? "text-cream/70" : "text-muted-foreground"}`}>
                                             {plan.period}
