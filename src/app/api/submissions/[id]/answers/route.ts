@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
-import { createClient } from "@/lib/supabase/server"
-import { createServiceClient } from "@/lib/supabase/server"
+import { createClient, createServiceClient } from "@/lib/supabase/server"
+import { v4 as uuidv4 } from "uuid"
 
 // PATCH /api/submissions/[id]/answers - Auto-save single answer
 export async function PATCH(
@@ -45,20 +45,38 @@ export async function PATCH(
             return NextResponse.json({ error: "Sesi tidak valid atau sudah selesai" }, { status: 400 })
         }
 
-        // Upsert the answer (is_correct is left null until final submit)
-        const { error: upsertError } = await supabase
+        // Check if answer already exists
+        const { data: existing } = await supabase
             .from("answers")
-            .upsert({
-                submission_id: submissionId,
-                question_id: questionId,
-                answer: answer,
-            }, {
-                onConflict: "submission_id, question_id"
-            })
+            .select("id")
+            .eq("submission_id", submissionId)
+            .eq("question_id", questionId)
+            .single()
 
-        if (upsertError) {
-            console.error("Failed to auto-save answer:", upsertError)
-            return NextResponse.json({ error: "Gagal menyimpan jawaban" }, { status: 500 })
+        if (existing) {
+            const { error: updateError } = await supabase
+                .from("answers")
+                .update({ answer: answer })
+                .eq("id", existing.id)
+
+            if (updateError) {
+                console.error("Failed to update answer:", updateError)
+                return NextResponse.json({ error: "Gagal mengupdate jawaban" }, { status: 500 })
+            }
+        } else {
+            const { error: insertError } = await supabase
+                .from("answers")
+                .insert({
+                    id: uuidv4(),
+                    submission_id: submissionId,
+                    question_id: questionId,
+                    answer: answer
+                })
+
+            if (insertError) {
+                console.error("Failed to insert answer:", insertError)
+                return NextResponse.json({ error: "Gagal menyimpan jawaban" }, { status: 500 })
+            }
         }
 
         return NextResponse.json({ success: true })

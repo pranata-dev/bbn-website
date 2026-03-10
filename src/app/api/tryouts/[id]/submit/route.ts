@@ -76,8 +76,17 @@ export async function POST(
         let correctCount = 0
         let totalWeight = 0
         let correctWeight = 0
+        const { data: existingAnswers } = await supabase
+            .from("answers")
+            .select("id, question_id")
+            .eq("submission_id", submissionId)
 
-        const answerRecords = answers.map((a: { questionId: string; answer: string | null }) => {
+        const existingMap = new Map((existingAnswers || []).map(a => [a.question_id, a.id]))
+
+        const inserts = []
+        const updates = []
+
+        for (const a of answers) {
             const question = correctAnswers?.find((q: { id: string }) => q.id === a.questionId)
             const isCorrect = question ? a.answer === question.correct_answer : false
             const weight = question?.weight || 1
@@ -88,28 +97,44 @@ export async function POST(
                 correctCount++
             }
 
-            return {
-                id: uuidv4(),
-                submission_id: submissionId,
-                question_id: a.questionId,
-                answer: a.answer,
-                is_correct: isCorrect,
-                created_at: new Date().toISOString(),
+            const existingId = existingMap.get(a.questionId)
+            if (existingId) {
+                updates.push({
+                    id: existingId,
+                    submission_id: submissionId,
+                    question_id: a.questionId,
+                    answer: a.answer,
+                    is_correct: isCorrect,
+                })
+            } else {
+                inserts.push({
+                    id: uuidv4(),
+                    submission_id: submissionId,
+                    question_id: a.questionId,
+                    answer: a.answer,
+                    is_correct: isCorrect,
+                    created_at: new Date().toISOString(),
+                })
             }
-        })
+        }
 
         const score = totalWeight > 0 ? Math.round((correctWeight / totalWeight) * 10000) / 100 : 0
 
-        // Save answers (upsert to overwrite auto-saved answers with final corrected status)
-        const { error: answersError } = await supabase
-            .from("answers")
-            .upsert(answerRecords, {
-                onConflict: "submission_id, question_id"
-            })
-            
-        if (answersError) {
-            console.error("Failed to upsert answers:", answersError)
-            return NextResponse.json({ error: "Gagal menyimpan jawaban." }, { status: 500 })
+        // Execute bulk insert/update
+        if (inserts.length > 0) {
+            const { error: insertError } = await supabase.from("answers").insert(inserts)
+            if (insertError) {
+                console.error("Failed to insert new answers:", insertError)
+                return NextResponse.json({ error: "Gagal menyimpan jawaban." }, { status: 500 })
+            }
+        }
+
+        if (updates.length > 0) {
+            const { error: updateError } = await supabase.from("answers").upsert(updates)
+            if (updateError) {
+                console.error("Failed to update existing answers:", updateError)
+                return NextResponse.json({ error: "Gagal menyimpan jawaban akhir." }, { status: 500 })
+            }
         }
 
         // Update submission

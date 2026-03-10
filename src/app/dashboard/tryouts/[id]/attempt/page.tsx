@@ -100,6 +100,10 @@ export default function TryoutAttemptPage() {
                         Object.keys(parsed).forEach(qid => {
                             if (initialAnswers[qid]) {
                                 initialAnswers[qid].isDoubtful = parsed[qid]?.isDoubtful || false
+                                // Fallback to localStorage answer if DB auto-save failed/lagged
+                                if (!initialAnswers[qid].answer && parsed[qid]?.answer) {
+                                    initialAnswers[qid].answer = parsed[qid].answer
+                                }
                             }
                         })
                     } catch (e) {
