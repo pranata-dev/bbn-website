@@ -43,7 +43,7 @@ export function UTSPackageSelector({ selected, onSelect }: UTSPackageSelectorPro
                         <div className="mb-6">
                             <div className="flex flex-col">
                                 {pkg.originalPrice && (
-                                    <span className="text-xs line-through text-muted-foreground/60 mb-0.5">
+                                    <span className="text-lg line-through text-muted-foreground/60 mb-0.5">
                                         {formatRupiah(pkg.originalPrice)}
                                     </span>
                                 )}

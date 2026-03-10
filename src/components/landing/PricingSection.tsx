@@ -88,7 +88,7 @@ export function PricingSection() {
                                 <div className="flex items-baseline gap-2">
                                     <div className="flex flex-col">
                                         {plan.originalPrice && (
-                                            <span className={`text-xs line-through opacity-60 ${plan.highlighted ? "text-cream" : "text-muted-foreground"}`}>
+                                            <span className={`text-lg line-through opacity-60 ${plan.highlighted ? "text-cream" : "text-muted-foreground"}`}>
                                                 {plan.originalPrice}
                                             </span>
                                         )}
