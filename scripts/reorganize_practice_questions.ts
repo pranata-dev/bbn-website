@@ -1,12 +1,8 @@
 import { createClient } from '@supabase/supabase-js';
 import * as dotenv from 'dotenv';
 import { v4 as uuidv4 } from 'uuid';
-import { week2Questions } from './data/week2';
-import { week3Questions } from './data/week3';
-import { week4Questions } from './data/week4';
-import { week5Questions } from './data/week5';
-import { week6Questions } from './data/week6';
-import { week7Questions } from './data/week7';
+import * as fs from 'fs';
+import * as path from 'path';
 
 dotenv.config({ path: '.env.local' });
 
@@ -33,23 +29,30 @@ interface QuestionData {
     weight: number;
 }
 
+const baseDir = 'C:/Users/p/.gemini/antigravity/scratch/bbn-website/scripts/data';
+
 const ALL_DATA: Record<string, QuestionData[]> = {
-    'WEEK_2': week2Questions,
-    'WEEK_3': week3Questions,
-    'WEEK_4': week4Questions,
-    'WEEK_5': week5Questions,
-    'WEEK_6': week6Questions,
-    'WEEK_7': week7Questions,
+    'WEEK_1': JSON.parse(fs.readFileSync(path.join(baseDir, 'week1_parsed.json'), 'utf-8')),
+    'WEEK_2': JSON.parse(fs.readFileSync(path.join(baseDir, 'week2_parsed.json'), 'utf-8')),
+    'WEEK_3': JSON.parse(fs.readFileSync(path.join(baseDir, 'week3_parsed.json'), 'utf-8')),
+    'WEEK_4': JSON.parse(fs.readFileSync(path.join(baseDir, 'week4_parsed.json'), 'utf-8')),
+    'WEEK_5': JSON.parse(fs.readFileSync(path.join(baseDir, 'week5_parsed.json'), 'utf-8')),
+    'WEEK_6': JSON.parse(fs.readFileSync(path.join(baseDir, 'week6_parsed.json'), 'utf-8')),
+    'WEEK_7': JSON.parse(fs.readFileSync(path.join(baseDir, 'week7_parsed.json'), 'utf-8')),
 };
 
 async function run() {
-    console.log('--- REORGANIZING PRACTICE QUESTIONS (WEEKS 2-7) ---');
+    console.log('--- REORGANIZING PRACTICE QUESTIONS (WEEKS 1-7) ---');
 
-    for (const weekKey of ['WEEK_2', 'WEEK_3', 'WEEK_4', 'WEEK_5', 'WEEK_6', 'WEEK_7']) {
+    for (const weekKey of ['WEEK_1', 'WEEK_2', 'WEEK_3', 'WEEK_4', 'WEEK_5', 'WEEK_6', 'WEEK_7']) {
         console.log(`\nProcessing ${weekKey}...`);
         
         // 1. Ensure all questions for this week exist in the 'questions' table
         const sourceQuestions = ALL_DATA[weekKey];
+        if (!sourceQuestions) {
+            console.log(`⚠️ No source questions found for ${weekKey}, skipping.`);
+            continue;
+        }
         console.log(`Source has ${sourceQuestions.length} questions.`);
         
         for (const q of sourceQuestions) {
@@ -87,7 +90,10 @@ async function run() {
             .select('id, text')
             .eq('category', weekKey);
             
-        if (!dbQuestions) continue;
+        if (!dbQuestions || dbQuestions.length === 0) {
+            console.log(`⚠️ No questions found in DB for ${weekKey}, skipping.`);
+            continue;
+        }
         console.log(`DB has ${dbQuestions.length} questions for ${weekKey}.`);
 
         // 3. Delete existing practice tryouts and their question links for this week
@@ -107,13 +113,12 @@ async function run() {
         // 4. Split and Create new Parts
         const questionsPerPart = 20;
         const totalQuestions = dbQuestions.length;
-        const numParts = Math.floor(totalQuestions / questionsPerPart);
+        const numParts = Math.ceil(totalQuestions / questionsPerPart);
         
         for (let i = 0; i < numParts; i++) {
             const partNum = i + 1;
             const startIdx = i * questionsPerPart;
-            // Last part takes all remaining
-            const endIdx = (i === numParts - 1) ? totalQuestions : (i + 1) * questionsPerPart;
+            const endIdx = Math.min((i + 1) * questionsPerPart, totalQuestions);
             const partQuestions = dbQuestions.slice(startIdx, endIdx);
             
             const tryoutId = uuidv4();
