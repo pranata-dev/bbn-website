@@ -4,7 +4,6 @@ export const APP_DESCRIPTION = "Platform tutor fisika personal untuk mahasiswa F
 export const NAV_LINKS = [
     { href: "#fitur", label: "Fitur" },
     { href: "#cara-kerja", label: "Cara Kerja" },
-    { href: "#testimoni", label: "Testimoni" },
     { href: "#harga", label: "Harga" },
     { href: "#faq", label: "FAQ" },
 ]
@@ -43,6 +42,7 @@ export interface UTSPackage {
     description: string
     features: string[]
     price: number
+    originalPrice?: number
     isPopular?: boolean
 }
 
@@ -52,7 +52,8 @@ export const UTS_PACKAGES: UTSPackage[] = [
         label: "Flux Session",
         headline: "Bangun Fondasi Kuat Sebelum UTS",
         description: "Mulai dari dasar yang benar. Flux Session dirancang untuk kamu yang ingin memahami konsep secara bertahap melalui latihan intensif dan pembahasan lengkap. Cocok untuk memperkuat materi sebelum naik level ke simulasi ujian.",
-        price: 50_000,
+        price: 35_000,
+        originalPrice: 50_000,
         features: [
             "Latihan soal pekan 1–7 (20–30 soal setiap pekan)",
             "Pembahasan lengkap dan terstruktur",
@@ -66,6 +67,7 @@ export const UTS_PACKAGES: UTSPackage[] = [
         headline: "Latihan + Simulasi Realistis Selevel UTS Asli",
         description: "Naik satu level. Selain latihan lengkap, kamu akan menghadapi simulasi Try Out 120 menit dengan sistem soal variatif yang benar-benar menguji logika dan pemahaman konsep secara mendalam.",
         price: 50_000,
+        originalPrice: 65_000,
         features: [
             "Semua benefit Flux Session",
             "Try Out UTS 120 menit (50 soal)",
@@ -78,13 +80,13 @@ export const UTS_PACKAGES: UTSPackage[] = [
         value: "einstein_mode",
         label: "Einstein Mode",
         headline: "Strategi Lengkap untuk Target Aman UTS",
-        description: "Ini bukan sekadar paket latihan. Ini paket pengamanan nilai. Dirancang untuk kamu yang serius ingin hasil maksimal, dengan try out tambahan, video pembahasan soal sulit, dan analisis performa mendalam.",
-        price: 50_000,
+        description: "Ini bukan sekadar paket latihan. Ini paket pengamanan nilai. Dirancang untuk kamu yang serius ingin hasil maksimal, dengan try out tambahan dan analisis performa mendalam.",
+        price: 60_000,
+        originalPrice: 75_000,
         isPopular: true,
         features: [
             "Semua benefit Flux Session & Berotak Senku Mode",
-            "Tambahan hingga 2x Try Out (soal berbeda)",
-            "Video pembahasan soal-soal sulit",
+            "Tambahan hingga 3x Try Out (soal berbeda)",
             "Analisis performa lanjutan & evaluasi kelemahan",
         ],
     },
