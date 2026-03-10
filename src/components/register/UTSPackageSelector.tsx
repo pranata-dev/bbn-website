@@ -41,12 +41,21 @@ export function UTSPackageSelector({ selected, onSelect }: UTSPackageSelectorPro
                         </div>
 
                         <div className="mb-6">
-                            <span className="text-2xl font-black text-dark-brown">
-                                {formatRupiah(pkg.price)}
-                            </span>
-                            <span className="text-xs text-muted-foreground ml-1">
-                                / paket
-                            </span>
+                            <div className="flex flex-col">
+                                {pkg.originalPrice && (
+                                    <span className="text-xs line-through text-muted-foreground/60 mb-0.5">
+                                        {formatRupiah(pkg.originalPrice)}
+                                    </span>
+                                )}
+                                <div className="flex items-baseline">
+                                    <span className="text-2xl font-black text-dark-brown">
+                                        {formatRupiah(pkg.price)}
+                                    </span>
+                                    <span className="text-xs text-muted-foreground ml-1">
+                                        / paket
+                                    </span>
+                                </div>
+                            </div>
                         </div>
 
                         <div className="flex-1 space-y-4 mb-6">
