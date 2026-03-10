@@ -24,7 +24,7 @@ export default async function DashboardPage() {
     if (authUser) {
         const { data } = await supabase
             .from("users")
-            .select("package_type, tryout_attempt_used, role")
+            .select("full_name, package_type, tryout_attempt_used, role")
             .eq("auth_id", authUser.id)
             .single()
 
@@ -51,7 +51,7 @@ export default async function DashboardPage() {
             <div>
                 <h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
                 <p className="text-muted-foreground">
-                    Selamat datang kembali! Pantau progres belajarmu di sini.
+                    Halo {dbUser?.full_name || "Sobat"}, selamat datang kembali! Pantau progres belajarmu di sini.
                 </p>
             </div>
 
