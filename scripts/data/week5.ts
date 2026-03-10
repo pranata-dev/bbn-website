@@ -64,8 +64,8 @@ export const week5Questions = [
         "category": "WEEK_5",
         "option_a": "$R$",
         "option_b": "$1/R$",
-        "option_c": "$1/R^2$",
-        "option_d": "$1/R^3$",
+        "option_c": "$1/R^{2}$",
+        "option_d": "$1/R^{3}$",
         "option_e": "$1/R^{3/2}$",
         "correct_answer": "B",
         "explanation": "**Pembahasan:**\n\n**Jawaban: B. $1/R$**\r\n\r\nBerdasarkan penurunan Hukum Ampere, kuat medan magnet ($B$) pada jarak tegak lurus ($R$) dari sebuah kawat lurus yang sangat panjang dirumuskan sebagai:\r\n$$B = \\frac{\\mu_0 I}{2\\pi R}$$\r\nDari persamaan tersebut, terlihat jelas bahwa kuat medan magnet berbanding terbalik dengan jaraknya ($B \\propto 1/R$).",
@@ -200,7 +200,7 @@ export const week5Questions = [
         "option_d": "$2R$",
         "option_e": "$4R$",
         "correct_answer": "C",
-        "explanation": "**Pembahasan:**\n\n**Jawaban: C. $R$**\r\n\r\nUntuk mendapatkan keseragaman ruang medan magnet yang paling optimal di sekitar titik pusat persumbuannya, syarat matematis dari kumparan Helmholtz adalah turunan kedua medan magnet terhadap jarak harus bernilai nol ($\\frac{d^2B}{dx^2} = 0$). Konfigurasi ini dicapai secara presisi ketika jarak celah pemisah ($d$) antara kedua kumparan tersebut diatur tepat sama panjang dengan nilai jari-jarinya ($R$).",
+        "explanation": "**Pembahasan:**\n\n**Jawaban: C. $R$**\r\n\r\nUntuk mendapatkan keseragaman ruang medan magnet yang paling optimal di sekitar titik pusat persumbuannya, syarat matematis dari kumparan Helmholtz adalah turunan kedua medan magnet terhadap jarak harus bernilai nol ($\\frac{d^{2}B}{dx^{2}} = 0$). Konfigurasi ini dicapai secara presisi ketika jarak celah pemisah ($d$) antara kedua kumparan tersebut diatur tepat sama panjang dengan nilai jari-jarinya ($R$).",
         "weight": 1
     },
     {
@@ -208,11 +208,11 @@ export const week5Questions = [
         "category": "WEEK_5",
         "option_a": "$R$",
         "option_b": "$1/R$",
-        "option_c": "$R^2$",
-        "option_d": "$1/R^2$",
-        "option_e": "$1/R^3$",
+        "option_c": "$R^{2}$",
+        "option_d": "$1/R^{2}$",
+        "option_e": "$1/R^{3}$",
         "correct_answer": "E",
-        "explanation": "**Pembahasan:**\n\n**Jawaban: E. $1/R^3$**\r\n\r\nKarakteristik penyebaran radiasi medan dari sebuah dipol magnetik (maupun dipol listrik) akan memudar terhadap jarak dengan laju pelemahan yang lebih drastis dibandingkan kawat lurus biasa. Besar medan magnet $\\vec{B}$ pada titik berjarak jauh ($R$) di sepanjang sumbu dipol selalu berbanding terbalik dengan pangkat tiga dari jaraknya ($B \\propto 1/R^3$).",
+        "explanation": "**Pembahasan:**\n\n**Jawaban: E. $1/R^{3}$**\r\n\r\nKarakteristik penyebaran radiasi medan dari sebuah dipol magnetik (maupun dipol listrik) akan memudar terhadap jarak dengan laju pelemahan yang lebih drastis dibandingkan kawat lurus biasa. Besar medan magnet $\\vec{B}$ pada titik berjarak jauh ($R$) di sepanjang sumbu dipol selalu berbanding terbalik dengan pangkat tiga dari jaraknya ($B \\propto 1/R^{3}$).",
         "weight": 1
     },
     {
@@ -292,7 +292,7 @@ export const week5Questions = [
         "category": "WEEK_5",
         "option_a": "$0$",
         "option_b": "$2\\pi R B / \\mu_0$",
-        "option_c": "$\\pi R^2 B / \\mu_0$",
+        "option_c": "$\\pi R^{2} B / \\mu_0$",
         "option_d": "$R B / 2\\mu_0$",
         "option_e": "$2 R B / \\mu_0$",
         "correct_answer": "A",
@@ -302,13 +302,13 @@ export const week5Questions = [
     {
         "text": "Medan magnet di titik mana pun diberikan oleh persamaan $\\vec{B} = A(\\vec{r} \\times \\hat{k})$, di mana $\\vec{r}$ adalah vektor posisi titik tersebut dan $A$ adalah sebuah konstanta. Arus bersih yang melewati sebuah luasan lingkaran berjari-jari $R$, yang berada pada bidang $xy$ dan berpusat di titik asal (origin), dirumuskan oleh:",
         "category": "WEEK_5",
-        "option_a": "$\\pi A R^2 / \\mu_0$",
+        "option_a": "$\\pi A R^{2} / \\mu_0$",
         "option_b": "$2\\pi A R / \\mu_0$",
-        "option_c": "$4\\pi A R^3 / 3\\mu_0$",
-        "option_d": "$2\\pi A R^2 / \\mu_0$",
-        "option_e": "$\\pi A R^2 / 2\\mu_0$",
+        "option_c": "$4\\pi A R^{3} / 3\\mu_0$",
+        "option_d": "$2\\pi A R^{2} / \\mu_0$",
+        "option_e": "$\\pi A R^{2} / 2\\mu_0$",
         "correct_answer": "D",
-        "explanation": "**Pembahasan:**\n\n**Jawaban: D. $2\\pi A R^2 / \\mu_0$**\r\n\r\nVektor posisi pada bidang $xy$ adalah $\\vec{r} = x\\hat{i} + y\\hat{j}$.\r\nBentuk persamaan $\\vec{B} = A(\\vec{r} \\times \\hat{k})$ menandakan bahwa medan magnet melingkar di sekeliling sumbu $z$ (membentuk pusaran azimut pada bidang $xy$). Besarnya medan di tepi lingkaran berjari-jari $R$ adalah $B = A \\cdot R$.\r\nMengingat vektor medan $\\vec{B}$ di sekeliling lingkaran tersebut persis sejajar dengan vektor lintasan $d\\vec{s}$, maka:\r\n$$\\oint \\vec{B} \\cdot d\\vec{s} = B \\cdot (2\\pi R) = (A R)(2\\pi R) = 2\\pi A R^2$$\r\nMenurut Hukum Ampere, $\\oint \\vec{B} \\cdot d\\vec{s} = \\mu_0 I_{net}$, sehingga:\r\n$$\\mu_0 I_{net} = 2\\pi A R^2 \\implies I_{net} = \\frac{2\\pi A R^2}{\\mu_0}$$",
+        "explanation": "**Pembahasan:**\n\n**Jawaban: D. $2\\pi A R^{2} / \\mu_0$**\r\n\r\nVektor posisi pada bidang $xy$ adalah $\\vec{r} = x\\hat{i} + y\\hat{j}$.\r\nBentuk persamaan $\\vec{B} = A(\\vec{r} \\times \\hat{k})$ menandakan bahwa medan magnet melingkar di sekeliling sumbu $z$ (membentuk pusaran azimut pada bidang $xy$). Besarnya medan di tepi lingkaran berjari-jari $R$ adalah $B = A \\cdot R$.\r\nMengingat vektor medan $\\vec{B}$ di sekeliling lingkaran tersebut persis sejajar dengan vektor lintasan $d\\vec{s}$, maka:\r\n$$\\oint \\vec{B} \\cdot d\\vec{s} = B \\cdot (2\\pi R) = (A R)(2\\pi R) = 2\\pi A R^{2}$$\r\nMenurut Hukum Ampere, $\\oint \\vec{B} \\cdot d\\vec{s} = \\mu_0 I_{net}$, sehingga:\r\n$$\\mu_0 I_{net} = 2\\pi A R^{2} \\implies I_{net} = \\frac{2\\pi A R^{2}}{\\mu_0}$$",
         "weight": 1
     },
     {
@@ -552,7 +552,7 @@ export const week5Questions = [
         "weight": 1
     },
     {
-        "text": "Sebuah elektron (muatan = $-1,6 \\times 10^{-19} \\text{ C}$) sedang bergerak pada kelajuan $3 \\times 10^5 \\text{ m/s}$ dalam arah sumbu $x$ positif. Sebuah medan magnet sebesar $0,8 \\text{ T}$ berada dalam arah sumbu $z$ positif. Gaya magnet pada elektron tersebut adalah:",
+        "text": "Sebuah elektron (muatan = $-1,6 \\times 10^{-19} \\text{ C}$) sedang bergerak pada kelajuan $3 \\times 10^{5} \\text{ m/s}$ dalam arah sumbu $x$ positif. Sebuah medan magnet sebesar $0,8 \\text{ T}$ berada dalam arah sumbu $z$ positif. Gaya magnet pada elektron tersebut adalah:",
         "category": "WEEK_5",
         "option_a": "$0$",
         "option_b": "$4 \\times 10^{-14} \\text{ N}$, ke arah sumbu $z$ positif",
@@ -560,11 +560,11 @@ export const week5Questions = [
         "option_d": "$4 \\times 10^{-14} \\text{ N}$, ke arah sumbu $y$ positif",
         "option_e": "$4 \\times 10^{-14} \\text{ N}$, ke arah sumbu $y$ negatif",
         "correct_answer": "D",
-        "explanation": "**Pembahasan:**\n\n**Jawaban: D. $4 \\times 10^{-14} \\text{ N}$, ke arah sumbu $y$ positif**\r\n\r\nDiketahui:\r\n- Kecepatan $\\vec{v}$ searah sumbu $+x$ ($\\hat{i}$)\r\n- Medan magnet $\\vec{B}$ searah sumbu $+z$ ($\\hat{k}$)\r\n- Muatan elektron $q = -e$ (negatif)\r\n\r\nGunakan rumus perkalian silang:\r\n$$\\vec{F} = q(\\vec{v} \\times \\vec{B})$$\r\n$$\\vec{F} = -e (v\\hat{i} \\times B\\hat{k})$$\r\nMenurut aturan perkalian silang sumbu koordinat ($\\hat{i} \\times \\hat{k} = -\\hat{j}$):\r\n$$\\vec{F} = -e (-vB\\hat{j}) = +(e \\cdot v \\cdot B)\\hat{j}$$\r\nArah positif $\\hat{j}$ berarti gayanya menunjuk ke arah **sumbu $y$ positif**.\r\n\r\nHitung besarnya:\r\n$$F = (1,6 \\times 10^{-19}) \\times (3 \\times 10^5) \\times (0,8)$$\r\n$$F = 3,84 \\times 10^{-14} \\text{ Newton} \\approx 4 \\times 10^{-14} \\text{ N}$$\r\n\r\n### Soal 13",
+        "explanation": "**Pembahasan:**\n\n**Jawaban: D. $4 \\times 10^{-14} \\text{ N}$, ke arah sumbu $y$ positif**\r\n\r\nDiketahui:\r\n- Kecepatan $\\vec{v}$ searah sumbu $+x$ ($\\hat{i}$)\r\n- Medan magnet $\\vec{B}$ searah sumbu $+z$ ($\\hat{k}$)\r\n- Muatan elektron $q = -e$ (negatif)\r\n\r\nGunakan rumus perkalian silang:\r\n$$\\vec{F} = q(\\vec{v} \\times \\vec{B})$$\r\n$$\\vec{F} = -e (v\\hat{i} \\times B\\hat{k})$$\r\nMenurut aturan perkalian silang sumbu koordinat ($\\hat{i} \\times \\hat{k} = -\\hat{j}$):\r\n$$\\vec{F} = -e (-vB\\hat{j}) = +(e \\cdot v \\cdot B)\\hat{j}$$\r\nArah positif $\\hat{j}$ berarti gayanya menunjuk ke arah **sumbu $y$ positif**.\r\n\r\nHitung besarnya:\r\n$$F = (1,6 \\times 10^{-19}) \\times (3 \\times 10^{5}) \\times (0,8)$$\r\n$$F = 3,84 \\times 10^{-14} \\text{ Newton} \\approx 4 \\times 10^{-14} \\text{ N}$$\r\n\r\n### Soal 13",
         "weight": 1
     },
     {
-        "text": "Pada suatu saat tertentu, sebuah elektron (muatan = $-1,6 \\times 10^{-19} \\text{ C}$) sedang bergerak di bidang $xy$, dengan komponen kecepatannya bernilai $v_x = 5 \\times 10^5 \\text{ m/s}$ dan $v_y = 3 \\times 10^5 \\text{ m/s}$. Sebuah medan magnet sebesar $0,8 \\text{ T}$ berada dalam arah sumbu $x$ positif. Pada saat itu, magnitudo (besar) gaya magnet pada elektron adalah:",
+        "text": "Pada suatu saat tertentu, sebuah elektron (muatan = $-1,6 \\times 10^{-19} \\text{ C}$) sedang bergerak di bidang $xy$, dengan komponen kecepatannya bernilai $v_x = 5 \\times 10^{5} \\text{ m/s}$ dan $v_y = 3 \\times 10^{5} \\text{ m/s}$. Sebuah medan magnet sebesar $0,8 \\text{ T}$ berada dalam arah sumbu $x$ positif. Pada saat itu, magnitudo (besar) gaya magnet pada elektron adalah:",
         "category": "WEEK_5",
         "option_a": "$0$",
         "option_b": "$2,6 \\times 10^{-14} \\text{ N}$",
@@ -572,11 +572,11 @@ export const week5Questions = [
         "option_d": "$6,4 \\times 10^{-14} \\text{ N}$",
         "option_e": "$1,0 \\times 10^{-13} \\text{ N}$",
         "correct_answer": "C",
-        "explanation": "**Pembahasan:**\n\n**Jawaban: C. $3,8 \\times 10^{-14} \\text{ N}$**\r\n\r\nTulis vektor komponennya:\r\n- $\\vec{v} = v_x\\hat{i} + v_y\\hat{j}$\r\n- $\\vec{B} = B\\hat{i}$\r\n\r\nHitung gayanya:\r\n$$\\vec{F} = q(\\vec{v} \\times \\vec{B})$$\r\n$$\\vec{F} = -e \\left[ (v_x\\hat{i} + v_y\\hat{j}) \\times B\\hat{i} \\right]$$\r\nKarena perkalian silang elemen yang searah bernilai nol ($\\hat{i} \\times \\hat{i} = 0$), komponen kecepatan $x$ sama sekali tidak menghasilkan gaya.\r\n$$\\vec{F} = -e \\left[ v_y\\hat{j} \\times B\\hat{i} \\right]$$\r\nKarena ($\\hat{j} \\times \\hat{i} = -\\hat{k}$):\r\n$$\\vec{F} = -e (-v_y B\\hat{k}) = +(e \\cdot v_y \\cdot B)\\hat{k}$$\r\n\r\nBesar magnitudonya hanya bergantung pada $v_y$:\r\n$$F = (1,6 \\times 10^{-19}) \\times (3 \\times 10^5) \\times 0,8$$\r\n$$F = 3,84 \\times 10^{-14} \\text{ N} \\approx 3,8 \\times 10^{-14} \\text{ N}$$\r\n\r\n### Soal 14",
+        "explanation": "**Pembahasan:**\n\n**Jawaban: C. $3,8 \\times 10^{-14} \\text{ N}$**\r\n\r\nTulis vektor komponennya:\r\n- $\\vec{v} = v_x\\hat{i} + v_y\\hat{j}$\r\n- $\\vec{B} = B\\hat{i}$\r\n\r\nHitung gayanya:\r\n$$\\vec{F} = q(\\vec{v} \\times \\vec{B})$$\r\n$$\\vec{F} = -e \\left[ (v_x\\hat{i} + v_y\\hat{j}) \\times B\\hat{i} \\right]$$\r\nKarena perkalian silang elemen yang searah bernilai nol ($\\hat{i} \\times \\hat{i} = 0$), komponen kecepatan $x$ sama sekali tidak menghasilkan gaya.\r\n$$\\vec{F} = -e \\left[ v_y\\hat{j} \\times B\\hat{i} \\right]$$\r\nKarena ($\\hat{j} \\times \\hat{i} = -\\hat{k}$):\r\n$$\\vec{F} = -e (-v_y B\\hat{k}) = +(e \\cdot v_y \\cdot B)\\hat{k}$$\r\n\r\nBesar magnitudonya hanya bergantung pada $v_y$:\r\n$$F = (1,6 \\times 10^{-19}) \\times (3 \\times 10^{5}) \\times 0,8$$\r\n$$F = 3,84 \\times 10^{-14} \\text{ N} \\approx 3,8 \\times 10^{-14} \\text{ N}$$\r\n\r\n### Soal 14",
         "weight": 1
     },
     {
-        "text": "*(Catatan: Ini adalah soal yang persis sama dengan Soal 13, namun dengan pilihan jawaban yang sedikit berbeda pada berkas aslinya).*\r\nPada suatu saat tertentu, sebuah elektron (muatan = $-1,6 \\times 10^{-19} \\text{ C}$) sedang bergerak di bidang $xy$, dengan komponen kecepatannya bernilai $v_x = 5 \\times 10^5 \\text{ m/s}$ dan $v_y = 3 \\times 10^5 \\text{ m/s}$. Sebuah medan magnet sebesar $0,8 \\text{ T}$ berada dalam arah sumbu $x$ positif. Pada saat itu, magnitudo gaya magnet pada elektron adalah:",
+        "text": "*(Catatan: Ini adalah soal yang persis sama dengan Soal 13, namun dengan pilihan jawaban yang sedikit berbeda pada berkas aslinya).*\r\nPada suatu saat tertentu, sebuah elektron (muatan = $-1,6 \\times 10^{-19} \\text{ C}$) sedang bergerak di bidang $xy$, dengan komponen kecepatannya bernilai $v_x = 5 \\times 10^{5} \\text{ m/s}$ dan $v_y = 3 \\times 10^{5} \\text{ m/s}$. Sebuah medan magnet sebesar $0,8 \\text{ T}$ berada dalam arah sumbu $x$ positif. Pada saat itu, magnitudo gaya magnet pada elektron adalah:",
         "category": "WEEK_5",
         "option_a": "$0$",
         "option_b": "$3,8 \\times 10^{-14} \\text{ N}$",
@@ -672,15 +672,15 @@ export const week5Questions = [
         "weight": 1
     },
     {
-        "text": "Sebuah anion dengan muatan $+3,2 \\times 10^{-19} \\text{ C}$ berada di suatu daerah di mana medan listrik seragam $5 \\times 10^4 \\text{ V/m}$ tegak lurus terhadap medan magnet seragam $0,8 \\text{ T}$. Jika percepatan anion tersebut adalah nol, maka kecepatannya pasti bernilai:",
+        "text": "Sebuah anion dengan muatan $+3,2 \\times 10^{-19} \\text{ C}$ berada di suatu daerah di mana medan listrik seragam $5 \\times 10^{4} \\text{ V/m}$ tegak lurus terhadap medan magnet seragam $0,8 \\text{ T}$. Jika percepatan anion tersebut adalah nol, maka kecepatannya pasti bernilai:",
         "category": "WEEK_5",
         "option_a": "$0$",
-        "option_b": "$1,6 \\times 10^4 \\text{ m/s}$",
-        "option_c": "$4,0 \\times 10^4 \\text{ m/s}$",
-        "option_d": "$6,3 \\times 10^4 \\text{ m/s}$",
+        "option_b": "$1,6 \\times 10^{4} \\text{ m/s}$",
+        "option_c": "$4,0 \\times 10^{4} \\text{ m/s}$",
+        "option_d": "$6,3 \\times 10^{4} \\text{ m/s}$",
         "option_e": "nilai berapapun selain $0$",
         "correct_answer": "D",
-        "explanation": "**Pembahasan:**\n\n**Jawaban: D. $6,3 \\times 10^4 \\text{ m/s}$**\r\n\r\nAgar percepatan anion bernilai nol ($a = 0$), maka total gaya yang bekerja padanya harus nol ($\\Sigma F = 0$). Hal ini berarti Gaya Lorentz dari medan magnet harus menyeimbangkan gaya dari medan listrik:\r\n$$F_e = F_m$$\r\n$$qE = qvB$$\r\n$$v = \\frac{E}{B}$$\r\n$$v = \\frac{5 \\times 10^4}{0,8}$$\r\n$$v = 6,25 \\times 10^4 \\text{ m/s} \\approx 6,3 \\times 10^4 \\text{ m/s}$$\r\n\r\n## Soal 2",
+        "explanation": "**Pembahasan:**\n\n**Jawaban: D. $6,3 \\times 10^{4} \\text{ m/s}$**\r\n\r\nAgar percepatan anion bernilai nol ($a = 0$), maka total gaya yang bekerja padanya harus nol ($\\Sigma F = 0$). Hal ini berarti Gaya Lorentz dari medan magnet harus menyeimbangkan gaya dari medan listrik:\r\n$$F_e = F_m$$\r\n$$qE = qvB$$\r\n$$v = \\frac{E}{B}$$\r\n$$v = \\frac{5 \\times 10^{4}}{0,8}$$\r\n$$v = 6,25 \\times 10^{4} \\text{ m/s} \\approx 6,3 \\times 10^{4} \\text{ m/s}$$\r\n\r\n## Soal 2",
         "weight": 1
     },
     {
@@ -692,7 +692,7 @@ export const week5Questions = [
         "option_d": "$B\\sqrt{\\frac{2mV}{e}}$",
         "option_e": "tidak ada jawaban yang benar",
         "correct_answer": "C",
-        "explanation": "**Pembahasan:**\n\n**Jawaban: C. $\\frac{1}{B}\\sqrt{\\frac{2mV}{e}}$**\r\n\r\nEnergi kinetik elektron yang dipercepat oleh beda potensial $V$:\r\n$$eV = \\frac{1}{2}mv^2 \\implies v = \\sqrt{\\frac{2eV}{m}}$$\r\n\r\nGaya magnetik bertindak sebagai gaya sentripetal pada lintasan melingkar:\r\n$$evB = \\frac{mv^2}{R} \\implies R = \\frac{mv}{eB}$$\r\n\r\nSubstitusi nilai $v$ ke dalam persamaan jari-jari:\r\n$$R = \\frac{m}{eB} \\sqrt{\\frac{2eV}{m}} = \\frac{1}{B} \\sqrt{\\frac{2m^2eV}{e^2m}}$$\r\n$$R = \\frac{1}{B} \\sqrt{\\frac{2mV}{e}}$$\r\n\r\n## Soal 3",
+        "explanation": "**Pembahasan:**\n\n**Jawaban: C. $\\frac{1}{B}\\sqrt{\\frac{2mV}{e}}$**\r\n\r\nEnergi kinetik elektron yang dipercepat oleh beda potensial $V$:\r\n$$eV = \\frac{1}{2}mv^{2} \\implies v = \\sqrt{\\frac{2eV}{m}}$$\r\n\r\nGaya magnetik bertindak sebagai gaya sentripetal pada lintasan melingkar:\r\n$$evB = \\frac{mv^{2}}{R} \\implies R = \\frac{mv}{eB}$$\r\n\r\nSubstitusi nilai $v$ ke dalam persamaan jari-jari:\r\n$$R = \\frac{m}{eB} \\sqrt{\\frac{2eV}{m}} = \\frac{1}{B} \\sqrt{\\frac{2m^{2}eV}{e^{2}m}}$$\r\n$$R = \\frac{1}{B} \\sqrt{\\frac{2mV}{e}}$$\r\n\r\n## Soal 3",
         "weight": 1
     },
     {
@@ -712,11 +712,11 @@ export const week5Questions = [
         "category": "WEEK_5",
         "option_a": "$\\frac{1}{R}$",
         "option_b": "$R$",
-        "option_c": "$R^2$",
-        "option_d": "$R^3$",
-        "option_e": "$R^4$",
+        "option_c": "$R^{2}$",
+        "option_d": "$R^{3}$",
+        "option_e": "$R^{4}$",
         "correct_answer": "C",
-        "explanation": "**Pembahasan:**\n\n**Jawaban: C. $R^2$**\r\n\r\nKecepatan partikel dalam siklotron didapat dari keseimbangan gaya sentripetal:\r\n$$v = \\frac{qBR}{m}$$\r\n\r\nEnergi kinetik partikel tersebut adalah:\r\n$$K = \\frac{1}{2}mv^2 = \\frac{1}{2}m \\left(\\frac{qBR}{m}\\right)^2$$\r\n$$K = \\frac{q^2B^2R^2}{2m}$$\r\nMaka, energi kinetik sebanding dengan $R^2$.\r\n\r\n## Soal 5",
+        "explanation": "**Pembahasan:**\n\n**Jawaban: C. $R^{2}$**\r\n\r\nKecepatan partikel dalam siklotron didapat dari keseimbangan gaya sentripetal:\r\n$$v = \\frac{qBR}{m}$$\r\n\r\nEnergi kinetik partikel tersebut adalah:\r\n$$K = \\frac{1}{2}mv^{2} = \\frac{1}{2}m \\left(\\frac{qBR}{m}\\right)^2$$\r\n$$K = \\frac{q^{2}B^{2}R^{2}}{2m}$$\r\nMaka, energi kinetik sebanding dengan $R^{2}$.\r\n\r\n## Soal 5",
         "weight": 1
     },
     {
@@ -812,7 +812,7 @@ export const week5Questions = [
         "option_d": "$2,5 \\text{ A} \\cdot \\text{m}^2$, ke arah sumbu $z$ negatif",
         "option_e": "$0,25 \\text{ A} \\cdot \\text{m}^2$, di bidang $xy$",
         "correct_answer": "A",
-        "explanation": "**Pembahasan:**\n\n**Jawaban: A. $0,25 \\text{ A} \\cdot \\text{m}^2$, ke arah sumbu $z$ positif**\r\n\r\nBesar momen dipol:\r\n$$\\mu = I \\cdot A = I \\cdot (\\pi r^2)$$\r\n$$\\mu = 2 \\times 3,14 \\times (0,2)^2$$\r\n$$\\mu = 2 \\times 3,14 \\times 0,04 \\approx 0,251 \\text{ A} \\cdot \\text{m}^2$$\r\nKarena arus mengalir berlawanan arah jarum jam di bidang $xy$, aturan tangan kanan menunjukkan vektor dipol menunjuk tegak lurus keluar dari bidang ke arah sumbu $z$ positif ($+\\hat{k}$).\r\n\r\n## Soal 13",
+        "explanation": "**Pembahasan:**\n\n**Jawaban: A. $0,25 \\text{ A} \\cdot \\text{m}^2$, ke arah sumbu $z$ positif**\r\n\r\nBesar momen dipol:\r\n$$\\mu = I \\cdot A = I \\cdot (\\pi r^{2})$$\r\n$$\\mu = 2 \\times 3,14 \\times (0,2)^2$$\r\n$$\\mu = 2 \\times 3,14 \\times 0,04 \\approx 0,251 \\text{ A} \\cdot \\text{m}^2$$\r\nKarena arus mengalir berlawanan arah jarum jam di bidang $xy$, aturan tangan kanan menunjukkan vektor dipol menunjuk tegak lurus keluar dari bidang ke arah sumbu $z$ positif ($+\\hat{k}$).\r\n\r\n## Soal 13",
         "weight": 1
     },
     {

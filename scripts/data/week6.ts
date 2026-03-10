@@ -285,7 +285,7 @@ export const week6Questions = [
         "option_d": "$18 \\text{ V}$",
         "option_e": "$180 \\text{ V}$",
         "correct_answer": "C",
-        "explanation": "**Pembahasan:**\r\n\r\n**Jawaban: C. $5,3 \\text{ V}$**\r\n\r\nGunakan rumus GGL maksimum untuk generator:\r\n$$\\varepsilon_{max} = N \\cdot A \\cdot B \\cdot \\omega$$\r\n\r\nDiketahui:\r\n* $N = 10$\r\n* Luas $A = \\pi r^2 = \\pi \\times (0,03 \\text{ m})^2 = 0,0009\\pi \\text{ m}^2$\r\n* $B = 0,50 \\text{ T}$\r\n* Frekuensi $f = 60 \\text{ Hz}$, maka $\\omega = 2\\pi f = 120\\pi \\text{ rad/s}$\r\n\r\nMasukkan nilainya:\r\n$$\\varepsilon_{max} = 10 \\times (0,0009\\pi) \\times 0,50 \\times (120\\pi)$$\r\n$$\\varepsilon_{max} = 10 \\times 0,00045\\pi \\times 120\\pi$$\r\n$$\\varepsilon_{max} = 0,0045\\pi \\times 120\\pi$$\r\n$$\\varepsilon_{max} = 0,54 \\times \\pi^2$$\r\n\r\nDengan menggunakan nilai pendekatan konvensional $\\pi^2 \\approx 9,87$:\r\n$$\\varepsilon_{max} = 0,54 \\times 9,87 \\approx 5,3298 \\text{ V}$$\r\nMaka, nilainya paling mendekati **$5,3 \\text{ V}$**.",
+        "explanation": "**Pembahasan:**\r\n\r\n**Jawaban: C. $5,3 \\text{ V}$**\r\n\r\nGunakan rumus GGL maksimum untuk generator:\r\n$$\\varepsilon_{max} = N \\cdot A \\cdot B \\cdot \\omega$$\r\n\r\nDiketahui:\r\n* $N = 10$\r\n* Luas $A = \\pi r^{2} = \\pi \\times (0,03 \\text{ m})^2 = 0,0009\\pi \\text{ m}^2$\r\n* $B = 0,50 \\text{ T}$\r\n* Frekuensi $f = 60 \\text{ Hz}$, maka $\\omega = 2\\pi f = 120\\pi \\text{ rad/s}$\r\n\r\nMasukkan nilainya:\r\n$$\\varepsilon_{max} = 10 \\times (0,0009\\pi) \\times 0,50 \\times (120\\pi)$$\r\n$$\\varepsilon_{max} = 10 \\times 0,00045\\pi \\times 120\\pi$$\r\n$$\\varepsilon_{max} = 0,0045\\pi \\times 120\\pi$$\r\n$$\\varepsilon_{max} = 0,54 \\times \\pi^{2}$$\r\n\r\nDengan menggunakan nilai pendekatan konvensional $\\pi^{2} \\approx 9,87$:\r\n$$\\varepsilon_{max} = 0,54 \\times 9,87 \\approx 5,3298 \\text{ V}$$\r\nMaka, nilainya paling mendekati **$5,3 \\text{ V}$**.",
         "weight": 1
     },
     {
@@ -297,7 +297,7 @@ export const week6Questions = [
         "option_d": "$35 \\text{ rad/s}$",
         "option_e": "$71 \\text{ rad/s}$",
         "correct_answer": "D",
-        "explanation": "**Pembahasan:**\r\n\r\n**Jawaban: D. $35 \\text{ rad/s}$**\r\n\r\nSama seperti soal sebelumnya, kita susun ulang persamaan GGL maksimum:\r\n$$\\varepsilon_{max} = N \\cdot A \\cdot B \\cdot \\omega$$\r\n$$\\omega = \\frac{\\varepsilon_{max}}{N \\cdot A \\cdot B}$$\r\n\r\nHitung luas area ($A$) terlebih dahulu ($r = 0,075 \\text{ m}$):\r\n$$A = \\pi r^2 = \\pi \\times (0,075)^2 \\approx 0,01767 \\text{ m}^2$$\r\n\r\nMasukkan ke persamaan ($N=1$ karena kawat tunggal):\r\n$$\\omega = \\frac{1,0}{1 \\times 0,01767 \\times 1,6}$$\r\n$$\\omega = \\frac{1,0}{0,02827}$$\r\n$$\\omega \\approx 35,37 \\text{ rad/s}$$\r\n\r\nOpsi yang paling tepat adalah **$35 \\text{ rad/s}$**.",
+        "explanation": "**Pembahasan:**\r\n\r\n**Jawaban: D. $35 \\text{ rad/s}$**\r\n\r\nSama seperti soal sebelumnya, kita susun ulang persamaan GGL maksimum:\r\n$$\\varepsilon_{max} = N \\cdot A \\cdot B \\cdot \\omega$$\r\n$$\\omega = \\frac{\\varepsilon_{max}}{N \\cdot A \\cdot B}$$\r\n\r\nHitung luas area ($A$) terlebih dahulu ($r = 0,075 \\text{ m}$):\r\n$$A = \\pi r^{2} = \\pi \\times (0,075)^2 \\approx 0,01767 \\text{ m}^2$$\r\n\r\nMasukkan ke persamaan ($N=1$ karena kawat tunggal):\r\n$$\\omega = \\frac{1,0}{1 \\times 0,01767 \\times 1,6}$$\r\n$$\\omega = \\frac{1,0}{0,02827}$$\r\n$$\\omega \\approx 35,37 \\text{ rad/s}$$\r\n\r\nOpsi yang paling tepat adalah **$35 \\text{ rad/s}$**.",
         "weight": 1
     },
     {
@@ -318,8 +318,8 @@ export const week6Questions = [
         "option_a": "$0$",
         "option_b": "$BLv$",
         "option_c": "$BLv/R$",
-        "option_d": "$B^2L^2v/R$",
-        "option_e": "$B^2L^2v^2/R$",
+        "option_d": "$B^{2}L^{2}v/R$",
+        "option_e": "$B^{2}L^{2}v^{2}/R$",
         "correct_answer": "A",
         "explanation": "**Pembahasan:**\r\n\r\n**Jawaban: A. $0$**\r\n\r\nPerhatikan baik-baik soal ini: Batang bergerak tegak lurus secara terisolasi dan **TIDAK dihubungkan menjadi sebuah rangkaian tertutup**. \r\n\r\nKarena batang tersebut berupa sirkuit terbuka, elektron di dalamnya memang akan bergeser ke salah satu ujung untuk membentuk GGL pergerakan ($vBL$), tetapi **arus listrik kontinyu tidak dapat mengalir** ($I = 0$).\r\n\r\nGaya magnetik resistif (Gaya Lorentz) yang melawan gerak batang dirumuskan dengan $F_m = I \\cdot L \\cdot B$.\r\nKarena tidak ada arus ($I = 0$), maka tidak ada gaya magnetik perlawanan ($F_m = 0$). Sesuai Hukum I Newton, jika tidak ada gaya luar yang menghambat, maka untuk melaju dengan kecepatan konstan (tanpa gesekan/hambatan lain), gaya dorong yang dibutuhkan adalah **nol**.\r\n\r\n*(Catatan: Seandainya batang ditaruh di atas rel logam yang tertutup, barulah jawabannya D).*",
         "weight": 1
@@ -333,7 +333,7 @@ export const week6Questions = [
         "option_d": "$20 \\text{ mA}$",
         "option_e": "Tidak dapat dihitung dari data yang diberikan",
         "correct_answer": "D",
-        "explanation": "**Pembahasan:**\r\n\r\n**Jawaban: D. $20 \\text{ mA}$**\r\n\r\nBerdasarkan asas kekekalan energi, hilangnya energi mekanik (laju pengurangan energi kinetik) akan sepenuhnya dikonversi menjadi energi listrik dalam bentuk daya disipasi kalor pada resistor.\r\n$$\\text{Laju Kehilangan Energi Mekanik} = \\text{Daya Listrik (Joule)}$$\r\n$$P = 4,0 \\text{ mJ/s} = 4,0 \\times 10^{-3} \\text{ W}$$\r\n\r\nGunakan persamaan daya terhadap arus dan hambatan:\r\n$$P = I^2 \\cdot R$$\r\n$$4,0 \\times 10^{-3} = I^2 \\times 10$$\r\n$$I^2 = \\frac{4,0 \\times 10^{-3}}{10} = 4,0 \\times 10^{-4}$$\r\n$$I = \\sqrt{4,0 \\times 10^{-4}} = 2,0 \\times 10^{-2} \\text{ A}$$\r\n\r\nUbah ke dalam miliAmpere (mA):\r\n$$I = 20 \\text{ mA}$$",
+        "explanation": "**Pembahasan:**\r\n\r\n**Jawaban: D. $20 \\text{ mA}$**\r\n\r\nBerdasarkan asas kekekalan energi, hilangnya energi mekanik (laju pengurangan energi kinetik) akan sepenuhnya dikonversi menjadi energi listrik dalam bentuk daya disipasi kalor pada resistor.\r\n$$\\text{Laju Kehilangan Energi Mekanik} = \\text{Daya Listrik (Joule)}$$\r\n$$P = 4,0 \\text{ mJ/s} = 4,0 \\times 10^{-3} \\text{ W}$$\r\n\r\nGunakan persamaan daya terhadap arus dan hambatan:\r\n$$P = I^{2} \\cdot R$$\r\n$$4,0 \\times 10^{-3} = I^{2} \\times 10$$\r\n$$I^{2} = \\frac{4,0 \\times 10^{-3}}{10} = 4,0 \\times 10^{-4}$$\r\n$$I = \\sqrt{4,0 \\times 10^{-4}} = 2,0 \\times 10^{-2} \\text{ A}$$\r\n\r\nUbah ke dalam miliAmpere (mA):\r\n$$I = 20 \\text{ mA}$$",
         "weight": 1
     },
     {
@@ -345,7 +345,7 @@ export const week6Questions = [
         "option_d": "$2 \\text{ V}$",
         "option_e": "Tidak dapat dihitung dari data yang diberikan",
         "correct_answer": "B",
-        "explanation": "**Pembahasan:**\r\n\r\n**Jawaban: B. $0,2 \\text{ V}$**\r\n\r\n*(Catatan Koreksi Soal: Terdapat kesalahan ketik pada sumber asli soal ini. Untuk mendapatkan jawaban opsi B, seharusnya laju hilangnya energi kinetik adalah* **$4,0 \\text{ mJ/s}$** *seperti pada Soal 15, bukan $5 \\text{ mJ/s}$. Berikut adalah penyelesaian jika menggunakan patokan yang bernilai matematis logis yaitu $4,0 \\text{ mJ/s}$).*\r\n\r\nSeperti soal sebelumnya, laju hilangnya energi setara dengan besaran Daya ($P = 4,0 \\text{ mJ/s} = 0,004 \\text{ W}$).\r\nGunakan persamaan daya dalam kaitannya dengan GGL induksi / tegangan ($\\varepsilon$):\r\n$$P = \\frac{\\varepsilon^2}{R}$$\r\n$$0,004 = \\frac{\\varepsilon^2}{10}$$\r\n$$\\varepsilon^2 = 0,004 \\times 10 = 0,04$$\r\n$$\\varepsilon = \\sqrt{0,04}$$\r\n$$\\varepsilon = 0,2 \\text{ V}$$\r\n\r\n*(Jika bersikeras menggunakan angka $5 \\text{ mJ/s}$, maka GGL-nya akan menjadi $\\sqrt{0,05} \\approx 0,22 \\text{ V}$, yang tidak ada di opsi secara persis).*",
+        "explanation": "**Pembahasan:**\r\n\r\n**Jawaban: B. $0,2 \\text{ V}$**\r\n\r\n*(Catatan Koreksi Soal: Terdapat kesalahan ketik pada sumber asli soal ini. Untuk mendapatkan jawaban opsi B, seharusnya laju hilangnya energi kinetik adalah* **$4,0 \\text{ mJ/s}$** *seperti pada Soal 15, bukan $5 \\text{ mJ/s}$. Berikut adalah penyelesaian jika menggunakan patokan yang bernilai matematis logis yaitu $4,0 \\text{ mJ/s}$).*\r\n\r\nSeperti soal sebelumnya, laju hilangnya energi setara dengan besaran Daya ($P = 4,0 \\text{ mJ/s} = 0,004 \\text{ W}$).\r\nGunakan persamaan daya dalam kaitannya dengan GGL induksi / tegangan ($\\varepsilon$):\r\n$$P = \\frac{\\varepsilon^{2}}{R}$$\r\n$$0,004 = \\frac{\\varepsilon^{2}}{10}$$\r\n$$\\varepsilon^{2} = 0,004 \\times 10 = 0,04$$\r\n$$\\varepsilon = \\sqrt{0,04}$$\r\n$$\\varepsilon = 0,2 \\text{ V}$$\r\n\r\n*(Jika bersikeras menggunakan angka $5 \\text{ mJ/s}$, maka GGL-nya akan menjadi $\\sqrt{0,05} \\approx 0,22 \\text{ V}$, yang tidak ada di opsi secara persis).*",
         "weight": 1
     },
     {
@@ -369,7 +369,7 @@ export const week6Questions = [
         "option_d": "$1,2 \\text{ T/s}$",
         "option_e": "$2,4 \\text{ T/s}$",
         "correct_answer": "C",
-        "explanation": "**Pembahasan:**\n\n**Jawaban: C. $0,60 \\text{ T/s}$**\r\n\r\nGunakan Hukum Faraday untuk medan listrik induksi di **dalam** wilayah silinder ($r < R$):\r\n$$\\oint E \\cdot ds = \\left| \\frac{d\\Phi_B}{dt} \\right|$$\r\n$$E (2\\pi r) = A \\cdot \\frac{dB}{dt}$$\r\n$$E (2\\pi r) = (\\pi r^2) \\frac{dB}{dt}$$\r\n$$E = \\frac{r}{2} \\frac{dB}{dt}$$\r\n\r\nDiketahui titik tersebut berada pada $r = R/2 = 1,5 \\text{ cm} = 0,015 \\text{ m}$ dan $E = 4,5 \\times 10^{-3} \\text{ V/m}$.\r\nSusun ulang untuk mencari laju perubahan medan magnet ($\\frac{dB}{dt}$):\r\n$$\\frac{dB}{dt} = \\frac{2 \\cdot E}{r}$$\r\n$$\\frac{dB}{dt} = \\frac{2 \\times (4,5 \\times 10^{-3})}{0,015}$$\r\n$$\\frac{dB}{dt} = \\frac{9 \\times 10^{-3}}{15 \\times 10^{-3}} = \\frac{9}{15} = 0,60 \\text{ T/s}$$",
+        "explanation": "**Pembahasan:**\n\n**Jawaban: C. $0,60 \\text{ T/s}$**\r\n\r\nGunakan Hukum Faraday untuk medan listrik induksi di **dalam** wilayah silinder ($r < R$):\r\n$$\\oint E \\cdot ds = \\left| \\frac{d\\Phi_B}{dt} \\right|$$\r\n$$E (2\\pi r) = A \\cdot \\frac{dB}{dt}$$\r\n$$E (2\\pi r) = (\\pi r^{2}) \\frac{dB}{dt}$$\r\n$$E = \\frac{r}{2} \\frac{dB}{dt}$$\r\n\r\nDiketahui titik tersebut berada pada $r = R/2 = 1,5 \\text{ cm} = 0,015 \\text{ m}$ dan $E = 4,5 \\times 10^{-3} \\text{ V/m}$.\r\nSusun ulang untuk mencari laju perubahan medan magnet ($\\frac{dB}{dt}$):\r\n$$\\frac{dB}{dt} = \\frac{2 \\cdot E}{r}$$\r\n$$\\frac{dB}{dt} = \\frac{2 \\times (4,5 \\times 10^{-3})}{0,015}$$\r\n$$\\frac{dB}{dt} = \\frac{9 \\times 10^{-3}}{15 \\times 10^{-3}} = \\frac{9}{15} = 0,60 \\text{ T/s}$$",
         "weight": 1
     },
     {
@@ -393,7 +393,7 @@ export const week6Questions = [
         "option_d": "$(R/2) \\cdot dB/dt$",
         "option_e": "$(R/4) \\cdot dB/dt$",
         "correct_answer": "E",
-        "explanation": "**Pembahasan:**\n\n**Jawaban: E. $(R/4) \\cdot dB/dt$**\r\n\r\nUntuk titik di **luar** wilayah silinder ($r > R$), fluks magnetik maksimum dibatasi hanya seluas area silinder yang ada medan magnetnya ($A = \\pi R^2$).\r\n$$\\oint E \\cdot ds = \\left| \\frac{d\\Phi_B}{dt} \\right|$$\r\n$$E (2\\pi r) = (\\pi R^2) \\frac{dB}{dt}$$\r\n$$E = \\frac{R^2}{2r} \\frac{dB}{dt}$$\r\n\r\nSubstitusikan jarak titik tersebut ($r = 2R$):\r\n$$E = \\frac{R^2}{2(2R)} \\frac{dB}{dt} = \\frac{R^2}{4R} \\frac{dB}{dt}$$\r\n$$E = \\frac{R}{4} \\frac{dB}{dt}$$",
+        "explanation": "**Pembahasan:**\n\n**Jawaban: E. $(R/4) \\cdot dB/dt$**\r\n\r\nUntuk titik di **luar** wilayah silinder ($r > R$), fluks magnetik maksimum dibatasi hanya seluas area silinder yang ada medan magnetnya ($A = \\pi R^{2}$).\r\n$$\\oint E \\cdot ds = \\left| \\frac{d\\Phi_B}{dt} \\right|$$\r\n$$E (2\\pi r) = (\\pi R^{2}) \\frac{dB}{dt}$$\r\n$$E = \\frac{R^{2}}{2r} \\frac{dB}{dt}$$\r\n\r\nSubstitusikan jarak titik tersebut ($r = 2R$):\r\n$$E = \\frac{R^{2}}{2(2R)} \\frac{dB}{dt} = \\frac{R^{2}}{4R} \\frac{dB}{dt}$$\r\n$$E = \\frac{R}{4} \\frac{dB}{dt}$$",
         "weight": 1
     },
     {
@@ -401,9 +401,9 @@ export const week6Questions = [
         "category": "WEEK_6",
         "option_a": "$R$",
         "option_b": "$r$",
-        "option_c": "$r^2$",
+        "option_c": "$r^{2}$",
         "option_d": "$1/r$",
-        "option_e": "$1/r^2$",
+        "option_e": "$1/r^{2}$",
         "correct_answer": "B",
         "explanation": "**Pembahasan:**\n\n**Jawaban: B. $r$**\r\n\r\nBerdasarkan penurunan rumus Hukum Faraday untuk titik di dalam silinder (seperti pada Soal 2):\r\n$$E = \\frac{r}{2} \\frac{dB}{dt}$$\r\nKarena nilai laju $dB/dt$ adalah konstan (berubah linier), maka besarnya $E$ hanya bergantung pada nilai $r$ di pembilang. Jadi, $E$ **berbanding lurus (proporsional) terhadap $r$**. Semakin menjauh dari pusat menuju tepi, medannya semakin kuat.",
         "weight": 1
@@ -413,11 +413,11 @@ export const week6Questions = [
         "category": "WEEK_6",
         "option_a": "$R$",
         "option_b": "$r$",
-        "option_c": "$r^2$",
+        "option_c": "$r^{2}$",
         "option_d": "$1/r$",
-        "option_e": "$1/r^2$",
+        "option_e": "$1/r^{2}$",
         "correct_answer": "D",
-        "explanation": "**Pembahasan:**\n\n**Jawaban: D. $1/r$**\r\n\r\nBerdasarkan penurunan rumus untuk titik di luar silinder (seperti pada Soal 4):\r\n$$E = \\frac{R^2}{2r} \\frac{dB}{dt}$$\r\nKarena nilai geometri luasan silinder ($R^2$) sudah final atau terkunci, maka besarnya $E$ sekarang berada di posisi berbanding terbalik terhadap jarak keliling luar ($r$) di penyebut. Jadi, $E$ **berbanding lurus terhadap $1/r$**. Semakin menjauh dari silinder, medannya semakin lemah.",
+        "explanation": "**Pembahasan:**\n\n**Jawaban: D. $1/r$**\r\n\r\nBerdasarkan penurunan rumus untuk titik di luar silinder (seperti pada Soal 4):\r\n$$E = \\frac{R^{2}}{2r} \\frac{dB}{dt}$$\r\nKarena nilai geometri luasan silinder ($R^{2}$) sudah final atau terkunci, maka besarnya $E$ sekarang berada di posisi berbanding terbalik terhadap jarak keliling luar ($r$) di penyebut. Jadi, $E$ **berbanding lurus terhadap $1/r$**. Semakin menjauh dari silinder, medannya semakin lemah.",
         "weight": 1
     },
     {
@@ -459,13 +459,13 @@ export const week6Questions = [
     {
         "text": "Sebuah solenoida panjang nan sempit memiliki panjang $l$ dan total lilitan sebanyak $N$, yang masing-masing memiliki luas penampang $A$. Induktansinya adalah:",
         "category": "WEEK_6",
-        "option_a": "$\\mu_0 N^2 A$",
-        "option_b": "$\\mu_0 N^2 A / l$",
+        "option_a": "$\\mu_0 N^{2} A$",
+        "option_b": "$\\mu_0 N^{2} A / l$",
         "option_c": "$\\mu_0 N A / l$",
-        "option_d": "$\\mu_0 N^2 l / A$",
+        "option_d": "$\\mu_0 N^{2} l / A$",
         "option_e": "Tidak ada pilihan di atas yang benar",
         "correct_answer": "B",
-        "explanation": "**Pembahasan:**\n\n**Jawaban: B. $\\mu_0 N^2 A / l$**\r\n\r\nMedan magnet di dalam solenoida adalah $B = \\mu_0 n i$, dengan $n$ adalah kerapatan lilitan per satuan panjang ($n = N/l$).\r\nFluks magnetik total (*flux linkage*) untuk seluruh lilitan $N$ adalah:\r\n$$N\\Phi_B = N (B \\cdot A) = N (\\mu_0 \\frac{N}{l} i) A = \\frac{\\mu_0 N^2 A i}{l}$$\r\nKarena definisi induktansi adalah $L = \\frac{N\\Phi_B}{i}$, maka $i$ saling membatalkan:\r\n$$L = \\frac{\\mu_0 N^2 A}{l}$$",
+        "explanation": "**Pembahasan:**\n\n**Jawaban: B. $\\mu_0 N^{2} A / l$**\r\n\r\nMedan magnet di dalam solenoida adalah $B = \\mu_0 n i$, dengan $n$ adalah kerapatan lilitan per satuan panjang ($n = N/l$).\r\nFluks magnetik total (*flux linkage*) untuk seluruh lilitan $N$ adalah:\r\n$$N\\Phi_B = N (B \\cdot A) = N (\\mu_0 \\frac{N}{l} i) A = \\frac{\\mu_0 N^{2} A i}{l}$$\r\nKarena definisi induktansi adalah $L = \\frac{N\\Phi_B}{i}$, maka $i$ saling membatalkan:\r\n$$L = \\frac{\\mu_0 N^{2} A}{l}$$",
         "weight": 1
     },
     {
@@ -477,7 +477,7 @@ export const week6Questions = [
         "option_d": "$L/16$",
         "option_e": "$L$",
         "correct_answer": "C",
-        "explanation": "**Pembahasan:**\n\n**Jawaban: C. $16L$**\r\n\r\nDari rumus induktansi geometris $L = \\frac{\\mu_0 N^2 A}{l}$, nilai induktansi sebuah kumparan atau solenoida selalu berbanding lurus dengan **kuadrat dari jumlah lilitannya** ($L \\propto N^2$).\r\nJika jumlah lilitan ditingkatkan dari 5 menjadi 20 (berarti naik $4$ kali lipat), maka nilai induktansinya akan meningkat sebesar kuadrat dari faktor pengali tersebut:\r\n$$L_{baru} = 4^2 \\cdot L = 16L$$",
+        "explanation": "**Pembahasan:**\n\n**Jawaban: C. $16L$**\r\n\r\nDari rumus induktansi geometris $L = \\frac{\\mu_0 N^{2} A}{l}$, nilai induktansi sebuah kumparan atau solenoida selalu berbanding lurus dengan **kuadrat dari jumlah lilitannya** ($L \\propto N^{2}$).\r\nJika jumlah lilitan ditingkatkan dari 5 menjadi 20 (berarti naik $4$ kali lipat), maka nilai induktansinya akan meningkat sebesar kuadrat dari faktor pengali tersebut:\r\n$$L_{baru} = 4^{2} \\cdot L = 16L$$",
         "weight": 1
     },
     {
@@ -615,13 +615,13 @@ export const week6Questions = [
     {
         "text": "Sebuah induktor $3,5 \\text{ mH}$ dan induktor $4,5 \\text{ mH}$ dihubungkan secara PARALEL. Ketika total GGL kombinasi tersebut adalah $16 \\text{ V}$, laju perubahan arus pada induktor yang lebih besar adalah:",
         "category": "WEEK_6",
-        "option_a": "$2,0 \\times 10^3 \\text{ A/s}$",
-        "option_b": "$3,6 \\times 10^3 \\text{ A/s}$",
-        "option_c": "$4,6 \\times 10^3 \\text{ A/s}$",
-        "option_d": "$7,0 \\times 10^3 \\text{ A/s}$",
-        "option_e": "$8,1 \\times 10^3 \\text{ A/s}$",
+        "option_a": "$2,0 \\times 10^{3} \\text{ A/s}$",
+        "option_b": "$3,6 \\times 10^{3} \\text{ A/s}$",
+        "option_c": "$4,6 \\times 10^{3} \\text{ A/s}$",
+        "option_d": "$7,0 \\times 10^{3} \\text{ A/s}$",
+        "option_e": "$8,1 \\times 10^{3} \\text{ A/s}$",
         "correct_answer": "B",
-        "explanation": "**Pembahasan:**\n\n**Jawaban: B. $3,6 \\times 10^3 \\text{ A/s}$**\r\n\r\nPrinsip fundamental rangkaian paralel adalah tegangan di seluruh cabang bernilai sama. Jadi, induktor besar maupun induktor kecil masing-masing menerima GGL persis sebesar $16 \\text{ V}$.\r\n$$\\mathcal{E} = L_{besar} \\cdot \\frac{di_{besar}}{dt}$$\r\n$$16 = (4,5 \\times 10^{-3}) \\cdot \\frac{di}{dt}$$\r\n$$\\frac{di}{dt} = \\frac{16}{4,5 \\times 10^{-3}}$$\r\n$$\\frac{di}{dt} = \\frac{16.000}{4,5} \\approx 3555,5 \\text{ A/s}$$\r\nNilai dalam orde puluhan saintifik yang paling akurat merepresentasikannya adalah **$3,6 \\times 10^3 \\text{ A/s}$**.",
+        "explanation": "**Pembahasan:**\n\n**Jawaban: B. $3,6 \\times 10^{3} \\text{ A/s}$**\r\n\r\nPrinsip fundamental rangkaian paralel adalah tegangan di seluruh cabang bernilai sama. Jadi, induktor besar maupun induktor kecil masing-masing menerima GGL persis sebesar $16 \\text{ V}$.\r\n$$\\mathcal{E} = L_{besar} \\cdot \\frac{di_{besar}}{dt}$$\r\n$$16 = (4,5 \\times 10^{-3}) \\cdot \\frac{di}{dt}$$\r\n$$\\frac{di}{dt} = \\frac{16}{4,5 \\times 10^{-3}}$$\r\n$$\\frac{di}{dt} = \\frac{16.000}{4,5} \\approx 3555,5 \\text{ A/s}$$\r\nNilai dalam orde puluhan saintifik yang paling akurat merepresentasikannya adalah **$3,6 \\times 10^{3} \\text{ A/s}$**.",
         "weight": 1
     },
     {
@@ -645,7 +645,7 @@ export const week6Questions = [
         "option_d": "Memiliki satuan J/H",
         "option_e": "Tidak ada pilihan di atas yang benar",
         "correct_answer": "E",
-        "explanation": "**Pembahasan:**\n\n**Jawaban: E. Tidak ada pilihan di atas yang benar**\r\n\r\nEnergi potensial magnetik yang tersimpan di induktor dirumuskan dengan:\r\n$$U = \\frac{1}{2} L i^2$$\r\nMari analisis opsi yang ada:\r\n* Opsi A Salah: Karena arusnya dikuadratkan ($i^2$), energinya akan selalu positif berapapun arahnya (maju atau mundur nilainya tetap mutlak positif).\r\n* Opsi B Salah: Bergantungnya pada nilai arus sesaat ($i$), bukan laju perubahannya ($di/dt$).\r\n* Opsi C Salah: Berbanding lurus dengan nilai induktansi ($L$), bukan kuadratnya ($L^2$).\r\n* Opsi D Salah: Satuannya adalah Joule biasa, bukan J/H.",
+        "explanation": "**Pembahasan:**\n\n**Jawaban: E. Tidak ada pilihan di atas yang benar**\r\n\r\nEnergi potensial magnetik yang tersimpan di induktor dirumuskan dengan:\r\n$$U = \\frac{1}{2} L i^{2}$$\r\nMari analisis opsi yang ada:\r\n* Opsi A Salah: Karena arusnya dikuadratkan ($i^{2}$), energinya akan selalu positif berapapun arahnya (maju atau mundur nilainya tetap mutlak positif).\r\n* Opsi B Salah: Bergantungnya pada nilai arus sesaat ($i$), bukan laju perubahannya ($di/dt$).\r\n* Opsi C Salah: Berbanding lurus dengan nilai induktansi ($L$), bukan kuadratnya ($L^{2}$).\r\n* Opsi D Salah: Satuannya adalah Joule biasa, bukan J/H.",
         "weight": 1
     },
     {
@@ -657,7 +657,7 @@ export const week6Questions = [
         "option_d": "Pada waktu $t = 2L/R$ setelah sakelar ditutup",
         "option_e": "Setelah waktu yang sangat lama setelah sakelar ditutup",
         "correct_answer": "E",
-        "explanation": "**Pembahasan:**\n\n**Jawaban: E. Setelah waktu yang sangat lama setelah sakelar ditutup**\r\n\r\nRumus energi induktor adalah $U = \\frac{1}{2} L i^2$.\r\nKarena nilai $L$ konstan, energi $U$ akan mencapai titik tertinggi (maksimum) hanya ketika kuat arus $i$ juga mencapai titik maksimumnya. Dalam rangkaian DC induktor, arus tertinggi (nilai steady-state $\\frac{\\mathcal{E}}{R}$) baru akan tercapai secara asimtotik setelah **waktu yang sangat lama** (biasanya diestimasi setelah $5\\tau$).",
+        "explanation": "**Pembahasan:**\n\n**Jawaban: E. Setelah waktu yang sangat lama setelah sakelar ditutup**\r\n\r\nRumus energi induktor adalah $U = \\frac{1}{2} L i^{2}$.\r\nKarena nilai $L$ konstan, energi $U$ akan mencapai titik tertinggi (maksimum) hanya ketika kuat arus $i$ juga mencapai titik maksimumnya. Dalam rangkaian DC induktor, arus tertinggi (nilai steady-state $\\frac{\\mathcal{E}}{R}$) baru akan tercapai secara asimtotik setelah **waktu yang sangat lama** (biasanya diestimasi setelah $5\\tau$).",
         "weight": 1
     },
     {
@@ -693,7 +693,7 @@ export const week6Questions = [
         "option_d": "$50 \\text{ J}$",
         "option_e": "$60 \\text{ J}$",
         "correct_answer": "B",
-        "explanation": "**Pembahasan:**\n\n**Jawaban: B. $30 \\text{ J}$**\r\n\r\nArah arus tidak memengaruhi nilai energi (karena arus dikuadratkan, nilai minus dari arah berlawanan akan menjadi positif).\r\nDiketahui $U \\propto i^2$. \r\nJika arus baru ($5 \\text{ A}$) adalah **setengah** dari arus awal ($10 \\text{ A}$), maka energi barunya adalah $(\\frac{1}{2})^2 = \\frac{1}{4}$ dari energi awal.\r\n$$U_{baru} = \\frac{1}{4} \\times 40 \\text{ J} = 10 \\text{ J}$$\r\n\r\nYang ditanyakan adalah **besaran perubahannya** (selisihnya):\r\n$$\\Delta U = |U_{awal} - U_{baru}| = |40 - 10| = 30 \\text{ J}$$",
+        "explanation": "**Pembahasan:**\n\n**Jawaban: B. $30 \\text{ J}$**\r\n\r\nArah arus tidak memengaruhi nilai energi (karena arus dikuadratkan, nilai minus dari arah berlawanan akan menjadi positif).\r\nDiketahui $U \\propto i^{2}$. \r\nJika arus baru ($5 \\text{ A}$) adalah **setengah** dari arus awal ($10 \\text{ A}$), maka energi barunya adalah $(\\frac{1}{2})^2 = \\frac{1}{4}$ dari energi awal.\r\n$$U_{baru} = \\frac{1}{4} \\times 40 \\text{ J} = 10 \\text{ J}$$\r\n\r\nYang ditanyakan adalah **besaran perubahannya** (selisihnya):\r\n$$\\Delta U = |U_{awal} - U_{baru}| = |40 - 10| = 30 \\text{ J}$$",
         "weight": 1
     },
     {
@@ -705,7 +705,7 @@ export const week6Questions = [
         "option_d": "$30 \\times 10^{-2} \\text{ J}$",
         "option_e": "Tidak diketahui karena laju perubahan arus tidak diberikan",
         "correct_answer": "B",
-        "explanation": "**Pembahasan:**\n\n**Jawaban: B. $7,5 \\times 10^{-2} \\text{ J}$**\r\n\r\nEnergi murni hanya bergantung pada profil arus saat itu juga ($i$), tidak butuh laju perubahannya.\r\n$$U = \\frac{1}{2} L i^2$$\r\n$$U = \\frac{1}{2} (6,0 \\times 10^{-3}) (5,0)^2$$\r\n$$U = (3,0 \\times 10^{-3}) \\times 25$$\r\n$$U = 75 \\times 10^{-3} \\text{ J} = 7,5 \\times 10^{-2} \\text{ J}$$",
+        "explanation": "**Pembahasan:**\n\n**Jawaban: B. $7,5 \\times 10^{-2} \\text{ J}$**\r\n\r\nEnergi murni hanya bergantung pada profil arus saat itu juga ($i$), tidak butuh laju perubahannya.\r\n$$U = \\frac{1}{2} L i^{2}$$\r\n$$U = \\frac{1}{2} (6,0 \\times 10^{-3}) (5,0)^2$$\r\n$$U = (3,0 \\times 10^{-3}) \\times 25$$\r\n$$U = 75 \\times 10^{-3} \\text{ J} = 7,5 \\times 10^{-2} \\text{ J}$$",
         "weight": 1
     },
     {
@@ -717,7 +717,7 @@ export const week6Questions = [
         "option_d": "$3,0 \\text{ W}$",
         "option_e": "$6,0 \\text{ W}$",
         "correct_answer": "E",
-        "explanation": "**Pembahasan:**\n\n**Jawaban: E. $6,0 \\text{ W}$**\r\n\r\nLaju peningkatan energi (Daya) didefinisikan sebagai turunan energi terhadap waktu ($P_L = \\frac{dU}{dt}$).\r\nKarena $U = \\frac{1}{2} L i^2$:\r\n$$P_L = L \\cdot i \\cdot \\frac{di}{dt}$$\r\nMasukkan seluruh angka dari soal:\r\n$$P_L = (6,0 \\times 10^{-3}) \\times 5,0 \\times 200$$\r\n$$P_L = 6,0 \\times 10^{-3} \\times 1000$$\r\n$$P_L = 6,0 \\text{ Watt}$$",
+        "explanation": "**Pembahasan:**\n\n**Jawaban: E. $6,0 \\text{ W}$**\r\n\r\nLaju peningkatan energi (Daya) didefinisikan sebagai turunan energi terhadap waktu ($P_L = \\frac{dU}{dt}$).\r\nKarena $U = \\frac{1}{2} L i^{2}$:\r\n$$P_L = L \\cdot i \\cdot \\frac{di}{dt}$$\r\nMasukkan seluruh angka dari soal:\r\n$$P_L = (6,0 \\times 10^{-3}) \\times 5,0 \\times 200$$\r\n$$P_L = 6,0 \\times 10^{-3} \\times 1000$$\r\n$$P_L = 6,0 \\text{ Watt}$$",
         "weight": 1
     },
     {
@@ -729,11 +729,11 @@ export const week6Questions = [
         "option_d": "$3,8 \\times 10^{-2} \\text{ J}$",
         "option_e": "$9,6 \\times 10^{-3} \\text{ J}$",
         "correct_answer": "C",
-        "explanation": "**Pembahasan:**\n\n**Jawaban: C. $1,9 \\times 10^{-2} \\text{ J}$**\r\n\r\nPertama, hitung konstanta waktu rangkaian ($\\tau$):\r\n$$\\tau = \\frac{L}{R} = \\frac{6,0 \\times 10^{-3}}{3,0} = 2,0 \\times 10^{-3} \\text{ s} = 2,0 \\text{ ms}$$\r\nKarena waktu yang diminta soal ($t = 2,0 \\text{ ms}$) sama persis dengan $\\tau$, maka rumusnya menjadi sederhana ($t/\\tau = 1$):\r\n$$i(t) = \\frac{\\mathcal{E}}{R} \\left( 1 - e^{-t/\\tau} \\right)$$\r\n$$i = \\frac{12}{3} \\left( 1 - e^{-1} \\right)$$\r\n$$i = 4 \\times (1 - 0,368) = 4 \\times 0,632 = 2,528 \\text{ A}$$\r\n\r\nHitung energinya dengan arus tersebut:\r\n$$U = \\frac{1}{2} L i^2$$\r\n$$U = 0,5 \\times (6,0 \\times 10^{-3}) \\times (2,528)^2$$\r\n$$U = (3,0 \\times 10^{-3}) \\times 6,39$$\r\n$$U \\approx 19,17 \\times 10^{-3} \\text{ J} \\approx 1,9 \\times 10^{-2} \\text{ J}$$",
+        "explanation": "**Pembahasan:**\n\n**Jawaban: C. $1,9 \\times 10^{-2} \\text{ J}$**\r\n\r\nPertama, hitung konstanta waktu rangkaian ($\\tau$):\r\n$$\\tau = \\frac{L}{R} = \\frac{6,0 \\times 10^{-3}}{3,0} = 2,0 \\times 10^{-3} \\text{ s} = 2,0 \\text{ ms}$$\r\nKarena waktu yang diminta soal ($t = 2,0 \\text{ ms}$) sama persis dengan $\\tau$, maka rumusnya menjadi sederhana ($t/\\tau = 1$):\r\n$$i(t) = \\frac{\\mathcal{E}}{R} \\left( 1 - e^{-t/\\tau} \\right)$$\r\n$$i = \\frac{12}{3} \\left( 1 - e^{-1} \\right)$$\r\n$$i = 4 \\times (1 - 0,368) = 4 \\times 0,632 = 2,528 \\text{ A}$$\r\n\r\nHitung energinya dengan arus tersebut:\r\n$$U = \\frac{1}{2} L i^{2}$$\r\n$$U = 0,5 \\times (6,0 \\times 10^{-3}) \\times (2,528)^2$$\r\n$$U = (3,0 \\times 10^{-3}) \\times 6,39$$\r\n$$U \\approx 19,17 \\times 10^{-3} \\text{ J} \\approx 1,9 \\times 10^{-2} \\text{ J}$$",
         "weight": 1
     },
     {
-        "text": "Kuantitas matematis $B^2/\\mu_0$ memiliki satuan yang setara dengan:",
+        "text": "Kuantitas matematis $B^{2}/\\mu_0$ memiliki satuan yang setara dengan:",
         "category": "WEEK_6",
         "option_a": "$\\text{J}$",
         "option_b": "$\\text{J/H}$",
@@ -741,7 +741,7 @@ export const week6Questions = [
         "option_d": "$\\text{J/m}^3$",
         "option_e": "$\\text{H/m}^3$",
         "correct_answer": "D",
-        "explanation": "**Pembahasan:**\n\n**Jawaban: D. $\\text{J/m}^3$**\r\n\r\nRumus untuk kerapatan energi medan magnet (energi per satuan volume) adalah $u_B = \\frac{B^2}{2\\mu_0}$.\r\nSifat fisika konstanta \"2\" tidak memiliki dimensi. Jadi kuantitas $\\frac{B^2}{\\mu_0}$ ini mendefinisikan kerapatan volume sebuah energi di angkasa, yang mana di dalam satuan S.I. dinyatakan sebagai **Joule per meter kubik** ($\\text{J/m}^3$).",
+        "explanation": "**Pembahasan:**\n\n**Jawaban: D. $\\text{J/m}^3$**\r\n\r\nRumus untuk kerapatan energi medan magnet (energi per satuan volume) adalah $u_B = \\frac{B^{2}}{2\\mu_0}$.\r\nSifat fisika konstanta \"2\" tidak memiliki dimensi. Jadi kuantitas $\\frac{B^{2}}{\\mu_0}$ ini mendefinisikan kerapatan volume sebuah energi di angkasa, yang mana di dalam satuan S.I. dinyatakan sebagai **Joule per meter kubik** ($\\text{J/m}^3$).",
         "weight": 1
     },
     {
@@ -753,7 +753,7 @@ export const week6Questions = [
         "option_d": "$7,5 \\times 10^{-4} \\text{ J}$",
         "option_e": "$9,9 \\text{ J}$",
         "correct_answer": "B",
-        "explanation": "**Pembahasan:**\n\n**Jawaban: B. $3,8 \\times 10^{-6} \\text{ J}$**\r\n\r\nHitung volume tabung induktornya:\r\n$$V = \\pi r^2 \\cdot l$$\r\n$$V = \\pi (0,002 \\text{ m})^2 (0,03 \\text{ m}) = \\pi (4 \\times 10^{-6})(0,03) \\approx 3,77 \\times 10^{-7} \\text{ m}^3$$\r\n\r\nHitung kerapatan energinya ($u$):\r\n$$u = \\frac{B^2}{2\\mu_0}$$\r\n$$u = \\frac{(5,0 \\times 10^{-3})^2}{2 \\times (4\\pi \\times 10^{-7})}$$\r\n$$u = \\frac{25 \\times 10^{-6}}{8\\pi \\times 10^{-7}} = \\frac{250}{8\\pi} \\approx 9,947 \\text{ J/m}^3$$\r\n\r\nTotal energi adalah kerapatan energi dikali volume ($U = u \\cdot V$):\r\n$$U = 9,947 \\times (3,77 \\times 10^{-7})$$\r\n$$U \\approx 3,75 \\times 10^{-6} \\text{ J}$$\r\nAngka terdekat dengan pembulatan signifikan yang tersedia adalah **$3,8 \\times 10^{-6} \\text{ J}$**.",
+        "explanation": "**Pembahasan:**\n\n**Jawaban: B. $3,8 \\times 10^{-6} \\text{ J}$**\r\n\r\nHitung volume tabung induktornya:\r\n$$V = \\pi r^{2} \\cdot l$$\r\n$$V = \\pi (0,002 \\text{ m})^2 (0,03 \\text{ m}) = \\pi (4 \\times 10^{-6})(0,03) \\approx 3,77 \\times 10^{-7} \\text{ m}^3$$\r\n\r\nHitung kerapatan energinya ($u$):\r\n$$u = \\frac{B^{2}}{2\\mu_0}$$\r\n$$u = \\frac{(5,0 \\times 10^{-3})^2}{2 \\times (4\\pi \\times 10^{-7})}$$\r\n$$u = \\frac{25 \\times 10^{-6}}{8\\pi \\times 10^{-7}} = \\frac{250}{8\\pi} \\approx 9,947 \\text{ J/m}^3$$\r\n\r\nTotal energi adalah kerapatan energi dikali volume ($U = u \\cdot V$):\r\n$$U = 9,947 \\times (3,77 \\times 10^{-7})$$\r\n$$U \\approx 3,75 \\times 10^{-6} \\text{ J}$$\r\nAngka terdekat dengan pembulatan signifikan yang tersedia adalah **$3,8 \\times 10^{-6} \\text{ J}$**.",
         "weight": 1
     }
 

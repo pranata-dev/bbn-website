@@ -144,7 +144,7 @@ export const week4Questions = [
         "weight": 1
     },
     {
-        "text": "Sebuah kawat dengan panjang $150 \\text{ m}$ dan jari-jari $0,15 \\text{ mm}$ mengalirkan arus dengan rapat arus seragam sebesar $2,8 \\times 10^7 \\text{ A/m}^2$. Arus tersebut bernilai:",
+        "text": "Sebuah kawat dengan panjang $150 \\text{ m}$ dan jari-jari $0,15 \\text{ mm}$ mengalirkan arus dengan rapat arus seragam sebesar $2,8 \\times 10^{7} \\text{ A/m}^2$. Arus tersebut bernilai:",
         "category": "WEEK_4",
         "option_a": "$0,63 \\text{ A}$",
         "option_b": "$2,0 \\text{ A}$",
@@ -152,7 +152,7 @@ export const week4Questions = [
         "option_d": "$296 \\text{ A}$",
         "option_e": "$400 \\text{ A}$",
         "correct_answer": "B",
-        "explanation": "**Pembahasan:**\n\n**Jawaban: B. $2,0 \\text{ A}$**\r\n\r\nDiketahui:\r\n- $J = 2,8 \\times 10^7 \\text{ A/m}^2$\r\n- $r = 0,15 \\text{ mm} = 1,5 \\times 10^{-4} \\text{ m}$\r\n\r\nLuas penampang ($A$):\r\n$$A = \\pi r^2 = \\pi (1,5 \\times 10^{-4})^2 = 3,14 \\times 2,25 \\times 10^{-8} \\approx 7,065 \\times 10^{-8} \\text{ m}^2$$\r\n\r\nHitung arus ($I$):\r\n$$I = J \\cdot A$$\r\n$$I = (2,8 \\times 10^7) \\times (7,065 \\times 10^{-8})$$\r\n$$I \\approx 1,978 \\text{ A} \\approx 2,0 \\text{ A}$$\r\n\r\n## Soal 14",
+        "explanation": "**Pembahasan:**\n\n**Jawaban: B. $2,0 \\text{ A}$**\r\n\r\nDiketahui:\r\n- $J = 2,8 \\times 10^{7} \\text{ A/m}^2$\r\n- $r = 0,15 \\text{ mm} = 1,5 \\times 10^{-4} \\text{ m}$\r\n\r\nLuas penampang ($A$):\r\n$$A = \\pi r^{2} = \\pi (1,5 \\times 10^{-4})^2 = 3,14 \\times 2,25 \\times 10^{-8} \\approx 7,065 \\times 10^{-8} \\text{ m}^2$$\r\n\r\nHitung arus ($I$):\r\n$$I = J \\cdot A$$\r\n$$I = (2,8 \\times 10^{7}) \\times (7,065 \\times 10^{-8})$$\r\n$$I \\approx 1,978 \\text{ A} \\approx 2,0 \\text{ A}$$\r\n\r\n## Soal 14",
         "weight": 1
     },
     {
@@ -164,7 +164,7 @@ export const week4Questions = [
         "option_d": "lebih kecil dari kelajuan rata-rata di suhu rendah dan lebih besar di suhu tinggi",
         "option_e": "lebih kecil dari kelajuan rata-rata di suhu tinggi dan lebih besar di suhu rendah",
         "correct_answer": "B",
-        "explanation": "**Pembahasan:**\n\n**Jawaban: B. jauh lebih kecil daripada kelajuan rata-rata elektron**\r\n\r\nKelajuan rata-rata elektron secara termal (bergerak acak) di dalam konduktor sangatlah tinggi (berada di kisaran $10^5$ hingga $10^6 \\text{ m/s}$). Sedangkan kecepatan kelajuan hanyut (kecepatan pergeseran massal elektron karena medan listrik yang menghasilkan arus) sangatlah lambat, biasanya hanya dalam orde pecahan milimeter per sekon ($10^{-4} \\text{ m/s}$).\r\n\r\n## Soal 15",
+        "explanation": "**Pembahasan:**\n\n**Jawaban: B. jauh lebih kecil daripada kelajuan rata-rata elektron**\r\n\r\nKelajuan rata-rata elektron secara termal (bergerak acak) di dalam konduktor sangatlah tinggi (berada di kisaran $10^{5}$ hingga $10^{6} \\text{ m/s}$). Sedangkan kecepatan kelajuan hanyut (kecepatan pergeseran massal elektron karena medan listrik yang menghasilkan arus) sangatlah lambat, biasanya hanya dalam orde pecahan milimeter per sekon ($10^{-4} \\text{ m/s}$).\r\n\r\n## Soal 15",
         "weight": 1
     },
     {
@@ -206,13 +206,13 @@ export const week4Questions = [
     {
         "text": "Tembaga mengandung $8,4 \\times 10^{28} \\text{ elektron bebas/m}^3$. Sebuah kawat tembaga dengan luas penampang $7,4 \\times 10^{-7} \\text{ m}^2$ mengalirkan arus sebesar $1 \\text{ A}$. Kelajuan hanyut elektronnya kira-kira:",
         "category": "WEEK_4",
-        "option_a": "$3 \\times 10^8 \\text{ m/s}$",
-        "option_b": "$10^3 \\text{ m/s}$",
+        "option_a": "$3 \\times 10^{8} \\text{ m/s}$",
+        "option_b": "$10^{3} \\text{ m/s}$",
         "option_c": "$1 \\text{ m/s}$",
         "option_d": "$10^{-4} \\text{ m/s}$",
         "option_e": "$10^{-23} \\text{ m/s}$",
         "correct_answer": "D",
-        "explanation": "**Pembahasan:**\n\n**Jawaban: D. $10^{-4} \\text{ m/s}$**\r\n\r\nDiketahui:\r\n- $n = 8,4 \\times 10^{28} \\text{ m}^{-3}$\r\n- $A = 7,4 \\times 10^{-7} \\text{ m}^2$\r\n- $I = 1 \\text{ A}$\r\n- $e = 1,6 \\times 10^{-19} \\text{ C}$\r\n\r\nGunakan rumus $I = n A e v_d$:\r\n$$v_d = \\frac{I}{n A e}$$\r\n$$v_d = \\frac{1}{(8,4 \\times 10^{28}) \\times (7,4 \\times 10^{-7}) \\times (1,6 \\times 10^{-19})}$$\r\n$$v_d = \\frac{1}{99,456 \\times 10^2} \\approx \\frac{1}{10000} = 10^{-4} \\text{ m/s}$$\r\n\r\n## Soal 19",
+        "explanation": "**Pembahasan:**\n\n**Jawaban: D. $10^{-4} \\text{ m/s}$**\r\n\r\nDiketahui:\r\n- $n = 8,4 \\times 10^{28} \\text{ m}^{-3}$\r\n- $A = 7,4 \\times 10^{-7} \\text{ m}^2$\r\n- $I = 1 \\text{ A}$\r\n- $e = 1,6 \\times 10^{-19} \\text{ C}$\r\n\r\nGunakan rumus $I = n A e v_d$:\r\n$$v_d = \\frac{I}{n A e}$$\r\n$$v_d = \\frac{1}{(8,4 \\times 10^{28}) \\times (7,4 \\times 10^{-7}) \\times (1,6 \\times 10^{-19})}$$\r\n$$v_d = \\frac{1}{99,456 \\times 10^{2}} \\approx \\frac{1}{10000} = 10^{-4} \\text{ m/s}$$\r\n\r\n## Soal 19",
         "weight": 1
     },
     {
@@ -248,7 +248,7 @@ export const week4Questions = [
         "option_d": "1, 3, 4, 2, 5",
         "option_e": "1, 2, 4, 3, 5",
         "correct_answer": "C",
-        "explanation": "**Pembahasan:**\n\n**Jawaban: C. 1 dan 2 seri (sama besar), kemudian 5, 3, 4**\r\n\r\nRumus resistansi kawat adalah $R = \\rho \\frac{L}{A} = \\rho \\frac{L}{\\pi r^2}$. Karena bahannya sama, nilai $\\rho$ konstan. Kita bandingkan nilai perbandingan $\\frac{L}{r^2}$ untuk setiap kawat:\r\n- Kawat 1: $R_1 \\propto \\frac{L}{r^2} = 1$\r\n- Kawat 2: $R_2 \\propto \\frac{L/4}{(r/2)^2} = \\frac{1/4}{1/4} \\frac{L}{r^2} = 1$\r\n- Kawat 3: $R_3 \\propto \\frac{L/2}{(r/2)^2} = \\frac{1/2}{1/4} \\frac{L}{r^2} = 2$\r\n- Kawat 4: $R_4 \\propto \\frac{L}{(r/2)^2} = \\frac{1}{1/4} \\frac{L}{r^2} = 4$\r\n- Kawat 5: $R_5 \\propto \\frac{5L}{(2r)^2} = \\frac{5}{4} \\frac{L}{r^2} = 1,25$\r\n\r\nUrutan dari yang terkecil ke terbesar adalah: 1 (nilai 1) dan 2 (nilai 1) bernilai sama, kemudian kawat 5 (1,25), kawat 3 (2), dan kawat 4 (4).\r\n\r\n## Soal 2",
+        "explanation": "**Pembahasan:**\n\n**Jawaban: C. 1 dan 2 seri (sama besar), kemudian 5, 3, 4**\r\n\r\nRumus resistansi kawat adalah $R = \\rho \\frac{L}{A} = \\rho \\frac{L}{\\pi r^{2}}$. Karena bahannya sama, nilai $\\rho$ konstan. Kita bandingkan nilai perbandingan $\\frac{L}{r^{2}}$ untuk setiap kawat:\r\n- Kawat 1: $R_1 \\propto \\frac{L}{r^{2}} = 1$\r\n- Kawat 2: $R_2 \\propto \\frac{L/4}{(r/2)^2} = \\frac{1/4}{1/4} \\frac{L}{r^{2}} = 1$\r\n- Kawat 3: $R_3 \\propto \\frac{L/2}{(r/2)^2} = \\frac{1/2}{1/4} \\frac{L}{r^{2}} = 2$\r\n- Kawat 4: $R_4 \\propto \\frac{L}{(r/2)^2} = \\frac{1}{1/4} \\frac{L}{r^{2}} = 4$\r\n- Kawat 5: $R_5 \\propto \\frac{5L}{(2r)^2} = \\frac{5}{4} \\frac{L}{r^{2}} = 1,25$\r\n\r\nUrutan dari yang terkecil ke terbesar adalah: 1 (nilai 1) dan 2 (nilai 1) bernilai sama, kemudian kawat 5 (1,25), kawat 3 (2), dan kawat 4 (4).\r\n\r\n## Soal 2",
         "weight": 1
     },
     {
@@ -296,7 +296,7 @@ export const week4Questions = [
         "option_d": "$2R$",
         "option_e": "$4R$",
         "correct_answer": "D",
-        "explanation": "**Pembahasan:**\n\n**Jawaban: D. $2R$**\r\n\r\nKawat 2 memiliki $L' = \\frac{1}{2}L$ dan diameter $d' = \\frac{1}{2}d$. Karena luas penampang berbanding lurus dengan kuadrat diameter ($A \\propto d^2$), maka luas penampangnya menjadi $A' = (\\frac{1}{2})^2 A = \\frac{1}{4}A$.\r\nResistansinya:\r\n$$R' = \\rho \\frac{L'}{A'} = \\rho \\frac{L/2}{A/4} = 2 \\left( \\rho \\frac{L}{A} \\right) = 2R$$\r\n\r\n## Soal 6",
+        "explanation": "**Pembahasan:**\n\n**Jawaban: D. $2R$**\r\n\r\nKawat 2 memiliki $L' = \\frac{1}{2}L$ dan diameter $d' = \\frac{1}{2}d$. Karena luas penampang berbanding lurus dengan kuadrat diameter ($A \\propto d^{2}$), maka luas penampangnya menjadi $A' = (\\frac{1}{2})^2 A = \\frac{1}{4}A$.\r\nResistansinya:\r\n$$R' = \\rho \\frac{L'}{A'} = \\rho \\frac{L/2}{A/4} = 2 \\left( \\rho \\frac{L}{A} \\right) = 2R$$\r\n\r\n## Soal 6",
         "weight": 1
     },
     {
@@ -320,7 +320,7 @@ export const week4Questions = [
         "option_d": "$3$",
         "option_e": "$4$",
         "correct_answer": "D",
-        "explanation": "**Pembahasan:**\n\n**Jawaban: D. $3$**\r\n\r\nKarena bahan ($\\rho$) dan panjang ($L$) sama, resistansi hanya berbanding terbalik dengan luas penampang efektif konduktor ($R \\propto 1/A$). Maka rasio $R_A/R_B = A_B / A_A$.\r\nLuas penampang A (padat, jari-jari $r = 0,5 \\text{ m}$):\r\n$$A_A = \\pi (0,5)^2 = 0,25\\pi$$\r\nLuas penampang B (berongga, jari-jari dalam $r_{\\text{in}} = 0,5 \\text{ m}$, luar $r_{\\text{out}} = 1 \\text{ m}$):\r\n$$A_B = \\pi (r_{\\text{out}}^2 - r_{\\text{in}}^2) = \\pi (1^2 - 0,5^2) = \\pi (1 - 0,25) = 0,75\\pi$$\r\nMaka:\r\n$$\\frac{R_A}{R_B} = \\frac{A_B}{A_A} = \\frac{0,75\\pi}{0,25\\pi} = 3$$\r\n\r\n## Soal 8",
+        "explanation": "**Pembahasan:**\n\n**Jawaban: D. $3$**\r\n\r\nKarena bahan ($\\rho$) dan panjang ($L$) sama, resistansi hanya berbanding terbalik dengan luas penampang efektif konduktor ($R \\propto 1/A$). Maka rasio $R_A/R_B = A_B / A_A$.\r\nLuas penampang A (padat, jari-jari $r = 0,5 \\text{ m}$):\r\n$$A_A = \\pi (0,5)^2 = 0,25\\pi$$\r\nLuas penampang B (berongga, jari-jari dalam $r_{\\text{in}} = 0,5 \\text{ m}$, luar $r_{\\text{out}} = 1 \\text{ m}$):\r\n$$A_B = \\pi (r_{\\text{out}}^2 - r_{\\text{in}}^2) = \\pi (1^{2} - 0,5^{2}) = \\pi (1 - 0,25) = 0,75\\pi$$\r\nMaka:\r\n$$\\frac{R_A}{R_B} = \\frac{A_B}{A_A} = \\frac{0,75\\pi}{0,25\\pi} = 3$$\r\n\r\n## Soal 8",
         "weight": 1
     },
     {
@@ -404,7 +404,7 @@ export const week4Questions = [
         "option_d": "waktu bebas rata-rata elektron",
         "option_e": "luas penampang sampel",
         "correct_answer": "D",
-        "explanation": "**Pembahasan:**\n\n**Jawaban: D. waktu bebas rata-rata elektron**\r\n\r\nBerdasarkan teori Drude mengenai konduktivitas listrik, resistivitas didefinisikan sebagai:\r\n$$\\rho = \\frac{m}{n e^2 \\tau}$$\r\ndi mana $m$ adalah massa elektron, $n$ adalah kerapatan muatan, $e$ adalah muatan elemen, dan $\\tau$ adalah waktu bebas rata-rata (*mean free time*) antar tumbukan elektron. Jadi, $\\rho$ sangat bergantung pada $\\tau$.\r\n\r\n## Soal 15",
+        "explanation": "**Pembahasan:**\n\n**Jawaban: D. waktu bebas rata-rata elektron**\r\n\r\nBerdasarkan teori Drude mengenai konduktivitas listrik, resistivitas didefinisikan sebagai:\r\n$$\\rho = \\frac{m}{n e^{2} \\tau}$$\r\ndi mana $m$ adalah massa elektron, $n$ adalah kerapatan muatan, $e$ adalah muatan elemen, dan $\\tau$ adalah waktu bebas rata-rata (*mean free time*) antar tumbukan elektron. Jadi, $\\rho$ sangat bergantung pada $\\tau$.\r\n\r\n## Soal 15",
         "weight": 1
     },
     {
@@ -440,7 +440,7 @@ export const week4Questions = [
         "option_d": "resistansi dengan menjaga arus tetap sama",
         "option_e": "beda potensial dan arus sekaligus",
         "correct_answer": "D",
-        "explanation": "**Pembahasan:**\n\n**Jawaban: D. resistansi dengan menjaga arus tetap sama**\r\n\r\nRumus daya listrik (laju disipasi energi) adalah $P = I^2 R$ atau $P = \\frac{V^2}{R}$.\r\n- Jika $V$ dilipatgandakan $3\\times$ ($R$ tetap): $P = \\frac{(3V)^2}{R} = 9\\times$ lebih besar.\r\n- Jika $I$ dilipatgandakan $3\\times$ ($R$ tetap): $P = (3I)^2 R = 9\\times$ lebih besar.\r\n- Jika $R$ dilipatgandakan $3\\times$ ($V$ tetap): $P = \\frac{V^2}{3R} = \\frac{1}{3}\\times$ (lebih kecil).\r\n- Jika $R$ dilipatgandakan $3\\times$ ($I$ tetap): $P = I^2 (3R) = 3\\times$ daya awal. Ini tepat bernilai tiga kali lipat.\r\n\r\n## Soal 18",
+        "explanation": "**Pembahasan:**\n\n**Jawaban: D. resistansi dengan menjaga arus tetap sama**\r\n\r\nRumus daya listrik (laju disipasi energi) adalah $P = I^{2} R$ atau $P = \\frac{V^{2}}{R}$.\r\n- Jika $V$ dilipatgandakan $3\\times$ ($R$ tetap): $P = \\frac{(3V)^2}{R} = 9\\times$ lebih besar.\r\n- Jika $I$ dilipatgandakan $3\\times$ ($R$ tetap): $P = (3I)^2 R = 9\\times$ lebih besar.\r\n- Jika $R$ dilipatgandakan $3\\times$ ($V$ tetap): $P = \\frac{V^{2}}{3R} = \\frac{1}{3}\\times$ (lebih kecil).\r\n- Jika $R$ dilipatgandakan $3\\times$ ($I$ tetap): $P = I^{2} (3R) = 3\\times$ daya awal. Ini tepat bernilai tiga kali lipat.\r\n\r\n## Soal 18",
         "weight": 1
     },
     {
@@ -476,7 +476,7 @@ export const week4Questions = [
         "option_d": "$0,056 \\text{ W}$",
         "option_e": "tidak ada jawaban di atas yang benar",
         "correct_answer": "D",
-        "explanation": "**Pembahasan:**\n\n**Jawaban: D. $0,056 \\text{ W}$**\r\n\r\nCari dahulu nilai hambatan resistor (nilainya konstan):\r\n$$P = \\frac{V^2}{R} \\implies R = \\frac{V^2}{P} = \\frac{3^2}{0,5} = \\frac{9}{0,5} = 18 \\text{ } \\Omega$$\r\nKemudian hitung daya baru pada tegangan $1 \\text{ V}$:\r\n$$P' = \\frac{V'^2}{R} = \\frac{1^2}{18} = \\frac{1}{18} \\text{ W}$$\r\n$$\\frac{1}{18} \\approx 0,0555... \\text{ W} \\approx 0,056 \\text{ W}$$\r\n\r\n## Soal 21",
+        "explanation": "**Pembahasan:**\n\n**Jawaban: D. $0,056 \\text{ W}$**\r\n\r\nCari dahulu nilai hambatan resistor (nilainya konstan):\r\n$$P = \\frac{V^{2}}{R} \\implies R = \\frac{V^{2}}{P} = \\frac{3^{2}}{0,5} = \\frac{9}{0,5} = 18 \\text{ } \\Omega$$\r\nKemudian hitung daya baru pada tegangan $1 \\text{ V}$:\r\n$$P' = \\frac{V'^2}{R} = \\frac{1^{2}}{18} = \\frac{1}{18} \\text{ W}$$\r\n$$\\frac{1}{18} \\approx 0,0555... \\text{ W} \\approx 0,056 \\text{ W}$$\r\n\r\n## Soal 21",
         "weight": 1
     },
     {
@@ -488,7 +488,7 @@ export const week4Questions = [
         "option_d": "$240 \\text{ } \\Omega$",
         "option_e": "$15 \\text{ } \\Omega$",
         "correct_answer": "D",
-        "explanation": "**Pembahasan:**\n\n**Jawaban: D. $240 \\text{ } \\Omega$**\r\n\r\nGunakan rumus daya terhadap tegangan:\r\n$$P = \\frac{V^2}{R} \\implies R = \\frac{V^2}{P}$$\r\n$$R = \\frac{120^2}{60} = \\frac{14.400}{60} = 240 \\text{ } \\Omega$$\r\n\r\n## Soal 22",
+        "explanation": "**Pembahasan:**\n\n**Jawaban: D. $240 \\text{ } \\Omega$**\r\n\r\nGunakan rumus daya terhadap tegangan:\r\n$$P = \\frac{V^{2}}{R} \\implies R = \\frac{V^{2}}{P}$$\r\n$$R = \\frac{120^{2}}{60} = \\frac{14.400}{60} = 240 \\text{ } \\Omega$$\r\n\r\n## Soal 22",
         "weight": 1
     },
     {
@@ -512,7 +512,7 @@ export const week4Questions = [
         "option_d": "isolasinya lebih efektif pada tegangan tinggi",
         "option_e": "jatuh potensial ($iR$) di sepanjang kawat lebih besar pada tegangan tinggi",
         "correct_answer": "A",
-        "explanation": "**Pembahasan:**\n\n**Jawaban: A. terjadi pemanasan yang lebih sedikit pada kawat transmisi**\r\n\r\nDaya transmisi $P = V \\cdot I$. Untuk mengirim nilai daya total $P$ yang sama besar, menaikkan tegangan ($V$) akan menurunkan kuat arus yang mengalir ($I$) secara drastis. \r\nDaya yang terbuang sia-sia sebagai panas di kawat dirumuskan sebagai $P_{\\text{loss}} = I^2 R$. Dengan arus ($I$) yang sangat kecil, daya kalor yang hilang di kawat transmisi juga akan jauh lebih kecil.\r\n\r\n## Soal 24",
+        "explanation": "**Pembahasan:**\n\n**Jawaban: A. terjadi pemanasan yang lebih sedikit pada kawat transmisi**\r\n\r\nDaya transmisi $P = V \\cdot I$. Untuk mengirim nilai daya total $P$ yang sama besar, menaikkan tegangan ($V$) akan menurunkan kuat arus yang mengalir ($I$) secara drastis. \r\nDaya yang terbuang sia-sia sebagai panas di kawat dirumuskan sebagai $P_{\\text{loss}} = I^{2} R$. Dengan arus ($I$) yang sangat kecil, daya kalor yang hilang di kawat transmisi juga akan jauh lebih kecil.\r\n\r\n## Soal 24",
         "weight": 1
     },
     {
@@ -536,7 +536,7 @@ export const week4Questions = [
         "option_d": "$11,4$",
         "option_e": "$87,5$",
         "correct_answer": "A",
-        "explanation": "**Pembahasan:**\n\n**Jawaban: A. $560$**\r\n\r\nLaju disipasi energi adalah Daya ($P$).\r\n$$P = V \\cdot I$$\r\nUbah satuan ke SI: $V = 80 \\times 10^3 \\text{ V}$ dan $I = 7 \\times 10^{-3} \\text{ A}$.\r\n$$P = (80 \\times 10^3) \\times (7 \\times 10^{-3})$$\r\n$$P = 80 \\times 7 = 560 \\text{ Watt}$$\r\n\r\n## Soal 26",
+        "explanation": "**Pembahasan:**\n\n**Jawaban: A. $560$**\r\n\r\nLaju disipasi energi adalah Daya ($P$).\r\n$$P = V \\cdot I$$\r\nUbah satuan ke SI: $V = 80 \\times 10^{3} \\text{ V}$ dan $I = 7 \\times 10^{-3} \\text{ A}$.\r\n$$P = (80 \\times 10^{3}) \\times (7 \\times 10^{-3})$$\r\n$$P = 80 \\times 7 = 560 \\text{ Watt}$$\r\n\r\n## Soal 26",
         "weight": 1
     },
     {
@@ -752,7 +752,7 @@ export const week4Questions = [
         "option_d": "$d/9$",
         "option_e": "$d/81$",
         "correct_answer": "A",
-        "explanation": "**Pembahasan:**\n\n**Jawaban: A. $3d$**\r\n\r\nMisalkan resistansi satu kawat adalah $R_0 = \\rho \\frac{L}{A_0}$. \r\nKombinasi 9 kawat diparalel memiliki hambatan:\r\n$$R_{\\text{paralel}} = \\frac{R_0}{9}$$\r\nAgar sebuah kawat tunggal memiliki resistansi $R_0/9$, luas penampangnya ($A_{\\text{baru}}$) harus 9 kali lebih besar dari $A_0$.\r\nKarena luas lingkaran sebanding dengan kuadrat diameternya ($A \\propto d^2$), maka:\r\n$$A_{\\text{baru}} = 9 A_0 \\implies d_{\\text{baru}}^2 = 9 d^2$$\r\n$$d_{\\text{baru}} = \\sqrt{9d^2} = 3d$$\r\n\r\n## Soal 16",
+        "explanation": "**Pembahasan:**\n\n**Jawaban: A. $3d$**\r\n\r\nMisalkan resistansi satu kawat adalah $R_0 = \\rho \\frac{L}{A_0}$. \r\nKombinasi 9 kawat diparalel memiliki hambatan:\r\n$$R_{\\text{paralel}} = \\frac{R_0}{9}$$\r\nAgar sebuah kawat tunggal memiliki resistansi $R_0/9$, luas penampangnya ($A_{\\text{baru}}$) harus 9 kali lebih besar dari $A_0$.\r\nKarena luas lingkaran sebanding dengan kuadrat diameternya ($A \\propto d^{2}$), maka:\r\n$$A_{\\text{baru}} = 9 A_0 \\implies d_{\\text{baru}}^2 = 9 d^{2}$$\r\n$$d_{\\text{baru}} = \\sqrt{9d^{2}} = 3d$$\r\n\r\n## Soal 16",
         "weight": 1
     },
     {
@@ -764,7 +764,7 @@ export const week4Questions = [
         "option_d": "$d/9$",
         "option_e": "$d/81$",
         "correct_answer": "C",
-        "explanation": "**Pembahasan:**\n\n**Jawaban: C. $d/3$**\r\n\r\nJika dirangkai seri, hambatannya menjadi 9 kali lipat:\r\n$$R_{\\text{seri}} = 9 R_0$$\r\nAgar kawat tunggal yang panjangnya tetap $L$ memiliki resistansi 9 kali lebih besar, luas penampangnya harus 9 kali lebih kecil.\r\n$$A_{\\text{baru}} = \\frac{A_0}{9} \\implies d_{\\text{baru}}^2 = \\frac{d^2}{9}$$\r\n$$d_{\\text{baru}} = \\sqrt{\\frac{d^2}{9}} = \\frac{d}{3}$$\r\n\r\n## Soal 17",
+        "explanation": "**Pembahasan:**\n\n**Jawaban: C. $d/3$**\r\n\r\nJika dirangkai seri, hambatannya menjadi 9 kali lipat:\r\n$$R_{\\text{seri}} = 9 R_0$$\r\nAgar kawat tunggal yang panjangnya tetap $L$ memiliki resistansi 9 kali lebih besar, luas penampangnya harus 9 kali lebih kecil.\r\n$$A_{\\text{baru}} = \\frac{A_0}{9} \\implies d_{\\text{baru}}^2 = \\frac{d^{2}}{9}$$\r\n$$d_{\\text{baru}} = \\sqrt{\\frac{d^{2}}{9}} = \\frac{d}{3}$$\r\n\r\n## Soal 17",
         "weight": 1
     },
     {
@@ -824,7 +824,7 @@ export const week4Questions = [
         "option_d": "empat kali lipat dari yang di 2",
         "option_e": "seperempat dari yang di 2",
         "correct_answer": "B",
-        "explanation": "**Pembahasan:**\n\n**Jawaban: B. dua kali lipat dari yang di 2**\r\n\r\nDiketahui rangkaian seri, sehingga kuat arus sama besar ($I_1 = I_2 = I$) dan hambatan $R_1 = 2 R_2$.\r\nRumus laju pembentukan energi termal atau daya untuk arus yang konstan (seri) adalah $P = I^2 \\cdot R$.\r\n$$P_1 = I^2 \\cdot R_1 = I^2 \\cdot (2 R_2) = 2 \\cdot (I^2 \\cdot R_2) = 2 P_2$$\r\nMaka, daya panas yang dihasilkan resistor 1 adalah persis dua kali lipatnya.\r\n\r\n## Soal 1",
+        "explanation": "**Pembahasan:**\n\n**Jawaban: B. dua kali lipat dari yang di 2**\r\n\r\nDiketahui rangkaian seri, sehingga kuat arus sama besar ($I_1 = I_2 = I$) dan hambatan $R_1 = 2 R_2$.\r\nRumus laju pembentukan energi termal atau daya untuk arus yang konstan (seri) adalah $P = I^{2} \\cdot R$.\r\n$$P_1 = I^{2} \\cdot R_1 = I^{2} \\cdot (2 R_2) = 2 \\cdot (I^{2} \\cdot R_2) = 2 P_2$$\r\nMaka, daya panas yang dihasilkan resistor 1 adalah persis dua kali lipatnya.\r\n\r\n## Soal 1",
         "weight": 1
     },
     {
@@ -836,7 +836,7 @@ export const week4Questions = [
         "option_d": "empat kali lipat dari yang di 2",
         "option_e": "seperempat dari yang di 2",
         "correct_answer": "C",
-        "explanation": "**Pembahasan:**\n\n**Jawaban: C. setengah dari yang di 2**\r\n\r\nDiketahui $R_1 = 2 R_2$. Karena dirangkai **paralel**, beda potensial (tegangan) pada keduanya adalah sama ($V_1 = V_2 = V$).\r\nLaju pembentukan energi termal adalah Daya ($P$). Rumus daya yang menggunakan tegangan dan resistansi adalah:\r\n$$P = \\frac{V^2}{R}$$\r\nMaka untuk resistor 1:\r\n$$P_1 = \\frac{V^2}{R_1} = \\frac{V^2}{2 R_2} = \\frac{1}{2} \\left( \\frac{V^2}{R_2} \\right) = \\frac{1}{2} P_2$$\r\nJadi, daya panas yang dihasilkan resistor 1 hanya **setengah** dari resistor 2.\r\n\r\n## Soal 2",
+        "explanation": "**Pembahasan:**\n\n**Jawaban: C. setengah dari yang di 2**\r\n\r\nDiketahui $R_1 = 2 R_2$. Karena dirangkai **paralel**, beda potensial (tegangan) pada keduanya adalah sama ($V_1 = V_2 = V$).\r\nLaju pembentukan energi termal adalah Daya ($P$). Rumus daya yang menggunakan tegangan dan resistansi adalah:\r\n$$P = \\frac{V^{2}}{R}$$\r\nMaka untuk resistor 1:\r\n$$P_1 = \\frac{V^{2}}{R_1} = \\frac{V^{2}}{2 R_2} = \\frac{1}{2} \\left( \\frac{V^{2}}{R_2} \\right) = \\frac{1}{2} P_2$$\r\nJadi, daya panas yang dihasilkan resistor 1 hanya **setengah** dari resistor 2.\r\n\r\n## Soal 2",
         "weight": 1
     },
     {
@@ -1004,7 +1004,7 @@ export const week4Questions = [
         "option_d": "tiap bohlam akan memiliki beda potensial sebesar **55 V**",
         "option_e": "tidak ada di atas yang benar",
         "correct_answer": "E",
-        "explanation": "**Pembahasan:**\n\n**Jawaban: E. tidak ada di atas yang benar**\r\n\r\nMari kita analisis:\r\n- Hitung nilai hambatan ($R = V^2/P$): Hambatan bohlam $25\\text{ W}$ ($R = 110^2/25 = \\mathbf{484\\text{ }\\Omega}$) lebih besar dibanding bohlam $100\\text{ W}$ ($R = 110^2/100 = \\mathbf{121\\text{ }\\Omega}$).\r\n- Karena dirangkai **seri**, kuat arus yang lewat harus persis **sama** (Opsi A dan B salah).\r\n- Daya yang terdisipasi (kecerahan aktual) dalam keadaan seri adalah $P_{\\text{aktual}} = I^2 R$. Bohlam dengan resistansi lebih besar ($25\\text{ W}$) akan menyerap daya lebih besar dan bersinar lebih terang dari bohlam $100\\text{ W}$ (Opsi C salah).\r\n- Beda tegangan ($V = I \\cdot R$) juga sebanding dengan hambatannya, sehingga tidak akan terbagi rata persis **55 V** tiap bohlam (Opsi D salah).\r\n\r\n## Soal 16",
+        "explanation": "**Pembahasan:**\n\n**Jawaban: E. tidak ada di atas yang benar**\r\n\r\nMari kita analisis:\r\n- Hitung nilai hambatan ($R = V^{2}/P$): Hambatan bohlam $25\\text{ W}$ ($R = 110^{2}/25 = \\mathbf{484\\text{ }\\Omega}$) lebih besar dibanding bohlam $100\\text{ W}$ ($R = 110^{2}/100 = \\mathbf{121\\text{ }\\Omega}$).\r\n- Karena dirangkai **seri**, kuat arus yang lewat harus persis **sama** (Opsi A dan B salah).\r\n- Daya yang terdisipasi (kecerahan aktual) dalam keadaan seri adalah $P_{\\text{aktual}} = I^{2} R$. Bohlam dengan resistansi lebih besar ($25\\text{ W}$) akan menyerap daya lebih besar dan bersinar lebih terang dari bohlam $100\\text{ W}$ (Opsi C salah).\r\n- Beda tegangan ($V = I \\cdot R$) juga sebanding dengan hambatannya, sehingga tidak akan terbagi rata persis **55 V** tiap bohlam (Opsi D salah).\r\n\r\n## Soal 16",
         "weight": 1
     },
     {
@@ -1014,7 +1014,7 @@ export const week4Questions = [
         "option_b": "$\\mathcal{E}^2 R_1 / (R_1 + R_2)^2$",
         "option_c": "$\\mathcal{E}^2 / (R_1 + R_2)$",
         "option_d": "$\\mathcal{E}^2/R_2$",
-        "option_e": "$\\mathcal{E}^2 R_1 / R_2^2$",
+        "option_e": "$\\mathcal{E}^2 R_1 / R_2^{2}$",
         "correct_answer": "A",
         "explanation": "**Pembahasan:**\n\n**Jawaban: A. $\\mathcal{E}^2/R_1$**\r\n\r\nUntuk baterai ideal (tanpa hambatan dalam), tegangan terminalnya selalu sebesar $\\mathcal{E}$. \r\nKarena $R_1$ dirangkai paralel langsung dengan baterai, maka tegangan (beda potensial) di resistor $R_1$ adalah $\\mathcal{E}$. \r\nOleh karena itu, dayanya ($P$) adalah:\r\n$$P_1 = \\frac{V_{1}^2}{R_1} = \\frac{\\mathcal{E}^2}{R_1}$$\r\n\r\n## Soal 17",
         "weight": 1
@@ -1028,7 +1028,7 @@ export const week4Questions = [
         "option_d": "**4**",
         "option_e": "**8**",
         "correct_answer": "B",
-        "explanation": "**Pembahasan:**\n\n**Jawaban: B. 1,5**\r\n\r\nKarena total daya adalah **48 W** untuk dua bohlam identik, maka masing-masing bohlam menyerap setengahnya:\r\n$$P_{\\text{1-bohlam}} = \\frac{48}{2} = 24 \\text{ W}$$\r\nKarena paralel, tegangan pada setiap bohlam adalah utuh tegangan sumber (**6 V**).\r\nGunakan rumus $P = V^2/R$:\r\n$$R = \\frac{V^2}{P}$$\r\n$$R = \\frac{6^2}{24} = \\frac{36}{24} = 1,5 \\text{ }\\Omega$$\r\n\r\n## Soal 18",
+        "explanation": "**Pembahasan:**\n\n**Jawaban: B. 1,5**\r\n\r\nKarena total daya adalah **48 W** untuk dua bohlam identik, maka masing-masing bohlam menyerap setengahnya:\r\n$$P_{\\text{1-bohlam}} = \\frac{48}{2} = 24 \\text{ W}$$\r\nKarena paralel, tegangan pada setiap bohlam adalah utuh tegangan sumber (**6 V**).\r\nGunakan rumus $P = V^{2}/R$:\r\n$$R = \\frac{V^{2}}{P}$$\r\n$$R = \\frac{6^{2}}{24} = \\frac{36}{24} = 1,5 \\text{ }\\Omega$$\r\n\r\n## Soal 18",
         "weight": 1
     },
     {
@@ -1040,7 +1040,7 @@ export const week4Questions = [
         "option_d": "2 : 1",
         "option_e": "4 : 1",
         "correct_answer": "B",
-        "explanation": "**Pembahasan:**\n\n**Jawaban: B. 1 : 2**\r\n\r\nIni sama dengan prinsip di Soal 1.\r\nParalel $\\implies$ tegangan sama ($V_1 = V_2 = V$).\r\nBandingkan rumus dayanya:\r\n$$\\frac{P_1}{P_2} = \\frac{V^2 / R_1}{V^2 / R_2} = \\frac{R_2}{R_1}$$\r\nKarena $R_1 = 2 R_2$, maka:\r\n$$\\frac{P_1}{P_2} = \\frac{R_2}{2 R_2} = \\frac{1}{2}$$\r\n\r\n## Soal 19",
+        "explanation": "**Pembahasan:**\n\n**Jawaban: B. 1 : 2**\r\n\r\nIni sama dengan prinsip di Soal 1.\r\nParalel $\\implies$ tegangan sama ($V_1 = V_2 = V$).\r\nBandingkan rumus dayanya:\r\n$$\\frac{P_1}{P_2} = \\frac{V^{2} / R_1}{V^{2} / R_2} = \\frac{R_2}{R_1}$$\r\nKarena $R_1 = 2 R_2$, maka:\r\n$$\\frac{P_1}{P_2} = \\frac{R_2}{2 R_2} = \\frac{1}{2}$$\r\n\r\n## Soal 19",
         "weight": 1
     },
     {
@@ -1052,19 +1052,19 @@ export const week4Questions = [
         "option_d": "sepertiga dari yang oleh $R$",
         "option_e": "tidak diketahui kecuali nilai GGL diberikan",
         "correct_answer": "A",
-        "explanation": "**Pembahasan:**\n\n**Jawaban: A. sama dengan yang oleh $R$**\r\n\r\nKarena rangkaian tersebut adalah satu jalur seri ($r$ di dalam baterai dan $R$ di luarnya saling seri), arus $I$ yang melewatinya persis sama.\r\nDaya energi termal dirumuskan $P = I^2 \\times \\text{resistansi}$.\r\nKarena hambatannya sama ($r = R$) dan arusnya sama, maka $P_r = I^2 r$ pasti sama persis nilainya dengan $P_R = I^2 R$.\r\n\r\n## Soal 20",
+        "explanation": "**Pembahasan:**\n\n**Jawaban: A. sama dengan yang oleh $R$**\r\n\r\nKarena rangkaian tersebut adalah satu jalur seri ($r$ di dalam baterai dan $R$ di luarnya saling seri), arus $I$ yang melewatinya persis sama.\r\nDaya energi termal dirumuskan $P = I^{2} \\times \\text{resistansi}$.\r\nKarena hambatannya sama ($r = R$) dan arusnya sama, maka $P_r = I^{2} r$ pasti sama persis nilainya dengan $P_R = I^{2} R$.\r\n\r\n## Soal 20",
         "weight": 1
     },
     {
         "text": "Terminal positif dari dua baterai dengan GGL masing-masing $\\mathcal{E}_1$ dan $\\mathcal{E}_2$ dihubungkan bersama-sama. Di sini $\\mathcal{E}_2 > \\mathcal{E}_1$. Rangkaian diselesaikan dengan menghubungkan kedua terminal negatifnya. Jika setiap baterai memiliki hambatan dalam $r$, laju perubahan energi listrik yang diubah menjadi energi kimia pada baterai yang lebih kecil adalah:",
         "category": "WEEK_4",
-        "option_a": "$\\mathcal{E}_1^2 / r$",
-        "option_b": "$\\mathcal{E}_1^2 / 2r$",
+        "option_a": "$\\mathcal{E}_1^{2} / r$",
+        "option_b": "$\\mathcal{E}_1^{2} / 2r$",
         "option_c": "$(\\mathcal{E}_2 - \\mathcal{E}_1)\\mathcal{E}_1 / r$",
         "option_d": "$(\\mathcal{E}_2 - \\mathcal{E}_1)\\mathcal{E}_1 / 2r$",
-        "option_e": "$\\mathcal{E}_2^2 / 2r$",
+        "option_e": "$\\mathcal{E}_2^{2} / 2r$",
         "correct_answer": "D",
-        "explanation": "**Pembahasan:**\n\n**Jawaban: D. $(\\mathcal{E}_2 - \\mathcal{E}_1)\\mathcal{E}_1 / 2r$**\r\n\r\nKarena kedua terminal baterai disambung berlawanan arah (+ bertemu +, - bertemu -), kedua baterai akan saling menekan. Baterai $\\mathcal{E}_2$ yang lebih kuat akan mengecas baterai $\\mathcal{E}_1$ yang lebih lemah.\r\nGGL total rangkaian:\r\n$$\\mathcal{E}_{\\text{net}} = \\mathcal{E}_2 - \\mathcal{E}_1$$\r\nHambatan total (kedua $r$ tersusun seri):\r\n$$R_{\\text{total}} = r + r = 2r$$\r\nArus rangkaian:\r\n$$I = \\frac{\\mathcal{E}_2 - \\mathcal{E}_1}{2r}$$\r\nLaju perubahan energi listrik menjadi energi *kimia* (alias daya pengisian baterai, *charging power*) pada baterai 1 adalah tegangannya (GGL idealnya) dikali arus listrik:\r\n$$P_{\\text{kimia}} = \\mathcal{E}_1 \\cdot I = \\mathcal{E}_1 \\left( \\frac{\\mathcal{E}_2 - \\mathcal{E}_1}{2r} \\right) = \\frac{(\\mathcal{E}_2 - \\mathcal{E}_1)\\mathcal{E}_1}{2r}$$\r\n*(Catatan tambahan: Jangan rancu dengan daya energi $I^2 r$, karena itu adalah perubahan listrik menjadi panas termal, bukan kimia).*\r\n\r\n## Soal 1",
+        "explanation": "**Pembahasan:**\n\n**Jawaban: D. $(\\mathcal{E}_2 - \\mathcal{E}_1)\\mathcal{E}_1 / 2r$**\r\n\r\nKarena kedua terminal baterai disambung berlawanan arah (+ bertemu +, - bertemu -), kedua baterai akan saling menekan. Baterai $\\mathcal{E}_2$ yang lebih kuat akan mengecas baterai $\\mathcal{E}_1$ yang lebih lemah.\r\nGGL total rangkaian:\r\n$$\\mathcal{E}_{\\text{net}} = \\mathcal{E}_2 - \\mathcal{E}_1$$\r\nHambatan total (kedua $r$ tersusun seri):\r\n$$R_{\\text{total}} = r + r = 2r$$\r\nArus rangkaian:\r\n$$I = \\frac{\\mathcal{E}_2 - \\mathcal{E}_1}{2r}$$\r\nLaju perubahan energi listrik menjadi energi *kimia* (alias daya pengisian baterai, *charging power*) pada baterai 1 adalah tegangannya (GGL idealnya) dikali arus listrik:\r\n$$P_{\\text{kimia}} = \\mathcal{E}_1 \\cdot I = \\mathcal{E}_1 \\left( \\frac{\\mathcal{E}_2 - \\mathcal{E}_1}{2r} \\right) = \\frac{(\\mathcal{E}_2 - \\mathcal{E}_1)\\mathcal{E}_1}{2r}$$\r\n*(Catatan tambahan: Jangan rancu dengan daya energi $I^{2} r$, karena itu adalah perubahan listrik menjadi panas termal, bukan kimia).*\r\n\r\n## Soal 1",
         "weight": 1
     },
     {
@@ -1107,7 +1107,7 @@ export const week4Questions = [
         "text": "Sebuah amperemeter tertentu memiliki resistansi dalam **1 Ω** dan rentang dari **0** hingga **50 mA**. Untuk membuat rentangnya menjadi **0** hingga **5 A**, gunakan:",
         "category": "WEEK_4",
         "option_a": "resistansi seri sebesar **99 Ω**",
-        "option_b": "resistansi seri yang sangat besar (katakanlah **10^6 Ω**)",
+        "option_b": "resistansi seri yang sangat besar (katakanlah **10^{6} Ω**)",
         "option_c": "resistansi **99 Ω** secara paralel",
         "option_d": "resistansi **1/99 Ω** secara paralel",
         "option_e": "resistansi **1/1000 Ω** secara paralel",
@@ -1172,7 +1172,7 @@ export const week4Questions = [
         "option_d": "Total energi termal yang dihasilkan oleh $R$ independen terhadap $V_0$",
         "option_e": "Arus awal (tepat setelah baterai dihubungkan) independen terhadap $C$",
         "correct_answer": "",
-        "explanation": "**Pembahasan:**\n\n*(Catatan: Kunci bawaan soal tertulis C, namun secara prinsip Fisika, pernyataan yang terbukti **SALAH** adalah pernyataan **D**. Oleh karena itu, mari kita bahas secara konseptual).*\r\n\r\n**Jawaban Analitis: D (Pernyataan D adalah yang tidak benar)**\r\n\r\nMari kita periksa tiap pernyataan:\r\n- **A (Benar):** Konstanta waktu $\\tau = RC$. Ini murni parameter komponen, tidak dipengaruhi baterai $V_0$.\r\n- **B (Benar):** Muatan akhir $Q = C \\cdot V_0$. Sama sekali tidak ada variabel $R$ di sini.\r\n- **C (Benar):** Selama pengisian penuh, energi total yang dipasok baterai adalah $Q V_0 = C V_0^2$. Energi yang tersimpan di kapasitor adalah $\\frac{1}{2} C V_0^2$. Sisa energinya, yang mutlak selalu sebesar $\\frac{1}{2} C V_0^2$, akan menguap menjadi energi termal (panas) di resistor $R$. Terlihat bahwa nilai hilangnya panas ini *sama sekali tidak mengandung variabel* $R$. Oleh karena itu, besarnya panas **independen terhadap $R$**.\r\n- **D (Salah):** Seperti yang dihitung di poin C, energi termal di resistor adalah $\\frac{1}{2} C V_0^2$. Nilai ini **sangat bergantung** pada kuadrat $V_0$. Jadi, menyatakan ini independen terhadap $V_0$ adalah keliru.\r\n- **E (Benar):** Arus awal $I_0 = V_0 / R$ (karena kapasitor belum memiliki tegangan pelawan). Tidak bergantung pada $C$.\r\n\r\n## Soal 10",
+        "explanation": "**Pembahasan:**\n\n*(Catatan: Kunci bawaan soal tertulis C, namun secara prinsip Fisika, pernyataan yang terbukti **SALAH** adalah pernyataan **D**. Oleh karena itu, mari kita bahas secara konseptual).*\r\n\r\n**Jawaban Analitis: D (Pernyataan D adalah yang tidak benar)**\r\n\r\nMari kita periksa tiap pernyataan:\r\n- **A (Benar):** Konstanta waktu $\\tau = RC$. Ini murni parameter komponen, tidak dipengaruhi baterai $V_0$.\r\n- **B (Benar):** Muatan akhir $Q = C \\cdot V_0$. Sama sekali tidak ada variabel $R$ di sini.\r\n- **C (Benar):** Selama pengisian penuh, energi total yang dipasok baterai adalah $Q V_0 = C V_0^{2}$. Energi yang tersimpan di kapasitor adalah $\\frac{1}{2} C V_0^{2}$. Sisa energinya, yang mutlak selalu sebesar $\\frac{1}{2} C V_0^{2}$, akan menguap menjadi energi termal (panas) di resistor $R$. Terlihat bahwa nilai hilangnya panas ini *sama sekali tidak mengandung variabel* $R$. Oleh karena itu, besarnya panas **independen terhadap $R$**.\r\n- **D (Salah):** Seperti yang dihitung di poin C, energi termal di resistor adalah $\\frac{1}{2} C V_0^{2}$. Nilai ini **sangat bergantung** pada kuadrat $V_0$. Jadi, menyatakan ini independen terhadap $V_0$ adalah keliru.\r\n- **E (Benar):** Arus awal $I_0 = V_0 / R$ (karena kapasitor belum memiliki tegangan pelawan). Tidak bergantung pada $C$.\r\n\r\n## Soal 10",
         "weight": 1
     },
     {

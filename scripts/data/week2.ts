@@ -8,7 +8,7 @@ export const week2Questions = [
         "option_d": "$2,5 \\times 10^{-4}\\text{ C/m}^3$",
         "option_e": "$7,6 \\times 10^{-4}\\text{ C/m}^3$",
         "correct_answer": "E",
-        "explanation": "**Pembahasan:**\n\nJawaban: E. $7,6 \\times 10^{-4}\\text{ C/m}^3$\r\n\r\nRumus rapat muatan volume adalah $\\rho = \\frac{Q}{V}$.\r\nVolume bola dirumuskan dengan $V = \\frac{4}{3}\\pi r^3$.\r\nUbah jari-jari ke dalam meter: $r = 2,7\\text{ cm} = 0,027\\text{ m}$.\r\n$V = \\frac{4}{3} \\pi (0,027)^3 \\approx 8,24 \\times 10^{-5}\\text{ m}^3$\r\n$\\rho = \\frac{6,3 \\times 10^{-8}\\text{ C}}{8,24 \\times 10^{-5}\\text{ m}^3} \\approx 7,64 \\times 10^{-4}\\text{ C/m}^3$.",
+        "explanation": "**Pembahasan:**\n\nJawaban: E. $7,6 \\times 10^{-4}\\text{ C/m}^3$\r\n\r\nRumus rapat muatan volume adalah $\\rho = \\frac{Q}{V}$.\r\nVolume bola dirumuskan dengan $V = \\frac{4}{3}\\pi r^{3}$.\r\nUbah jari-jari ke dalam meter: $r = 2,7\\text{ cm} = 0,027\\text{ m}$.\r\n$V = \\frac{4}{3} \\pi (0,027)^3 \\approx 8,24 \\times 10^{-5}\\text{ m}^3$\r\n$\\rho = \\frac{6,3 \\times 10^{-8}\\text{ C}}{8,24 \\times 10^{-5}\\text{ m}^3} \\approx 7,64 \\times 10^{-4}\\text{ C/m}^3$.",
         "weight": 1
     },
     {
@@ -20,7 +20,7 @@ export const week2Questions = [
         "option_d": "$6,3 \\times 10^{-8}\\text{ C}$",
         "option_e": "$9,5 \\times 10^{-3}\\text{ C}$",
         "correct_answer": "D",
-        "explanation": "**Pembahasan:**\n\nJawaban: D. $6,3 \\times 10^{-8}\\text{ C}$\r\n\r\nRumus muatan total pada suatu permukaan adalah $Q = \\sigma A$.\r\nLuas permukaan bola dirumuskan dengan $A = 4\\pi r^2$.\r\nUbah jari-jari ke dalam meter: $r = 2,7\\text{ cm} = 0,027\\text{ m}$.\r\n$A = 4\\pi (0,027)^2 \\approx 0,00916\\text{ m}^2$\r\n$Q = (6,9 \\times 10^{-6}\\text{ C/m}^2) \\times 0,00916\\text{ m}^2 \\approx 6,32 \\times 10^{-8}\\text{ C}$.",
+        "explanation": "**Pembahasan:**\n\nJawaban: D. $6,3 \\times 10^{-8}\\text{ C}$\r\n\r\nRumus muatan total pada suatu permukaan adalah $Q = \\sigma A$.\r\nLuas permukaan bola dirumuskan dengan $A = 4\\pi r^{2}$.\r\nUbah jari-jari ke dalam meter: $r = 2,7\\text{ cm} = 0,027\\text{ m}$.\r\n$A = 4\\pi (0,027)^2 \\approx 0,00916\\text{ m}^2$\r\n$Q = (6,9 \\times 10^{-6}\\text{ C/m}^2) \\times 0,00916\\text{ m}^2 \\approx 6,32 \\times 10^{-8}\\text{ C}$.",
         "weight": 1
     },
     {
@@ -44,7 +44,7 @@ export const week2Questions = [
         "option_d": "$5,0 \\times 10^{-3}\\text{ C/m}^3$",
         "option_e": "$6,3 \\times 10^{-2}\\text{ C/m}^3$",
         "correct_answer": "D",
-        "explanation": "**Pembahasan:**\n\nJawaban: D. $5,0 \\times 10^{-3}\\text{ C/m}^3$\r\n\r\nVolume silinder dirumuskan dengan $V = \\pi r^2 h$.\r\nUbah dimensi ke meter: $r = 0,021\\text{ m}$ dan $h = 0,088\\text{ m}$.\r\n$V = \\pi (0,021)^2 (0,088) \\approx 1,219 \\times 10^{-4}\\text{ m}^3$\r\nRapat muatan volumenya $\\rho = \\frac{Q}{V} = \\frac{6,1 \\times 10^{-7}\\text{ C}}{1,219 \\times 10^{-4}\\text{ m}^3} \\approx 5,0 \\times 10^{-3}\\text{ C/m}^3$.",
+        "explanation": "**Pembahasan:**\n\nJawaban: D. $5,0 \\times 10^{-3}\\text{ C/m}^3$\r\n\r\nVolume silinder dirumuskan dengan $V = \\pi r^{2} h$.\r\nUbah dimensi ke meter: $r = 0,021\\text{ m}$ dan $h = 0,088\\text{ m}$.\r\n$V = \\pi (0,021)^2 (0,088) \\approx 1,219 \\times 10^{-4}\\text{ m}^3$\r\nRapat muatan volumenya $\\rho = \\frac{Q}{V} = \\frac{6,1 \\times 10^{-7}\\text{ C}}{1,219 \\times 10^{-4}\\text{ m}^3} \\approx 5,0 \\times 10^{-3}\\text{ C/m}^3$.",
         "weight": 1
     },
     {
@@ -124,11 +124,11 @@ export const week2Questions = [
         "category": "WEEK_2",
         "option_a": "0",
         "option_b": "$25 \\times 10^{-6}$",
-        "option_c": "$2,2 \\times 10^5$",
-        "option_d": "$2,8 \\times 10^6$",
+        "option_c": "$2,2 \\times 10^{5}$",
+        "option_d": "$2,8 \\times 10^{6}$",
         "option_e": "tidak dapat ditentukan kecuali dimensi ruang kuliah diberikan",
         "correct_answer": "D",
-        "explanation": "**Pembahasan:**\n\nJawaban: D. $2,8 \\times 10^6$\r\n\r\nRuang kuliah dapat dianggap sebagai suatu permukaan Gauss tertutup raksasa yang menampung total muatan generator tersebut. Kita bisa hitung fluks nettonya langsung dengan Hukum Gauss tanpa perlu peduli pada ukuran/dimensi ruangan.\r\n$\\Phi = \\frac{q}{\\varepsilon_0} = \\frac{25 \\times 10^{-6}\\text{ C}}{8,85 \\times 10^{-12}\\text{ C}^2/\\text{N}\\cdot\\text{m}^2}$\r\n$\\Phi \\approx 2,82 \\times 10^6\\text{ N}\\cdot\\text{m}^2/\\text{C}$.",
+        "explanation": "**Pembahasan:**\n\nJawaban: D. $2,8 \\times 10^{6}$\r\n\r\nRuang kuliah dapat dianggap sebagai suatu permukaan Gauss tertutup raksasa yang menampung total muatan generator tersebut. Kita bisa hitung fluks nettonya langsung dengan Hukum Gauss tanpa perlu peduli pada ukuran/dimensi ruangan.\r\n$\\Phi = \\frac{q}{\\varepsilon_0} = \\frac{25 \\times 10^{-6}\\text{ C}}{8,85 \\times 10^{-12}\\text{ C}^2/\\text{N}\\cdot\\text{m}^2}$\r\n$\\Phi \\approx 2,82 \\times 10^{6}\\text{ N}\\cdot\\text{m}^2/\\text{C}$.",
         "weight": 1
     },
     {
@@ -147,12 +147,12 @@ export const week2Questions = [
         "text": "Sebuah partikel bermuatan $5,0\\,\\mu\\text{C}$ ditempatkan di sudut sebuah kubus. Fluks listrik total dalam $\\text{N}\\cdot\\text{m}^2/\\text{C}$ yang melewati seluruh sisi kubus tersebut adalah:",
         "category": "WEEK_2",
         "option_a": "0",
-        "option_b": "$7,1 \\times 10^4$",
-        "option_c": "$9,4 \\times 10^4$",
-        "option_d": "$1,4 \\times 10^5$",
-        "option_e": "$5,6 \\times 10^5$",
+        "option_b": "$7,1 \\times 10^{4}$",
+        "option_c": "$9,4 \\times 10^{4}$",
+        "option_d": "$1,4 \\times 10^{5}$",
+        "option_e": "$5,6 \\times 10^{5}$",
         "correct_answer": "E",
-        "explanation": "**Pembahasan:**\n\nJawaban: E. $5,6 \\times 10^5$\r\n\r\n*(Catatan: Karena kunci jawabannya adalah E yang ekuivalen dengan $q/\\varepsilon_0$, soal ini mengasumsikan kita menghitung fluks total yang dipancarkan oleh muatan ke seluruh ruang tertutup yang mengelilinginya, atau menganggap muatan sepenuhnya berada \"di dalam\" ruang kubus tersebut.)*\r\nMenggunakan hukum Gauss secara penuh:\r\n$\\Phi_{\\text{total}} = \\frac{q}{\\varepsilon_0} = \\frac{5,0 \\times 10^{-6}\\text{ C}}{8,85 \\times 10^{-12}} \\approx 5,64 \\times 10^5\\text{ N}\\cdot\\text{m}^2/\\text{C}$.",
+        "explanation": "**Pembahasan:**\n\nJawaban: E. $5,6 \\times 10^{5}$\r\n\r\n*(Catatan: Karena kunci jawabannya adalah E yang ekuivalen dengan $q/\\varepsilon_0$, soal ini mengasumsikan kita menghitung fluks total yang dipancarkan oleh muatan ke seluruh ruang tertutup yang mengelilinginya, atau menganggap muatan sepenuhnya berada \"di dalam\" ruang kubus tersebut.)*\r\nMenggunakan hukum Gauss secara penuh:\r\n$\\Phi_{\\text{total}} = \\frac{q}{\\varepsilon_0} = \\frac{5,0 \\times 10^{-6}\\text{ C}}{8,85 \\times 10^{-12}} \\approx 5,64 \\times 10^{5}\\text{ N}\\cdot\\text{m}^2/\\text{C}$.",
         "weight": 1
     },
     {
@@ -176,7 +176,7 @@ export const week2Questions = [
         "option_d": "4500",
         "option_e": "90.000",
         "correct_answer": "C",
-        "explanation": "**Pembahasan:**\n\nJawaban: C. 900\r\n\r\n*(Catatan khusus: Ada kemungkinan nilai jari-jari pada soal asli typo. Apabila kita menghitung dengan $r=0,01\\text{ m}$, kuat medan listrik akan menjadi $90.000\\text{ N/C}$ alias opsi E. Kunci jawaban C ($900\\text{ N/C}$) baru akan terbukti jika kita menggunakan asumsi jari-jari $r = 0,1\\text{ m}$.)*\r\nMari buktikan menggunakan asumsi jari-jari $r = 0,1\\text{ m}$:\r\n$E = \\frac{kQ}{r^2} = \\frac{(9 \\times 10^9) \\times (1,0 \\times 10^{-9})}{(0,1)^2}$\r\n$E = \\frac{9}{0,01} = 900\\text{ N/C}$.",
+        "explanation": "**Pembahasan:**\n\nJawaban: C. 900\r\n\r\n*(Catatan khusus: Ada kemungkinan nilai jari-jari pada soal asli typo. Apabila kita menghitung dengan $r=0,01\\text{ m}$, kuat medan listrik akan menjadi $90.000\\text{ N/C}$ alias opsi E. Kunci jawaban C ($900\\text{ N/C}$) baru akan terbukti jika kita menggunakan asumsi jari-jari $r = 0,1\\text{ m}$.)*\r\nMari buktikan menggunakan asumsi jari-jari $r = 0,1\\text{ m}$:\r\n$E = \\frac{kQ}{r^{2}} = \\frac{(9 \\times 10^{9}) \\times (1,0 \\times 10^{-9})}{(0,1)^2}$\r\n$E = \\frac{9}{0,01} = 900\\text{ N/C}$.",
         "weight": 1
     },
     {
@@ -188,7 +188,7 @@ export const week2Questions = [
         "option_d": "280",
         "option_e": "tidak dapat ditentukan tanpa mengetahui luas sisi dan dasar",
         "correct_answer": "C",
-        "explanation": "**Pembahasan:**\n\nJawaban: C. 21\r\n\r\nJika kita menutup seluruh luasan, kita memiliki volume tanpa muatan di dalamnya (fluks netto = 0). Artinya, nilai fluks listrik masuk dari \"atap\" terbuka besarnya sama dengan fluks yang \"keluar\" menembus sisi dan dasarnya. \r\nKita cukup menghitung fluks pada bukaan atas yang datar:\r\n$\\Phi = EA = E (\\pi r^2) = 300 \\times \\pi \\times (0,15)^2$\r\n$\\Phi = 300 \\times 3,14 \\times 0,0225 \\approx 21,2\\text{ N}\\cdot\\text{m}^2/\\text{C}$ (dibulatkan menjadi 21).",
+        "explanation": "**Pembahasan:**\n\nJawaban: C. 21\r\n\r\nJika kita menutup seluruh luasan, kita memiliki volume tanpa muatan di dalamnya (fluks netto = 0). Artinya, nilai fluks listrik masuk dari \"atap\" terbuka besarnya sama dengan fluks yang \"keluar\" menembus sisi dan dasarnya. \r\nKita cukup menghitung fluks pada bukaan atas yang datar:\r\n$\\Phi = EA = E (\\pi r^{2}) = 300 \\times \\pi \\times (0,15)^2$\r\n$\\Phi = 300 \\times 3,14 \\times 0,0225 \\approx 21,2\\text{ N}\\cdot\\text{m}^2/\\text{C}$ (dibulatkan menjadi 21).",
         "weight": 1
     },
     {
@@ -230,29 +230,29 @@ export const week2Questions = [
     {
         "text": "Muatan $Q$ didistribusikan secara seragam di seluruh bola isolator berjari-jari $R$. Magnitudo medan listrik pada titik $R/2$ dari pusat adalah:",
         "category": "WEEK_2",
-        "option_a": "$Q/4\\pi\\varepsilon_0R^2$",
-        "option_b": "$Q/\\pi\\varepsilon_0R^2$",
-        "option_c": "$3Q/4\\pi\\varepsilon_0R^2$",
-        "option_d": "$Q/8\\pi\\varepsilon_0R^2$",
+        "option_a": "$Q/4\\pi\\varepsilon_0R^{2}$",
+        "option_b": "$Q/\\pi\\varepsilon_0R^{2}$",
+        "option_c": "$3Q/4\\pi\\varepsilon_0R^{2}$",
+        "option_d": "$Q/8\\pi\\varepsilon_0R^{2}$",
         "option_e": "tidak ada dari ini",
         "correct_answer": "D",
-        "explanation": "**Pembahasan:**\n\nJawaban: D. $Q/8\\pi\\varepsilon_0R^2$\r\n\r\nPada benda berupa bola padat *isolator* dengan muatan yang terdistribusi seragam di seluruh volumenya, medan listrik di titik-titik bagian dalam ($r < R$) dirumuskan sebagai:\r\n$E_{\\text{dalam}} = \\frac{1}{4\\pi\\varepsilon_0} \\frac{Q r}{R^3}$\r\nKarena kita ingin mencari magnitudo E pada jarak $r = R/2$:\r\n$E = \\frac{1}{4\\pi\\varepsilon_0} \\frac{Q (R/2)}{R^3} = \\frac{1}{4\\pi\\varepsilon_0} \\frac{Q}{2 R^2} = \\frac{Q}{8\\pi\\varepsilon_0R^2}$.",
+        "explanation": "**Pembahasan:**\n\nJawaban: D. $Q/8\\pi\\varepsilon_0R^{2}$\r\n\r\nPada benda berupa bola padat *isolator* dengan muatan yang terdistribusi seragam di seluruh volumenya, medan listrik di titik-titik bagian dalam ($r < R$) dirumuskan sebagai:\r\n$E_{\\text{dalam}} = \\frac{1}{4\\pi\\varepsilon_0} \\frac{Q r}{R^{3}}$\r\nKarena kita ingin mencari magnitudo E pada jarak $r = R/2$:\r\n$E = \\frac{1}{4\\pi\\varepsilon_0} \\frac{Q (R/2)}{R^{3}} = \\frac{1}{4\\pi\\varepsilon_0} \\frac{Q}{2 R^{2}} = \\frac{Q}{8\\pi\\varepsilon_0R^{2}}$.",
         "weight": 1
     },
     {
         "text": "Muatan positif Q didistribusikan secara seragam ke seluruh bola isolator berjari-jari R, yang berpusat di titik asal. Sebuah partikel dengan muatan positif Q ditempatkan pada x = 2R di sumbu x. Magnitudo medan listrik pada x = R/2 di sumbu x adalah:",
         "category": "WEEK_2",
-        "option_a": "$Q/4\\pi\\varepsilon_0 R^2$",
-        "option_b": "$Q/8\\pi\\varepsilon_0 R^2$",
-        "option_c": "$Q/72\\pi\\varepsilon_0 R^2$",
-        "option_d": "$17Q/72\\pi\\varepsilon_0 R^2$",
+        "option_a": "$Q/4\\pi\\varepsilon_0 R^{2}$",
+        "option_b": "$Q/8\\pi\\varepsilon_0 R^{2}$",
+        "option_c": "$Q/72\\pi\\varepsilon_0 R^{2}$",
+        "option_d": "$17Q/72\\pi\\varepsilon_0 R^{2}$",
         "option_e": "tidak ada dari ini",
         "correct_answer": "C",
-        "explanation": "**Pembahasan:**\n\nJawaban: C. $Q/72\\pi\\varepsilon_0 R^2$\r\n\r\nTerdapat dua sumber medan listrik pada titik x = R/2.\r\nPertama, medan listrik akibat bola isolator padat. Untuk titik di dalam bola ($r = R/2$), magnitudonya adalah:\r\n$E_1 = \\frac{1}{4\\pi\\varepsilon_0} \\frac{Q r}{R^3} = \\frac{1}{4\\pi\\varepsilon_0} \\frac{Q (R/2)}{R^3} = \\frac{Q}{8\\pi\\varepsilon_0 R^2}$\r\nArah medan E1 ini menjauhi pusat (ke arah kanan atau +x).\r\n\r\nKedua, medan listrik akibat partikel muatan titik Q di x = 2R. Jarak dari muatan titik ini ke x = R/2 adalah $d = 2R - R/2 = 3R/2$. Magnitudonya adalah:\r\n$E_2 = \\frac{1}{4\\pi\\varepsilon_0} \\frac{Q}{d^2} = \\frac{1}{4\\pi\\varepsilon_0} \\frac{Q}{(3R/2)^2} = \\frac{Q}{4\\pi\\varepsilon_0 (9R^2/4)} = \\frac{4Q}{36\\pi\\varepsilon_0 R^2} = \\frac{Q}{9\\pi\\varepsilon_0 R^2}$\r\nArah medan E2 menjauhi partikel (ke arah kiri atau -x).\r\n\r\nResultan medan listrik adalah selisih keduanya:\r\n$E = E_1 - E_2 = \\frac{Q}{8\\pi\\varepsilon_0 R^2} - \\frac{Q}{9\\pi\\varepsilon_0 R^2}$\r\n$E = \\frac{9Q - 8Q}{72\\pi\\varepsilon_0 R^2} = \\frac{Q}{72\\pi\\varepsilon_0 R^2}$",
+        "explanation": "**Pembahasan:**\n\nJawaban: C. $Q/72\\pi\\varepsilon_0 R^{2}$\r\n\r\nTerdapat dua sumber medan listrik pada titik x = R/2.\r\nPertama, medan listrik akibat bola isolator padat. Untuk titik di dalam bola ($r = R/2$), magnitudonya adalah:\r\n$E_1 = \\frac{1}{4\\pi\\varepsilon_0} \\frac{Q r}{R^{3}} = \\frac{1}{4\\pi\\varepsilon_0} \\frac{Q (R/2)}{R^{3}} = \\frac{Q}{8\\pi\\varepsilon_0 R^{2}}$\r\nArah medan E1 ini menjauhi pusat (ke arah kanan atau +x).\r\n\r\nKedua, medan listrik akibat partikel muatan titik Q di x = 2R. Jarak dari muatan titik ini ke x = R/2 adalah $d = 2R - R/2 = 3R/2$. Magnitudonya adalah:\r\n$E_2 = \\frac{1}{4\\pi\\varepsilon_0} \\frac{Q}{d^{2}} = \\frac{1}{4\\pi\\varepsilon_0} \\frac{Q}{(3R/2)^2} = \\frac{Q}{4\\pi\\varepsilon_0 (9R^{2}/4)} = \\frac{4Q}{36\\pi\\varepsilon_0 R^{2}} = \\frac{Q}{9\\pi\\varepsilon_0 R^{2}}$\r\nArah medan E2 menjauhi partikel (ke arah kiri atau -x).\r\n\r\nResultan medan listrik adalah selisih keduanya:\r\n$E = E_1 - E_2 = \\frac{Q}{8\\pi\\varepsilon_0 R^{2}} - \\frac{Q}{9\\pi\\varepsilon_0 R^{2}}$\r\n$E = \\frac{9Q - 8Q}{72\\pi\\varepsilon_0 R^{2}} = \\frac{Q}{72\\pi\\varepsilon_0 R^{2}}$",
         "weight": 1
     },
     {
-        "text": "Muatan Q didistribusikan secara merata ke seluruh cangkang isolator bola. Fluks listrik netto dalam N m^2/C yang melewati permukaan dalam cangkang adalah:",
+        "text": "Muatan Q didistribusikan secara merata ke seluruh cangkang isolator bola. Fluks listrik netto dalam N m^{2}/C yang melewati permukaan dalam cangkang adalah:",
         "category": "WEEK_2",
         "option_a": "0",
         "option_b": "$Q/\\varepsilon_0$",
@@ -264,7 +264,7 @@ export const week2Questions = [
         "weight": 1
     },
     {
-        "text": "Muatan Q didistribusikan secara merata ke seluruh cangkang isolator bola. Fluks listrik netto dalam N m^2/C yang melewati permukaan luar cangkang adalah:",
+        "text": "Muatan Q didistribusikan secara merata ke seluruh cangkang isolator bola. Fluks listrik netto dalam N m^{2}/C yang melewati permukaan luar cangkang adalah:",
         "category": "WEEK_2",
         "option_a": "0",
         "option_b": "$Q/\\varepsilon_0$",
@@ -276,15 +276,15 @@ export const week2Questions = [
         "weight": 1
     },
     {
-        "text": "Sebuah belahan bola dengan jari-jari 3,5 cm berisi muatan total 6,6 x 10^-7 C. Fluks yang melewati bagian permukaan yang melengkung adalah 9,8 x 10^4 N m^2/C. Fluks yang melewati dasar datar adalah:",
+        "text": "Sebuah belahan bola dengan jari-jari 3,5 cm berisi muatan total 6,6 \times 10^{-7} C. Fluks yang melewati bagian permukaan yang melengkung adalah 9,8 \times 10^{4} N m^{2}/C. Fluks yang melewati dasar datar adalah:",
         "category": "WEEK_2",
         "option_a": "0",
-        "option_b": "$+2,3 \\times 10^4$ N m^2/C",
-        "option_c": "$-2,3 \\times 10^4$ N m^2/C",
-        "option_d": "$-9,8 \\times 10^4$ N m^2/C",
-        "option_e": "$+9,8 \\times 10^4$ N m^2/C",
+        "option_b": "$+2,3 \\times 10^{4}$ N m^{2}/C",
+        "option_c": "$-2,3 \\times 10^{4}$ N m^{2}/C",
+        "option_d": "$-9,8 \\times 10^{4}$ N m^{2}/C",
+        "option_e": "$+9,8 \\times 10^{4}$ N m^{2}/C",
         "correct_answer": "C",
-        "explanation": "**Pembahasan:**\n\nJawaban: C. $-2,3 \\times 10^4$ N m^2/C\r\n\r\nTotal fluks listrik yang keluar dari keseluruhan permukaan tertutup (melengkung ditambah datar) dapat dihitung dengan Hukum Gauss:\r\n$\\Phi_{\\text{total}} = \\frac{Q}{\\varepsilon_0} = \\frac{6,6 \\times 10^{-7}}{8,85 \\times 10^{-12}} \\approx 7,46 \\times 10^4 \\text{ N m}^2\\text{/C}$\r\n\r\nKarena total fluks adalah jumlah fluks dari setiap bagian permukaan:\r\n$\\Phi_{\\text{total}} = \\Phi_{\\text{melengkung}} + \\Phi_{\\text{datar}}$\r\n$7,46 \\times 10^4 = 9,8 \\times 10^4 + \\Phi_{\\text{datar}}$\r\n$\\Phi_{\\text{datar}} = 7,46 \\times 10^4 - 9,8 \\times 10^4 = -2,34 \\times 10^4 \\text{ N m}^2\\text{/C}$\r\nNilai ini paling mendekati opsi C.",
+        "explanation": "**Pembahasan:**\n\nJawaban: C. $-2,3 \\times 10^{4}$ N m^{2}/C\r\n\r\nTotal fluks listrik yang keluar dari keseluruhan permukaan tertutup (melengkung ditambah datar) dapat dihitung dengan Hukum Gauss:\r\n$\\Phi_{\\text{total}} = \\frac{Q}{\\varepsilon_0} = \\frac{6,6 \\times 10^{-7}}{8,85 \\times 10^{-12}} \\approx 7,46 \\times 10^{4} \\text{ N m}^2\\text{/C}$\r\n\r\nKarena total fluks adalah jumlah fluks dari setiap bagian permukaan:\r\n$\\Phi_{\\text{total}} = \\Phi_{\\text{melengkung}} + \\Phi_{\\text{datar}}$\r\n$7,46 \\times 10^{4} = 9,8 \\times 10^{4} + \\Phi_{\\text{datar}}$\r\n$\\Phi_{\\text{datar}} = 7,46 \\times 10^{4} - 9,8 \\times 10^{4} = -2,34 \\times 10^{4} \\text{ N m}^2\\text{/C}$\r\nNilai ini paling mendekati opsi C.",
         "weight": 1
     },
     {
@@ -303,36 +303,36 @@ export const week2Questions = [
         "text": "Muatan positif Q ditempatkan pada cangkang bola konduktor dengan jari-jari dalam R1 dan jari-jari luar R2. Sebuah partikel bermuatan q ditempatkan di pusat rongga. Magnitudo medan listrik pada suatu titik di dalam rongga, pada jarak r dari pusat, adalah:",
         "category": "WEEK_2",
         "option_a": "0",
-        "option_b": "$Q/4\\pi\\varepsilon_0 R_1^2$",
-        "option_c": "$q/4\\pi\\varepsilon_0 r^2$",
-        "option_d": "$(q+Q)/4\\pi\\varepsilon_0 r^2$",
-        "option_e": "$(q+Q)/4\\pi\\varepsilon_0 (R_1^2 - r^2)$",
+        "option_b": "$Q/4\\pi\\varepsilon_0 R_1^{2}$",
+        "option_c": "$q/4\\pi\\varepsilon_0 r^{2}$",
+        "option_d": "$(q+Q)/4\\pi\\varepsilon_0 r^{2}$",
+        "option_e": "$(q+Q)/4\\pi\\varepsilon_0 (R_1^{2} - r^{2})$",
         "correct_answer": "C",
-        "explanation": "**Pembahasan:**\n\nJawaban: C. $q/4\\pi\\varepsilon_0 r^2$\r\n\r\nUntuk menghitung medan listrik di dalam rongga ($r < R_1$), kita dapat membuat permukaan Gauss berbentuk bola dengan jari-jari r yang terpusat di tengah. Permukaan ini hanya akan melingkupi satu-satunya muatan yang ada di dalamnya, yaitu muatan titik q. Muatan pada cangkang konduktor berada di luar permukaan Gauss ini dan karena bentuknya simetris bola, cangkang tersebut tidak menyumbang medan listrik ke area interior rongga. Sehingga kuat medannya hanya berasal dari muatan q.",
+        "explanation": "**Pembahasan:**\n\nJawaban: C. $q/4\\pi\\varepsilon_0 r^{2}$\r\n\r\nUntuk menghitung medan listrik di dalam rongga ($r < R_1$), kita dapat membuat permukaan Gauss berbentuk bola dengan jari-jari r yang terpusat di tengah. Permukaan ini hanya akan melingkupi satu-satunya muatan yang ada di dalamnya, yaitu muatan titik q. Muatan pada cangkang konduktor berada di luar permukaan Gauss ini dan karena bentuknya simetris bola, cangkang tersebut tidak menyumbang medan listrik ke area interior rongga. Sehingga kuat medannya hanya berasal dari muatan q.",
         "weight": 1
     },
     {
         "text": "Muatan positif Q ditempatkan pada cangkang bola konduktor dengan jari-jari dalam R1 dan jari-jari luar R2. Sebuah muatan titik q ditempatkan di pusat rongga. Magnitudo medan listrik pada suatu titik di luar cangkang, pada jarak r dari pusat, adalah:",
         "category": "WEEK_2",
         "option_a": "0",
-        "option_b": "$Q/4\\pi\\varepsilon_0 r^2$",
-        "option_c": "$q/4\\pi\\varepsilon_0 r^2$",
-        "option_d": "$(q+Q)/4\\pi\\varepsilon_0 r^2$",
-        "option_e": "$(q+Q)/4\\pi\\varepsilon_0 (R_1^2 - r^2)$",
+        "option_b": "$Q/4\\pi\\varepsilon_0 r^{2}$",
+        "option_c": "$q/4\\pi\\varepsilon_0 r^{2}$",
+        "option_d": "$(q+Q)/4\\pi\\varepsilon_0 r^{2}$",
+        "option_e": "$(q+Q)/4\\pi\\varepsilon_0 (R_1^{2} - r^{2})$",
         "correct_answer": "D",
-        "explanation": "**Pembahasan:**\n\nJawaban: D. $(q+Q)/4\\pi\\varepsilon_0 r^2$\r\n\r\nUntuk titik yang berada di luar cangkang ($r > R_2$), permukaan Gauss bola berjari-jari r akan melingkupi semua muatan yang ada di dalam sistem tersebut. Ini mencakup muatan titik q yang ada di pusat dan muatan total cangkang konduktor sebesar Q. Berdasarkan Hukum Gauss, muatan total yang dilingkupi adalah $q + Q$. Maka magnitudo medan listriknya berbanding lurus dengan jumlah muatan gabungan tersebut dibagi kuadrat jaraknya.",
+        "explanation": "**Pembahasan:**\n\nJawaban: D. $(q+Q)/4\\pi\\varepsilon_0 r^{2}$\r\n\r\nUntuk titik yang berada di luar cangkang ($r > R_2$), permukaan Gauss bola berjari-jari r akan melingkupi semua muatan yang ada di dalam sistem tersebut. Ini mencakup muatan titik q yang ada di pusat dan muatan total cangkang konduktor sebesar Q. Berdasarkan Hukum Gauss, muatan total yang dilingkupi adalah $q + Q$. Maka magnitudo medan listriknya berbanding lurus dengan jumlah muatan gabungan tersebut dibagi kuadrat jaraknya.",
         "weight": 1
     },
     {
         "text": "Muatan positif Q ditempatkan pada cangkang bola konduktor dengan jari-jari dalam R1 dan jari-jari luar R2. Sebuah muatan titik q ditempatkan di pusat rongga. Magnitudo medan listrik yang dihasilkan oleh muatan pada permukaan dalam, di suatu titik di dalam interior material konduktor, pada jarak r dari pusat, adalah:",
         "category": "WEEK_2",
         "option_a": "0",
-        "option_b": "$Q/4\\pi\\varepsilon_0 R_1^2$",
-        "option_c": "$Q/4\\pi\\varepsilon_0 R_2^2$",
-        "option_d": "$q/4\\pi\\varepsilon_0 r^2$",
-        "option_e": "$Q/4\\pi\\varepsilon_0 r^2$",
+        "option_b": "$Q/4\\pi\\varepsilon_0 R_1^{2}$",
+        "option_c": "$Q/4\\pi\\varepsilon_0 R_2^{2}$",
+        "option_d": "$q/4\\pi\\varepsilon_0 r^{2}$",
+        "option_e": "$Q/4\\pi\\varepsilon_0 r^{2}$",
         "correct_answer": "D",
-        "explanation": "**Pembahasan:**\n\nJawaban: D. $q/4\\pi\\varepsilon_0 r^2$\r\n\r\nDi dalam interior padatan material sebuah konduktor yang berada dalam kesetimbangan elektrostatis, resultan medan listrik keseluruhan harus selalu sama dengan nol. Resultan medan ini merupakan penjumlahan dari medan akibat muatan titik q dan medan akibat muatan yang terinduksi di permukaan dalam cangkang. Agar saling menetralkan menjadi nol, medan yang dipancarkan oleh muatan di permukaan dalam harus memiliki magnitudo yang sama persis dengan medan yang dipancarkan muatan q (yaitu $q/4\\pi\\varepsilon_0 r^2$), tetapi mengarah ke arah yang berlawanan.",
+        "explanation": "**Pembahasan:**\n\nJawaban: D. $q/4\\pi\\varepsilon_0 r^{2}$\r\n\r\nDi dalam interior padatan material sebuah konduktor yang berada dalam kesetimbangan elektrostatis, resultan medan listrik keseluruhan harus selalu sama dengan nol. Resultan medan ini merupakan penjumlahan dari medan akibat muatan titik q dan medan akibat muatan yang terinduksi di permukaan dalam cangkang. Agar saling menetralkan menjadi nol, medan yang dipancarkan oleh muatan di permukaan dalam harus memiliki magnitudo yang sama persis dengan medan yang dipancarkan muatan q (yaitu $q/4\\pi\\varepsilon_0 r^{2}$), tetapi mengarah ke arah yang berlawanan.",
         "weight": 1
     },
     {

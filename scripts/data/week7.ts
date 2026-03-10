@@ -9,7 +9,7 @@ export const week7Questions = [
         "option_d": "$4C_1$",
         "option_e": "$\\sqrt{2}C_1$",
         "correct_answer": "B",
-        "explanation": "**Pembahasan:**\r\n\r\n**Jawaban: B. $C_1/4$**\r\n\r\nFrekuensi osilasi pada rangkaian LC dirumuskan dengan:\r\n$$f = \\frac{1}{2\\pi\\sqrt{LC}}$$\r\n\r\nDari rumus tersebut, terlihat bahwa frekuensi berbanding terbalik dengan akar kuadrat dari kapasitansi:\r\n$$f \\propto \\frac{1}{\\sqrt{C}} \\implies C \\propto \\frac{1}{f^2}$$\r\n\r\nJika kita membandingkan kondisi kedua dengan kondisi pertama:\r\n$$\\frac{C_2}{C_1} = \\left(\\frac{f_1}{f_2}\\right)^2$$\r\n$$\\frac{C_2}{C_1} = \\left(\\frac{600}{1200}\\right)^2$$\r\n$$\\frac{C_2}{C_1} = \\left(\\frac{1}{2}\\right)^2$$\r\n$$C_2 = \\frac{1}{4} C_1$$",
+        "explanation": "**Pembahasan:**\r\n\r\n**Jawaban: B. $C_1/4$**\r\n\r\nFrekuensi osilasi pada rangkaian LC dirumuskan dengan:\r\n$$f = \\frac{1}{2\\pi\\sqrt{LC}}$$\r\n\r\nDari rumus tersebut, terlihat bahwa frekuensi berbanding terbalik dengan akar kuadrat dari kapasitansi:\r\n$$f \\propto \\frac{1}{\\sqrt{C}} \\implies C \\propto \\frac{1}{f^{2}}$$\r\n\r\nJika kita membandingkan kondisi kedua dengan kondisi pertama:\r\n$$\\frac{C_2}{C_1} = \\left(\\frac{f_1}{f_2}\\right)^2$$\r\n$$\\frac{C_2}{C_1} = \\left(\\frac{600}{1200}\\right)^2$$\r\n$$\\frac{C_2}{C_1} = \\left(\\frac{1}{2}\\right)^2$$\r\n$$C_2 = \\frac{1}{4} C_1$$",
         "weight": 1
     },
     {
@@ -33,7 +33,7 @@ export const week7Questions = [
         "option_d": "$1/C$",
         "option_e": "$R$",
         "correct_answer": "D",
-        "explanation": "**Pembahasan:**\r\n\r\n**Jawaban: D. $1/C$**\r\n\r\nMari kita bandingkan rumus energi potensial pada sistem mekanik (pegas) dan sistem listrik (kapasitor).\r\n\r\nEnergi potensial pegas:\r\n$$U = \\frac{1}{2} k x^2$$\r\n\r\nEnergi potensial kapasitor:\r\n$$U = \\frac{1}{2} \\frac{1}{C} q^2$$\r\n\r\nBerdasarkan analogi osilator harmonik, simpangan ($x$) analog dengan muatan ($q$). Maka, posisi konstanta pegas ($k$) pada persamaan mekanik persis digantikan oleh kebalikan kapasitansi (**$1/C$**) pada persamaan listrik.",
+        "explanation": "**Pembahasan:**\r\n\r\n**Jawaban: D. $1/C$**\r\n\r\nMari kita bandingkan rumus energi potensial pada sistem mekanik (pegas) dan sistem listrik (kapasitor).\r\n\r\nEnergi potensial pegas:\r\n$$U = \\frac{1}{2} k x^{2}$$\r\n\r\nEnergi potensial kapasitor:\r\n$$U = \\frac{1}{2} \\frac{1}{C} q^{2}$$\r\n\r\nBerdasarkan analogi osilator harmonik, simpangan ($x$) analog dengan muatan ($q$). Maka, posisi konstanta pegas ($k$) pada persamaan mekanik persis digantikan oleh kebalikan kapasitansi (**$1/C$**) pada persamaan listrik.",
         "weight": 1
     },
     {
@@ -57,7 +57,7 @@ export const week7Questions = [
         "option_d": "$15 \\text{ V}$",
         "option_e": "$20 \\text{ V}$",
         "correct_answer": "B",
-        "explanation": "**Pembahasan:**\r\n\r\n**Jawaban: B. $5 \\text{ V}$**\r\n\r\nEnergi yang tersimpan di dalam kapasitor dirumuskan dengan:\r\n$$U_C = \\frac{1}{2} C V^2$$\r\n\r\nDari data energi maksimum, kita bisa mencari kapasitas kapasitor ($C$):\r\n$$U_{max} = \\frac{1}{2} C V_{max}^2$$\r\n$$360 \\, \\mu\\text{J} = \\frac{1}{2} C (15)^2$$\r\n$$360 = \\frac{1}{2} C (225)$$\r\n$$C = \\frac{720}{225} = 3,2 \\, \\mu\\text{F}$$\r\n\r\nSekarang, gunakan nilai $C$ ini untuk mencari beda potensial ($V$) saat energi kapasitornya $40 \\, \\mu\\text{J}$:\r\n$$U_C = \\frac{1}{2} C V^2$$\r\n$$40 = \\frac{1}{2} (3,2) V^2$$\r\n$$40 = 1,6 V^2$$\r\n$$V^2 = \\frac{40}{1,6} = 25$$\r\n$$V = 5 \\text{ V}$$",
+        "explanation": "**Pembahasan:**\r\n\r\n**Jawaban: B. $5 \\text{ V}$**\r\n\r\nEnergi yang tersimpan di dalam kapasitor dirumuskan dengan:\r\n$$U_C = \\frac{1}{2} C V^{2}$$\r\n\r\nDari data energi maksimum, kita bisa mencari kapasitas kapasitor ($C$):\r\n$$U_{max} = \\frac{1}{2} C V_{max}^2$$\r\n$$360 \\, \\mu\\text{J} = \\frac{1}{2} C (15)^2$$\r\n$$360 = \\frac{1}{2} C (225)$$\r\n$$C = \\frac{720}{225} = 3,2 \\, \\mu\\text{F}$$\r\n\r\nSekarang, gunakan nilai $C$ ini untuk mencari beda potensial ($V$) saat energi kapasitornya $40 \\, \\mu\\text{J}$:\r\n$$U_C = \\frac{1}{2} C V^{2}$$\r\n$$40 = \\frac{1}{2} (3,2) V^{2}$$\r\n$$40 = 1,6 V^{2}$$\r\n$$V^{2} = \\frac{40}{1,6} = 25$$\r\n$$V = 5 \\text{ V}$$",
         "weight": 1
     },
     {
@@ -81,7 +81,7 @@ export const week7Questions = [
         "option_d": "$3U/2$",
         "option_e": "$3U/4$",
         "correct_answer": "E",
-        "explanation": "**Pembahasan:**\r\n\r\n**Jawaban: E. $3U/4$**\r\n\r\nEnergi maksimum pada sistem setara dengan energi maksimum kapasitor:\r\n$$U = \\frac{Q^2}{2C}$$\r\n\r\nKetika muatan pada kapasitor adalah $q = \\frac{Q}{2}$, energi yang tersimpan di dalam kapasitor saat itu ($U_C$) adalah:\r\n$$U_C = \\frac{q^2}{2C} = \\frac{(Q/2)^2}{2C} = \\frac{Q^2/4}{2C} = \\frac{1}{4} \\left(\\frac{Q^2}{2C}\\right)$$\r\n$$U_C = \\frac{1}{4} U$$\r\n\r\nKarena total energi adalah konstan ($U = U_C + U_L$), maka energi pada induktor ($U_L$) adalah sisanya:\r\n$$U_L = U - U_C$$\r\n$$U_L = U - \\frac{1}{4}U$$\r\n$$U_L = \\frac{3}{4}U$$",
+        "explanation": "**Pembahasan:**\r\n\r\n**Jawaban: E. $3U/4$**\r\n\r\nEnergi maksimum pada sistem setara dengan energi maksimum kapasitor:\r\n$$U = \\frac{Q^{2}}{2C}$$\r\n\r\nKetika muatan pada kapasitor adalah $q = \\frac{Q}{2}$, energi yang tersimpan di dalam kapasitor saat itu ($U_C$) adalah:\r\n$$U_C = \\frac{q^{2}}{2C} = \\frac{(Q/2)^2}{2C} = \\frac{Q^{2}/4}{2C} = \\frac{1}{4} \\left(\\frac{Q^{2}}{2C}\\right)$$\r\n$$U_C = \\frac{1}{4} U$$\r\n\r\nKarena total energi adalah konstan ($U = U_C + U_L$), maka energi pada induktor ($U_L$) adalah sisanya:\r\n$$U_L = U - U_C$$\r\n$$U_L = U - \\frac{1}{4}U$$\r\n$$U_L = \\frac{3}{4}U$$",
         "weight": 1
     },
     {
@@ -129,7 +129,7 @@ export const week7Questions = [
         "option_d": "$1,4 \\times 10^{-6} \\text{ J}$",
         "option_e": "$2,8 \\times 10^{-6} \\text{ J}$",
         "correct_answer": "D",
-        "explanation": "**Pembahasan:**\r\n\r\n**Jawaban: D. $1,4 \\times 10^{-6} \\text{ J}$**\r\n\r\nTotal energi adalah jumlahan dari energi pada kapasitor dan energi pada induktor pada saat yang bersamaan:\r\n$$U_{tot} = U_C + U_L$$\r\n$$U_{tot} = \\frac{q^2}{2C} + \\frac{1}{2}LI^2$$\r\n\r\nHitung energi kapasitor ($U_C$):\r\n$$U_C = \\frac{(3,0 \\times 10^{-6})^2}{2 \\times (5,0 \\times 10^{-6})}$$\r\n$$U_C = \\frac{9 \\times 10^{-12}}{10 \\times 10^{-6}} = 0,9 \\times 10^{-6} \\text{ J}$$\r\n\r\nHitung energi induktor ($U_L$):\r\n$$U_L = \\frac{1}{2} (20 \\times 10^{-3}) (7,0 \\times 10^{-3})^2$$\r\n$$U_L = 10 \\times 10^{-3} \\times 49 \\times 10^{-6}$$\r\n$$U_L = 490 \\times 10^{-9} = 0,49 \\times 10^{-6} \\text{ J}$$\r\n\r\nJumlahkan keduanya:\r\n$$U_{tot} = (0,9 + 0,49) \\times 10^{-6} \\text{ J}$$\r\n$$U_{tot} = 1,39 \\times 10^{-6} \\text{ J} \\approx 1,4 \\times 10^{-6} \\text{ J}$$",
+        "explanation": "**Pembahasan:**\r\n\r\n**Jawaban: D. $1,4 \\times 10^{-6} \\text{ J}$**\r\n\r\nTotal energi adalah jumlahan dari energi pada kapasitor dan energi pada induktor pada saat yang bersamaan:\r\n$$U_{tot} = U_C + U_L$$\r\n$$U_{tot} = \\frac{q^{2}}{2C} + \\frac{1}{2}LI^{2}$$\r\n\r\nHitung energi kapasitor ($U_C$):\r\n$$U_C = \\frac{(3,0 \\times 10^{-6})^2}{2 \\times (5,0 \\times 10^{-6})}$$\r\n$$U_C = \\frac{9 \\times 10^{-12}}{10 \\times 10^{-6}} = 0,9 \\times 10^{-6} \\text{ J}$$\r\n\r\nHitung energi induktor ($U_L$):\r\n$$U_L = \\frac{1}{2} (20 \\times 10^{-3}) (7,0 \\times 10^{-3})^2$$\r\n$$U_L = 10 \\times 10^{-3} \\times 49 \\times 10^{-6}$$\r\n$$U_L = 490 \\times 10^{-9} = 0,49 \\times 10^{-6} \\text{ J}$$\r\n\r\nJumlahkan keduanya:\r\n$$U_{tot} = (0,9 + 0,49) \\times 10^{-6} \\text{ J}$$\r\n$$U_{tot} = 1,39 \\times 10^{-6} \\text{ J} \\approx 1,4 \\times 10^{-6} \\text{ J}$$",
         "weight": 1
     },
     {
@@ -141,7 +141,7 @@ export const week7Questions = [
         "option_d": "$17 \\, \\mu\\text{C}$",
         "option_e": "$24 \\, \\mu\\text{C}$",
         "correct_answer": "D",
-        "explanation": "**Pembahasan:**\r\n\r\n**Jawaban: D. $17 \\, \\mu\\text{C}$**\r\n\r\nLangkah pertama, cari total energi dalam sistem ($U_{tot}$) pada saat $t=0$:\r\n$$U_C = \\frac{q^2}{2C} = \\frac{(10 \\times 10^{-6})^2}{2 \\times (30 \\times 10^{-6})} = \\frac{100 \\times 10^{-12}}{60 \\times 10^{-6}} = 1,667 \\times 10^{-6} \\text{ J}$$\r\n$$U_L = \\frac{1}{2}LI^2 = \\frac{1}{2}(15 \\times 10^{-3})(20 \\times 10^{-3})^2 = 7,5 \\times 10^{-3} \\times 400 \\times 10^{-6} = 3,0 \\times 10^{-6} \\text{ J}$$\r\n$$U_{tot} = 1,667 \\times 10^{-6} + 3,0 \\times 10^{-6} = 4,667 \\times 10^{-6} \\text{ J}$$\r\n\r\nMuatan maksimum ($Q_{max}$) terjadi ketika seluruh energi ini berada di kapasitor:\r\n$$U_{tot} = \\frac{Q_{max}^2}{2C}$$\r\n$$Q_{max} = \\sqrt{2 \\cdot C \\cdot U_{tot}}$$\r\n$$Q_{max} = \\sqrt{2 \\times (30 \\times 10^{-6}) \\times (4,667 \\times 10^{-6})}$$\r\n$$Q_{max} = \\sqrt{60 \\times 4,667 \\times 10^{-12}}$$\r\n$$Q_{max} = \\sqrt{280 \\times 10^{-12}}$$\r\n$$Q_{max} \\approx 16,73 \\times 10^{-6} \\text{ C} \\approx 17 \\, \\mu\\text{C}$$",
+        "explanation": "**Pembahasan:**\r\n\r\n**Jawaban: D. $17 \\, \\mu\\text{C}$**\r\n\r\nLangkah pertama, cari total energi dalam sistem ($U_{tot}$) pada saat $t=0$:\r\n$$U_C = \\frac{q^{2}}{2C} = \\frac{(10 \\times 10^{-6})^2}{2 \\times (30 \\times 10^{-6})} = \\frac{100 \\times 10^{-12}}{60 \\times 10^{-6}} = 1,667 \\times 10^{-6} \\text{ J}$$\r\n$$U_L = \\frac{1}{2}LI^{2} = \\frac{1}{2}(15 \\times 10^{-3})(20 \\times 10^{-3})^2 = 7,5 \\times 10^{-3} \\times 400 \\times 10^{-6} = 3,0 \\times 10^{-6} \\text{ J}$$\r\n$$U_{tot} = 1,667 \\times 10^{-6} + 3,0 \\times 10^{-6} = 4,667 \\times 10^{-6} \\text{ J}$$\r\n\r\nMuatan maksimum ($Q_{max}$) terjadi ketika seluruh energi ini berada di kapasitor:\r\n$$U_{tot} = \\frac{Q_{max}^2}{2C}$$\r\n$$Q_{max} = \\sqrt{2 \\cdot C \\cdot U_{tot}}$$\r\n$$Q_{max} = \\sqrt{2 \\times (30 \\times 10^{-6}) \\times (4,667 \\times 10^{-6})}$$\r\n$$Q_{max} = \\sqrt{60 \\times 4,667 \\times 10^{-12}}$$\r\n$$Q_{max} = \\sqrt{280 \\times 10^{-12}}$$\r\n$$Q_{max} \\approx 16,73 \\times 10^{-6} \\text{ C} \\approx 17 \\, \\mu\\text{C}$$",
         "weight": 1
     },
     {
@@ -207,13 +207,13 @@ export const week7Questions = [
     {
         "text": "Sebuah rangkaian RLC memiliki kapasitansi $12 \\, \\mu\\text{F}$, induktansi $25 \\text{ mH}$, dan hambatan $60 \\, \\Omega$. Arus berosilasi dengan frekuensi sudut sebesar:",
         "category": "WEEK_7",
-        "option_a": "$1,2 \\times 10^3 \\text{ rad/s}$",
-        "option_b": "$1,4 \\times 10^3 \\text{ rad/s}$",
-        "option_c": "$1,8 \\times 10^3 \\text{ rad/s}$",
-        "option_d": "$2,2 \\times 10^3 \\text{ rad/s}$",
-        "option_e": "$2,6 \\times 10^3 \\text{ rad/s}$",
+        "option_a": "$1,2 \\times 10^{3} \\text{ rad/s}$",
+        "option_b": "$1,4 \\times 10^{3} \\text{ rad/s}$",
+        "option_c": "$1,8 \\times 10^{3} \\text{ rad/s}$",
+        "option_d": "$2,2 \\times 10^{3} \\text{ rad/s}$",
+        "option_e": "$2,6 \\times 10^{3} \\text{ rad/s}$",
         "correct_answer": "B",
-        "explanation": "**Pembahasan:**\r\n\r\n**Jawaban: B. $1,4 \\times 10^3 \\text{ rad/s}$**\r\n\r\nFrekuensi sudut untuk osilasi teredam ($\\omega'$) dirumuskan sebagai:\r\n$$\\omega' = \\sqrt{\\omega_0^2 - \\left(\\frac{R}{2L}\\right)^2}$$\r\n$$\\omega' = \\sqrt{\\frac{1}{LC} - \\left(\\frac{R}{2L}\\right)^2}$$\r\n\r\nHitung kuadrat frekuensi alaminya ($\\omega_0^2$):\r\n$$\\frac{1}{LC} = \\frac{1}{(25 \\times 10^{-3}) \\times (12 \\times 10^{-6})} = \\frac{1}{300 \\times 10^{-9}} = \\frac{1}{3 \\times 10^{-7}} \\approx 3,33 \\times 10^6$$\r\n\r\nHitung kuadrat faktor redamannya:\r\n$$\\frac{R}{2L} = \\frac{60}{2 \\times (25 \\times 10^{-3})} = \\frac{60}{0,05} = 1200$$\r\n$$\\left(\\frac{R}{2L}\\right)^2 = 1200^2 = 1,44 \\times 10^6$$\r\n\r\nMasukkan ke rumus $\\omega'$:\r\n$$\\omega' = \\sqrt{(3,33 \\times 10^6) - (1,44 \\times 10^6)}$$\r\n$$\\omega' = \\sqrt{1,89 \\times 10^6}$$\r\n$$\\omega' \\approx 1374 \\text{ rad/s} \\approx 1,4 \\times 10^3 \\text{ rad/s}$$",
+        "explanation": "**Pembahasan:**\r\n\r\n**Jawaban: B. $1,4 \\times 10^{3} \\text{ rad/s}$**\r\n\r\nFrekuensi sudut untuk osilasi teredam ($\\omega'$) dirumuskan sebagai:\r\n$$\\omega' = \\sqrt{\\omega_0^{2} - \\left(\\frac{R}{2L}\\right)^2}$$\r\n$$\\omega' = \\sqrt{\\frac{1}{LC} - \\left(\\frac{R}{2L}\\right)^2}$$\r\n\r\nHitung kuadrat frekuensi alaminya ($\\omega_0^{2}$):\r\n$$\\frac{1}{LC} = \\frac{1}{(25 \\times 10^{-3}) \\times (12 \\times 10^{-6})} = \\frac{1}{300 \\times 10^{-9}} = \\frac{1}{3 \\times 10^{-7}} \\approx 3,33 \\times 10^{6}$$\r\n\r\nHitung kuadrat faktor redamannya:\r\n$$\\frac{R}{2L} = \\frac{60}{2 \\times (25 \\times 10^{-3})} = \\frac{60}{0,05} = 1200$$\r\n$$\\left(\\frac{R}{2L}\\right)^2 = 1200^{2} = 1,44 \\times 10^{6}$$\r\n\r\nMasukkan ke rumus $\\omega'$:\r\n$$\\omega' = \\sqrt{(3,33 \\times 10^{6}) - (1,44 \\times 10^{6})}$$\r\n$$\\omega' = \\sqrt{1,89 \\times 10^{6}}$$\r\n$$\\omega' \\approx 1374 \\text{ rad/s} \\approx 1,4 \\times 10^{3} \\text{ rad/s}$$",
         "weight": 1
     },
     {
@@ -333,7 +333,7 @@ export const week7Questions = [
         "option_d": "$117$",
         "option_e": "$160$",
         "correct_answer": "C",
-        "explanation": "**Pembahasan:**\n\n**Jawaban: C. $80$**\r\n\r\nKumparan di dunia nyata terdiri dari hambatan kawat murni ($R$) dan reaktansi induktif dari lilitannya ($X_L$). Hubungan antara ketiganya dalam AC adalah tripel Pythagoras:\r\n$$Z^2 = R^2 + X^2$$\r\n$$100^2 = 60^2 + X^2$$\r\n$$10.000 = 3600 + X^2$$\r\n$$X^2 = 6400 \\implies X = 80 \\, \\Omega$$",
+        "explanation": "**Pembahasan:**\n\n**Jawaban: C. $80$**\r\n\r\nKumparan di dunia nyata terdiri dari hambatan kawat murni ($R$) dan reaktansi induktif dari lilitannya ($X_L$). Hubungan antara ketiganya dalam AC adalah tripel Pythagoras:\r\n$$Z^{2} = R^{2} + X^{2}$$\r\n$$100^{2} = 60^{2} + X^{2}$$\r\n$$10.000 = 3600 + X^{2}$$\r\n$$X^{2} = 6400 \\implies X = 80 \\, \\Omega$$",
         "weight": 1
     },
     {
@@ -381,7 +381,7 @@ export const week7Questions = [
         "option_d": "$R$ meningkat",
         "option_e": "$R$ berkurang",
         "correct_answer": "D",
-        "explanation": "**Pembahasan:**\n\n**Jawaban: D. $R$ meningkat**\r\n\r\nRumus impedansi adalah:\r\n$$Z = \\sqrt{R^2 + (X_L - X_C)^2}$$\r\nBesaran yang ada di dalam kurung kuadrat $(X_L - X_C)^2$ adalah selisih reaktansi. Mengubah $L$ atau $C$ (opsi A, B, C) bisa jadi malah *memperkecil* selisih antara keduanya (mendekati resonansi), yang mana akan *menurunkan* impedansi, bukan meningkatkannya.\r\nNamun, karena komponen $R^2$ selalu bertambah dan tidak bisa dinetralkan oleh apa pun, maka **meningkatkan $R$** sudah PASTI secara mutlak akan membuat nilai total $Z$ meningkat.",
+        "explanation": "**Pembahasan:**\n\n**Jawaban: D. $R$ meningkat**\r\n\r\nRumus impedansi adalah:\r\n$$Z = \\sqrt{R^{2} + (X_L - X_C)^2}$$\r\nBesaran yang ada di dalam kurung kuadrat $(X_L - X_C)^2$ adalah selisih reaktansi. Mengubah $L$ atau $C$ (opsi A, B, C) bisa jadi malah *memperkecil* selisih antara keduanya (mendekati resonansi), yang mana akan *menurunkan* impedansi, bukan meningkatkannya.\r\nNamun, karena komponen $R^{2}$ selalu bertambah dan tidak bisa dinetralkan oleh apa pun, maka **meningkatkan $R$** sudah PASTI secara mutlak akan membuat nilai total $Z$ meningkat.",
         "weight": 1
     },
     {
@@ -393,7 +393,7 @@ export const week7Questions = [
         "option_d": "$13 \\, \\Omega$",
         "option_e": "$7,8 \\, \\Omega$",
         "correct_answer": "A",
-        "explanation": "**Pembahasan:**\n\n**Jawaban: A. $5 \\, \\Omega$**\r\n\r\nMasukkan ke dalam persamaan impedansi:\r\n$$Z = \\sqrt{R^2 + (X_L - X_C)^2}$$\r\n$$Z = \\sqrt{4^2 + (6 - 3)^2}$$\r\n$$Z = \\sqrt{16 + 3^2}$$\r\n$$Z = \\sqrt{16 + 9} = \\sqrt{25} = 5 \\, \\Omega$$",
+        "explanation": "**Pembahasan:**\n\n**Jawaban: A. $5 \\, \\Omega$**\r\n\r\nMasukkan ke dalam persamaan impedansi:\r\n$$Z = \\sqrt{R^{2} + (X_L - X_C)^2}$$\r\n$$Z = \\sqrt{4^{2} + (6 - 3)^2}$$\r\n$$Z = \\sqrt{16 + 3^{2}}$$\r\n$$Z = \\sqrt{16 + 9} = \\sqrt{25} = 5 \\, \\Omega$$",
         "weight": 1
     },
     {
@@ -405,7 +405,7 @@ export const week7Questions = [
         "option_d": "$12,0 \\text{ A}$",
         "option_e": "$14,0 \\text{ A}$",
         "correct_answer": "B",
-        "explanation": "**Pembahasan:**\n\n**Jawaban: B. $8,4 \\text{ A}$**\r\n\r\nPertama, hitung impedansi ($Z$) motor tersebut:\r\n$$Z = \\sqrt{R^2 + X_L^2}$$\r\n$$Z = \\sqrt{30^2 + 40^2} = \\sqrt{900 + 1600} = \\sqrt{2500} = 50 \\, \\Omega$$\r\n\r\nArus maksimum ($I_m$) adalah tegangan maksimum dibagi impedansi:\r\n$$I_m = \\frac{V_m}{Z}$$\r\n$$I_m = \\frac{420}{50} = 8,4 \\text{ A}$$",
+        "explanation": "**Pembahasan:**\n\n**Jawaban: B. $8,4 \\text{ A}$**\r\n\r\nPertama, hitung impedansi ($Z$) motor tersebut:\r\n$$Z = \\sqrt{R^{2} + X_L^{2}}$$\r\n$$Z = \\sqrt{30^{2} + 40^{2}} = \\sqrt{900 + 1600} = \\sqrt{2500} = 50 \\, \\Omega$$\r\n\r\nArus maksimum ($I_m$) adalah tegangan maksimum dibagi impedansi:\r\n$$I_m = \\frac{V_m}{Z}$$\r\n$$I_m = \\frac{420}{50} = 8,4 \\text{ A}$$",
         "weight": 1
     },
     {
@@ -417,7 +417,7 @@ export const week7Questions = [
         "option_d": "$25,6 \\text{ V}$",
         "option_e": "$36 \\text{ V}$",
         "correct_answer": "C",
-        "explanation": "**Pembahasan:**\n\n**Jawaban: C. $12 \\text{ V}$**\r\n\r\nTegangan pada rangkaian seri AC tidak dijumlahkan secara aljabar biasa, melainkan secara vektor (karena ada beda fase $90^\\circ$ antara $V_R$ dan $V_L$).\r\n$$V_{total}^2 = V_R^2 + V_L^2$$\r\n$$20^2 = 16^2 + V_L^2$$\r\n$$400 = 256 + V_L^2$$\r\n$$V_L^2 = 400 - 256 = 144$$\r\n$$V_L = \\sqrt{144} = 12 \\text{ V}$$",
+        "explanation": "**Pembahasan:**\n\n**Jawaban: C. $12 \\text{ V}$**\r\n\r\nTegangan pada rangkaian seri AC tidak dijumlahkan secara aljabar biasa, melainkan secara vektor (karena ada beda fase $90^\\circ$ antara $V_R$ dan $V_L$).\r\n$$V_{total}^2 = V_R^{2} + V_L^{2}$$\r\n$$20^{2} = 16^{2} + V_L^{2}$$\r\n$$400 = 256 + V_L^{2}$$\r\n$$V_L^{2} = 400 - 256 = 144$$\r\n$$V_L = \\sqrt{144} = 12 \\text{ V}$$",
         "weight": 1
     },
     {
@@ -525,7 +525,7 @@ export const week7Questions = [
         "option_d": "$87 \\text{ V}$",
         "option_e": "$100 \\text{ V}$",
         "correct_answer": "E",
-        "explanation": "**Pembahasan:**\n\n**Jawaban: E. $100 \\text{ V}$**\r\n\r\nGunakan persamaan fasor tegangan seri:\r\n$$V_{total}^2 = V_R^2 + (V_L - V_C)^2$$\r\nKarena di soal disebutkan bahwa $V_L = V_C$ (nilainya sama persis), maka suku $(V_L - V_C)$ akan saling mengurangi hingga menjadi **nol** (Ini berarti rangkaian tidak sengaja berada pada keadaan resonansi).\r\nPersamaan di atas akan langsung menyisakan:\r\n$$V_{total}^2 = V_R^2 + (0)^2$$\r\n$$V_{total} = V_R$$\r\nMaka $V_R$ wajib persis sama dengan tegangan total sumbernya, yaitu **$100 \\text{ V}$**.",
+        "explanation": "**Pembahasan:**\n\n**Jawaban: E. $100 \\text{ V}$**\r\n\r\nGunakan persamaan fasor tegangan seri:\r\n$$V_{total}^2 = V_R^{2} + (V_L - V_C)^2$$\r\nKarena di soal disebutkan bahwa $V_L = V_C$ (nilainya sama persis), maka suku $(V_L - V_C)$ akan saling mengurangi hingga menjadi **nol** (Ini berarti rangkaian tidak sengaja berada pada keadaan resonansi).\r\nPersamaan di atas akan langsung menyisakan:\r\n$$V_{total}^2 = V_R^{2} + (0)^2$$\r\n$$V_{total} = V_R$$\r\nMaka $V_R$ wajib persis sama dengan tegangan total sumbernya, yaitu **$100 \\text{ V}$**.",
         "weight": 1
     },
     {
@@ -573,7 +573,7 @@ export const week7Questions = [
         "option_d": "$0,50 \\text{ A}$ dan tertinggal oleh GGL sebesar $30^\\circ$",
         "option_e": "$0,58 \\text{ A}$ dan mendahului GGL sebesar $90^\\circ$",
         "correct_answer": "D",
-        "explanation": "**Pembahasan:**\n\n**Jawaban: D. $0,50 \\text{ A}$ dan tertinggal oleh GGL sebesar $30^\\circ$**\r\n\r\n1. Sifat Arus: Karena ini rangkaian R-L, induktor bersifat menahan arus, sehingga **arus pasti tertinggal** (lagging) oleh GGL.\r\n2. Hitung $X_L$:\r\n   $$X_L = \\omega L = 400 \\times 0,025 = 10 \\, \\Omega$$\r\n3. Hitung Impedansi ($Z$):\r\n   $$Z = \\sqrt{R^2 + X_L^2} = \\sqrt{(17,3)^2 + (10)^2} \\approx \\sqrt{299,3 + 100} \\approx \\sqrt{400} = 20 \\, \\Omega$$\r\n4. Hitung Arus RMS:\r\n   $$I_{rms} = \\frac{V_{rms}}{Z} = \\frac{10 \\text{ V}}{20 \\, \\Omega} = 0,50 \\text{ A}$$\r\n5. Hitung Sudut Fase:\r\n   $$\\tan \\phi = \\frac{X_L}{R} = \\frac{10}{17,3} \\approx 0,578$$\r\n   $$\\phi = \\tan^{-1}(0,578) \\approx 30^\\circ$$",
+        "explanation": "**Pembahasan:**\n\n**Jawaban: D. $0,50 \\text{ A}$ dan tertinggal oleh GGL sebesar $30^\\circ$**\r\n\r\n1. Sifat Arus: Karena ini rangkaian R-L, induktor bersifat menahan arus, sehingga **arus pasti tertinggal** (lagging) oleh GGL.\r\n2. Hitung $X_L$:\r\n   $$X_L = \\omega L = 400 \\times 0,025 = 10 \\, \\Omega$$\r\n3. Hitung Impedansi ($Z$):\r\n   $$Z = \\sqrt{R^{2} + X_L^{2}} = \\sqrt{(17,3)^2 + (10)^2} \\approx \\sqrt{299,3 + 100} \\approx \\sqrt{400} = 20 \\, \\Omega$$\r\n4. Hitung Arus RMS:\r\n   $$I_{rms} = \\frac{V_{rms}}{Z} = \\frac{10 \\text{ V}}{20 \\, \\Omega} = 0,50 \\text{ A}$$\r\n5. Hitung Sudut Fase:\r\n   $$\\tan \\phi = \\frac{X_L}{R} = \\frac{10}{17,3} \\approx 0,578$$\r\n   $$\\phi = \\tan^{-1}(0,578) \\approx 30^\\circ$$",
         "weight": 1
     },
     {
@@ -585,7 +585,7 @@ export const week7Questions = [
         "option_d": "$0,20$",
         "option_e": "$0,40$",
         "correct_answer": "B",
-        "explanation": "**Pembahasan:**\n\n**Jawaban: B. $0,135$**\r\n\r\nHitung nilai reaktansi:\r\n* $X_L = \\omega L = 200 \\times 0,4 \\text{ H} = 80 \\, \\Omega$\r\n* $X_C = \\frac{1}{\\omega C} = \\frac{1}{200 \\times (200 \\times 10^{-6})} = \\frac{1}{0,04} = 25 \\, \\Omega$\r\n\r\nHitung Impedansi Total:\r\n$$Z = \\sqrt{R^2 + (X_L - X_C)^2}$$\r\n$$Z = \\sqrt{50^2 + (80 - 25)^2}$$\r\n$$Z = \\sqrt{2500 + 55^2} = \\sqrt{2500 + 3025} = \\sqrt{5525} \\approx 74,33 \\, \\Omega$$\r\n\r\nHitung Arus RMS:\r\n$$I_{rms} = \\frac{V_{rms}}{Z} = \\frac{10}{74,33} \\approx 0,1345 \\text{ A} \\approx 0,135 \\text{ A}$$",
+        "explanation": "**Pembahasan:**\n\n**Jawaban: B. $0,135$**\r\n\r\nHitung nilai reaktansi:\r\n* $X_L = \\omega L = 200 \\times 0,4 \\text{ H} = 80 \\, \\Omega$\r\n* $X_C = \\frac{1}{\\omega C} = \\frac{1}{200 \\times (200 \\times 10^{-6})} = \\frac{1}{0,04} = 25 \\, \\Omega$\r\n\r\nHitung Impedansi Total:\r\n$$Z = \\sqrt{R^{2} + (X_L - X_C)^2}$$\r\n$$Z = \\sqrt{50^{2} + (80 - 25)^2}$$\r\n$$Z = \\sqrt{2500 + 55^{2}} = \\sqrt{2500 + 3025} = \\sqrt{5525} \\approx 74,33 \\, \\Omega$$\r\n\r\nHitung Arus RMS:\r\n$$I_{rms} = \\frac{V_{rms}}{Z} = \\frac{10}{74,33} \\approx 0,1345 \\text{ A} \\approx 0,135 \\text{ A}$$",
         "weight": 1
     },
     {
@@ -629,11 +629,11 @@ export const week7Questions = [
         "category": "WEEK_7",
         "option_a": "$(i\\mathcal{E}/2)\\cos\\phi$",
         "option_b": "$i\\mathcal{E}$",
-        "option_c": "$i^2/Z$",
-        "option_d": "$i^2Z$",
-        "option_e": "$i^2R$",
+        "option_c": "$i^{2}/Z$",
+        "option_d": "$i^{2}Z$",
+        "option_e": "$i^{2}R$",
         "correct_answer": "E",
-        "explanation": "**Pembahasan:**\n\n**Jawaban: E. $i^2R$**\r\n\r\nRumus baku untuk daya nyata (daya disipasi rata-rata) di dalam sirkuit AC yang memperhitungkan faktor daya ($\\cos\\phi$) adalah:\r\n$$P = \\mathcal{E}_{rms} \\cdot i_{rms} \\cdot \\cos\\phi$$\r\nNamun opsi tersebut tidak ada, mari substitusikan definisi $\\cos\\phi = \\frac{R}{Z}$ dan Hukum Ohm $\\mathcal{E}_{rms} = i_{rms} \\cdot Z$:\r\n$$P = (i \\cdot Z) \\cdot i \\cdot \\left(\\frac{R}{Z}\\right)$$\r\nTernyata komponen $Z$ saling mencoret, membuktikan bahwa satu-satunya komponen yang benar-benar memakan (mendisipasikan) daya rata-rata di rangkaian adalah resistor.\r\n$$P = i^2 R$$",
+        "explanation": "**Pembahasan:**\n\n**Jawaban: E. $i^{2}R$**\r\n\r\nRumus baku untuk daya nyata (daya disipasi rata-rata) di dalam sirkuit AC yang memperhitungkan faktor daya ($\\cos\\phi$) adalah:\r\n$$P = \\mathcal{E}_{rms} \\cdot i_{rms} \\cdot \\cos\\phi$$\r\nNamun opsi tersebut tidak ada, mari substitusikan definisi $\\cos\\phi = \\frac{R}{Z}$ dan Hukum Ohm $\\mathcal{E}_{rms} = i_{rms} \\cdot Z$:\r\n$$P = (i \\cdot Z) \\cdot i \\cdot \\left(\\frac{R}{Z}\\right)$$\r\nTernyata komponen $Z$ saling mencoret, membuktikan bahwa satu-satunya komponen yang benar-benar memakan (mendisipasikan) daya rata-rata di rangkaian adalah resistor.\r\n$$P = i^{2} R$$",
         "weight": 1
     },
     {
@@ -657,7 +657,7 @@ export const week7Questions = [
         "option_d": "$0,89$",
         "option_e": "$1,0$",
         "correct_answer": "C",
-        "explanation": "**Pembahasan:**\n\n**Jawaban: C. $0,45$**\r\n\r\n1. Frekuensi sudut: $\\omega = 2\\pi(100) \\approx 628,3 \\text{ rad/s}$\r\n2. Reaktansi Induktif: $X_L = 628,3 \\times 0,025 \\text{ H} \\approx 15,71 \\, \\Omega$\r\n3. Reaktansi Kapasitif: $X_C = \\frac{1}{628,3 \\times 35 \\times 10^{-6}} \\approx 45,47 \\, \\Omega$\r\n4. Impedansi ($Z$):\r\n   $$Z = \\sqrt{15^2 + (15,71 - 45,47)^2}$$\r\n   $$Z = \\sqrt{225 + (-29,76)^2} \\approx \\sqrt{225 + 885,6} \\approx \\sqrt{1110,6} \\approx 33,3 \\, \\Omega$$\r\n5. Faktor Daya ($\\cos\\phi$):\r\n   $$\\text{Faktor Daya} = \\frac{R}{Z} = \\frac{15}{33,3} \\approx 0,45$$",
+        "explanation": "**Pembahasan:**\n\n**Jawaban: C. $0,45$**\r\n\r\n1. Frekuensi sudut: $\\omega = 2\\pi(100) \\approx 628,3 \\text{ rad/s}$\r\n2. Reaktansi Induktif: $X_L = 628,3 \\times 0,025 \\text{ H} \\approx 15,71 \\, \\Omega$\r\n3. Reaktansi Kapasitif: $X_C = \\frac{1}{628,3 \\times 35 \\times 10^{-6}} \\approx 45,47 \\, \\Omega$\r\n4. Impedansi ($Z$):\r\n   $$Z = \\sqrt{15^{2} + (15,71 - 45,47)^2}$$\r\n   $$Z = \\sqrt{225 + (-29,76)^2} \\approx \\sqrt{225 + 885,6} \\approx \\sqrt{1110,6} \\approx 33,3 \\, \\Omega$$\r\n5. Faktor Daya ($\\cos\\phi$):\r\n   $$\\text{Faktor Daya} = \\frac{R}{Z} = \\frac{15}{33,3} \\approx 0,45$$",
         "weight": 1
     },
     {
@@ -669,7 +669,7 @@ export const week7Questions = [
         "option_d": "Sebuah arus AC tertentu tidak memanaskan jaringan transmisi sebanyak arus DC yang setara",
         "option_e": "AC meminimalkan efek-efek magnetik",
         "correct_answer": "B",
-        "explanation": "**Pembahasan:**\n\n**Jawaban: B. Tegangan AC dapat diubah dengan mudah menggunakan transformator**\r\n\r\nIni adalah esensi dari \"War of the Currents\" (Perang Arus) antara Nikola Tesla (AC) dan Thomas Edison (DC). Transmisi listrik jarak jauh mengharuskan tegangan sangat tinggi agar nilai arusnya kecil (sehingga rugi-rugi energi panas $I^2 R$ di sepanjang kabel menara SUTET bisa ditekan). Di ujung transmisi (dekat perumahan), tegangan itu harus diturunkan lagi ke level yang aman. Arus AC memungkinkan tegangan dinaik-turunkan dengan sangat efisien dan murah secara massal hanya dengan mengandalkan induksi elektromagnetik di dalam perangkat Transformator (Trafo). Hal ini tidak bisa dilakukan semudah itu pada arus DC.",
+        "explanation": "**Pembahasan:**\n\n**Jawaban: B. Tegangan AC dapat diubah dengan mudah menggunakan transformator**\r\n\r\nIni adalah esensi dari \"War of the Currents\" (Perang Arus) antara Nikola Tesla (AC) dan Thomas Edison (DC). Transmisi listrik jarak jauh mengharuskan tegangan sangat tinggi agar nilai arusnya kecil (sehingga rugi-rugi energi panas $I^{2} R$ di sepanjang kabel menara SUTET bisa ditekan). Di ujung transmisi (dekat perumahan), tegangan itu harus diturunkan lagi ke level yang aman. Arus AC memungkinkan tegangan dinaik-turunkan dengan sangat efisien dan murah secara massal hanya dengan mengandalkan induksi elektromagnetik di dalam perangkat Transformator (Trafo). Hal ini tidak bisa dilakukan semudah itu pada arus DC.",
         "weight": 1
     },
     {
@@ -700,7 +700,7 @@ export const week7Questions = [
         "text": "Inti dari sebuah transformator dibuat dalam bentuk berlapis (dilaminasi) untuk:",
         "category": "WEEK_7",
         "option_a": "Memfasilitasi perakitan yang mudah",
-        "option_b": "Mengurangi kerugian $I^2R$ di dalam kumparan kawat",
+        "option_b": "Mengurangi kerugian $I^{2}R$ di dalam kumparan kawat",
         "option_c": "Meningkatkan fluks magnetik",
         "option_d": "Menghemat berat beban",
         "option_e": "Mencegah arus pusar (*eddy currents*)",
@@ -753,7 +753,7 @@ export const week7Questions = [
         "option_d": "$3P$",
         "option_e": "$9P$",
         "correct_answer": "A",
-        "explanation": "**Pembahasan:**\n\n**Jawaban: A. $P/9$**\r\n\r\nKarena secara bahasa ini adalah trafo \"step-up\", rasio 3:1 dimaknai sebagai transformator yang menaikkan tegangan hingga $3\\times$ lipat tegangan semula ($V_s = 3V_sumber$).\r\nDaya pada resistor ($R$) saat ditancapkan ke trafo sekunder dirumuskan dengan:\r\n$$P = \\frac{V_s^2}{R} = \\frac{(3V_{sumber})^2}{R} = 9 \\left( \\frac{V_{sumber}^2}{R} \\right)$$\r\n\r\nJika resistor $R$ dicolokkan secara langsung (*direct*) ke colokan sumber, daya yang termakan (mari kita sebut $P_{direct}$) adalah:\r\n$$P_{direct} = \\frac{V_{sumber}^2}{R}$$\r\n\r\nDengan membandingkan kedua persamaan, terlihat bahwa:\r\n$$P_{direct} = \\frac{1}{9} P \\implies \\frac{P}{9}$$",
+        "explanation": "**Pembahasan:**\n\n**Jawaban: A. $P/9$**\r\n\r\nKarena secara bahasa ini adalah trafo \"step-up\", rasio 3:1 dimaknai sebagai transformator yang menaikkan tegangan hingga $3\\times$ lipat tegangan semula ($V_s = 3V_sumber$).\r\nDaya pada resistor ($R$) saat ditancapkan ke trafo sekunder dirumuskan dengan:\r\n$$P = \\frac{V_s^{2}}{R} = \\frac{(3V_{sumber})^2}{R} = 9 \\left( \\frac{V_{sumber}^2}{R} \\right)$$\r\n\r\nJika resistor $R$ dicolokkan secara langsung (*direct*) ke colokan sumber, daya yang termakan (mari kita sebut $P_{direct}$) adalah:\r\n$$P_{direct} = \\frac{V_{sumber}^2}{R}$$\r\n\r\nDengan membandingkan kedua persamaan, terlihat bahwa:\r\n$$P_{direct} = \\frac{1}{9} P \\implies \\frac{P}{9}$$",
         "weight": 1
     },
     {

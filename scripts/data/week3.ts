@@ -8,7 +8,7 @@ export const week3Questions = [
         "option_d": "$-9,3 \\times 10^{-3} \\text{ J}$",
         "option_e": "nol",
         "correct_answer": "B",
-        "explanation": "**Pembahasan:**\n\n**Jawaban: B. $-3,2 \\times 10^{-4} \\text{ J}$**\r\n\r\nEnergi potensial listrik ($U$) antara dua muatan titik sejauh $r$ dirumuskan sebagai:\r\n$$U = k \\frac{q_1 q_2}{r}$$\r\nGunakan nilai konstanta Coulomb $k = 8,99 \\times 10^9 \\text{ N} \\cdot \\text{m}^2/\\text{C}^2$, dan ubah $r$ ke meter ($r = \\mathbf{0,035 \\text{ m}}$).\r\n$$U = (8,99 \\times 10^9) \\frac{(5,5 \\times 10^{-8})(-2,3 \\times 10^{-8})}{0,035}$$\r\n$$U = (8,99 \\times 10^9) \\frac{-12,65 \\times 10^{-16}}{0,035}$$\r\n$$U \\approx \\frac{-1,137 \\times 10^{-5}}{0,035} \\approx -3,24 \\times 10^{-4} \\text{ J}$$",
+        "explanation": "**Pembahasan:**\n\n**Jawaban: B. $-3,2 \\times 10^{-4} \\text{ J}$**\r\n\r\nEnergi potensial listrik ($U$) antara dua muatan titik sejauh $r$ dirumuskan sebagai:\r\n$$U = k \\frac{q_1 q_2}{r}$$\r\nGunakan nilai konstanta Coulomb $k = 8,99 \\times 10^{9} \\text{ N} \\cdot \\text{m}^2/\\text{C}^2$, dan ubah $r$ ke meter ($r = \\mathbf{0,035 \\text{ m}}$).\r\n$$U = (8,99 \\times 10^{9}) \\frac{(5,5 \\times 10^{-8})(-2,3 \\times 10^{-8})}{0,035}$$\r\n$$U = (8,99 \\times 10^{9}) \\frac{-12,65 \\times 10^{-16}}{0,035}$$\r\n$$U \\approx \\frac{-1,137 \\times 10^{-5}}{0,035} \\approx -3,24 \\times 10^{-4} \\text{ J}$$",
         "weight": 1
     },
     {
@@ -20,7 +20,7 @@ export const week3Questions = [
         "option_d": "$-6,0 \\times 10^{-5} \\text{ J}$",
         "option_e": "$\\mathbf{0}$",
         "correct_answer": "C",
-        "explanation": "**Pembahasan:**\n\n**Jawaban: C. $6,0 \\times 10^{-5} \\text{ J}$**\r\n\r\nPerubahan energi potensial adalah $\\Delta U = U_{\\text{akhir}} - U_{\\text{awal}}$.\r\nJarak awal ($r_1$) adalah $\\mathbf{0,035 \\text{ m}}$, dan jarak akhir ($r_2$) adalah $\\mathbf{0,043 \\text{ m}}$.\r\n$$U_{\\text{awal}} = k \\frac{q_1 q_2}{r_1} \\approx -3,24 \\times 10^{-4} \\text{ J} \\quad \\text{(dari soal 1)}$$\r\n$$U_{\\text{akhir}} = k \\frac{q_1 q_2}{r_2} = (8,99 \\times 10^9) \\frac{-12,65 \\times 10^{-16}}{0,043} \\approx -2,64 \\times 10^{-4} \\text{ J}$$\r\n$$\\Delta U = (-2,64 \\times 10^{-4}) - (-3,24 \\times 10^{-4})$$\r\n$$\\Delta U = 0,60 \\times 10^{-4} \\text{ J} = 6,0 \\times 10^{-5} \\text{ J}$$",
+        "explanation": "**Pembahasan:**\n\n**Jawaban: C. $6,0 \\times 10^{-5} \\text{ J}$**\r\n\r\nPerubahan energi potensial adalah $\\Delta U = U_{\\text{akhir}} - U_{\\text{awal}}$.\r\nJarak awal ($r_1$) adalah $\\mathbf{0,035 \\text{ m}}$, dan jarak akhir ($r_2$) adalah $\\mathbf{0,043 \\text{ m}}$.\r\n$$U_{\\text{awal}} = k \\frac{q_1 q_2}{r_1} \\approx -3,24 \\times 10^{-4} \\text{ J} \\quad \\text{(dari soal 1)}$$\r\n$$U_{\\text{akhir}} = k \\frac{q_1 q_2}{r_2} = (8,99 \\times 10^{9}) \\frac{-12,65 \\times 10^{-16}}{0,043} \\approx -2,64 \\times 10^{-4} \\text{ J}$$\r\n$$\\Delta U = (-2,64 \\times 10^{-4}) - (-3,24 \\times 10^{-4})$$\r\n$$\\Delta U = 0,60 \\times 10^{-4} \\text{ J} = 6,0 \\times 10^{-5} \\text{ J}$$",
         "weight": 1
     },
     {
@@ -44,7 +44,7 @@ export const week3Questions = [
         "option_d": "$-8,5 \\times 10^{-4} \\text{ J}$",
         "option_e": "nol",
         "correct_answer": "B",
-        "explanation": "**Pembahasan:**\n\n**Jawaban: B. $-4,9 \\times 10^{-4} \\text{ J}$**\r\n\r\nEnergi potensial total sistem adalah penjumlahan energi potensial dari semua kemungkinan pasangan muatan:\r\n$$U_{\\text{total}} = U_{12} + U_{23} + U_{13}$$\r\n$$U_{\\text{total}} = k \\left( \\frac{q_1 q_2}{r_{12}} + \\frac{q_2 q_3}{r_{23}} + \\frac{q_1 q_3}{r_{13}} \\right)$$\r\nJarak antar muatan dalam meter: $r_{12} = \\mathbf{0,01 \\text{ m}}$, $r_{23} = \\mathbf{0,01 \\text{ m}}$, dan $r_{13} = \\mathbf{0,02 \\text{ m}}$.\r\nFaktorkan nilai $10^{-8}$ dari muatan:\r\n$$U = (9 \\times 10^9)(10^{-16}) \\left( \\frac{(1)(2)}{0,01} + \\frac{(2)(-3)}{0,01} + \\frac{(1)(-3)}{0,02} \\right)$$\r\n$$U = 9 \\times 10^{-7} \\left( 200 - 600 - 150 \\right)$$\r\n$$U = 9 \\times 10^{-7} (-550) = -4950 \\times 10^{-7} \\text{ J}$$\r\n$$U = -4,95 \\times 10^{-4} \\text{ J} \\approx -4,9 \\times 10^{-4} \\text{ J}$$",
+        "explanation": "**Pembahasan:**\n\n**Jawaban: B. $-4,9 \\times 10^{-4} \\text{ J}$**\r\n\r\nEnergi potensial total sistem adalah penjumlahan energi potensial dari semua kemungkinan pasangan muatan:\r\n$$U_{\\text{total}} = U_{12} + U_{23} + U_{13}$$\r\n$$U_{\\text{total}} = k \\left( \\frac{q_1 q_2}{r_{12}} + \\frac{q_2 q_3}{r_{23}} + \\frac{q_1 q_3}{r_{13}} \\right)$$\r\nJarak antar muatan dalam meter: $r_{12} = \\mathbf{0,01 \\text{ m}}$, $r_{23} = \\mathbf{0,01 \\text{ m}}$, dan $r_{13} = \\mathbf{0,02 \\text{ m}}$.\r\nFaktorkan nilai $10^{-8}$ dari muatan:\r\n$$U = (9 \\times 10^{9})(10^{-16}) \\left( \\frac{(1)(2)}{0,01} + \\frac{(2)(-3)}{0,01} + \\frac{(1)(-3)}{0,02} \\right)$$\r\n$$U = 9 \\times 10^{-7} \\left( 200 - 600 - 150 \\right)$$\r\n$$U = 9 \\times 10^{-7} (-550) = -4950 \\times 10^{-7} \\text{ J}$$\r\n$$U = -4,95 \\times 10^{-4} \\text{ J} \\approx -4,9 \\times 10^{-4} \\text{ J}$$",
         "weight": 1
     },
     {
@@ -56,7 +56,7 @@ export const week3Questions = [
         "option_d": "$\\mathbf{10 \\text{ cm}}$",
         "option_e": "$\\mathbf{-5 \\text{ cm}}$",
         "correct_answer": "A",
-        "explanation": "**Pembahasan:**\n\n**Jawaban: A. 13 cm**\r\n\r\nAgar energi potensial sistem ($U_{\\text{total}}$) sama dengan tak terhingga, maka nilainya harus nol.\r\nSistem terdiri dari:\r\n$q_1 = q$ di $x_1 = 0$\r\n$q_2 = q$ di $x_2 = d$ ($d = 5 \\text{ cm}$)\r\n$q_3 = -q$ di $x_3 = x$ (asumsikan $x > d$)\r\n$$U_{\\text{total}} = k \\left( \\frac{q_1 q_2}{d} + \\frac{q_1 q_3}{x} + \\frac{q_2 q_3}{x - d} \\right) = 0$$\r\nBagikan dengan $k q^2$:\r\n$$\\frac{1}{d} - \\frac{1}{x} - \\frac{1}{x - d} = 0$$\r\nUbah variabel:\r\n$$\\frac{1}{d} = \\frac{1}{x} + \\frac{1}{x - d} = \\frac{(x - d) + x}{x(x - d)} = \\frac{2x - d}{x^2 - dx}$$\r\nLakukan perkalian silang:\r\n$$x^2 - dx = d(2x - d)$$\r\n$$x^2 - dx = 2dx - d^2$$\r\n$$x^2 - 3dx + d^2 = 0$$\r\nGunakan rumus ABC (kuadratik) untuk $x$, dengan $d = 5$:\r\n$$x^2 - 15x + 25 = 0$$\r\n$$x = \\frac{15 \\pm \\sqrt{225 - 100}}{2} = \\frac{15 \\pm \\sqrt{125}}{2}$$\r\n$$x = \\frac{15 \\pm 11,18}{2}$$\r\nSolusi yang masuk akal dan ada di pilihan (untuk tanda plus):\r\n$$x \\approx \\frac{26,18}{2} \\approx 13,09 \\text{ cm} \\approx 13 \\text{ cm}$$",
+        "explanation": "**Pembahasan:**\n\n**Jawaban: A. 13 cm**\r\n\r\nAgar energi potensial sistem ($U_{\\text{total}}$) sama dengan tak terhingga, maka nilainya harus nol.\r\nSistem terdiri dari:\r\n$q_1 = q$ di $x_1 = 0$\r\n$q_2 = q$ di $x_2 = d$ ($d = 5 \\text{ cm}$)\r\n$q_3 = -q$ di $x_3 = x$ (asumsikan $x > d$)\r\n$$U_{\\text{total}} = k \\left( \\frac{q_1 q_2}{d} + \\frac{q_1 q_3}{x} + \\frac{q_2 q_3}{x - d} \\right) = 0$$\r\nBagikan dengan $k q^{2}$:\r\n$$\\frac{1}{d} - \\frac{1}{x} - \\frac{1}{x - d} = 0$$\r\nUbah variabel:\r\n$$\\frac{1}{d} = \\frac{1}{x} + \\frac{1}{x - d} = \\frac{(x - d) + x}{x(x - d)} = \\frac{2x - d}{x^{2} - dx}$$\r\nLakukan perkalian silang:\r\n$$x^{2} - dx = d(2x - d)$$\r\n$$x^{2} - dx = 2dx - d^{2}$$\r\n$$x^{2} - 3dx + d^{2} = 0$$\r\nGunakan rumus ABC (kuadratik) untuk $x$, dengan $d = 5$:\r\n$$x^{2} - 15x + 25 = 0$$\r\n$$x = \\frac{15 \\pm \\sqrt{225 - 100}}{2} = \\frac{15 \\pm \\sqrt{125}}{2}$$\r\n$$x = \\frac{15 \\pm 11,18}{2}$$\r\nSolusi yang masuk akal dan ada di pilihan (untuk tanda plus):\r\n$$x \\approx \\frac{26,18}{2} \\approx 13,09 \\text{ cm} \\approx 13 \\text{ cm}$$",
         "weight": 1
     },
     {
@@ -96,27 +96,27 @@ export const week3Questions = [
         "weight": 1
     },
     {
-        "text": "Selama pelepasan muatan petir, muatan sebesar $\\mathbf{30 \\text{ C}}$ bergerak melintasi beda potensial $\\mathbf{1,0 \\times 10^8 \\text{ V}}$ dalam waktu $\\mathbf{2,0 \\times 10^{-2} \\text{ s}}$. Energi yang dilepaskan oleh sambaran petir ini adalah:",
+        "text": "Selama pelepasan muatan petir, muatan sebesar $\\mathbf{30 \\text{ C}}$ bergerak melintasi beda potensial $\\mathbf{1,0 \\times 10^{8} \\text{ V}}$ dalam waktu $\\mathbf{2,0 \\times 10^{-2} \\text{ s}}$. Energi yang dilepaskan oleh sambaran petir ini adalah:",
         "category": "WEEK_3",
         "option_a": "$1,5 \\times 10^{11} \\text{ J}$",
-        "option_b": "$3,0 \\times 10^9 \\text{ J}$",
-        "option_c": "$6,0 \\times 10^7 \\text{ J}$",
-        "option_d": "$3,3 \\times 10^6 \\text{ J}$",
+        "option_b": "$3,0 \\times 10^{9} \\text{ J}$",
+        "option_c": "$6,0 \\times 10^{7} \\text{ J}$",
+        "option_d": "$3,3 \\times 10^{6} \\text{ J}$",
         "option_e": "$\\mathbf{1500 \\text{ J}}$",
         "correct_answer": "B",
-        "explanation": "**Pembahasan:**\n\n**Jawaban: B. $3,0 \\times 10^9 \\text{ J}$**\r\n\r\nEnergi yang dilepaskan (Usaha) sama dengan besar muatan dikalikan beda potensialnya. Data waktu tidak relevan untuk menghitung energi (hanya berguna jika ditanya daya).\r\n$$E = q \\cdot V$$\r\n$$E = 30 \\times (1,0 \\times 10^8)$$\r\n$$E = 3,0 \\times 10^9 \\text{ J}$$",
+        "explanation": "**Pembahasan:**\n\n**Jawaban: B. $3,0 \\times 10^{9} \\text{ J}$**\r\n\r\nEnergi yang dilepaskan (Usaha) sama dengan besar muatan dikalikan beda potensialnya. Data waktu tidak relevan untuk menghitung energi (hanya berguna jika ditanya daya).\r\n$$E = q \\cdot V$$\r\n$$E = 30 \\times (1,0 \\times 10^{8})$$\r\n$$E = 3,0 \\times 10^{9} \\text{ J}$$",
         "weight": 1
     },
     {
         "text": "Sebuah elektron dipercepat dari keadaan diam melewati beda potensial $V$. Kelajuan akhirnya berbanding lurus dengan:",
         "category": "WEEK_3",
         "option_a": "$V$",
-        "option_b": "$V^2$",
+        "option_b": "$V^{2}$",
         "option_c": "$\\sqrt{V}$",
         "option_d": "$1/V$",
         "option_e": "$1/\\sqrt{V}$",
         "correct_answer": "C",
-        "explanation": "**Pembahasan:**\n\n**Jawaban: C. $\\sqrt{V}$**\r\n\r\nHukum kekekalan energi menyatakan bahwa energi potensial listrik yang hilang akan berubah sepenuhnya menjadi energi kinetik ($K$).\r\n$$qV = \\frac{1}{2} m v^2$$\r\n$$v^2 = \\frac{2qV}{m} \\implies v = \\sqrt{\\frac{2q}{m}} \\cdot \\sqrt{V}$$\r\nOleh karena itu, kelajuan ($v$) sebanding dengan akar dari beda potensial ($\\sqrt{V}$).",
+        "explanation": "**Pembahasan:**\n\n**Jawaban: C. $\\sqrt{V}$**\r\n\r\nHukum kekekalan energi menyatakan bahwa energi potensial listrik yang hilang akan berubah sepenuhnya menjadi energi kinetik ($K$).\r\n$$qV = \\frac{1}{2} m v^{2}$$\r\n$$v^{2} = \\frac{2qV}{m} \\implies v = \\sqrt{\\frac{2q}{m}} \\cdot \\sqrt{V}$$\r\nOleh karena itu, kelajuan ($v$) sebanding dengan akar dari beda potensial ($\\sqrt{V}$).",
         "weight": 1
     },
     {
@@ -128,7 +128,7 @@ export const week3Questions = [
         "option_d": "4, 1 dan 2 seri, kemudian 1",
         "option_e": "1 dan 2 seri, kemudian 3, 4",
         "correct_answer": "C",
-        "explanation": "**Pembahasan:**\n\n**Jawaban: C. 3, 1 dan 2 seri (bernilai sama), kemudian 4**\r\n\r\nPartikel akan berhenti dan berbalik arah saat seluruh energi kinetiknya ($\\frac{1}{2}mv^2$) berubah sepenuhnya menjadi energi potensial tolak-menolak Coulomb ($k\\frac{q Q_{\\text{inti}}}{r}$).\r\n$$\\frac{1}{2}mv^2 = k\\frac{q Q_{\\text{inti}}}{r} \\implies r \\propto \\frac{q}{m}$$\r\n(Karena kelajuan awal $v$ dan $Q_{\\text{inti}}$ adalah sama konstan untuk semuanya).\r\nMari kita bandingkan rasio $q/m$ masing-masing:\r\n- Partikel 1: $r_1 \\propto \\frac{q_0}{m_0} = 1$\r\n- Partikel 2: $r_2 \\propto \\frac{2q_0}{2m_0} = 1$\r\n- Partikel 3: $r_3 \\propto \\frac{q_0/2}{2m_0} = 0,25$\r\n- Partikel 4: $r_4 \\propto \\frac{2q_0}{m_0/2} = 4$\r\n\r\nUrutan $r$ dari yang terkecil: Partikel 3 ($0,25$), lalu Partikel 1 dan 2 (sama bernilai $1$), dan terbesar adalah Partikel 4 ($4$).",
+        "explanation": "**Pembahasan:**\n\n**Jawaban: C. 3, 1 dan 2 seri (bernilai sama), kemudian 4**\r\n\r\nPartikel akan berhenti dan berbalik arah saat seluruh energi kinetiknya ($\\frac{1}{2}mv^{2}$) berubah sepenuhnya menjadi energi potensial tolak-menolak Coulomb ($k\\frac{q Q_{\\text{inti}}}{r}$).\r\n$$\\frac{1}{2}mv^{2} = k\\frac{q Q_{\\text{inti}}}{r} \\implies r \\propto \\frac{q}{m}$$\r\n(Karena kelajuan awal $v$ dan $Q_{\\text{inti}}$ adalah sama konstan untuk semuanya).\r\nMari kita bandingkan rasio $q/m$ masing-masing:\r\n- Partikel 1: $r_1 \\propto \\frac{q_0}{m_0} = 1$\r\n- Partikel 2: $r_2 \\propto \\frac{2q_0}{2m_0} = 1$\r\n- Partikel 3: $r_3 \\propto \\frac{q_0/2}{2m_0} = 0,25$\r\n- Partikel 4: $r_4 \\propto \\frac{2q_0}{m_0/2} = 4$\r\n\r\nUrutan $r$ dari yang terkecil: Partikel 3 ($0,25$), lalu Partikel 1 dan 2 (sama bernilai $1$), dan terbesar adalah Partikel 4 ($4$).",
         "weight": 1
     },
     {
@@ -184,23 +184,23 @@ export const week3Questions = [
         "category": "WEEK_3",
         "option_a": "nol",
         "option_b": "$E/R$",
-        "option_c": "$E/R^2$",
+        "option_c": "$E/R^{2}$",
         "option_d": "$ER$",
-        "option_e": "$ER^2$",
+        "option_e": "$ER^{2}$",
         "correct_answer": "D",
-        "explanation": "**Pembahasan:**\n\n**Jawaban: D. $ER$**\r\n\r\nRumus medan listrik di permukaan bola konduktor adalah $E = k \\frac{Q}{R^2}$.\r\nRumus potensial listrik di permukaan (dan di dalam) bola adalah $V = k \\frac{Q}{R}$.\r\nPerhatikan hubungannya:\r\n$$V = k \\frac{Q}{R} = \\left( k \\frac{Q}{R^2} \\right) \\cdot R = E \\cdot R$$",
+        "explanation": "**Pembahasan:**\n\n**Jawaban: D. $ER$**\r\n\r\nRumus medan listrik di permukaan bola konduktor adalah $E = k \\frac{Q}{R^{2}}$.\r\nRumus potensial listrik di permukaan (dan di dalam) bola adalah $V = k \\frac{Q}{R}$.\r\nPerhatikan hubungannya:\r\n$$V = k \\frac{Q}{R} = \\left( k \\frac{Q}{R^{2}} \\right) \\cdot R = E \\cdot R$$",
         "weight": 1
     },
     {
         "text": "Sebuah bola konduktor berjari-jari $\\mathbf{5 \\text{ cm}}$ memiliki rapat muatan permukaan sebesar $2 \\times 10^{-6} \\text{ C/m}^2$ pada permukaannya. Potensial listriknya, relatif terhadap potensial jarak jauh, adalah:",
         "category": "WEEK_3",
-        "option_a": "$1,1 \\times 10^4 \\text{ V}$",
-        "option_b": "$2,2 \\times 10^4 \\text{ V}$",
-        "option_c": "$2,3 \\times 10^5 \\text{ V}$",
-        "option_d": "$3,6 \\times 10^5 \\text{ V}$",
-        "option_e": "$7,2 \\times 10^6 \\text{ V}$",
+        "option_a": "$1,1 \\times 10^{4} \\text{ V}$",
+        "option_b": "$2,2 \\times 10^{4} \\text{ V}$",
+        "option_c": "$2,3 \\times 10^{5} \\text{ V}$",
+        "option_d": "$3,6 \\times 10^{5} \\text{ V}$",
+        "option_e": "$7,2 \\times 10^{6} \\text{ V}$",
         "correct_answer": "A",
-        "explanation": "**Pembahasan:**\n\n**Jawaban: A. $1,1 \\times 10^4 \\text{ V}$**\r\n\r\nRapat muatan permukaan $\\sigma = Q / A = Q / (4\\pi R^2)$.\r\nMaka total muatan adalah $Q = \\sigma \\cdot 4\\pi R^2$.\r\nPotensial di permukaan bola ($V$):\r\n$$V = k \\frac{Q}{R} = k \\frac{\\sigma \\cdot 4\\pi R^2}{R} = 4\\pi k \\sigma R$$\r\nDiketahui $k = \\frac{1}{4\\pi \\epsilon_0}$, sehingga $4\\pi k = 1 / \\epsilon_0$. Namun kita bisa hitung langsung:\r\n$$V = 4\\pi (8,99 \\times 10^9) (2 \\times 10^{-6}) (0,05)$$\r\n$$V \\approx 12,56 \\times 8,99 \\times 10^9 \\times 10^{-7}$$\r\n$$V \\approx 11300 \\text{ V} = 1,13 \\times 10^4 \\text{ V} \\approx 1,1 \\times 10^4 \\text{ V}$$",
+        "explanation": "**Pembahasan:**\n\n**Jawaban: A. $1,1 \\times 10^{4} \\text{ V}$**\r\n\r\nRapat muatan permukaan $\\sigma = Q / A = Q / (4\\pi R^{2})$.\r\nMaka total muatan adalah $Q = \\sigma \\cdot 4\\pi R^{2}$.\r\nPotensial di permukaan bola ($V$):\r\n$$V = k \\frac{Q}{R} = k \\frac{\\sigma \\cdot 4\\pi R^{2}}{R} = 4\\pi k \\sigma R$$\r\nDiketahui $k = \\frac{1}{4\\pi \\epsilon_0}$, sehingga $4\\pi k = 1 / \\epsilon_0$. Namun kita bisa hitung langsung:\r\n$$V = 4\\pi (8,99 \\times 10^{9}) (2 \\times 10^{-6}) (0,05)$$\r\n$$V \\approx 12,56 \\times 8,99 \\times 10^{9} \\times 10^{-7}$$\r\n$$V \\approx 11300 \\text{ V} = 1,13 \\times 10^{4} \\text{ V} \\approx 1,1 \\times 10^{4} \\text{ V}$$",
         "weight": 1
     },
     {
@@ -224,19 +224,19 @@ export const week3Questions = [
         "option_d": "tepat di luar permukaan",
         "option_e": "jauh dari bola",
         "correct_answer": "A",
-        "explanation": "**Pembahasan:**\n\n**Jawaban: A. titik pusat**\r\n\r\nPada bola isolator dengan muatan seragam, medan listrik mengarah keluar dari pusat menuju tak terhingga. Karena potensial listrik ($\\Delta V$) terus berkurang searah dengan garis-garis medan listrik, maka titik potensial tertingginya berada di \"hulu\" sumber medan tersebut, yaitu tepat di tengah-tengah atau **titik pusat** bola.\r\nSecara matematis, potensial di dalam bola adalah $V(r) = \\frac{kQ}{2R^3} (3R^2 - r^2)$, yang mencapai maksimum absolut ketika $r = 0$.",
+        "explanation": "**Pembahasan:**\n\n**Jawaban: A. titik pusat**\r\n\r\nPada bola isolator dengan muatan seragam, medan listrik mengarah keluar dari pusat menuju tak terhingga. Karena potensial listrik ($\\Delta V$) terus berkurang searah dengan garis-garis medan listrik, maka titik potensial tertingginya berada di \"hulu\" sumber medan tersebut, yaitu tepat di tengah-tengah atau **titik pusat** bola.\r\nSecara matematis, potensial di dalam bola adalah $V(r) = \\frac{kQ}{2R^{3}} (3R^{2} - r^{2})$, yang mencapai maksimum absolut ketika $r = 0$.",
         "weight": 1
     },
     {
         "text": "Muatan total sebesar $7 \\times 10^{-8} \\text{ C}$ didistribusikan secara seragam ke seluruh bola non-konduktor dengan jari-jari $\\mathbf{5 \\text{ cm}}$. Potensial listrik di permukaannya, relatif terhadap potensial dari jarak jauh, adalah sekitar:",
         "category": "WEEK_3",
-        "option_a": "$-1,3 \\times 10^4 \\text{ V}$",
-        "option_b": "$1,3 \\times 10^4 \\text{ V}$",
-        "option_c": "$7,0 \\times 10^5 \\text{ V}$",
-        "option_d": "$-6,3 \\times 10^4 \\text{ V}$",
+        "option_a": "$-1,3 \\times 10^{4} \\text{ V}$",
+        "option_b": "$1,3 \\times 10^{4} \\text{ V}$",
+        "option_c": "$7,0 \\times 10^{5} \\text{ V}$",
+        "option_d": "$-6,3 \\times 10^{4} \\text{ V}$",
         "option_e": "$\\mathbf{0}$",
         "correct_answer": "B",
-        "explanation": "**Pembahasan:**\n\n**Jawaban: B. $1,3 \\times 10^4 \\text{ V}$**\r\n\r\nTepat di permukaan (maupun di luarnya), bola bermuatan seragam (baik isolator maupun konduktor) dapat diperlakukan seolah-olah seluruh muatannya terkonsentrasi di pusat (sebagai muatan titik).\r\n$$V = k \\frac{Q}{R}$$\r\n$$V = (8,99 \\times 10^9) \\frac{7 \\times 10^{-8}}{0,05}$$\r\n$$V = \\frac{62,93 \\times 10^1}{0,05} = \\frac{629,3}{0,05} = 12586 \\text{ V}$$\r\n$$V \\approx 1,26 \\times 10^4 \\text{ V} \\approx 1,3 \\times 10^4 \\text{ V}$$",
+        "explanation": "**Pembahasan:**\n\n**Jawaban: B. $1,3 \\times 10^{4} \\text{ V}$**\r\n\r\nTepat di permukaan (maupun di luarnya), bola bermuatan seragam (baik isolator maupun konduktor) dapat diperlakukan seolah-olah seluruh muatannya terkonsentrasi di pusat (sebagai muatan titik).\r\n$$V = k \\frac{Q}{R}$$\r\n$$V = (8,99 \\times 10^{9}) \\frac{7 \\times 10^{-8}}{0,05}$$\r\n$$V = \\frac{62,93 \\times 10^{1}}{0,05} = \\frac{629,3}{0,05} = 12586 \\text{ V}$$\r\n$$V \\approx 1,26 \\times 10^{4} \\text{ V} \\approx 1,3 \\times 10^{4} \\text{ V}$$",
         "weight": 1
     },
     {
@@ -248,7 +248,7 @@ export const week3Questions = [
         "option_d": "$4V$",
         "option_e": "$8V$",
         "correct_answer": "D",
-        "explanation": "**Pembahasan:**\n\n**Jawaban: D. $4V$**\r\n\r\nMisalkan jari-jari satu tetesan kecil adalah $r$ dan muatannya adalah $q$. Potensial tetesan kecil adalah $V = k \\frac{q}{r}$.\r\nKetika 8 tetesan bergabung, muatan totalnya menjadi kelipatannya:\r\n$$Q_{\\text{baru}} = 8q$$\r\nKarena volume kekal, volume tetesan besar adalah 8 kali volume tetesan kecil:\r\n$$V_{\\text{besar}} = 8 \\cdot V_{\\text{kecil}}$$\r\n$$\\frac{4}{3}\\pi R^3 = 8 \\left( \\frac{4}{3}\\pi r^3 \\right)$$\r\n$$R^3 = 8 r^3 \\implies R = 2r$$\r\nMaka potensial tetesan besar yang baru adalah:\r\n$$V_{\\text{baru}} = k \\frac{Q_{\\text{baru}}}{R} = k \\frac{8q}{2r} = 4 \\left( k \\frac{q}{r} \\right) = 4V$$",
+        "explanation": "**Pembahasan:**\n\n**Jawaban: D. $4V$**\r\n\r\nMisalkan jari-jari satu tetesan kecil adalah $r$ dan muatannya adalah $q$. Potensial tetesan kecil adalah $V = k \\frac{q}{r}$.\r\nKetika 8 tetesan bergabung, muatan totalnya menjadi kelipatannya:\r\n$$Q_{\\text{baru}} = 8q$$\r\nKarena volume kekal, volume tetesan besar adalah 8 kali volume tetesan kecil:\r\n$$V_{\\text{besar}} = 8 \\cdot V_{\\text{kecil}}$$\r\n$$\\frac{4}{3}\\pi R^{3} = 8 \\left( \\frac{4}{3}\\pi r^{3} \\right)$$\r\n$$R^{3} = 8 r^{3} \\implies R = 2r$$\r\nMaka potensial tetesan besar yang baru adalah:\r\n$$V_{\\text{baru}} = k \\frac{Q_{\\text{baru}}}{R} = k \\frac{8q}{2r} = 4 \\left( k \\frac{q}{r} \\right) = 4V$$",
         "weight": 1
     },
     {
@@ -272,7 +272,7 @@ export const week3Questions = [
         "option_d": "$-3,5 \\times 10^{-7} \\text{ C/m}^2$",
         "option_e": "$+1,8 \\times 10^{-8} \\text{ C/m}^2$",
         "correct_answer": "E",
-        "explanation": "**Pembahasan:**\n\n**Jawaban: E. $+1,8 \\times 10^{-8} \\text{ C/m}^2$**\r\n\r\nRumus potensial bola adalah $V = k \\frac{Q}{R}$, sehingga muatannya $Q = \\frac{VR}{k}$.\r\nKerapatan muatan permukaan ($\\sigma$) adalah muatan dibagi luas permukaan ($A = 4\\pi R^2$):\r\n$$\\sigma = \\frac{Q}{A} = \\frac{VR/k}{4\\pi R^2} = \\frac{V}{4\\pi k R}$$\r\nIngat bahwa konstanta $k = \\frac{1}{4\\pi \\varepsilon_0}$, sehingga $\\frac{1}{4\\pi k} = \\varepsilon_0$.\r\n$$\\sigma = \\frac{\\varepsilon_0 V}{R}$$\r\nGunakan permitivitas vakum $\\varepsilon_0 = 8,85 \\times 10^{-12} \\text{ C}^2/(\\text{N}\\cdot\\text{m}^2)$ dan jari-jari $R = \\mathbf{0,05 \\text{ m}}$:\r\n$$\\sigma = \\frac{(8,85 \\times 10^{-12}) \\times 100}{0,05}$$\r\n$$\\sigma = \\frac{8,85 \\times 10^{-10}}{0,05} = 177 \\times 10^{-10} = 1,77 \\times 10^{-8} \\text{ C/m}^2 \\approx 1,8 \\times 10^{-8} \\text{ C/m}^2$$",
+        "explanation": "**Pembahasan:**\n\n**Jawaban: E. $+1,8 \\times 10^{-8} \\text{ C/m}^2$**\r\n\r\nRumus potensial bola adalah $V = k \\frac{Q}{R}$, sehingga muatannya $Q = \\frac{VR}{k}$.\r\nKerapatan muatan permukaan ($\\sigma$) adalah muatan dibagi luas permukaan ($A = 4\\pi R^{2}$):\r\n$$\\sigma = \\frac{Q}{A} = \\frac{VR/k}{4\\pi R^{2}} = \\frac{V}{4\\pi k R}$$\r\nIngat bahwa konstanta $k = \\frac{1}{4\\pi \\varepsilon_0}$, sehingga $\\frac{1}{4\\pi k} = \\varepsilon_0$.\r\n$$\\sigma = \\frac{\\varepsilon_0 V}{R}$$\r\nGunakan permitivitas vakum $\\varepsilon_0 = 8,85 \\times 10^{-12} \\text{ C}^2/(\\text{N}\\cdot\\text{m}^2)$ dan jari-jari $R = \\mathbf{0,05 \\text{ m}}$:\r\n$$\\sigma = \\frac{(8,85 \\times 10^{-12}) \\times 100}{0,05}$$\r\n$$\\sigma = \\frac{8,85 \\times 10^{-10}}{0,05} = 177 \\times 10^{-10} = 1,77 \\times 10^{-8} \\text{ C/m}^2 \\approx 1,8 \\times 10^{-8} \\text{ C/m}^2$$",
         "weight": 1
     },
     {
@@ -312,15 +312,15 @@ export const week3Questions = [
         "weight": 1
     },
     {
-        "text": "Jika medan listrik searah sumbu $x$ positif dan memiliki magnitudo yang diberikan oleh $E = Cx^2$, di mana $C$ adalah konstanta, maka potensial listrik $V$ diberikan oleh persamaan:",
+        "text": "Jika medan listrik searah sumbu $x$ positif dan memiliki magnitudo yang diberikan oleh $E = Cx^{2}$, di mana $C$ adalah konstanta, maka potensial listrik $V$ diberikan oleh persamaan:",
         "category": "WEEK_3",
         "option_a": "$2Cx$",
         "option_b": "$-2Cx$",
-        "option_c": "$Cx^3/3$",
-        "option_d": "$-Cx^3/3$",
-        "option_e": "$-3Cx^3$",
+        "option_c": "$Cx^{3}/3$",
+        "option_d": "$-Cx^{3}/3$",
+        "option_e": "$-3Cx^{3}$",
         "correct_answer": "D",
-        "explanation": "**Pembahasan:**\n\n**Jawaban: D. $-Cx^3/3$**\r\n\r\nHubungan antara potensial dan medan listrik dirumuskan dalam integral negatif:\r\n$$V = -\\int E_x \\, dx$$\r\nMasukkan fungsi $E = Cx^2$:\r\n$$V = -\\int Cx^2 \\, dx = -C \\left( \\frac{x^3}{3} \\right) = -\\frac{Cx^3}{3}$$",
+        "explanation": "**Pembahasan:**\n\n**Jawaban: D. $-Cx^{3}/3$**\r\n\r\nHubungan antara potensial dan medan listrik dirumuskan dalam integral negatif:\r\n$$V = -\\int E_x \\, dx$$\r\nMasukkan fungsi $E = Cx^{2}$:\r\n$$V = -\\int Cx^{2} \\, dx = -C \\left( \\frac{x^{3}}{3} \\right) = -\\frac{Cx^{3}}{3}$$",
         "weight": 1
     },
     {
@@ -356,11 +356,11 @@ export const week3Questions = [
         "option_d": "bidang-bidang yang sejajar dengan bidang $xy$",
         "option_e": "bidang-bidang yang sejajar dengan bidang $yz$",
         "correct_answer": "A",
-        "explanation": "**Pembahasan:**\n\n**Jawaban: A. silinder-silinder konsentris dengan sumbu di sepanjang sumbu $z$**\r\n\r\nCari fungsi potensial $V$ dengan cara mengintegralkan medan listrik:\r\n$$V(x,y) = -\\int \\vec{E} \\cdot d\\vec{r} = -C \\int (x \\, dx + y \\, dy)$$\r\n$$V(x,y) = -C \\left( \\frac{x^2}{2} + \\frac{y^2}{2} \\right) = -\\frac{C}{2} (x^2 + y^2)$$\r\nPermukaan ekuipotensial berarti nilai $V$ adalah konstan. Persamaan $x^2 + y^2 = \\text{konstan}$ adalah persamaan lingkaran di bidang $xy$. Karena koordinat $z$ bebas bernilai berapa saja tanpa mengubah $V$, kumpulan lingkaran yang diperpanjang di sepanjang sumbu $z$ ini akan membentuk **silinder konsentris**.",
+        "explanation": "**Pembahasan:**\n\n**Jawaban: A. silinder-silinder konsentris dengan sumbu di sepanjang sumbu $z$**\r\n\r\nCari fungsi potensial $V$ dengan cara mengintegralkan medan listrik:\r\n$$V(x,y) = -\\int \\vec{E} \\cdot d\\vec{r} = -C \\int (x \\, dx + y \\, dy)$$\r\n$$V(x,y) = -C \\left( \\frac{x^{2}}{2} + \\frac{y^{2}}{2} \\right) = -\\frac{C}{2} (x^{2} + y^{2})$$\r\nPermukaan ekuipotensial berarti nilai $V$ adalah konstan. Persamaan $x^{2} + y^{2} = \\text{konstan}$ adalah persamaan lingkaran di bidang $xy$. Karena koordinat $z$ bebas bernilai berapa saja tanpa mengubah $V$, kumpulan lingkaran yang diperpanjang di sepanjang sumbu $z$ ini akan membentuk **silinder konsentris**.",
         "weight": 1
     },
     {
-        "text": "Potensial listrik di suatu wilayah ruang tertentu diberikan oleh $V = -7,5x^2 + 3x$, di mana $V$ dalam volt dan $x$ dalam meter. Di wilayah ini, permukaan ekuipotensialnya adalah:",
+        "text": "Potensial listrik di suatu wilayah ruang tertentu diberikan oleh $V = -7,5x^{2} + 3x$, di mana $V$ dalam volt dan $x$ dalam meter. Di wilayah ini, permukaan ekuipotensialnya adalah:",
         "category": "WEEK_3",
         "option_a": "bidang-bidang yang sejajar dengan sumbu $x$",
         "option_b": "bidang-bidang yang sejajar dengan bidang $yz$",
@@ -368,7 +368,7 @@ export const week3Questions = [
         "option_d": "silinder-silinder konsentris dengan sumbu $x$ sebagai sumbunya",
         "option_e": "tidak diketahui kecuali nilai muatan diberikan",
         "correct_answer": "B",
-        "explanation": "**Pembahasan:**\n\n**Jawaban: B. bidang-bidang yang sejajar dengan bidang $yz$**\r\n\r\nDari fungsi $V(x) = -7,5x^2 + 3x$, terlihat bahwa nilai potensial hanya bergantung pada koordinat $x$. \r\nAgar $V$ bernilai konstan (ekuipotensial), maka nilai koordinat $x$ juga harus konstan ($x = \\text{konstan}$). Himpunan titik-titik dengan nilai $x$ konstan dan koordinat $y$ serta $z$ bebas akan membentuk sebuah dinding datar atau **bidang yang sejajar dengan bidang $yz$**.",
+        "explanation": "**Pembahasan:**\n\n**Jawaban: B. bidang-bidang yang sejajar dengan bidang $yz$**\r\n\r\nDari fungsi $V(x) = -7,5x^{2} + 3x$, terlihat bahwa nilai potensial hanya bergantung pada koordinat $x$. \r\nAgar $V$ bernilai konstan (ekuipotensial), maka nilai koordinat $x$ juga harus konstan ($x = \\text{konstan}$). Himpunan titik-titik dengan nilai $x$ konstan dan koordinat $y$ serta $z$ bebas akan membentuk sebuah dinding datar atau **bidang yang sejajar dengan bidang $yz$**.",
         "weight": 1
     },
     {
@@ -440,7 +440,7 @@ export const week3Questions = [
         "option_d": "**100 µF**",
         "option_e": "tidak ada di atas yang benar",
         "correct_answer": "B",
-        "explanation": "**Pembahasan:**\n\n**Jawaban: B. 10 µF**\r\n\r\nDiketahui muatan $Q = \\mathbf{1 \\text{ mC}} = 1 \\times 10^{-3} \\text{ C}$ dan beda potensial $V = \\mathbf{100 \\text{ V}}$.\r\nKapasitansi ($C$) adalah:\r\n$$C = \\frac{Q}{V} = \\frac{1 \\times 10^{-3}}{100} = 1 \\times 10^{-5} \\text{ F}$$\r\nUbah ke mikroFarad ($\\mu\\text{F}$) dengan mengalikan $10^6$:\r\n$$C = 1 \\times 10^{-5} \\times 10^6 = 10 \\text{ }\\mu\\text{F}$$",
+        "explanation": "**Pembahasan:**\n\n**Jawaban: B. 10 µF**\r\n\r\nDiketahui muatan $Q = \\mathbf{1 \\text{ mC}} = 1 \\times 10^{-3} \\text{ C}$ dan beda potensial $V = \\mathbf{100 \\text{ V}}$.\r\nKapasitansi ($C$) adalah:\r\n$$C = \\frac{Q}{V} = \\frac{1 \\times 10^{-3}}{100} = 1 \\times 10^{-5} \\text{ F}$$\r\nUbah ke mikroFarad ($\\mu\\text{F}$) dengan mengalikan $10^{6}$:\r\n$$C = 1 \\times 10^{-5} \\times 10^{6} = 10 \\text{ }\\mu\\text{F}$$",
         "weight": 1
     },
     {
@@ -564,7 +564,7 @@ export const week3Questions = [
         "weight": 1
     },
     {
-        "text": "Sebuah kapasitor pelat sejajar memiliki luas pelat $\\mathbf{0,2 \\text{ m}^2}$ dan jarak antar pelat $\\mathbf{0,1 \\text{ mm}}$. Untuk mendapatkan medan listrik sebesar $2,0 \\times 10^6 \\text{ V/m}$ di antara kedua pelat, magnitudo muatan pada masing-masing pelat harus sebesar:",
+        "text": "Sebuah kapasitor pelat sejajar memiliki luas pelat $\\mathbf{0,2 \\text{ m}^2}$ dan jarak antar pelat $\\mathbf{0,1 \\text{ mm}}$. Untuk mendapatkan medan listrik sebesar $2,0 \\times 10^{6} \\text{ V/m}$ di antara kedua pelat, magnitudo muatan pada masing-masing pelat harus sebesar:",
         "category": "WEEK_3",
         "option_a": "$8,9 \\times 10^{-7} \\text{ C}$",
         "option_b": "$1,8 \\times 10^{-6} \\text{ C}$",
@@ -572,7 +572,7 @@ export const week3Questions = [
         "option_d": "$7,1 \\times 10^{-6} \\text{ C}$",
         "option_e": "$1,4 \\times 10^{-5} \\text{ C}$",
         "correct_answer": "",
-        "explanation": "**Pembahasan:**\n\n**Jawaban Fisis yang Benar: C. $3,5 \\times 10^{-6} \\text{ C}$** *(Catatan: Kunci asli menyebutkan D, namun perhitungan secara matematis membuktikan jawaban C adalah yang tepat).*\r\n\r\nMedan listrik $E$ di antara pelat sejajar dirumuskan sebagai:\r\n$$E = \\frac{\\sigma}{\\varepsilon_0} = \\frac{Q}{A \\cdot \\varepsilon_0}$$\r\nSusun ulang untuk mencari muatan $Q$:\r\n$$Q = E \\cdot A \\cdot \\varepsilon_0$$\r\nDengan $E = 2,0 \\times 10^6 \\text{ V/m}$, $A = \\mathbf{0,2 \\text{ m}^2}$, dan $\\varepsilon_0 = 8,85 \\times 10^{-12} \\text{ C}^2/(\\text{N}\\cdot\\text{m}^2)$:\r\n$$Q = (2,0 \\times 10^6) \\times 0,2 \\times (8,85 \\times 10^{-12})$$\r\n$$Q = 0,4 \\times 10^6 \\times 8,85 \\times 10^{-12}$$\r\n$$Q = 3,54 \\times 10^{-6} \\text{ C} \\approx 3,5 \\times 10^{-6} \\text{ C}$$\r\n*Opsi D didapatkan jika kita secara keliru mengalikan hasil tersebut dengan dua. Karena pertanyaan meminta \"magnitudo muatan pada masing-masing pelat\" (yang mana memang didefinisikan sebagai $Q$), maka C adalah perhitungan yang benar.*",
+        "explanation": "**Pembahasan:**\n\n**Jawaban Fisis yang Benar: C. $3,5 \\times 10^{-6} \\text{ C}$** *(Catatan: Kunci asli menyebutkan D, namun perhitungan secara matematis membuktikan jawaban C adalah yang tepat).*\r\n\r\nMedan listrik $E$ di antara pelat sejajar dirumuskan sebagai:\r\n$$E = \\frac{\\sigma}{\\varepsilon_0} = \\frac{Q}{A \\cdot \\varepsilon_0}$$\r\nSusun ulang untuk mencari muatan $Q$:\r\n$$Q = E \\cdot A \\cdot \\varepsilon_0$$\r\nDengan $E = 2,0 \\times 10^{6} \\text{ V/m}$, $A = \\mathbf{0,2 \\text{ m}^2}$, dan $\\varepsilon_0 = 8,85 \\times 10^{-12} \\text{ C}^2/(\\text{N}\\cdot\\text{m}^2)$:\r\n$$Q = (2,0 \\times 10^{6}) \\times 0,2 \\times (8,85 \\times 10^{-12})$$\r\n$$Q = 0,4 \\times 10^{6} \\times 8,85 \\times 10^{-12}$$\r\n$$Q = 3,54 \\times 10^{-6} \\text{ C} \\approx 3,5 \\times 10^{-6} \\text{ C}$$\r\n*Opsi D didapatkan jika kita secara keliru mengalikan hasil tersebut dengan dua. Karena pertanyaan meminta \"magnitudo muatan pada masing-masing pelat\" (yang mana memang didefinisikan sebagai $Q$), maka C adalah perhitungan yang benar.*",
         "weight": 1
     },
     {
@@ -580,11 +580,11 @@ export const week3Questions = [
         "category": "WEEK_3",
         "option_a": "**0**",
         "option_b": "$4 \\times 10^{-2} \\text{ V}$",
-        "option_c": "$1 \\times 10^2 \\text{ V}$",
-        "option_d": "$2 \\times 10^2 \\text{ V}$",
-        "option_e": "$4 \\times 10^8 \\text{ V}$",
+        "option_c": "$1 \\times 10^{2} \\text{ V}$",
+        "option_d": "$2 \\times 10^{2} \\text{ V}$",
+        "option_e": "$4 \\times 10^{8} \\text{ V}$",
         "correct_answer": "D",
-        "explanation": "**Pembahasan:**\n\n**Jawaban: D. $2 \\times 10^2 \\text{ V}$**\r\n\r\nLangkah 1: Hitung kapasitansi ($d = \\mathbf{0,1 \\text{ mm}} = 10^{-4} \\text{ m}$)\r\n$$C = \\frac{\\varepsilon_0 A}{d} = \\frac{(8,85 \\times 10^{-12}) \\times 0,2}{10^{-4}}$$\r\n$$C = 17,7 \\times 10^{-13} \\times 10^4 = 1,77 \\times 10^{-8} \\text{ F}$$\r\nLangkah 2: Hitung beda potensial\r\n$$V = \\frac{Q}{C} = \\frac{4 \\times 10^{-6}}{1,77 \\times 10^{-8}}$$\r\n$$V = 2,259 \\times 10^2 \\text{ V} \\approx 2 \\times 10^2 \\text{ V}$$",
+        "explanation": "**Pembahasan:**\n\n**Jawaban: D. $2 \\times 10^{2} \\text{ V}$**\r\n\r\nLangkah 1: Hitung kapasitansi ($d = \\mathbf{0,1 \\text{ mm}} = 10^{-4} \\text{ m}$)\r\n$$C = \\frac{\\varepsilon_0 A}{d} = \\frac{(8,85 \\times 10^{-12}) \\times 0,2}{10^{-4}}$$\r\n$$C = 17,7 \\times 10^{-13} \\times 10^{4} = 1,77 \\times 10^{-8} \\text{ F}$$\r\nLangkah 2: Hitung beda potensial\r\n$$V = \\frac{Q}{C} = \\frac{4 \\times 10^{-6}}{1,77 \\times 10^{-8}}$$\r\n$$V = 2,259 \\times 10^{2} \\text{ V} \\approx 2 \\times 10^{2} \\text{ V}$$",
         "weight": 1
     },
     {
@@ -592,9 +592,9 @@ export const week3Questions = [
         "category": "WEEK_3",
         "option_a": "$a/b$",
         "option_b": "$b - a$",
-        "option_c": "$b^2 - a^2$",
+        "option_c": "$b^{2} - a^{2}$",
         "option_d": "$ab/(b - a)$",
-        "option_e": "$ab/(b^2 - a^2)$",
+        "option_e": "$ab/(b^{2} - a^{2})$",
         "correct_answer": "D",
         "explanation": "**Pembahasan:**\n\n**Jawaban: D. $ab/(b - a)$**\r\n\r\nRumus matematis untuk kapasitansi kapasitor bola berlapis (konsentris) adalah:\r\n$$C = 4\\pi\\varepsilon_0 \\left( \\frac{ab}{b - a} \\right)$$\r\nSehingga nilainya sebanding dengan fungsi $ab/(b - a)$.",
         "weight": 1
@@ -603,9 +603,9 @@ export const week3Questions = [
         "text": "Kapasitansi dari sebuah konduktor bola tunggal yang terisolasi dengan jari-jari $R$ sebanding dengan:",
         "category": "WEEK_3",
         "option_a": "$R$",
-        "option_b": "$R^2$",
+        "option_b": "$R^{2}$",
         "option_c": "$1/R$",
-        "option_d": "$1/R^2$",
+        "option_d": "$1/R^{2}$",
         "option_e": "tidak ada di atas yang benar",
         "correct_answer": "A",
         "explanation": "**Pembahasan:**\n\n**Jawaban: A. $R$**\r\n\r\nRumus kapasitansi untuk bola tunggal (dengan asumsi \"pelat\" keduanya berada di jarak tak terhingga) adalah:\r\n$$C = 4\\pi\\varepsilon_0 R$$\r\nSehingga nilai $C$ berbanding lurus secara linier dengan jari-jarinya, $R$.",
@@ -615,9 +615,9 @@ export const week3Questions = [
         "text": "Dua buah bola konduktor memiliki jari-jari $R_1$ dan $R_2$, dengan $R_1$ lebih besar dari $R_2$. Jika keduanya berada sangat berjauhan, kapasitansinya sebanding dengan:",
         "category": "WEEK_3",
         "option_a": "$R_1 R_2 / (R_1 - R_2)$",
-        "option_b": "$R_1^2 - R_2^2$",
+        "option_b": "$R_1^{2} - R_2^{2}$",
         "option_c": "$(R_1 - R_2) / R_1 R_2$",
-        "option_d": "$R_1^2 + R_2^2$",
+        "option_d": "$R_1^{2} + R_2^{2}$",
         "option_e": "tidak ada di atas yang benar\r\n\r\n*(Catatan: Kunci asli Anda adalah \"A\". Namun rumus pada opsi A khusus berlaku untuk dua bola **konsentris** di soal 17, BUKAN untuk bola yang berjauhan).*",
         "correct_answer": "",
         "explanation": "**Pembahasan:**\n\n**Jawaban Secara Teori: E. tidak ada di atas yang benar**\r\n\r\nJika dua buah bola berjauhan (sehingga medan listriknya tidak saling memengaruhi bentuk sferisnya) dihubungkan sebagai satu sistem kapasitor, beda potensialnya adalah selisih potensial masing-masing bola:\r\n$$\\Delta V = V_1 - V_2 = \\frac{kQ}{R_1} - \\frac{k(-Q)}{R_2} = kQ \\left( \\frac{1}{R_1} + \\frac{1}{R_2} \\right) = kQ \\left( \\frac{R_1 + R_2}{R_1 R_2} \\right)$$\r\nSehingga kapasitansinya:\r\n$$C = \\frac{Q}{\\Delta V} = \\frac{1}{k} \\left( \\frac{R_1 R_2}{R_1 + R_2} \\right)$$\r\nArtinya kapasitansi sebanding dengan fungsi $\\frac{R_1 R_2}{R_1 + R_2}$. Rumus ini **tidak ada** di opsi A hingga D, sehingga jawaban teknisnya adalah E. Kunci \"A\" di bank soal merupakan kesalahan redaksional yang mengira soal ini adalah kapasitor bola berlapis (konsentris).",
@@ -776,7 +776,7 @@ export const week3Questions = [
         "option_d": "2C",
         "option_e": "3C",
         "correct_answer": "",
-        "explanation": "**Pembahasan:**\n\nPembahasan:\r\n\r\nJawaban: A. 2C/3\r\n\r\nPertama, hitung kapasitansi ekuivalen untuk bagian paralel. Dua kapasitor C yang diparalelkan akan menghasilkan Cp = C + C = 2C.\r\nSelanjutnya, bagian ekuivalen paralel 2C ini terhubung secara seri dengan kapasitor ketiga C. Rumus untuk kapasitor seri adalah perkalian dibagi penjumlahan.\r\nC_total = (Cp * C) / (Cp + C) = (2C * C) / (2C + C) = 2C^2 / 3C = 2C/3.",
+        "explanation": "**Pembahasan:**\n\nPembahasan:\r\n\r\nJawaban: A. 2C/3\r\n\r\nPertama, hitung kapasitansi ekuivalen untuk bagian paralel. Dua kapasitor C yang diparalelkan akan menghasilkan Cp = C + C = 2C.\r\nSelanjutnya, bagian ekuivalen paralel 2C ini terhubung secara seri dengan kapasitor ketiga C. Rumus untuk kapasitor seri adalah perkalian dibagi penjumlahan.\r\nC_total = (Cp * C) / (Cp + C) = (2C * C) / (2C + C) = 2C^{2} / 3C = 2C/3.",
         "weight": 1
     },
     {
@@ -800,7 +800,7 @@ export const week3Questions = [
         "option_d": "2000 J",
         "option_e": "0,1 J",
         "correct_answer": "",
-        "explanation": "**Pembahasan:**\n\nPembahasan:\r\n\r\nJawaban: C. 0,4 J (dengan asumsi soal asli bermaksud menanyakan mikroFarad)\r\n\r\nTerdapat ketidakkonsistenan pada teks soal asli yang sering terjadi di buku teks, di mana kapasitansi besar biasanya berada dalam orde mikrofarad. Mari kita asumsikan teks asli bermaksud menulis 20 µF (20 x 10^-6 F) agar cocok dengan pilihan jawaban.\r\nRumus energi kapasitor adalah U = 1/2 C V^2.\r\nU = 1/2 (20 x 10^-6) (200)^2\r\nU = 1/2 (20 x 10^-6) (40000)\r\nU = 10 x 10^-6 x 40000 = 400000 x 10^-6 = 0,4 Joule.\r\n(Jika kita memakai nilai persis 20 F tanpa awalan mikro, hasilnya adalah 400.000 J, yang tidak ada di pilihan).",
+        "explanation": "**Pembahasan:**\n\nPembahasan:\r\n\r\nJawaban: C. 0,4 J (dengan asumsi soal asli bermaksud menanyakan mikroFarad)\r\n\r\nTerdapat ketidakkonsistenan pada teks soal asli yang sering terjadi di buku teks, di mana kapasitansi besar biasanya berada dalam orde mikrofarad. Mari kita asumsikan teks asli bermaksud menulis 20 µF (20 \times 10^{-6} F) agar cocok dengan pilihan jawaban.\r\nRumus energi kapasitor adalah U = 1/2 C V^{2}.\r\nU = 1/2 (20 \times 10^{-6}) (200)^2\r\nU = 1/2 (20 \times 10^{-6}) (40000)\r\nU = 10 \times 10^{-6} x 40000 = 400000 \times 10^{-6} = 0,4 Joule.\r\n(Jika kita memakai nilai persis 20 F tanpa awalan mikro, hasilnya adalah 400.000 J, yang tidak ada di pilihan).",
         "weight": 1
     },
     {
@@ -824,11 +824,11 @@ export const week3Questions = [
         "option_d": "P > R > S > Q",
         "option_e": "R > S > Q > P",
         "correct_answer": "",
-        "explanation": "**Pembahasan:**\n\nPembahasan:\r\n\r\nJawaban: E. R > S > Q > P\r\n\r\nMisalkan tegangan baterai adalah V.\r\nKondisi Seri:\r\nKapasitansi ekuivalen adalah Cs = 2/3 µF. Muatan total Q_total = 2/3 V. Muatan ini sama di kedua kapasitor.\r\nEnergi pada saat seri dapat dicari dengan U = Q^2 / 2C.\r\nP (untuk 2 µF) = (2/3 V)^2 / (2 * 2) = 4/9 V^2 / 4 = 1/9 V^2.\r\nQ (untuk 1 µF) = (2/3 V)^2 / (2 * 1) = 4/9 V^2 / 2 = 2/9 V^2.\r\nKondisi Terpisah:\r\nSetiap kapasitor mendapat tegangan penuh V. Gunakan U = 1/2 C V^2.\r\nR (untuk 2 µF) = 1/2 (2) V^2 = 1 V^2 = 9/9 V^2.\r\nS (untuk 1 µF) = 1/2 (1) V^2 = 1/2 V^2 = 4,5/9 V^2.\r\nMembandingkan nilai pecahan-pecahan tersebut: R (9/9) > S (4,5/9) > Q (2/9) > P (1/9).",
+        "explanation": "**Pembahasan:**\n\nPembahasan:\r\n\r\nJawaban: E. R > S > Q > P\r\n\r\nMisalkan tegangan baterai adalah V.\r\nKondisi Seri:\r\nKapasitansi ekuivalen adalah Cs = 2/3 µF. Muatan total Q_total = 2/3 V. Muatan ini sama di kedua kapasitor.\r\nEnergi pada saat seri dapat dicari dengan U = Q^{2} / 2C.\r\nP (untuk 2 µF) = (2/3 V)^2 / (2 * 2) = 4/9 V^{2} / 4 = 1/9 V^{2}.\r\nQ (untuk 1 µF) = (2/3 V)^2 / (2 * 1) = 4/9 V^{2} / 2 = 2/9 V^{2}.\r\nKondisi Terpisah:\r\nSetiap kapasitor mendapat tegangan penuh V. Gunakan U = 1/2 C V^{2}.\r\nR (untuk 2 µF) = 1/2 (2) V^{2} = 1 V^{2} = 9/9 V^{2}.\r\nS (untuk 1 µF) = 1/2 (1) V^{2} = 1/2 V^{2} = 4,5/9 V^{2}.\r\nMembandingkan nilai pecahan-pecahan tersebut: R (9/9) > S (4,5/9) > Q (2/9) > P (1/9).",
         "weight": 1
     },
     {
-        "text": "Soal:\r\n\r\nKuantitas matematis (1/2) ε0 E^2 memiliki signifikansi fisis sebagai:",
+        "text": "Soal:\r\n\r\nKuantitas matematis (1/2) ε0 E^{2} memiliki signifikansi fisis sebagai:",
         "category": "WEEK_3",
         "option_a": "energi / farad",
         "option_b": "energi / coulomb",
@@ -848,7 +848,7 @@ export const week3Questions = [
         "option_d": "2 J",
         "option_e": "1 J",
         "correct_answer": "",
-        "explanation": "**Pembahasan:**\n\nPembahasan:\r\n\r\nJawaban: D. 2 J\r\n\r\nMisalkan kapasitor awal memiliki kapasitansi C, menyimpan muatan Q0, sehingga energi awalnya adalah U0 = Q0^2 / 2C = 4 J.\r\nKetika kapasitor yang bermuatan disambungkan secara paralel dengan kapasitor lain yang identik dan kosong, muatan total akan terdistribusi merata menjadi setengahnya di tiap kapasitor, karena kapasitansi sistem menjadi 2C.\r\nTotal energi akhir dari sistem tersebut dapat dihitung dengan memandang sistem sebagai satu kapasitor besar 2C yang memuat seluruh muatan Q0.\r\nU_akhir = Q0^2 / (2 * C_total) = Q0^2 / (2 * 2C) = 1/2 (Q0^2 / 2C) = 1/2 U0.\r\nSetengah dari 4 J adalah 2 J. Setengah sisa energinya menghilang sebagai radiasi elektromagnetik atau panas di kabel penghubung.",
+        "explanation": "**Pembahasan:**\n\nPembahasan:\r\n\r\nJawaban: D. 2 J\r\n\r\nMisalkan kapasitor awal memiliki kapasitansi C, menyimpan muatan Q0, sehingga energi awalnya adalah U0 = Q0^{2} / 2C = 4 J.\r\nKetika kapasitor yang bermuatan disambungkan secara paralel dengan kapasitor lain yang identik dan kosong, muatan total akan terdistribusi merata menjadi setengahnya di tiap kapasitor, karena kapasitansi sistem menjadi 2C.\r\nTotal energi akhir dari sistem tersebut dapat dihitung dengan memandang sistem sebagai satu kapasitor besar 2C yang memuat seluruh muatan Q0.\r\nU_akhir = Q0^{2} / (2 * C_total) = Q0^{2} / (2 * 2C) = 1/2 (Q0^{2} / 2C) = 1/2 U0.\r\nSetengah dari 4 J adalah 2 J. Setengah sisa energinya menghilang sebagai radiasi elektromagnetik atau panas di kabel penghubung.",
         "weight": 1
     },
     {
@@ -860,19 +860,19 @@ export const week3Questions = [
         "option_d": "medan listrik di antara kedua tempat tersebut",
         "option_e": "muatan pada masing-masing pelat",
         "correct_answer": "",
-        "explanation": "**Pembahasan:**\n\nPembahasan:\r\n\r\nJawaban: C. energi yang tersimpan\r\n\r\nKapasitor yang diisi lalu diputus dari sumber tegangan akan memiliki muatan Q yang bersifat konstan tak bisa berubah.\r\nRumus geometri adalah C = ε0 A / d. Jika d digandakan, kapasitansi C akan turun menjadi setengahnya.\r\nRumus energi adalah U = Q^2 / 2C. Karena muatan Q tetap konstan sementara penyebut kapasitansi C berkurang menjadi setengah dari nilai semula, nilai pecahan keseluruhan untuk energi U akan mengalami peningkatan sebesar dua kali lipat.",
+        "explanation": "**Pembahasan:**\n\nPembahasan:\r\n\r\nJawaban: C. energi yang tersimpan\r\n\r\nKapasitor yang diisi lalu diputus dari sumber tegangan akan memiliki muatan Q yang bersifat konstan tak bisa berubah.\r\nRumus geometri adalah C = ε0 A / d. Jika d digandakan, kapasitansi C akan turun menjadi setengahnya.\r\nRumus energi adalah U = Q^{2} / 2C. Karena muatan Q tetap konstan sementara penyebut kapasitansi C berkurang menjadi setengah dari nilai semula, nilai pecahan keseluruhan untuk energi U akan mengalami peningkatan sebesar dua kali lipat.",
         "weight": 1
     },
     {
-        "text": "Soal:\r\n\r\nSebuah kapasitor pelat sejajar memiliki luas pelat 0,3 m^2 dan jarak antar pelat 0,1 mm. Jika muatan pada masing-masing pelat memiliki magnitudo 5 x 10^-6 C maka gaya yang diberikan oleh satu pelat terhadap pelat lainnya memiliki magnitudo sekitar:",
+        "text": "Soal:\r\n\r\nSebuah kapasitor pelat sejajar memiliki luas pelat 0,3 m^{2} dan jarak antar pelat 0,1 mm. Jika muatan pada masing-masing pelat memiliki magnitudo 5 \times 10^{-6} C maka gaya yang diberikan oleh satu pelat terhadap pelat lainnya memiliki magnitudo sekitar:",
         "category": "WEEK_3",
         "option_a": "0",
         "option_b": "5 N",
         "option_c": "9 N",
-        "option_d": "1 x 10^4 N",
-        "option_e": "9 x 10^5 N",
+        "option_d": "1 \times 10^{4} N",
+        "option_e": "9 \times 10^{5} N",
         "correct_answer": "",
-        "explanation": "**Pembahasan:**\n\nPembahasan:\r\n\r\nJawaban: B. 5 N\r\n\r\nGaya tarik-menarik statis antara dua pelat kapasitor dapat diturunkan menggunakan rumusan F = Q^2 / (2 ε0 A).\r\nMasukkan nilai-nilai yang diketahui ke dalam persamaan:\r\nF = (5 x 10^-6)^2 / (2 * 8,85 x 10^-12 * 0,3)\r\nF = (25 x 10^-12) / (5,31 x 10^-12)\r\nBagian pangkat 10 saling menghilangkan satu sama lain, menyisakan 25 dibagi 5,31. Hasil perhitungannya adalah sekitar 4,7 N, yang mana akan dibulatkan menuju opsi terdekat yaitu 5 N.",
+        "explanation": "**Pembahasan:**\n\nPembahasan:\r\n\r\nJawaban: B. 5 N\r\n\r\nGaya tarik-menarik statis antara dua pelat kapasitor dapat diturunkan menggunakan rumusan F = Q^{2} / (2 ε0 A).\r\nMasukkan nilai-nilai yang diketahui ke dalam persamaan:\r\nF = (5 \times 10^{-6})^2 / (2 * 8,85 \times 10^{-12} * 0,3)\r\nF = (25 \times 10^{-12}) / (5,31 \times 10^{-12})\r\nBagian pangkat 10 saling menghilangkan satu sama lain, menyisakan 25 dibagi 5,31. Hasil perhitungannya adalah sekitar 4,7 N, yang mana akan dibulatkan menuju opsi terdekat yaitu 5 N.",
         "weight": 1
     },
     {
@@ -896,7 +896,7 @@ export const week3Questions = [
         "option_d": "muatan pada pelat positif",
         "option_e": "konstanta dielektrik",
         "correct_answer": "",
-        "explanation": "**Pembahasan:**\n\nPembahasan:\r\n\r\nJawaban: C. medan listrik di antara pelat\r\n\r\nKarena kapasitor dihubungkan secara seri, muatan $Q$ pada keduanya adalah sama. Diketahui juga bahwa kapasitansi $C$ keduanya sama. Karena $V = \\frac{Q}{C}$, maka beda potensial $V$ juga sama, sehingga energi yang tersimpan $U = \\frac{1}{2}CV^2$ otomatis sama.\r\nNamun, kuat medan listrik di dalam kapasitor dirumuskan sebagai $E = \\frac{V}{d}$. Karena jarak antar pelat $d$ berbeda untuk kedua kapasitor, maka nilai medan listrik $E$ di antara pelat tersebut pasti tidak sama.",
+        "explanation": "**Pembahasan:**\n\nPembahasan:\r\n\r\nJawaban: C. medan listrik di antara pelat\r\n\r\nKarena kapasitor dihubungkan secara seri, muatan $Q$ pada keduanya adalah sama. Diketahui juga bahwa kapasitansi $C$ keduanya sama. Karena $V = \\frac{Q}{C}$, maka beda potensial $V$ juga sama, sehingga energi yang tersimpan $U = \\frac{1}{2}CV^{2}$ otomatis sama.\r\nNamun, kuat medan listrik di dalam kapasitor dirumuskan sebagai $E = \\frac{V}{d}$. Karena jarak antar pelat $d$ berbeda untuk kedua kapasitor, maka nilai medan listrik $E$ di antara pelat tersebut pasti tidak sama.",
         "weight": 1
     },
     {
@@ -932,7 +932,7 @@ export const week3Questions = [
         "option_d": "muatan netto muncul pada kaca",
         "option_e": "kaca membuat pelat saling tolak-menolak",
         "correct_answer": "",
-        "explanation": "**Pembahasan:**\n\nPembahasan:\r\n\r\nJawaban: B. gaya menarik kaca ke dalam kapasitor\r\n\r\nKetika baterai dilepas, kapasitor terisolasi sehingga muatan $Q$ tetap konstan. Jika kita menyisipkan bahan dielektrik dengan konstanta $\\kappa > 1$, maka kapasitansi sistem akan meningkat menjadi $C' = \\kappa C$.\r\nEnergi yang tersimpan pada kapasitor dirumuskan sebagai $U = \\frac{Q^2}{2C}$. Karena $C$ membesar sementara $Q$ tetap, energi potensial total $U$ dalam sistem akan berkurang. Penurunan energi potensial ini bermanifestasi sebagai gaya mekanik yang secara aktif menarik lempeng kaca ke dalam celah kapasitor.",
+        "explanation": "**Pembahasan:**\n\nPembahasan:\r\n\r\nJawaban: B. gaya menarik kaca ke dalam kapasitor\r\n\r\nKetika baterai dilepas, kapasitor terisolasi sehingga muatan $Q$ tetap konstan. Jika kita menyisipkan bahan dielektrik dengan konstanta $\\kappa > 1$, maka kapasitansi sistem akan meningkat menjadi $C' = \\kappa C$.\r\nEnergi yang tersimpan pada kapasitor dirumuskan sebagai $U = \\frac{Q^{2}}{2C}$. Karena $C$ membesar sementara $Q$ tetap, energi potensial total $U$ dalam sistem akan berkurang. Penurunan energi potensial ini bermanifestasi sebagai gaya mekanik yang secara aktif menarik lempeng kaca ke dalam celah kapasitor.",
         "weight": 1
     },
     {
@@ -992,7 +992,7 @@ export const week3Questions = [
         "option_d": "$8,3 \\times 10^{-7}\\text{ J}$",
         "option_e": "$-8,3 \\times 10^{-7}\\text{ J}$",
         "correct_answer": "",
-        "explanation": "**Pembahasan:**\n\nPembahasan:\r\n\r\nJawaban: C. $-1,25 \\times 10^{-6}\\text{ J}$\r\n\r\nKapasitor diisolasi, sehingga nilai muatan $Q = 5,0 \\times 10^{-6}\\text{ C}$ tidak berubah.\r\nEnergi awal sistem:\r\n$U_1 = \\frac{Q^2}{2C_1} = \\frac{(5,0 \\times 10^{-6})^2}{2 \\cdot (5,0 \\times 10^{-6})} = \\frac{25 \\times 10^{-12}}{10 \\times 10^{-6}} = 2,5 \\times 10^{-6}\\text{ J}$\r\nEnergi akhir sistem setelah kapasitansinya berubah menjadi $C_2 = 10 \\times 10^{-6}\\text{ F}$:\r\n$U_2 = \\frac{Q^2}{2C_2} = \\frac{(5,0 \\times 10^{-6})^2}{2 \\cdot (10 \\times 10^{-6})} = \\frac{25 \\times 10^{-12}}{20 \\times 10^{-6}} = 1,25 \\times 10^{-6}\\text{ J}$\r\nUsaha ($W$) yang dilakukan oleh gaya luar (agen) sama dengan besarnya perubahan energi potensial sistem ($\\Delta U$):\r\n$W = U_2 - U_1 = (1,25 \\times 10^{-6}) - (2,5 \\times 10^{-6}) = -1,25 \\times 10^{-6}\\text{ J}$",
+        "explanation": "**Pembahasan:**\n\nPembahasan:\r\n\r\nJawaban: C. $-1,25 \\times 10^{-6}\\text{ J}$\r\n\r\nKapasitor diisolasi, sehingga nilai muatan $Q = 5,0 \\times 10^{-6}\\text{ C}$ tidak berubah.\r\nEnergi awal sistem:\r\n$U_1 = \\frac{Q^{2}}{2C_1} = \\frac{(5,0 \\times 10^{-6})^2}{2 \\cdot (5,0 \\times 10^{-6})} = \\frac{25 \\times 10^{-12}}{10 \\times 10^{-6}} = 2,5 \\times 10^{-6}\\text{ J}$\r\nEnergi akhir sistem setelah kapasitansinya berubah menjadi $C_2 = 10 \\times 10^{-6}\\text{ F}$:\r\n$U_2 = \\frac{Q^{2}}{2C_2} = \\frac{(5,0 \\times 10^{-6})^2}{2 \\cdot (10 \\times 10^{-6})} = \\frac{25 \\times 10^{-12}}{20 \\times 10^{-6}} = 1,25 \\times 10^{-6}\\text{ J}$\r\nUsaha ($W$) yang dilakukan oleh gaya luar (agen) sama dengan besarnya perubahan energi potensial sistem ($\\Delta U$):\r\n$W = U_2 - U_1 = (1,25 \\times 10^{-6}) - (2,5 \\times 10^{-6}) = -1,25 \\times 10^{-6}\\text{ J}$",
         "weight": 1
     }
 ];
