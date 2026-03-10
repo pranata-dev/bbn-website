@@ -100,10 +100,15 @@ export async function POST(
 
         const score = totalWeight > 0 ? Math.round((correctWeight / totalWeight) * 10000) / 100 : 0
 
-        // Save answers
-        const { error: answersError } = await supabase.from("answers").insert(answerRecords)
+        // Save answers (upsert to overwrite auto-saved answers with final corrected status)
+        const { error: answersError } = await supabase
+            .from("answers")
+            .upsert(answerRecords, {
+                onConflict: "submission_id, question_id"
+            })
+            
         if (answersError) {
-            console.error("Failed to insert answers:", answersError)
+            console.error("Failed to upsert answers:", answersError)
             return NextResponse.json({ error: "Gagal menyimpan jawaban." }, { status: 500 })
         }
 

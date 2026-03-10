@@ -89,33 +89,33 @@ export async function POST(
             .single()
 
         if (activeSubmission) {
-            if (tryout.is_practice) {
-                // Return existing submission for Practice
-                const { data: questionsData } = await supabase
-                    .from("questions")
-                    .select("*")
-                    .in("id", activeSubmission.question_order || [])
-                
-                // Format questions order
-                const orderedQuestions = (activeSubmission.question_order || []).map((qId: string) => {
-                    return questionsData?.find((q: any) => q.id === qId)
-                }).filter((q: any) => q)
+            // Fetch associated answers for resume
+            const { data: activeAnswers } = await supabase
+                .from("answers")
+                .select("question_id, answer")
+                .eq("submission_id", activeSubmission.id)
 
-                return NextResponse.json({
-                    message: "Berhasil memuat latihan yang sedang berjalan",
-                    submission: {
-                        id: activeSubmission.id,
-                        status: activeSubmission.status,
-                        startedAt: activeSubmission.started_at,
-                    },
-                    questions: orderedQuestions
-                })
-            } else {
-                return NextResponse.json(
-                    { error: "Kamu masih memiliki tryout yang sedang berjalan.", submissionId: activeSubmission.id },
-                    { status: 400 }
-                )
-            }
+            const { data: questionsData } = await supabase
+                .from("questions")
+                .select("id, text, category, option_a, option_b, option_c, option_d, option_e, weight, image_url")
+                .in("id", activeSubmission.question_order || [])
+            
+            // Format questions order
+            const orderedQuestions = (activeSubmission.question_order || []).map((qId: string) => {
+                return questionsData?.find((q: any) => q.id === qId)
+            }).filter((q: any) => q)
+
+            return NextResponse.json({
+                message: "Berhasil memuat sesi yang sedang berjalan",
+                submission: {
+                    id: activeSubmission.id,
+                    status: activeSubmission.status,
+                    startedAt: activeSubmission.started_at,
+                    duration: tryout.duration,
+                },
+                questions: orderedQuestions,
+                answers: activeAnswers || []
+            })
         }
 
         // Randomize question order

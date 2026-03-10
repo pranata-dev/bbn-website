@@ -77,28 +77,36 @@ export default function TryoutAttemptPage() {
                 const duration = data.submission.duration * 60 * 1000
                 endTimeRef.current = startTime + duration
 
-                // Initialize answers or load from localStorage
+                // Initialize answers
                 const initialAnswers: Record<string, AnswerState> = {}
+                data.questions.forEach((q: Question) => {
+                    initialAnswers[q.id] = { answer: null, isDoubtful: false }
+                })
+
+                // Overwrite with DB auto-saved answers
+                if (data.answers && data.answers.length > 0) {
+                    data.answers.forEach((ans: any) => {
+                        if (initialAnswers[ans.question_id]) {
+                            initialAnswers[ans.question_id].answer = ans.answer
+                        }
+                    })
+                }
+
+                // Restore doubtful state from localStorage if available
                 const savedState = localStorage.getItem(`tryout_attempt_${tryoutId}`)
-                
                 if (savedState) {
                     try {
                         const parsed = JSON.parse(savedState)
-                        // Verify the saved state matches current questions to avoid stale caches
-                        const hasAllKeys = data.questions.every((q: Question) => !!parsed[q.id])
-                        if (hasAllKeys) {
-                            setAnswers(parsed)
-                            setLoading(false)
-                            return
-                        }
+                        Object.keys(parsed).forEach(qid => {
+                            if (initialAnswers[qid]) {
+                                initialAnswers[qid].isDoubtful = parsed[qid]?.isDoubtful || false
+                            }
+                        })
                     } catch (e) {
                         console.error("Failed to parse saved answers", e)
                     }
                 }
 
-                data.questions.forEach((q: Question) => {
-                    initialAnswers[q.id] = { answer: null, isDoubtful: false }
-                })
                 setAnswers(initialAnswers)
                 setLoading(false)
             } catch (error) {
@@ -162,11 +170,24 @@ export default function TryoutAttemptPage() {
         }
     }, [answers, tryoutId, loading])
 
-    const handleAnswer = (questionId: string, answer: string) => {
+    const handleAnswer = async (questionId: string, answer: string) => {
         setAnswers((prev) => ({
             ...prev,
             [questionId]: { ...prev[questionId], answer },
         }))
+
+        // Auto-save to DB
+        if (submissionId) {
+            try {
+                await fetch(`/api/submissions/${submissionId}/answers`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ questionId, answer })
+                })
+            } catch (error) {
+                console.error("Failed to auto-save answer", error)
+            }
+        }
     }
 
     const toggleDoubtful = (questionId: string) => {
