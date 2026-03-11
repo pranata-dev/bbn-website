@@ -18,6 +18,16 @@ export function getPackageFeatures(packageType: PackageType | null | undefined, 
 
     // Fallback logic for legacy accounts that have a Role but no PackageType yet
     let activePackage = packageType
+    
+    if (role === "ADMIN") {
+        return {
+            canAccessLatihan: true,
+            canAccessTryout: true,
+            tryoutLimit: 100, // Unlimited for admins
+            hasVideoExplanation: true,
+        }
+    }
+
     if (!activePackage && role) {
         switch (role) {
             case "UTS_EINSTEIN":

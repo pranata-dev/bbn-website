@@ -59,7 +59,10 @@ export async function POST(
                 .eq("user_id", profile.id)
                 .in("status", ["SUBMITTED", "IN_PROGRESS"])
 
-            const tryoutSubmissions = allSubmissions?.filter((s: any) => s.tryouts && !s.tryouts.is_practice) || []
+            const tryoutSubmissions = allSubmissions?.filter((s: any) => {
+                const tryout = Array.isArray(s.tryouts) ? s.tryouts[0] : s.tryouts
+                return tryout && !tryout.is_practice
+            }) || []
             const usedQuota = tryoutSubmissions.length
 
             const { getPackageFeatures } = await import("@/lib/package-features")

@@ -60,16 +60,10 @@ export default function TryoutDetailPage() {
 
                     // Fetch user stats for global quota
                     const resStats = await fetch("/api/dashboard/stats")
-                    const resUser = await fetch("/api/users/me") // I might need this for role/package
                     
-                    if (resStats.ok && resUser.ok) {
+                    if (resStats.ok) {
                         const statsData = await resStats.json()
-                        const userData = await resUser.json()
                         
-                        // We need getPackageFeatures here too, but since this is client-side, 
-                        // maybe we can just calculate it or have the API return it.
-                        // For now, let's assume we fetch the quota info from a dedicated endpoint or stats.
-                        // I'll add the quota info to /api/dashboard/stats.
                         setUserQuota({
                             used: statsData.tryoutStats.completed,
                             max: statsData.tryoutStats.maxQuota || 0

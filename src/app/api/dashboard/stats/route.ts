@@ -57,8 +57,9 @@ export async function GET() {
 
         // --- Tryout Stats (is_practice = false) ---
         const tryoutSubmissions = allSubmissions.filter((sub) => {
-            const tryout = sub.tryouts as unknown as { is_practice: boolean } | null
-            return tryout?.is_practice === false
+            const tryoutRaw = sub.tryouts
+            const tryout = Array.isArray(tryoutRaw) ? tryoutRaw[0] : tryoutRaw
+            return (tryout as any)?.is_practice === false
         })
 
         const tryoutUsed = tryoutSubmissions.length // Includes IN_PROGRESS
@@ -73,8 +74,9 @@ export async function GET() {
 
         // --- Latihan Stats (is_practice = true) ---
         const latihanSubmissions = allSubmissions.filter((sub) => {
-            const tryout = sub.tryouts as unknown as { is_practice: boolean } | null
-            return tryout?.is_practice === true
+            const tryoutRaw = sub.tryouts
+            const tryout = Array.isArray(tryoutRaw) ? tryoutRaw[0] : tryoutRaw
+            return (tryout as any)?.is_practice === true
         })
 
         const latihanCompleted = latihanSubmissions.filter(s => s.status === "SUBMITTED")
@@ -96,8 +98,9 @@ export async function GET() {
         // (e.g., "Hukum Gauss", "Medan Magnet") so the performance chart displays correctly.
         const materiMap: Record<string, { totalScore: number; count: number }> = {}
         for (const sub of tryoutSubmissions) {
-            const tryout = sub.tryouts as unknown as { category: string } | null
-            const cat = tryout?.category || "Materi Belum Dikategorikan"
+            const tryoutRaw = sub.tryouts
+            const tryout = Array.isArray(tryoutRaw) ? tryoutRaw[0] : tryoutRaw
+            const cat = (tryout as any)?.category || "Materi Belum Dikategorikan"
             if (!materiMap[cat]) {
                 materiMap[cat] = { totalScore: 0, count: 0 }
             }
