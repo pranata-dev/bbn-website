@@ -25,7 +25,7 @@ export async function POST(
         // Get user profile
         const { data: profile, error: profileError } = await supabase
             .from("users")
-            .select("id, role")
+            .select("id, role, package_type")
             .eq("auth_id", user.id)
             .single()
 
@@ -47,33 +47,28 @@ export async function POST(
             return NextResponse.json({ error: "Tryout tidak ditemukan." }, { status: 404 })
         }
 
-        // Check max attempts
-        const { count: attemptCount } = await supabase
-            .from("submissions")
-            .select("*", { count: "exact", head: true })
-            .eq("user_id", profile.id)
-            .eq("tryout_id", tryoutId)
-
+        // Check max attempts (Global Quota Logic)
         if (tryout.is_practice) {
             if (profile.role === "STUDENT_BASIC" || profile.role === "STUDENT_PREMIUM") {
                 return NextResponse.json({ error: "Akses latihan tidak diizinkan untuk role ini." }, { status: 403 })
             }
         } else {
-            let maxAttempts = tryout.max_attempts || 1;
-            
-            if (profile.role === "UTS_SENKU") {
-                maxAttempts = 1;
-            } else if (profile.role === "UTS_EINSTEIN") {
-                maxAttempts = 2;
-            } else if (profile.role === "ADMIN") {
-                maxAttempts = 9999;
-            } else if (profile.role === "UTS_FLUX" || profile.role === "STUDENT_BASIC" || profile.role === "STUDENT_PREMIUM") {
-                return NextResponse.json({ error: "Akses tryout tidak diizinkan untuk role ini." }, { status: 403 })
-            }
+            const { data: allSubmissions } = await supabase
+                .from("submissions")
+                .select("id, tryouts(is_practice)")
+                .eq("user_id", profile.id)
+                .eq("status", "SUBMITTED")
 
-            if (attemptCount !== null && attemptCount >= maxAttempts) {
+            const tryoutSubmissions = allSubmissions?.filter((s: any) => s.tryouts && !s.tryouts.is_practice) || []
+            const usedQuota = tryoutSubmissions.length
+
+            const { getPackageFeatures } = await import("@/lib/package-features")
+            const features = getPackageFeatures(profile.package_type, profile.role)
+            const maxQuota = features.tryoutLimit
+
+            if (usedQuota >= maxQuota && profile.role !== "ADMIN") {
                 return NextResponse.json(
-                    { error: `Kamu sudah mencapai batas percobaan untuk tryout ini (Maks ${maxAttempts} kali).` },
+                    { error: `Kamu sudah mencapai batas kuota tryout (Maks ${maxQuota} kali). Silakan upgrade paket atau hubungi admin untuk menambah kuota.` },
                     { status: 400 }
                 )
             }

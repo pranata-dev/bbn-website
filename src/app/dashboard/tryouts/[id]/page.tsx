@@ -37,6 +37,8 @@ export default function TryoutDetailPage() {
     const [loading, setLoading] = useState(true)
     const [showConfirm, setShowConfirm] = useState(false)
 
+    const [userQuota, setUserQuota] = useState<{ used: number; max: number }>({ used: 0, max: 0 })
+
     useEffect(() => {
         const loadPageData = async () => {
             setLoading(true)
@@ -54,6 +56,24 @@ export default function TryoutDetailPage() {
                     if (resSub.ok) {
                         const dataSub = await resSub.json()
                         setSubmission(dataSub.submission)
+                    }
+
+                    // Fetch user stats for global quota
+                    const resStats = await fetch("/api/dashboard/stats")
+                    const resUser = await fetch("/api/users/me") // I might need this for role/package
+                    
+                    if (resStats.ok && resUser.ok) {
+                        const statsData = await resStats.json()
+                        const userData = await resUser.json()
+                        
+                        // We need getPackageFeatures here too, but since this is client-side, 
+                        // maybe we can just calculate it or have the API return it.
+                        // For now, let's assume we fetch the quota info from a dedicated endpoint or stats.
+                        // I'll add the quota info to /api/dashboard/stats.
+                        setUserQuota({
+                            used: statsData.tryoutStats.completed,
+                            max: statsData.tryoutStats.maxQuota || 0
+                        })
                     }
                 }
             } catch (error) {
@@ -91,6 +111,8 @@ export default function TryoutDetailPage() {
     }
 
     const questionCount = tryout.tryout_questions?.[0]?.count || 0
+
+    const remainingQuota = Math.max(0, userQuota.max - userQuota.used)
 
     return (
         <div className="max-w-2xl mx-auto space-y-6">
@@ -160,24 +182,47 @@ export default function TryoutDetailPage() {
                                     Kamu sudah menyelesaikan tryout ini dengan skor {submission.score}%.
                                 </p>
                             </div>
-                            <Button
-                                asChild
-                                className="w-full bg-dark-brown hover:bg-soft-brown text-cream h-12 text-base"
-                            >
-                                <Link href={`/dashboard/tryouts/${id}/discussion`}>
-                                    <FileText className="w-5 h-5 mr-2" />
-                                    Lihat Pembahasan
-                                </Link>
-                            </Button>
+                            <div className="flex flex-col sm:flex-row gap-3">
+                                <Button
+                                    asChild
+                                    variant="outline"
+                                    className="flex-1 border-dark-brown text-dark-brown hover:bg-warm-beige h-12 text-base"
+                                >
+                                    <Link href={`/dashboard/tryouts/${id}/discussion`}>
+                                        <FileText className="w-5 h-5 mr-2" />
+                                        Lihat Pembahasan
+                                    </Link>
+                                </Button>
+                                
+                                {remainingQuota > 0 && (
+                                    <Button
+                                        onClick={() => setShowConfirm(true)}
+                                        className="flex-1 bg-dark-brown hover:bg-soft-brown text-cream h-12 text-base"
+                                    >
+                                        <Play className="w-5 h-5 mr-2" />
+                                        Kerjakan Ulang
+                                    </Button>
+                                )}
+                            </div>
                         </div>
                     ) : (
-                        <Button
-                            onClick={() => setShowConfirm(true)}
-                            className="w-full bg-dark-brown hover:bg-soft-brown text-cream h-12 text-base"
-                        >
-                            <Play className="w-5 h-5 mr-2" />
-                            Mulai Tryout
-                        </Button>
+                        <div className="space-y-3">
+                            {remainingQuota <= 0 ? (
+                                <div className="p-4 rounded-xl bg-destructive/10 border border-destructive/20">
+                                    <p className="text-sm font-semibold text-destructive text-center">
+                                        Kuota tryout kamu telah habis.
+                                    </p>
+                                </div>
+                            ) : (
+                                <Button
+                                    onClick={() => setShowConfirm(true)}
+                                    className="w-full bg-dark-brown hover:bg-soft-brown text-cream h-12 text-base"
+                                >
+                                    <Play className="w-5 h-5 mr-2" />
+                                    Mulai Tryout
+                                </Button>
+                            )}
+                        </div>
                     )}
                 </CardContent>
             </Card>

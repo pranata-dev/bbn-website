@@ -39,9 +39,10 @@ interface DashboardData {
 
 interface DashboardClientProps {
     dbUser: any
+    usedQuota: number
 }
 
-export default function DashboardClient({ dbUser }: DashboardClientProps) {
+export default function DashboardClient({ dbUser, usedQuota }: DashboardClientProps) {
     const [dashboardData, setDashboardData] = useState<DashboardData | null>(null)
     const [loading, setLoading] = useState(true)
 
@@ -63,9 +64,8 @@ export default function DashboardClient({ dbUser }: DashboardClientProps) {
     }, [])
 
     const packageType = (dbUser?.package_type as PackageType) || null
-    const tryoutAttemptUsed = dbUser?.tryout_attempt_used || 0
     const features = getPackageFeatures(packageType, dbUser?.role)
-    const remainingTryouts = Math.max(0, features.tryoutLimit - tryoutAttemptUsed)
+    const remainingTryouts = Math.max(0, features.tryoutLimit - usedQuota)
 
     const tryoutStats = [
         { label: "Tryout Selesai", value: dashboardData?.tryoutStats.completed ?? 0, icon: FileText, color: "text-dark-brown" },
