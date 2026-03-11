@@ -81,10 +81,12 @@ export async function GET() {
             : 0
 
         // --- Performance Per Materi (Tryout only) ---
+        // NOTE FOR ADMIN: Please ensure all questions have a 'category' field filled in 
+        // (e.g., "Hukum Gauss", "Medan Magnet") so the performance chart displays correctly.
         const materiMap: Record<string, { totalScore: number; count: number }> = {}
         for (const sub of tryoutSubmissions) {
             const tryout = sub.tryouts as unknown as { category: string } | null
-            const cat = tryout?.category || "UNKNOWN"
+            const cat = tryout?.category || "Materi Belum Dikategorikan"
             if (!materiMap[cat]) {
                 materiMap[cat] = { totalScore: 0, count: 0 }
             }
