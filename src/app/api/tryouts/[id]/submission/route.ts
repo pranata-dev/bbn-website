@@ -32,7 +32,7 @@ export async function GET(
             .select("*")
             .eq("user_id", profile.id)
             .eq("tryout_id", tryoutId)
-            .neq("status", "IN_PROGRESS")
+            // .neq("status", "IN_PROGRESS") // Filter removed to detect active sessions for resume
             .order("created_at", { ascending: false })
             .limit(1)
             .single()

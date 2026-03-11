@@ -175,7 +175,24 @@ export default function TryoutDetailPage() {
                     </div>
 
                     {/* Action button */}
-                    {submission ? (
+                    {submission && submission.status === "IN_PROGRESS" ? (
+                        <div className="space-y-3">
+                            <div className="p-4 rounded-xl bg-amber-50 border border-amber-200">
+                                <p className="text-sm font-semibold text-amber-700 text-center">
+                                    Kamu memiliki sesi yang sedang berjalan.
+                                </p>
+                            </div>
+                            <Button
+                                asChild
+                                className="w-full bg-dark-brown hover:bg-soft-brown text-cream h-12 text-base"
+                            >
+                                <Link href={`/dashboard/tryouts/${id}/attempt`}>
+                                    <Play className="w-5 h-5 mr-2" />
+                                    Lanjutkan Tryout
+                                </Link>
+                            </Button>
+                        </div>
+                    ) : submission && submission.status === "SUBMITTED" ? (
                         <div className="space-y-3">
                             <div className="p-4 rounded-xl bg-earthy-green/10 border border-earthy-green/20">
                                 <p className="text-sm font-semibold text-earthy-green text-center">

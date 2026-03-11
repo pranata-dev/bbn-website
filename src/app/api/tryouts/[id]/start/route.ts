@@ -57,7 +57,7 @@ export async function POST(
                 .from("submissions")
                 .select("id, tryouts(is_practice)")
                 .eq("user_id", profile.id)
-                .eq("status", "SUBMITTED")
+                .in("status", ["SUBMITTED", "IN_PROGRESS"])
 
             const tryoutSubmissions = allSubmissions?.filter((s: any) => s.tryouts && !s.tryouts.is_practice) || []
             const usedQuota = tryoutSubmissions.length

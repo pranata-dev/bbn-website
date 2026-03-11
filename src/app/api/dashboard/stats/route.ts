@@ -27,30 +27,33 @@ export async function GET() {
         const features = getPackageFeatures(dbUser.package_type, dbUser.role)
         const maxQuota = features.tryoutLimit
 
-        // Fetch all SUBMITTED submissions for this user with tryout info
+        // Fetch all SUBMITTED and IN_PROGRESS submissions for this user with tryout info
         const { data: submissions } = await supabase
             .from("submissions")
-            .select("id, score, correct_count, total_count, created_at, tryout_id, tryouts(title, is_practice, category)")
+            .select("id, status, score, correct_count, total_count, created_at, tryout_id, tryouts(title, is_practice, category)")
             .eq("user_id", userId)
-            .eq("status", "SUBMITTED")
+            .in("status", ["SUBMITTED", "IN_PROGRESS"])
             .order("created_at", { ascending: false })
 
         const allSubmissions = submissions || []
 
-        // --- Recent Activity (both Tryout & Latihan, most recent 5) ---
-        const recentActivity = allSubmissions.slice(0, 5).map((sub) => {
-            const tryout = sub.tryouts as unknown as { title: string; is_practice: boolean; category: string } | null
-            return {
-                id: sub.id,
-                tryoutId: sub.tryout_id,
-                title: tryout?.title || "Unknown",
-                type: tryout?.is_practice ? "Latihan" : "Tryout",
-                score: sub.score,
-                correctCount: sub.correct_count,
-                totalCount: sub.total_count,
-                createdAt: sub.created_at,
-            }
-        })
+        // --- Recent Activity (most recent 5, only SUBMITTED) ---
+        const recentActivity = allSubmissions
+            .filter(sub => sub.status === "SUBMITTED")
+            .slice(0, 5)
+            .map((sub) => {
+                const tryout = sub.tryouts as unknown as { title: string; is_practice: boolean; category: string } | null
+                return {
+                    id: sub.id,
+                    tryoutId: sub.tryout_id,
+                    title: tryout?.title || "Unknown",
+                    type: tryout?.is_practice ? "Latihan" : "Tryout",
+                    score: sub.score,
+                    correctCount: sub.correct_count,
+                    totalCount: sub.total_count,
+                    createdAt: sub.created_at,
+                }
+            })
 
         // --- Tryout Stats (is_practice = false) ---
         const tryoutSubmissions = allSubmissions.filter((sub) => {
@@ -58,12 +61,14 @@ export async function GET() {
             return tryout?.is_practice === false
         })
 
-        const tryoutCompleted = tryoutSubmissions.length
-        const tryoutAvgScore = tryoutCompleted > 0
-            ? Math.round(tryoutSubmissions.reduce((sum, s) => sum + (s.score || 0), 0) / tryoutCompleted)
+        const tryoutUsed = tryoutSubmissions.length // Includes IN_PROGRESS
+        const tryoutCompleted = tryoutSubmissions.filter(s => s.status === "SUBMITTED")
+        
+        const tryoutAvgScore = tryoutCompleted.length > 0
+            ? Math.round(tryoutCompleted.reduce((sum, s) => sum + (s.score || 0), 0) / tryoutCompleted.length)
             : 0
-        const tryoutHighestScore = tryoutCompleted > 0
-            ? Math.round(Math.max(...tryoutSubmissions.map((s) => s.score || 0)))
+        const tryoutHighestScore = tryoutCompleted.length > 0
+            ? Math.round(Math.max(...tryoutCompleted.map((s) => s.score || 0)))
             : 0
 
         // --- Latihan Stats (is_practice = true) ---
@@ -72,13 +77,19 @@ export async function GET() {
             return tryout?.is_practice === true
         })
 
-        const latihanCompleted = latihanSubmissions.length
-        const latihanAvgScore = latihanCompleted > 0
-            ? Math.round(latihanSubmissions.reduce((sum, s) => sum + (s.score || 0), 0) / latihanCompleted)
+        const latihanCompleted = latihanSubmissions.filter(s => s.status === "SUBMITTED")
+        const latihanUsed = latihanSubmissions.length
+
+        const latihanAvgScore = latihanCompleted.length > 0
+            ? Math.round(latihanCompleted.reduce((sum, s) => sum + (s.score || 0), 0) / latihanCompleted.length)
             : 0
-        const latihanHighestScore = latihanCompleted > 0
-            ? Math.round(Math.max(...latihanSubmissions.map((s) => s.score || 0)))
+        const latihanHighestScore = latihanCompleted.length > 0
+            ? Math.round(Math.max(...latihanCompleted.map((s) => s.score || 0)))
             : 0
+
+        // For Quota logic on client: using tryoutUsed
+        const tryoutCompletedCount = tryoutUsed;
+        const latihanCompletedCount = latihanCompleted.length;
 
         // --- Performance Per Materi (Tryout only) ---
         // NOTE FOR ADMIN: Please ensure all questions have a 'category' field filled in 
@@ -103,13 +114,13 @@ export async function GET() {
         return NextResponse.json({
             recentActivity,
             tryoutStats: {
-                completed: tryoutCompleted,
+                completed: tryoutUsed, // Renamed for quota consistency
                 avgScore: tryoutAvgScore,
                 highestScore: tryoutHighestScore,
                 maxQuota: maxQuota,
             },
             latihanStats: {
-                completed: latihanCompleted,
+                completed: latihanCompletedCount,
                 avgScore: latihanAvgScore,
                 highestScore: latihanHighestScore,
             },
