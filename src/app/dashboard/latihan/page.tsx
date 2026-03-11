@@ -134,7 +134,7 @@ export default function LatihanPage() {
                             <CardHeader className="pb-3">
                                 <div className="flex items-start justify-between">
                                     <div className="flex-1">
-                                        <Badge variant="secondary" className="mb-2 bg-warm-beige text-soft-brown text-xs">
+                                        <Badge variant="secondary" className="mb-2 bg-warm-beige text-soft-brown text-xs whitespace-normal h-auto text-left">
                                             {latihan.category
                                                 ? CATEGORY_LABELS[latihan.category]
                                                 : "Semua Materi"}

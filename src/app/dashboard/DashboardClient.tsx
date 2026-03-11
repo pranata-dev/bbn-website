@@ -280,7 +280,7 @@ export default function DashboardClient({ dbUser, usedQuota }: DashboardClientPr
                                             <div className="min-w-0">
                                                 <p className="text-sm font-medium text-foreground truncate">{activity.title}</p>
                                                 <div className="flex items-center gap-2">
-                                                    <Badge variant="secondary" className={`text-[10px] px-1.5 py-0 ${
+                                                    <Badge variant="secondary" className={`text-[10px] px-1.5 py-0 whitespace-normal h-auto ${
                                                         activity.type === "Tryout"
                                                             ? "bg-earthy-gold/10 text-earthy-gold"
                                                             : "bg-earthy-green/10 text-earthy-green"
