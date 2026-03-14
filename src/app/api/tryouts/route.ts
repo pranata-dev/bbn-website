@@ -13,26 +13,23 @@ export async function GET(request: NextRequest) {
 
         const { data: profile } = await supabase
             .from("users")
-            .select("role")
+            .select("*, subject_access(*)")
             .eq("auth_id", user.id)
             .single()
+
+        if (!profile || !profile.subject_access || profile.subject_access.length === 0) {
+            return NextResponse.json({ tryouts: [] })
+        }
+
+        const subjectAccess = profile.subject_access
+        const accessibleSubjects = subjectAccess.map((a: any) => a.subject)
 
         let query = supabase
             .from("tryouts")
             .select("*, tryout_questions(count)")
             .eq("status", "ACTIVE")
+            .in("subject", accessibleSubjects)
             .order("created_at", { ascending: false })
-
-        // Apply role-based filtering
-        const role = profile?.role || "STUDENT_BASIC"
-        if (role === "STUDENT_BASIC" || role === "STUDENT_PREMIUM") {
-            // Cannot access practice questions AND tryouts (only Material)
-            return NextResponse.json({ tryouts: [] })
-        } else if (role === "UTS_FLUX") {
-            // Can ONLY access practice questions, no regular tryouts
-            query = query.eq("is_practice", true)
-        }
-        // UTS_SENKU, UTS_EINSTEIN, and ADMIN can access both, so no additional filter.
 
         const { data: tryouts, error } = await query
 
@@ -40,7 +37,21 @@ export async function GET(request: NextRequest) {
             return NextResponse.json({ error: "Failed to fetch tryouts" }, { status: 500 })
         }
 
-        return NextResponse.json({ tryouts })
+        // Apply granular filtering based on specific subject roles
+        const filteredTryouts = tryouts.filter((t: any) => {
+            const access = subjectAccess.find((a: any) => a.subject === t.subject)
+            if (!access) return false // Should be caught by .in("subject") but safety first
+
+            const role = access.role
+            if (role === "STUDENT_BASIC" || role === "STUDENT_PREMIUM") {
+                return false // No tryouts for basic students
+            } else if (role === "UTS_FLUX") {
+                return t.is_practice === true // Flux can only see practice
+            }
+            return true // Senku, Einstein, and implicit ADMIN access (though ADMIN is handled elsewhere)
+        })
+
+        return NextResponse.json({ tryouts: filteredTryouts })
     } catch (error) {
         return NextResponse.json({ error: "Internal error" }, { status: 500 })
     }
