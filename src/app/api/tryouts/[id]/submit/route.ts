@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
-import { submitTryout } from "@/services/tryoutService"
+import { submitTryout, SubmitTryoutResponse } from "@/services/tryoutService"
 import { submitTryoutSchema } from "@/lib/validators"
 
 // POST /api/tryouts/[id]/submit - Submit tryout answers
@@ -20,7 +20,7 @@ export async function POST(
         }
 
         // 2. Parse and validate request body
-        const body = await request.json()
+        const body = (await request.json()) as unknown
         const validatedBody = submitTryoutSchema.safeParse(body)
 
         if (!validatedBody.success) {
@@ -33,21 +33,23 @@ export async function POST(
         const { submissionId, answers } = validatedBody.data
 
         // 3. Call Service Layer
-        const result = await submitTryout({
+        const result: SubmitTryoutResponse = await submitTryout({
             authId: user.id,
             tryoutId,
             submissionId,
-            answers,
+            answers: answers.map(a => ({
+                questionId: a.questionId,
+                answer: a.answer
+            })),
         })
 
         // 4. Return response
         return NextResponse.json(result)
         
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error("Submit tryout error:", error)
         
-        // Map specific business logic errors to HTTP status codes
-        const errorMessage = error.message || "Internal error"
+        const errorMessage = error instanceof Error ? error.message : "Internal error"
         let status = 500
         
         if (errorMessage === "Profile not found" || errorMessage === "Submission tidak ditemukan.") {

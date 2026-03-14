@@ -1,5 +1,6 @@
 import { v4 as uuidv4 } from "uuid"
 import { createServiceClient } from "@/lib/supabase/server"
+import { SubmissionStatus } from "@/types"
 
 interface SubmitTryoutParams {
   authId: string
@@ -8,12 +9,46 @@ interface SubmitTryoutParams {
   answers: { questionId: string; answer: string | null }[]
 }
 
+export interface SubmitTryoutResponse {
+  score: number
+  correctCount: number
+  totalCount: number
+  totalWeight: number
+  status: SubmissionStatus
+}
+
+interface UserProfileResult {
+  id: string
+}
+
+interface SubmissionWithTryout {
+  id: string
+  user_id: string
+  tryout_id: string
+  status: SubmissionStatus
+  started_at: string
+  tryouts: {
+    duration: number
+  }
+}
+
+interface QuestionResult {
+  id: string
+  correct_answer: string
+  weight: number
+}
+
+interface AnswerResult {
+  id: string
+  question_id: string
+}
+
 export async function submitTryout({
   authId,
   tryoutId,
   submissionId,
   answers,
-}: SubmitTryoutParams) {
+}: SubmitTryoutParams): Promise<SubmitTryoutResponse> {
   const supabase = createServiceClient()
 
   // 1. Get user profile
@@ -21,7 +56,7 @@ export async function submitTryout({
     .from("users")
     .select("id")
     .eq("auth_id", authId)
-    .single()
+    .single() as { data: UserProfileResult | null }
 
   if (!profile) {
     throw new Error("Profile not found")
@@ -34,7 +69,7 @@ export async function submitTryout({
     .eq("id", submissionId)
     .eq("user_id", profile.id)
     .eq("tryout_id", tryoutId)
-    .single()
+    .single() as { data: SubmissionWithTryout | null, error: any }
 
   if (!submission || submissionError) {
     console.error("Submission fetch error:", submissionError)
@@ -49,19 +84,19 @@ export async function submitTryout({
   const startStr = submission.started_at
   const utcStartStr = startStr.endsWith("Z") ? startStr : startStr + "Z"
   const startTime = new Date(utcStartStr).getTime()
-  const duration = submission.tryouts.duration * 60 * 1000
+  const duration = (submission.tryouts?.duration || 0) * 60 * 1000
   const now = Date.now()
   const gracePeriod = 30000
 
   const timedOut = now > startTime + duration + gracePeriod
-  const status = timedOut ? "TIMED_OUT" : "SUBMITTED"
+  const status: SubmissionStatus = timedOut ? "TIMED_OUT" : "SUBMITTED"
 
   // 4. Get correct answers
   const questionIds = answers.map((a) => a.questionId)
   const { data: correctAnswers } = await supabase
     .from("questions")
     .select("id, correct_answer, weight")
-    .in("id", questionIds)
+    .in("id", questionIds) as { data: QuestionResult[] | null }
 
   // 5. Score the answers
   let correctCount = 0
@@ -71,7 +106,7 @@ export async function submitTryout({
   const { data: existingAnswers } = await supabase
     .from("answers")
     .select("id, question_id")
-    .eq("submission_id", submissionId)
+    .eq("submission_id", submissionId) as { data: AnswerResult[] | null }
 
   const existingMap = new Map((existingAnswers || []).map((a) => [a.question_id, a.id]))
 
