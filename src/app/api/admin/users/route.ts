@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
         const adminSupabase = await createAdminClient()
         const { data: users, error } = await adminSupabase
             .from("users")
-            .select("*")
+            .select("*, subject_access(*)")
             .order("created_at", { ascending: false })
 
         if (error) {
@@ -25,51 +25,53 @@ export async function GET(request: NextRequest) {
     }
 }
 
-// PATCH - Update user role or status
+// PATCH - Update user subject access or status
 export async function PATCH(request: NextRequest) {
-    // Check rate limit
     const rateLimitResponse = checkRateLimit(request)
     if (rateLimitResponse) return rateLimitResponse
 
     try {
-
         const body = await request.json()
-        const { userId, role, isActive } = body
+        const { userId, role, subject, isActive } = body
 
-        const updateData: Record<string, unknown> = {}
-        if (role) {
-            updateData.role = role
-
-            // Sync PackageType with Role
-            switch (role) {
-                case "UTS_EINSTEIN":
-                    updateData.package_type = "EINSTEIN"
-                    break
-                case "UTS_SENKU":
-                    updateData.package_type = "SENKU"
-                    break
-                case "UTS_FLUX":
-                    updateData.package_type = "FLUX"
-                    break
-                case "STUDENT_PREMIUM":
-                    updateData.package_type = "REGULER"
-                    break
-                default:
-                    // If ADMIN or unknown, do not explicitly overwrite package_type
-                    // Or set it to null if that's the preferred behavior for admins
-                    break
-            }
+        if (!userId) {
+            return NextResponse.json({ error: "User ID is required" }, { status: 400 })
         }
-        if (typeof isActive === "boolean") updateData.is_active = isActive
 
         const adminSupabase = await createAdminClient()
-        const { error } = await adminSupabase
-            .from("users")
-            .update(updateData)
-            .eq("id", userId)
 
-        if (error) {
-            return NextResponse.json({ error: "Failed to update user" }, { status: 500 })
+        // 1. Update user active status if provided
+        if (typeof isActive === "boolean") {
+            const { error: userError } = await adminSupabase
+                .from("users")
+                .update({ is_active: isActive })
+                .eq("id", userId)
+            
+            if (userError) throw userError
+        }
+
+        // 2. Update/Upsert subject access if role and subject provided
+        if (role && subject) {
+            let packageType = "REGULER"
+            switch (role) {
+                case "UTS_EINSTEIN": packageType = "EINSTEIN"; break
+                case "UTS_SENKU": packageType = "SENKU"; break
+                case "UTS_FLUX": packageType = "FLUX"; break
+                case "STUDENT_PREMIUM": packageType = "REGULER"; break
+            }
+
+            const { error: accessError } = await adminSupabase
+                .from("user_subject_access")
+                .upsert({
+                    user_id: userId,
+                    subject,
+                    role,
+                    package_type: packageType,
+                    is_active: true,
+                    updated_at: new Date().toISOString()
+                }, { onConflict: 'user_id,subject' })
+            
+            if (accessError) throw accessError
         }
 
         return NextResponse.json({ message: "User updated successfully" })
