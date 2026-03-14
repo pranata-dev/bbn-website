@@ -42,8 +42,7 @@ export default function DashboardLayout({
     const pathname = usePathname()
     const router = useRouter()
     const [sidebarOpen, setSidebarOpen] = useState(false)
-    const [packageType, setPackageType] = useState<PackageType | null>(null)
-    const [userRole, setUserRole] = useState<string | undefined>(undefined)
+    const [subjectAccess, setSubjectAccess] = useState<any[]>([])
     const [isLoadingUser, setIsLoadingUser] = useState(true)
 
     useEffect(() => {
@@ -53,10 +52,9 @@ export default function DashboardLayout({
 
             if (user) {
                 try {
-                    // Using direct supabase client instead of fetch
                     const { data: profile, error: dbError } = await supabase
                         .from('users')
-                        .select('package_type, role') // removed access_ends_at as the col doesn't exist remote
+                        .select('*, subject_access(*)')
                         .eq('auth_id', user.id)
                         .single()
                         
@@ -64,9 +62,8 @@ export default function DashboardLayout({
                         console.error("Layout fetch DB error", dbError)
                     }
 
-                    if (profile) {
-                        setPackageType(profile.package_type as PackageType || null)
-                        setUserRole(profile.role)
+                    if (profile && profile.subject_access) {
+                        setSubjectAccess(profile.subject_access)
                     }
                 } catch (error) {
                     console.error("Failed to fetch user profile", error)
@@ -78,7 +75,14 @@ export default function DashboardLayout({
         fetchUserPackage()
     }, [])
 
-    const packageFeatures = getPackageFeatures(packageType, userRole)
+    // Aggregate features: if any subject has a feature, the user has it in the global sidebar
+    const allFeatures = subjectAccess.map(a => getPackageFeatures(a.package_type, a.role))
+    const packageFeatures: PackageFeatures = {
+        canAccessLatihan: allFeatures.some(f => f.canAccessLatihan),
+        canAccessTryout: allFeatures.some(f => f.canAccessTryout),
+        canViewDiscussion: allFeatures.some(f => f.canViewDiscussion),
+        tryoutLimit: Math.max(0, ...allFeatures.map(f => f.tryoutLimit)),
+    }
 
     const handleLogout = async () => {
         const supabase = createClient()
@@ -134,10 +138,9 @@ export default function DashboardLayout({
                             )
 
                             if (isLocked) {
-                                // specifically for Tryout -> Flux spec
                                 let lockdownMessage = "Fitur ini tidak tersedia di paket Anda."
-                                if (item.id === "tryouts" && packageType === "FLUX") {
-                                    lockdownMessage = "Upgrade ke Berotak Senku Mode untuk membuka TryOut"
+                                if (item.id === "tryouts" && !packageFeatures.canAccessTryout) {
+                                    lockdownMessage = "Upgrade paket Anda untuk membuka TryOut"
                                 }
                                 return (
                                     <Tooltip key={item.id}>
