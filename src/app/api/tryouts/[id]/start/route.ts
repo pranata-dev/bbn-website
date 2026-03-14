@@ -22,20 +22,19 @@ export async function POST(
         // Use service client for all DB operations (bypasses RLS)
         const supabase = createServiceClient()
 
-        // Get user profile
-        const { data: profile, error: profileError } = await supabase
+        // 1. Get user profile ID
+        const { data: profile } = await supabase
             .from("users")
-            .select("id, role, package_type")
+            .select("id")
             .eq("auth_id", user.id)
             .single()
 
         if (!profile) {
-            console.error("Profile not found for auth_id:", user.id, profileError)
             return NextResponse.json({ error: "Profile not found" }, { status: 404 })
         }
 
-        // Get tryout details
-        const { data: tryout, error: tryoutError } = await supabase
+        // 2. Get tryout details (including the new subject field)
+        const { data: tryout } = await supabase
             .from("tryouts")
             .select("*, tryout_questions(question_id)")
             .eq("id", tryoutId)
@@ -43,41 +42,49 @@ export async function POST(
             .single()
 
         if (!tryout) {
-            console.error("Tryout not found:", tryoutId, tryoutError)
             return NextResponse.json({ error: "Tryout tidak ditemukan." }, { status: 404 })
         }
 
-        // Check max attempts (Global Quota Logic)
+        // 3. Get Subject Access
+        const { data: access } = await supabase
+            .from("user_subject_access")
+            .select("*")
+            .eq("user_id", profile.id)
+            .eq("subject", tryout.subject)
+            .eq("is_active", true)
+            .single()
+
+        if (!access) {
+            return NextResponse.json({ 
+                error: `Anda tidak memiliki akses aktif untuk mata kuliah ${tryout.subject}.` 
+            }, { status: 403 })
+        }
+
+        // 4. Check role-based permissions and quotas
+        const { getPackageFeatures } = await import("@/lib/package-features")
+        const features = getPackageFeatures(access.package_type, access.role)
+
         if (tryout.is_practice) {
-            if (profile.role === "STUDENT_BASIC" || profile.role === "STUDENT_PREMIUM") {
-                return NextResponse.json({ error: "Akses latihan tidak diizinkan untuk role ini." }, { status: 403 })
+            if (!features.canAccessLatihan) {
+                return NextResponse.json({ error: "Akses latihan tidak diizinkan untuk paket Anda." }, { status: 403 })
             }
         } else {
-            const { data: allSubmissions } = await supabase
-                .from("submissions")
-                .select("id, tryouts(is_practice)")
-                .eq("user_id", profile.id)
-                .in("status", ["SUBMITTED", "IN_PROGRESS"])
+            if (!features.canAccessTryout && access.role !== "ADMIN") {
+                return NextResponse.json({ error: "Akses tryout tidak diizinkan untuk paket Anda." }, { status: 403 })
+            }
 
-            const tryoutSubmissions = allSubmissions?.filter((s: any) => {
-                const tryout = Array.isArray(s.tryouts) ? s.tryouts[0] : s.tryouts
-                return tryout && !tryout.is_practice
-            }) || []
-            const usedQuota = tryoutSubmissions.length
-
-            const { getPackageFeatures } = await import("@/lib/package-features")
-            const features = getPackageFeatures(profile.package_type, profile.role)
+            const usedQuota = access.tryout_attempts_used
             const maxQuota = features.tryoutLimit
 
-            if (usedQuota >= maxQuota && profile.role !== "ADMIN") {
+            if (usedQuota >= maxQuota && access.role !== "ADMIN") {
                 return NextResponse.json(
-                    { error: `Kamu sudah mencapai batas kuota tryout (Maks ${maxQuota} kali). Silakan upgrade paket atau hubungi admin untuk menambah kuota.` },
+                    { error: `Kamu sudah mencapai batas kuota tryout (${maxQuota} kali).` },
                     { status: 400 }
                 )
             }
         }
 
-        // Check active submission
+        // 5. Check active submission
         const { data: activeSubmission } = await supabase
             .from("submissions")
             .select("id, status, started_at, question_order")
@@ -87,7 +94,7 @@ export async function POST(
             .single()
 
         if (activeSubmission) {
-            // Fetch associated answers for resume
+            // Resume logic
             const { data: activeAnswers } = await supabase
                 .from("answers")
                 .select("question_id, answer")
@@ -98,7 +105,6 @@ export async function POST(
                 .select("id, text, category, option_a, option_b, option_c, option_d, option_e, weight, image_url")
                 .in("id", activeSubmission.question_order || [])
             
-            // Format questions order
             const orderedQuestions = (activeSubmission.question_order || []).map((qId: string) => {
                 return questionsData?.find((q: any) => q.id === qId)
             }).filter((q: any) => q)
@@ -116,11 +122,10 @@ export async function POST(
             })
         }
 
-        // Randomize question order
+        // 6. Start New Attempt
         const questionIds = tryout.tryout_questions.map((tq: { question_id: string }) => tq.question_id)
         const shuffled = [...questionIds].sort(() => Math.random() - 0.5)
 
-        // Create submission
         const submissionId = uuidv4()
         const now = new Date().toISOString()
         const { data: submission, error } = await supabase
@@ -143,13 +148,11 @@ export async function POST(
             return NextResponse.json({ error: "Gagal memulai tryout." }, { status: 500 })
         }
 
-        // Get the questions in randomized order
         const { data: questions } = await supabase
             .from("questions")
             .select("id, text, category, option_a, option_b, option_c, option_d, option_e, weight, image_url")
             .in("id", shuffled)
 
-        // Sort by randomized order
         const orderedQuestions = shuffled.map((qId: string) =>
             questions?.find((q: { id: string }) => q.id === qId)
         ).filter(Boolean)
@@ -162,6 +165,11 @@ export async function POST(
             },
             questions: orderedQuestions,
         }, { status: 201 })
+    } catch (error) {
+        console.error("Start tryout error:", error)
+        return NextResponse.json({ error: "Internal error" }, { status: 500 })
+    }
+}
     } catch (error) {
         console.error("Start tryout error:", error)
         return NextResponse.json({ error: "Internal error" }, { status: 500 })
