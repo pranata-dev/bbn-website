@@ -117,21 +117,45 @@ export async function POST(request: NextRequest) {
             const accessEndsAt = new Date()
             accessEndsAt.setDate(accessEndsAt.getDate() + 30)
 
-            // Update user status to active, sync role, and set package architecture and access expiration
-            const { error: updateError } = await adminClient
+            // Update user status to active
+            const { error: userUpdateError } = await adminClient
                 .from("users")
                 .update({
                     is_active: true,
-                    role: userRole,
-                    package_type: packageType,
-                    // access_ends_at: accessEndsAt.toISOString() // Temporarily disabled due to missing db column
+                    updated_at: new Date().toISOString(),
                 })
                 .eq("id", existingUser.id)
 
-            if (updateError) {
-                console.error("User activation update error:", updateError)
+            if (userUpdateError) {
+                console.error("User activation update error:", userUpdateError)
                 return NextResponse.json(
                     { error: "Pendaftaran disetujui, tapi gagal mengaktifkan akun. Mohon hubungi admin teknis." },
+                    { status: 500 }
+                )
+            }
+
+            // Provision User Subject Access
+            const subjectMap: Record<string, string> = {
+                "fisika-dasar-2": "FISDAS2",
+                "fisika-matematika": "FISMAT",
+            }
+            const mappedSubject = subjectMap[registration.subject] || "FISDAS2"
+
+            const { error: accessError } = await adminClient
+                .from("user_subject_access")
+                .upsert({
+                    user_id: existingUser.id,
+                    subject: mappedSubject,
+                    role: userRole,
+                    package_type: packageType,
+                    is_active: true,
+                    updated_at: new Date().toISOString(),
+                }, { onConflict: 'user_id,subject' })
+
+            if (accessError) {
+                console.error("Subject access provisioning error:", accessError)
+                return NextResponse.json(
+                    { error: "Pendaftaran disetujui, tapi gagal memberikan akses mata kuliah. Mohon hubungi admin teknis." },
                     { status: 500 }
                 )
             }
