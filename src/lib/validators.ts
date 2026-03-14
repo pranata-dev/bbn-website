@@ -47,6 +47,7 @@ export const submitAnswerSchema = z.object({
 })
 
 export const submitTryoutSchema = z.object({
+    submissionId: z.string().uuid(),
     answers: z.array(submitAnswerSchema),
 })
 

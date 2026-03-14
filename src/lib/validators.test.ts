@@ -139,6 +139,33 @@ describe('Validators', () => {
         })
     })
 
+    describe('submitTryoutSchema', () => {
+        it('should validate a correct tryout submission', () => {
+            const data = {
+                submissionId: '550e8400-e29b-41d4-a716-446655440000',
+                answers: [
+                    { questionId: '550e8400-e29b-41d4-a716-446655440000', answer: 'A' }
+                ]
+            }
+            expect(submitTryoutSchema.safeParse(data).success).toBe(true)
+        })
+
+        it('should fail if submissionId is missing', () => {
+            const data = {
+                answers: []
+            }
+            expect(submitTryoutSchema.safeParse(data).success).toBe(false)
+        })
+
+        it('should fail if submissionId is not a UUID', () => {
+            const data = {
+                submissionId: 'invalid-uuid',
+                answers: []
+            }
+            expect(submitTryoutSchema.safeParse(data).success).toBe(false)
+        })
+    })
+
     describe('paymentApprovalSchema', () => {
         it('should validate correct payment approval', () => {
             const data = {
