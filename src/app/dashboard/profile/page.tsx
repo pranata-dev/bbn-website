@@ -12,7 +12,7 @@ export default async function ProfilePage() {
     if (authUser) {
         const { data } = await supabase
             .from("users")
-            .select("*")
+            .select("*, subject_access(*)")
             .eq("auth_id", authUser.id)
             .single()
         dbUser = data
@@ -20,30 +20,7 @@ export default async function ProfilePage() {
 
     const userName = dbUser?.name || "User"
     const userEmail = dbUser?.email || authUser?.email || "-"
-    const userRole = dbUser?.role || "STUDENT_PREMIUM"
-
-    let userPackage = dbUser?.package_type
-
-    // Fallback logic for unsynced historic data
-    if (!userPackage) {
-        switch (userRole) {
-            case "UTS_EINSTEIN":
-                userPackage = "EINSTEIN"
-                break
-            case "UTS_SENKU":
-                userPackage = "SENKU"
-                break
-            case "UTS_FLUX":
-                userPackage = "FLUX"
-                break
-            case "STUDENT_PREMIUM":
-                userPackage = "REGULER"
-                break
-            default:
-                userPackage = "Belum Ada Paket"
-                break
-        }
-    }
+    const subjectAccess = dbUser?.subject_access || []
 
     const joinDate = dbUser?.created_at
         ? format(new Date(dbUser.created_at), "dd MMMM yyyy", { locale: id })
@@ -75,11 +52,26 @@ export default async function ProfilePage() {
                                 <p className="text-sm font-medium text-foreground">{userEmail}</p>
                             </div>
                         </div>
-                        <div className="flex items-center gap-3 p-4 rounded-xl bg-warm-beige">
-                            <Package className="w-5 h-5 text-soft-brown" />
-                            <div>
+                        <div className="flex flex-col gap-3 p-4 rounded-xl bg-warm-beige sm:col-span-2">
+                            <div className="flex items-center gap-3">
+                                <Package className="w-5 h-5 text-soft-brown" />
                                 <p className="text-xs text-muted-foreground">Paket Aktif</p>
-                                <p className="text-sm font-medium text-foreground">{userPackage}</p>
+                            </div>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-1">
+                                {subjectAccess.length === 0 ? (
+                                    <p className="text-sm font-medium text-foreground">Belum Ada Paket</p>
+                                ) : (
+                                    subjectAccess.map((acc: any) => (
+                                        <div key={acc.id} className="flex items-center justify-between bg-white/50 p-2 rounded-lg border border-warm-gray/20">
+                                            <span className="text-xs font-bold text-dark-brown">
+                                                {acc.subject === "FISDAS2" ? "Fisika Dasar 2" : acc.subject}
+                                            </span>
+                                            <Badge variant="secondary" className="text-[10px] bg-warm-beige text-soft-brown">
+                                                {acc.package_type}
+                                            </Badge>
+                                        </div>
+                                    ))
+                                )}
                             </div>
                         </div>
                         <div className="flex items-center gap-3 p-4 rounded-xl bg-warm-beige">
