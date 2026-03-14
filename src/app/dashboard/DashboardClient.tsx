@@ -39,10 +39,10 @@ interface DashboardData {
 
 interface DashboardClientProps {
     dbUser: any
-    usedQuota: number
+    subjectAccess: any[]
 }
 
-export default function DashboardClient({ dbUser, usedQuota }: DashboardClientProps) {
+export default function DashboardClient({ dbUser, subjectAccess }: DashboardClientProps) {
     const [dashboardData, setDashboardData] = useState<DashboardData | null>(null)
     const [loading, setLoading] = useState(true)
 
@@ -63,9 +63,8 @@ export default function DashboardClient({ dbUser, usedQuota }: DashboardClientPr
         loadStats()
     }, [])
 
-    const packageType = (dbUser?.package_type as PackageType) || null
-    const features = getPackageFeatures(packageType, dbUser?.role)
-    const remainingTryouts = Math.max(0, features.tryoutLimit - usedQuota)
+    // Aggregate features or use a specific one? For now, we'll map per subject.
+    // The previous logic used a single 'packageType' and 'usedQuota'.
 
     const tryoutStats = [
         { label: "Tryout Selesai", value: dashboardData?.tryoutStats.completed ?? 0, icon: FileText, color: "text-dark-brown" },
@@ -143,103 +142,61 @@ export default function DashboardClient({ dbUser, usedQuota }: DashboardClientPr
                 </div>
             </div>
 
-            {/* Quick actions & Package specifics */}
+            {/* Quick actions & Package specifics - Modified for Multi-Subject */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Dynamically Replaced Available Tryouts based on Package */}
-                {!features.canAccessTryout ? (
-                    <Card className="border-warm-gray/60 bg-warm-gray/10">
-                        <CardHeader className="flex flex-row items-center justify-between pb-2">
-                            <CardTitle className="text-lg text-muted-foreground flex items-center gap-2">
-                                <Lock className="w-4 h-4" /> Tryout Terkunci
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="flex flex-col items-center justify-center py-6 text-center">
-                                <div className="w-12 h-12 rounded-full bg-warm-gray/20 flex items-center justify-center mb-3">
-                                    <FileText className="w-6 h-6 text-muted-foreground/50" />
-                                </div>
-                                <p className="text-sm font-medium text-foreground mb-1">
-                                    Fitur TryOut tidak tersedia di paket ini.
-                                </p>
-                                <p className="text-xs text-muted-foreground mb-4">
-                                    Upgrade ke Berotak Senku Mode untuk membuka akses TryOut.
-                                </p>
-                                <Button variant="outline" className="w-full text-xs" asChild>
-                                    <a href="https://wa.me/6281234567890?text=Halo%20Admin%2C%20saya%20ingin%20upgrade%20paket%20ke%20Senku%20Mode" target="_blank" rel="noopener noreferrer">
-                                        Upgrade Sekarang
-                                    </a>
-                                </Button>
-                            </div>
-                        </CardContent>
-                    </Card>
-                ) : packageType === "SENKU" || packageType === "EINSTEIN" ? (
-                    <Card className="border-earthy-gold/50 shadow-sm shadow-earthy-gold/10">
-                        <CardHeader className="flex flex-row items-center justify-between pb-2">
-                            <CardTitle className="text-lg flex items-center gap-2">
-                                <Unlock className="w-4 h-4 text-earthy-gold" /> Kuota Tryout
-                            </CardTitle>
-                            <Badge variant={remainingTryouts > 0 ? "default" : "destructive"}>
-                                {remainingTryouts} Tersisa
-                            </Badge>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="flex flex-col items-center justify-center py-6 text-center">
-                                <div className="w-12 h-12 rounded-full bg-earthy-gold/20 flex items-center justify-center mb-3">
-                                    <FileText className="w-6 h-6 text-earthy-gold" />
-                                </div>
-                                {remainingTryouts === 0 ? (
-                                    <>
-                                        <p className="text-sm font-medium text-destructive mb-1">
-                                            Kuota TryOut telah habis.
-                                        </p>
-                                        <p className="text-xs text-muted-foreground mb-4">
-                                            {packageType === "SENKU" ? "Upgrade ke Einstein Mode untuk tambahan kuota!" : "Hubungi admin untuk menambah kuota Tryout kamu."}
-                                        </p>
-                                        <Button variant="outline" className="w-full text-xs" asChild>
-                                            <a href="https://wa.me/6281234567890" target="_blank" rel="noopener noreferrer">
-                                                {packageType === "SENKU" ? "Upgrade Sekarang" : "Hubungi Admin"}
-                                            </a>
-                                        </Button>
-                                    </>
-                                ) : (
-                                    <>
-                                        <p className="text-sm font-medium text-foreground mb-1">
-                                            Kamu memiliki {remainingTryouts} kuota tryout.
-                                        </p>
-                                        <p className="text-xs text-muted-foreground mb-4">
-                                            Persiapkan dirimu dan mulai ujian simulasi sekarang.
-                                        </p>
-                                        <Button className="w-full text-xs bg-dark-brown text-cream hover:bg-soft-brown" asChild>
-                                            <Link href="/dashboard/tryouts">Mulai Tryout</Link>
-                                        </Button>
-                                    </>
-                                )}
-                            </div>
-                        </CardContent>
-                    </Card>
-                ) : (
-                    <Card className="border-warm-gray/60">
-                        <CardHeader className="flex flex-row items-center justify-between pb-2">
-                            <CardTitle className="text-lg">Tryout Tersedia</CardTitle>
-                            <Button variant="ghost" size="sm" asChild>
-                                <Link href="/dashboard/tryouts">
-                                    Lihat Semua
-                                    <ArrowRight className="ml-1 w-4 h-4" />
-                                </Link>
-                            </Button>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="flex flex-col items-center justify-center py-8 text-center">
-                                <div className="w-12 h-12 rounded-full bg-warm-beige flex items-center justify-center mb-3">
-                                    <FileText className="w-6 h-6 text-muted-foreground" />
-                                </div>
-                                <p className="text-sm text-muted-foreground">
-                                    Belum ada tryout aktif. Cek kembali nanti!
-                                </p>
-                            </div>
-                        </CardContent>
-                    </Card>
-                )}
+                <div className="space-y-4">
+                    <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
+                        <Unlock className="w-4 h-4" /> Akses Mata Kuliah
+                    </h2>
+                    {subjectAccess.length === 0 ? (
+                         <Card className="border-warm-gray/60 bg-warm-gray/10">
+                            <CardContent className="py-8 text-center text-muted-foreground text-sm">
+                                Kamu belum memiliki akses aktif ke mata kuliah apapun.
+                            </CardContent>
+                         </Card>
+                    ) : (
+                        subjectAccess.map((access) => {
+                            const features = getPackageFeatures(access.package_type, access.role)
+                            const remainingTryouts = Math.max(0, features.tryoutLimit - access.tryout_attempts_used)
+                            const subjectLabel = access.subject === "FISDAS2" ? "Fisika Dasar 2" : "Fisika Matematika"
+
+                            return (
+                                <Card key={access.id} className="border-earthy-gold/30 shadow-sm overflow-hidden">
+                                    <div className="bg-earthy-gold/5 px-4 py-2 border-b border-earthy-gold/20 flex justify-between items-center">
+                                        <span className="text-xs font-bold text-dark-brown">{subjectLabel}</span>
+                                        <Badge variant="outline" className="text-[10px] bg-white">
+                                            {access.role.replace("UTS_", "")}
+                                        </Badge>
+                                    </div>
+                                    <CardContent className="p-4">
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-8 h-8 rounded-lg bg-earthy-gold/10 flex items-center justify-center">
+                                                    <FileText className="w-4 h-4 text-earthy-gold" />
+                                                </div>
+                                                <div>
+                                                    <p className="text-xs text-muted-foreground">Kuota Tryout</p>
+                                                    <p className="text-sm font-bold text-foreground">
+                                                        {features.canAccessTryout ? `${remainingTryouts} Tersisa` : "Tidak Ada"}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            {features.canAccessTryout && remainingTryouts > 0 ? (
+                                                <Button size="sm" variant="outline" className="text-[10px] h-7 px-3" asChild>
+                                                    <Link href="/dashboard/tryouts">Mulai</Link>
+                                                </Button>
+                                            ) : (
+                                                <Button size="sm" variant="ghost" className="text-[10px] h-7 px-3 text-muted-foreground" disabled>
+                                                    <Lock className="w-3 h-3 mr-1" /> Habis
+                                                </Button>
+                                            )}
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            )
+                        })
+                    )}
+                </div>
 
                 {/* Recent activity */}
                 <Card className="border-warm-gray/60">
