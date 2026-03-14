@@ -11,10 +11,10 @@ export async function GET() {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
         }
 
-        // Get the internal user id and role/package for quota info
+        // Get the internal user id and all subject access info
         const { data: dbUser } = await supabase
             .from("users")
-            .select("id, role, package_type")
+            .select("id, subject_access(*)")
             .eq("auth_id", user.id)
             .single()
 
@@ -23,9 +23,16 @@ export async function GET() {
         }
 
         const userId = dbUser.id
+        const subjectAccess = dbUser.subject_access || []
+        
         const { getPackageFeatures } = await import("@/lib/package-features")
-        const features = getPackageFeatures(dbUser.package_type, dbUser.role)
-        const maxQuota = features.tryoutLimit
+        
+        // Aggregate max quota across all subjects
+        let totalMaxQuota = 0
+        subjectAccess.forEach((acc: any) => {
+            const features = getPackageFeatures(acc.package_type, acc.role)
+            totalMaxQuota += features.tryoutLimit
+        })
 
         // Fetch all SUBMITTED and IN_PROGRESS submissions for this user with tryout info
         const { data: submissions } = await supabase
@@ -120,7 +127,7 @@ export async function GET() {
                 completed: tryoutUsed, // Renamed for quota consistency
                 avgScore: tryoutAvgScore,
                 highestScore: tryoutHighestScore,
-                maxQuota: maxQuota,
+                maxQuota: totalMaxQuota,
             },
             latihanStats: {
                 completed: latihanCompletedCount,
