@@ -11,7 +11,7 @@ export async function POST(
     try {
         const { id: tryoutId } = await params
 
-        // Auth check using cookie-based client
+        // 1. Auth check
         const authClient = await createClient()
         const { data: { user } } = await authClient.auth.getUser()
 
@@ -19,10 +19,9 @@ export async function POST(
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
         }
 
-        // Use service client for all DB operations (bypasses RLS)
         const supabase = createServiceClient()
 
-        // 1. Get user profile ID
+        // 2. Get user internal ID
         const { data: profile } = await supabase
             .from("users")
             .select("id")
@@ -33,7 +32,7 @@ export async function POST(
             return NextResponse.json({ error: "Profile not found" }, { status: 404 })
         }
 
-        // 2. Get tryout details (including the new subject field)
+        // 3. Get tryout details
         const { data: tryout } = await supabase
             .from("tryouts")
             .select("*, tryout_questions(question_id)")
@@ -45,7 +44,7 @@ export async function POST(
             return NextResponse.json({ error: "Tryout tidak ditemukan." }, { status: 404 })
         }
 
-        // 3. Get Subject Access
+        // 4. Get User Subject Access
         const { data: access } = await supabase
             .from("user_subject_access")
             .select("*")
@@ -60,7 +59,7 @@ export async function POST(
             }, { status: 403 })
         }
 
-        // 4. Check role-based permissions and quotas
+        // 5. Check role-based permissions and quotas
         const { getPackageFeatures } = await import("@/lib/package-features")
         const features = getPackageFeatures(access.package_type, access.role)
 
@@ -84,7 +83,7 @@ export async function POST(
             }
         }
 
-        // 5. Check active submission
+        // 6. Check active submission
         const { data: activeSubmission } = await supabase
             .from("submissions")
             .select("id, status, started_at, question_order")
@@ -94,7 +93,6 @@ export async function POST(
             .single()
 
         if (activeSubmission) {
-            // Resume logic
             const { data: activeAnswers } = await supabase
                 .from("answers")
                 .select("question_id, answer")
@@ -122,13 +120,13 @@ export async function POST(
             })
         }
 
-        // 6. Start New Attempt
+        // 7. Start New Attempt
         const questionIds = tryout.tryout_questions.map((tq: { question_id: string }) => tq.question_id)
         const shuffled = [...questionIds].sort(() => Math.random() - 0.5)
 
         const submissionId = uuidv4()
         const now = new Date().toISOString()
-        const { data: submission, error } = await supabase
+        const { data: submission, error: subError } = await supabase
             .from("submissions")
             .insert({
                 id: submissionId,
@@ -143,8 +141,8 @@ export async function POST(
             .select()
             .single()
 
-        if (error) {
-            console.error("Failed to create submission:", error)
+        if (subError) {
+            console.error("Failed to create submission:", subError)
             return NextResponse.json({ error: "Gagal memulai tryout." }, { status: 500 })
         }
 
@@ -165,11 +163,6 @@ export async function POST(
             },
             questions: orderedQuestions,
         }, { status: 201 })
-    } catch (error) {
-        console.error("Start tryout error:", error)
-        return NextResponse.json({ error: "Internal error" }, { status: 500 })
-    }
-}
     } catch (error) {
         console.error("Start tryout error:", error)
         return NextResponse.json({ error: "Internal error" }, { status: 500 })
