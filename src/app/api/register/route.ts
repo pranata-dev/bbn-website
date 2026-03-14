@@ -194,7 +194,6 @@ export async function POST(request: NextRequest) {
                 id: localUserId,
                 email,
                 name,
-                role: "STUDENT_BASIC",
                 is_active: type === "REGULAR",
                 auth_id: newAuthId,
                 updated_at: new Date().toISOString(),
