@@ -60,3 +60,32 @@ export function calculateScore(
   const score = totalWeight > 0 ? (correctWeight / totalWeight) * 100 : 0
   return { score: Math.round(score * 100) / 100, correctCount, totalWeight }
 }
+
+/**
+ * Calculates the score based on the formula:
+ * Correct: +4
+ * Wrong: -1
+ * Unanswered: 0
+ */
+export function calculateTryoutScore(
+  answers: { isCorrect: boolean; isAnswered: boolean }[]
+): { score: number; correctCount: number; wrongCount: number; unansweredCount: number } {
+  let score = 0
+  let correctCount = 0
+  let wrongCount = 0
+  let unansweredCount = 0
+
+  for (const answer of answers) {
+    if (!answer.isAnswered) {
+      unansweredCount++
+    } else if (answer.isCorrect) {
+      score += 4
+      correctCount++
+    } else {
+      score -= 1
+      wrongCount++
+    }
+  }
+
+  return { score, correctCount, wrongCount, unansweredCount }
+}
