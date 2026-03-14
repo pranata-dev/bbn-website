@@ -9,10 +9,14 @@ datasource db {
 enum Role {
   ADMIN
   STUDENT_BASIC
-  STUDENT_PREMIUM
   UTS_FLUX
   UTS_SENKU
   UTS_EINSTEIN
+}
+
+enum Subject {
+  FISDAS2
+  FISMAT
 }
 
 enum PackageType {
@@ -51,25 +55,40 @@ enum QuestionCategory {
 }
 
 model User {
-  id                String       @id @default(uuid())
-  authId            String       @unique @map("auth_id")
-  email             String       @unique
-  name              String
-  role              Role         @default(STUDENT_BASIC)
-  packageType       PackageType? @map("package_type")
-  tryoutAttemptUsed Int          @default(0) @map("tryout_attempt_used")
-  isActive          Boolean      @default(false) @map("is_active")
-  avatarUrl         String?      @map("avatar_url")
-  lastLoginAt       DateTime?    @map("last_login_at")
-  sessionToken      String?      @map("session_token")
-  createdAt         DateTime     @default(now()) @map("created_at")
-  updatedAt         DateTime     @updatedAt @map("updated_at")
-  accessEndsAt      DateTime?    @map("access_ends_at")
+  id           String               @id @default(uuid())
+  authId       String               @unique @map("auth_id")
+  email        String               @unique
+  name         String
+  isActive     Boolean              @default(false) @map("is_active")
+  avatarUrl    String?              @map("avatar_url")
+  lastLoginAt  DateTime?            @map("last_login_at")
+  sessionToken String?              @map("session_token")
+  createdAt    DateTime             @default(now()) @map("created_at")
+  updatedAt    DateTime             @updatedAt @map("updated_at")
+  accessEndsAt DateTime?            @map("access_ends_at")
 
-  payments    Payment[]
-  submissions Submission[]
+  payments      Payment[]
+  submissions   Submission[]
+  subjectAccess UserSubjectAccess[]
 
   @@map("users")
+}
+
+model UserSubjectAccess {
+  id                 String      @id @default(uuid())
+  userId             String      @map("user_id")
+  subject            Subject
+  role               Role
+  packageType        PackageType? @map("package_type")
+  tryoutAttemptsUsed Int         @default(0) @map("tryout_attempts_used")
+  isActive           Boolean     @default(true) @map("is_active")
+  createdAt          DateTime    @default(now()) @map("created_at")
+  updatedAt          DateTime    @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, subject])
+  @@map("user_subject_access")
 }
 
 model Payment {
