@@ -28,9 +28,9 @@ interface UserItem {
     id: string
     name: string
     email: string
-    role: string
     is_active: boolean
     created_at: string
+    subject_access: any[]
 }
 
 export default function UsersPage() {
@@ -54,16 +54,16 @@ export default function UsersPage() {
         }
     }
 
-    const handleUpdateRole = async (userId: string, role: string) => {
+    const handleUpdateRole = async (userId: string, role: string, subject: string) => {
         try {
             const res = await fetch("/api/admin/users", {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ userId, role }),
+                body: JSON.stringify({ userId, role, subject }),
             })
 
             if (!res.ok) throw new Error("Failed to update")
-            toast.success("Role berhasil diubah.")
+            toast.success(`Role ${subject} berhasil diubah.`)
             fetchUsers()
         } catch (error) {
             toast.error("Gagal mengubah role.")
@@ -140,33 +140,47 @@ export default function UsersPage() {
                                         </div>
                                     </div>
 
-                                    <div className="flex items-center gap-3 flex-shrink-0">
+                                    <div className="flex flex-col gap-2 min-w-[200px] flex-shrink-0">
+                                        {u.subject_access.length === 0 ? (
+                                            <span className="text-xs text-muted-foreground italic">Tidak ada akses mata kuliah</span>
+                                        ) : (
+                                            u.subject_access.map((acc) => (
+                                                <div key={acc.id} className="flex items-center gap-2">
+                                                    <span className="text-[10px] font-bold text-dark-brown w-16 truncate">
+                                                        {acc.subject}
+                                                    </span>
+                                                    <Select
+                                                        value={acc.role === "STUDENT_BASIC" ? "STUDENT_PREMIUM" : acc.role}
+                                                        onValueChange={(value) => handleUpdateRole(u.id, value, acc.subject)}
+                                                    >
+                                                        <SelectTrigger className="w-[120px] h-7 text-[10px] border-warm-gray">
+                                                            <SelectValue />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            <SelectItem value="STUDENT_PREMIUM">Student Premium</SelectItem>
+                                                            <SelectItem value="UTS_FLUX">UTS Flux</SelectItem>
+                                                            <SelectItem value="UTS_SENKU">UTS Senku</SelectItem>
+                                                            <SelectItem value="UTS_EINSTEIN">UTS Einstein</SelectItem>
+                                                            <SelectItem value="ADMIN">Admin</SelectItem>
+                                                        </SelectContent>
+                                                    </Select>
+                                                </div>
+                                            ))
+                                        )}
+                                    </div>
+
+                                    <div className="flex items-center gap-2 flex-shrink-0">
                                         <Badge
-                                            className={u.is_active ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}
+                                            className={u.is_active ? "bg-green-100 text-green-700 text-[10px]" : "bg-red-100 text-red-700 text-[10px]"}
                                         >
                                             {u.is_active ? "Aktif" : "Nonaktif"}
                                         </Badge>
-
-                                        <Select
-                                            value={u.role === "STUDENT_BASIC" ? "STUDENT_PREMIUM" : u.role}
-                                            onValueChange={(value) => handleUpdateRole(u.id, value)}
-                                        >
-                                            <SelectTrigger className="w-[140px] h-8 text-xs border-warm-gray">
-                                                <SelectValue />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="STUDENT_PREMIUM">Student Premium</SelectItem>
-                                                <SelectItem value="UTS_FLUX">UTS Flux</SelectItem>
-                                                <SelectItem value="UTS_SENKU">UTS Senku</SelectItem>
-                                                <SelectItem value="UTS_EINSTEIN">UTS Einstein</SelectItem>
-                                                <SelectItem value="ADMIN">Admin</SelectItem>
-                                            </SelectContent>
-                                        </Select>
 
                                         <Button
                                             variant="ghost"
                                             size="sm"
                                             onClick={() => handleToggleActive(u.id, u.is_active)}
+                                            className="h-8 w-8 p-0"
                                         >
                                             {u.is_active ? (
                                                 <UserX className="w-4 h-4 text-red-500" />
@@ -178,7 +192,7 @@ export default function UsersPage() {
                                             variant="ghost"
                                             size="sm"
                                             onClick={() => setDeletingId(u.id)}
-                                            className="text-muted-foreground hover:text-red-500 hover:bg-red-50"
+                                            className="h-8 w-8 p-0 text-muted-foreground hover:text-red-500 hover:bg-red-50"
                                         >
                                             <Trash2 className="w-4 h-4" />
                                         </Button>
