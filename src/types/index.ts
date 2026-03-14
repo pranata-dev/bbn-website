@@ -1,4 +1,5 @@
-export type Role = "ADMIN" | "STUDENT_BASIC" | "STUDENT_PREMIUM"
+export type Role = "ADMIN" | "STUDENT_BASIC" | "UTS_FLUX" | "UTS_SENKU" | "UTS_EINSTEIN"
+export type Subject = "FISDAS2" | "FISMAT"
 export type PaymentStatus = "PENDING" | "APPROVED" | "REJECTED"
 export type TryoutStatus = "DRAFT" | "ACTIVE" | "ARCHIVED"
 export type SubmissionStatus = "IN_PROGRESS" | "SUBMITTED" | "TIMED_OUT"
@@ -22,15 +23,29 @@ export const CATEGORY_LABELS: Record<QuestionCategory, string> = {
     WEEK_7: "Week 7 (Electromagnetic Oscillations and Alternating Current)",
 }
 
+export interface UserSubjectAccess {
+    id: string
+    userId: string
+    subject: Subject
+    role: Role
+    packageType: PackageType | null
+    tryoutAttemptsUsed: number
+    isActive: boolean
+    createdAt: string
+    updatedAt: string
+}
+
+export type PackageType = "REGULER" | "FLUX" | "SENKU" | "EINSTEIN"
+
 export interface UserProfile {
     id: string
     authId: string
     email: string
     name: string
-    role: Role
     isActive: boolean
     avatarUrl: string | null
     createdAt: string
+    subjectAccess?: UserSubjectAccess[]
 }
 
 export interface Payment {
