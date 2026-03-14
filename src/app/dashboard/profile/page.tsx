@@ -1,5 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card"
 import { User, Mail, Calendar, Package } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
 import { createClient } from "@/lib/supabase/server"
 import { format } from "date-fns"
 import { id } from "date-fns/locale"
