@@ -80,7 +80,7 @@ export default function DashboardLayout({
     const packageFeatures: PackageFeatures = {
         canAccessLatihan: allFeatures.some(f => f.canAccessLatihan),
         canAccessTryout: allFeatures.some(f => f.canAccessTryout),
-        canViewDiscussion: allFeatures.some(f => f.canViewDiscussion),
+        hasVideoExplanation: allFeatures.some(f => f.hasVideoExplanation),
         tryoutLimit: Math.max(0, ...allFeatures.map(f => f.tryoutLimit)),
     }
 
@@ -115,10 +115,6 @@ export default function DashboardLayout({
                                 isLocked = true
                             }
 
-                            // Do not show tryout menu if they are explicitly reguler (as per design spec, but wait, the spec said "Tryout (locked for flux)". So we explicitly check logic matching the instructions.
-                            if (item.id === "tryouts" && packageType === "FLUX") {
-                                isLocked = true
-                            }
 
                             const navContent = (
                                 <div
