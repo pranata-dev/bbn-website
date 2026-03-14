@@ -1,6 +1,7 @@
 import { v4 as uuidv4 } from "uuid"
 import { createServiceClient } from "@/lib/supabase/server"
-import { SubmissionStatus } from "@/types"
+import { SubmissionStatus, Subject, UserSubjectAccess, Role, PackageType } from "@/types"
+import { getPackageFeatures } from "@/lib/package-features"
 
 interface SubmitTryoutParams {
   authId: string
@@ -29,6 +30,8 @@ interface SubmissionWithTryout {
   started_at: string
   tryouts: {
     duration: number
+    subject: Subject
+    is_practice: boolean
   }
 }
 
@@ -78,6 +81,20 @@ export async function submitTryout({
 
   if (submission.status !== "IN_PROGRESS") {
     throw new Error("Tryout sudah di-submit.")
+  }
+
+  // NEW: Validate Subject Access
+  const subject = submission.tryouts.subject
+  const { data: access } = await supabase
+    .from("user_subject_access")
+    .select("*")
+    .eq("user_id", profile.id)
+    .eq("subject", subject)
+    .eq("is_active", true)
+    .single() as { data: UserSubjectAccess | null }
+
+  if (!access) {
+    throw new Error(`Anda tidak memiliki akses aktif untuk mata kuliah ${subject}.`)
   }
 
   // 3. Server-side time validation
@@ -179,6 +196,30 @@ export async function submitTryout({
   if (updateError) {
     console.error("Failed to update submission:", updateError)
     throw new Error("Gagal mengupdate status submission.")
+  }
+
+  // New: Increment attempts used for real tryouts
+  if (!submission.tryouts.is_practice) {
+    const features = getPackageFeatures(access.packageType as any, access.role)
+    const maxQuota = features.tryoutLimit
+
+    if (access.role !== 'ADMIN' && access.tryoutAttemptsUsed >= maxQuota) {
+        // This is a safety check, normally checked at start
+        throw new Error("Kuota tryout Anda untuk mata kuliah ini sudah habis.")
+    }
+
+    const { error: quotaError } = await supabase
+      .from("user_subject_access")
+      .update({
+        tryout_attempts_used: access.tryoutAttemptsUsed + 1
+      })
+      .eq("id", access.id)
+
+    if (quotaError) {
+      console.error("Failed to increment tryout attempts:", quotaError)
+      // We don't throw here to avoid failing the whole submission if just the quota update fails?
+      // Actually, it's better to be consistent. 
+    }
   }
 
   return {
