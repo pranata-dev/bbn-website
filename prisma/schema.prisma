@@ -113,6 +113,7 @@ model Tryout {
   title       String
   description String?
   category    QuestionCategory?
+  subject     Subject           @default(FISDAS2)
   duration    Int // in minutes
   status      TryoutStatus      @default(DRAFT)
   maxAttempts Int               @default(1) @map("max_attempts")
