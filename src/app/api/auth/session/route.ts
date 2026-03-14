@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
         // Get user profile from database
         const { data: profile } = await supabase
             .from("users")
-            .select("*")
+            .select("*, subject_access(*)")
             .eq("auth_id", user.id)
             .single()
 
@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
             id: profile.id,
             name: profile.name,
             email: profile.email,
-            role: profile.role,
+            subjectAccess: profile.subject_access,
             isActive: profile.is_active,
             sessionToken,
         })
