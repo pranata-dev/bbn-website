@@ -141,3 +141,50 @@ export async function POST(request: NextRequest) {
         )
     }
 }
+
+// DELETE /api/admin/questions - Bulk delete questions by category and/or subject
+export async function DELETE(request: NextRequest) {
+    try {
+        const supabase = await createAdminClient()
+        const { searchParams } = new URL(request.url)
+        
+        const category = searchParams.get("category")
+        const subject = searchParams.get("subject")
+
+        // Prevent accidental full-table wipes
+        if (!category && !subject) {
+            return NextResponse.json(
+                { error: "Must provide at least 'category' or 'subject' to bulk delete." },
+                { status: 400 }
+            )
+        }
+
+        let query = supabase.from("questions").delete()
+
+        if (category && category !== "all") {
+            query = query.eq("category", category)
+        }
+
+        if (subject && subject !== "all") {
+            query = query.eq("subject", subject)
+        }
+
+        const { error } = await query
+
+        if (error) {
+            console.error("Bulk delete error:", error)
+            return NextResponse.json(
+                { error: `Database error: ${error.message}` },
+                { status: 500 }
+            )
+        }
+
+        return NextResponse.json({ success: true, message: "Questions deleted successfully." }, { status: 200 })
+    } catch (error) {
+        console.error("API error:", error)
+        return NextResponse.json(
+            { error: error instanceof Error ? error.message : "Internal server error" },
+            { status: 500 }
+        )
+    }
+}
