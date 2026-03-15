@@ -118,18 +118,6 @@ export default function TryoutsPage() {
                 <div className="flex items-center justify-center py-20">
                     <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
                 </div>
-            ) : selectedSubject === "FISMAT" ? (
-                <Card className="border-warm-gray/60">
-                    <CardContent className="flex flex-col items-center justify-center py-16 text-center">
-                        <div className="w-16 h-16 rounded-full bg-warm-beige flex items-center justify-center mb-4">
-                            <FileText className="w-8 h-8 text-muted-foreground" />
-                        </div>
-                        <h3 className="text-lg font-semibold text-foreground mb-2">Coming Soon!</h3>
-                        <p className="text-sm text-muted-foreground max-w-lg">
-                            Tryout Fisika Matematika sedang dipersiapkan oleh tim kami. Kami akan segera hadir dengan konten berkualitas untuk membantumu belajar!
-                        </p>
-                    </CardContent>
-                </Card>
             ) : filteredTryouts.length === 0 ? (
                 <Card className="border-warm-gray/60">
                     <CardContent className="flex flex-col items-center justify-center py-16 text-center">
