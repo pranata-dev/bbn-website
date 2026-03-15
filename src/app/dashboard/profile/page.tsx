@@ -13,7 +13,7 @@ export default async function ProfilePage() {
     if (authUser) {
         const { data } = await supabase
             .from("users")
-            .select("*, subject_access(*)")
+            .select("*, subject_access:user_subject_access(*)")
             .eq("auth_id", authUser.id)
             .single()
         dbUser = data

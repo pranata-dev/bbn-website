@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
         const adminSupabase = await createAdminClient()
         const { data: users, error } = await adminSupabase
             .from("users")
-            .select("*, subject_access(*)")
+            .select("*, subject_access:user_subject_access(*)")
             .order("created_at", { ascending: false })
 
         if (error) {

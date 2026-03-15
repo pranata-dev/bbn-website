@@ -14,7 +14,7 @@ export async function GET() {
         // Get the internal user id and all subject access info
         const { data: dbUser } = await supabase
             .from("users")
-            .select("id, subject_access(*)")
+            .select("id, subject_access:user_subject_access(*)")
             .eq("auth_id", user.id)
             .single()
 

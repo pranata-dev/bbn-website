@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
 
         const { data: profile } = await supabase
             .from("users")
-            .select("*, subject_access(*)")
+            .select("*, subject_access:user_subject_access(*)")
             .eq("auth_id", user.id)
             .single()
 
