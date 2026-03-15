@@ -20,18 +20,22 @@ interface LatihanItem {
     tryout_questions: { count: number }[]
 }
 
+import { useSubject } from "@/contexts/SubjectContext"
+
 export default function LatihanPage() {
     const [latihans, setLatihans] = useState<LatihanItem[]>([])
     const [loading, setLoading] = useState(true)
     const [filter, setFilter] = useState<string>("all")
+    const { selectedSubject } = useSubject()
 
     useEffect(() => {
         fetchLatihan()
-    }, [])
+    }, [selectedSubject])
 
     const fetchLatihan = async () => {
+        setLoading(true)
         try {
-            const res = await fetch("/api/tryouts")
+            const res = await fetch(`/api/tryouts?subject=${selectedSubject}`)
             const data = await res.json()
             // Filter strictly for practice questions
             const practiceItems = (data.tryouts || []).filter((t: any) => t.is_practice)

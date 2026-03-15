@@ -22,18 +22,22 @@ interface TryoutItem {
     tryout_questions: { count: number }[]
 }
 
+import { useSubject } from "@/contexts/SubjectContext"
+
 export default function TryoutsPage() {
     const [tryouts, setTryouts] = useState<TryoutItem[]>([])
     const [loading, setLoading] = useState(true)
     const [filter, setFilter] = useState<string>("all")
+    const { selectedSubject } = useSubject()
 
     useEffect(() => {
         fetchTryouts()
-    }, [])
+    }, [selectedSubject])
 
     const fetchTryouts = async () => {
+        setLoading(true)
         try {
-            const res = await fetch("/api/tryouts")
+            const res = await fetch(`/api/tryouts?subject=${selectedSubject}`)
             const data = await res.json()
             // Filter strictly for tryouts, excluding practice questions
             const properTryouts = (data.tryouts || []).filter((t: any) => !t.is_practice)
