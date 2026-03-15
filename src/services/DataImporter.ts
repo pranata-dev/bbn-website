@@ -1,6 +1,7 @@
 import { createClient } from "@supabase/supabase-js"
 import { v4 as uuidv4 } from "uuid"
 import { QuestionCategory, Subject } from "@/types"
+import { questionSchema } from "@/lib/validations/admin"
 
 export interface ParsedQuestion {
     text: string
@@ -12,7 +13,7 @@ export interface ParsedQuestion {
     option_d: string
     option_e?: string
     correct_answer: string
-    explanation: string
+    explanation?: string | null
     weight: number
 }
 
@@ -72,7 +73,8 @@ export class DataImporter {
                 }
                 
                 if (text && optA && correctAnswer) {
-                    questions.push({
+                    // Validate and auto-format using Zod
+                    const parsed = questionSchema.safeParse({
                         text: text,
                         category: category,
                         subject: subject,
@@ -85,6 +87,12 @@ export class DataImporter {
                         explanation: "**Pembahasan:**\n\n" + pembahasanPart,
                         weight: 1
                     })
+
+                    if (parsed.success) {
+                        questions.push(parsed.data)
+                    } else {
+                        console.error(`Validation failed for question: "${text.substring(0, 30)}..."`, parsed.error.format())
+                    }
                 }
             } catch(e) {
                 console.error("Error parsing a section", e)
@@ -156,7 +164,7 @@ export class DataImporter {
                 option_d: q.option_d.trim(),
                 option_e: q.option_e?.trim() || null,
                 correct_answer: q.correct_answer.trim().toUpperCase(),
-                explanation: q.explanation.trim() || null,
+                explanation: q.explanation?.trim() || null,
                 weight: q.weight || 1,
                 created_at: now,
                 updated_at: now,

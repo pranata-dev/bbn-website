@@ -91,12 +91,12 @@ async function run() {
         const options = tryoutTitle ? {
             createTryoutTitle: tryoutTitle,
             isPractice: isPractice,
-            durationMinutes: duration
+            durationMinutes: duration || 60
         } : undefined
 
         const result = await DataImporter.seedData(
-            supabaseUrl, 
-            supabaseKey, 
+            supabaseUrl as string, 
+            supabaseKey as string, 
             parsedQuestions,
             category,
             subject,

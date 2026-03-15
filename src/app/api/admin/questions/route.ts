@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createServiceClient, createAdminClient } from "@/lib/supabase/server"
 import { v4 as uuidv4 } from "uuid"
+import { questionSchema } from "@/lib/validations/admin"
 
 export const dynamic = "force-dynamic"
 
@@ -40,27 +41,31 @@ export async function POST(request: NextRequest) {
         const supabase = createServiceClient()
         const formData = await request.formData()
 
-        // Extract text fields from FormData
-        const text = formData.get("text") as string
-        const category = formData.get("category") as string
-        const subject = (formData.get("subject") as string) || "FISDAS2"
-        const optionA = formData.get("optionA") as string
-        const optionB = formData.get("optionB") as string
-        const optionC = formData.get("optionC") as string
-        const optionD = formData.get("optionD") as string
-        const optionE = (formData.get("optionE") as string) || null
-        const correctAnswer = formData.get("correctAnswer") as string
-        const explanation = (formData.get("explanation") as string) || null
-        const weight = parseFloat(formData.get("weight") as string) || 1
         const imageFile = formData.get("image") as File | null
 
-        // Validate required fields
-        if (!text || !category || !optionA || !optionB || !optionC || !optionD || !correctAnswer) {
+        // Validate using Zod schema
+        const parsed = questionSchema.safeParse(Object.fromEntries(formData.entries()))
+        if (!parsed.success) {
+            console.error("Validation error:", parsed.error.format())
             return NextResponse.json(
-                { error: "Missing required fields" },
+                { error: "Validation failed", details: parsed.error.format() },
                 { status: 400 }
             )
         }
+
+        const {
+            text,
+            category,
+            subject,
+            option_a,
+            option_b,
+            option_c,
+            option_d,
+            option_e,
+            correct_answer,
+            explanation,
+            weight
+        } = parsed.data
 
         let imageUrl: string | null = null
 
@@ -104,12 +109,12 @@ export async function POST(request: NextRequest) {
                 text,
                 category,
                 subject,
-                option_a: optionA,
-                option_b: optionB,
-                option_c: optionC,
-                option_d: optionD,
-                option_e: optionE,
-                correct_answer: correctAnswer,
+                option_a,
+                option_b,
+                option_c,
+                option_d,
+                option_e,
+                correct_answer,
                 explanation,
                 weight,
                 image_url: imageUrl,
