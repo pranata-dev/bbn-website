@@ -11,15 +11,12 @@ model User {
   authId              String              @unique @map("auth_id")
   email               String              @unique
   name                String
-  role                Role                @default(STUDENT_BASIC)
-  isActive            Boolean             @default(false) @map("is_active")
-  avatarUrl           String?             @map("avatar_url")
-  lastLoginAt         DateTime?           @map("last_login_at")
-  sessionToken        String?             @map("session_token")
-  createdAt           DateTime            @default(now()) @map("created_at")
-  updatedAt           DateTime            @updatedAt @map("updated_at")
-  package_type        PackageType?
-  tryout_attempt_used Int                 @default(0)
+  isActive     Boolean              @default(false) @map("is_active")
+  avatarUrl    String?              @map("avatar_url")
+  lastLoginAt  DateTime?            @map("last_login_at")
+  sessionToken String?              @map("session_token")
+  createdAt    DateTime             @default(now()) @map("created_at")
+  updatedAt    DateTime             @updatedAt @map("updated_at")
   accessEndsAt DateTime?            @map("access_ends_at")
 
   payments      Payment[]
@@ -195,7 +192,6 @@ model UTSPackageDetail {
 enum Role {
   ADMIN
   STUDENT_BASIC
-  STUDENT_PREMIUM
   UTS_FLUX
   UTS_SENKU
   UTS_EINSTEIN
