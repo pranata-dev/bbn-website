@@ -57,6 +57,7 @@ interface QuestionItem {
     id: string
     text: string
     category: string
+    subject: string
     option_a: string
     option_b: string
     option_c: string
@@ -80,6 +81,7 @@ const INITIAL_FORM_DATA = {
     correctAnswer: "",
     explanation: "",
     weight: 1,
+    subject: "FISDAS2",
 }
 
 // ─── LaTeX Preview Component ──────────────────────────────────────────
@@ -259,6 +261,7 @@ export default function QuestionsPage() {
     const [showForm, setShowForm] = useState(false)
     const [submitting, setSubmitting] = useState(false)
     const [filter, setFilter] = useState("all")
+    const [subjectFilter, setSubjectFilter] = useState("all")
     const [formData, setFormData] = useState(INITIAL_FORM_DATA)
     const [editingId, setEditingId] = useState<string | null>(null)
     const [deletingId, setDeletingId] = useState<string | null>(null)
@@ -272,7 +275,7 @@ export default function QuestionsPage() {
 
     useEffect(() => {
         fetchQuestions()
-    }, [filter])
+    }, [filter, subjectFilter])
 
     // Cleanup preview URL on unmount or change
     useEffect(() => {
@@ -285,6 +288,7 @@ export default function QuestionsPage() {
         try {
             const params = new URLSearchParams()
             if (filter !== "all") params.set("category", filter)
+            if (subjectFilter !== "all") params.set("subject", subjectFilter)
             const res = await fetch(`/api/admin/questions?${params}`)
             const data = await res.json()
             if (!res.ok) {
@@ -343,6 +347,7 @@ export default function QuestionsPage() {
             correctAnswer: q.correct_answer,
             explanation: q.explanation || "",
             weight: q.weight,
+            subject: q.subject,
         })
         setEditingId(q.id)
         setRemoveImage(false)
@@ -396,6 +401,7 @@ export default function QuestionsPage() {
             payload.append("correctAnswer", formData.correctAnswer)
             payload.append("explanation", formData.explanation)
             payload.append("weight", String(formData.weight))
+            payload.append("subject", formData.subject)
 
             if (compressedImage) {
                 payload.append("image", compressedImage)
@@ -450,6 +456,16 @@ export default function QuestionsPage() {
                             ))}
                         </SelectContent>
                     </Select>
+                    <Select value={subjectFilter} onValueChange={setSubjectFilter}>
+                        <SelectTrigger className="w-[180px] bg-white border-warm-gray">
+                            <SelectValue placeholder="Semua Mata Kuliah" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">Semua Mata Kuliah</SelectItem>
+                            <SelectItem value="FISDAS2">Fisika Dasar 2</SelectItem>
+                            <SelectItem value="FISMAT">Fisika Matematika</SelectItem>
+                        </SelectContent>
+                    </Select>
                     <Button onClick={() => setShowForm(true)} className="bg-dark-brown hover:bg-soft-brown text-cream">
                         <Plus className="w-4 h-4 mr-2" />
                         Tambah Soal
@@ -478,6 +494,9 @@ export default function QuestionsPage() {
                                             <div className="flex items-center gap-2 mb-1">
                                                 <Badge variant="secondary" className="bg-warm-beige text-soft-brown text-xs">
                                                     {CATEGORY_LABELS[q.category as keyof typeof CATEGORY_LABELS] || q.category}
+                                                </Badge>
+                                                <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 text-xs">
+                                                    {q.subject === "FISDAS2" ? "Fisika Dasar 2" : "Fisika Matematika"}
                                                 </Badge>
                                                 <Badge variant="outline" className="text-xs border-warm-gray">
                                                     Bobot: {q.weight}
@@ -587,6 +606,20 @@ export default function QuestionsPage() {
                                     className="border-warm-gray"
                                 />
                             </div>
+                        </div>
+
+                        {/* Subject Selection */}
+                        <div className="space-y-2">
+                            <Label>Mata Kuliah *</Label>
+                            <Select value={formData.subject} onValueChange={(v) => setFormData({ ...formData, subject: v })}>
+                                <SelectTrigger className="border-warm-gray">
+                                    <SelectValue placeholder="Pilih mata kuliah" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="FISDAS2">Fisika Dasar 2</SelectItem>
+                                    <SelectItem value="FISMAT">Fisika Matematika</SelectItem>
+                                </SelectContent>
+                            </Select>
                         </div>
 
                         {/* Options A-E with inline preview */}

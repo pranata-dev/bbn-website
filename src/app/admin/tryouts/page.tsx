@@ -13,6 +13,13 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select"
+import {
     Dialog,
     DialogContent,
     DialogHeader,
@@ -35,6 +42,7 @@ const INITIAL_FORM_DATA = {
     title: "",
     description: "",
     duration: 120, // default 2 hours
+    subject: "FISDAS2",
 }
 
 export default function AdminTryoutsPage() {
@@ -44,6 +52,7 @@ export default function AdminTryoutsPage() {
     const [submitting, setSubmitting] = useState(false)
     const [editingId, setEditingId] = useState<string | null>(null)
     const [deletingId, setDeletingId] = useState<string | null>(null)
+    const [filter, setFilter] = useState("all") // subject filter for the list
 
     // Form state
     const [formData, setFormData] = useState(INITIAL_FORM_DATA)
@@ -53,7 +62,7 @@ export default function AdminTryoutsPage() {
 
     useEffect(() => {
         fetchTryouts()
-    }, [])
+    }, [filter])
 
     // Fetch ALL questions when the dialog opens
     useEffect(() => {
@@ -62,7 +71,7 @@ export default function AdminTryoutsPage() {
         const fetchAllQuestions = async () => {
             setLoadingQuestions(true)
             try {
-                const res = await fetch(`/api/admin/questions`)
+                const res = await fetch(`/api/admin/questions?subject=${formData.subject}`)
                 const data = await res.json()
                 if (!res.ok) {
                     toast.error(data.error || "Gagal mengambil soal.")
@@ -76,11 +85,13 @@ export default function AdminTryoutsPage() {
         }
 
         fetchAllQuestions()
-    }, [showForm])
+    }, [showForm, formData.subject])
 
     const fetchTryouts = async () => {
         try {
-            const res = await fetch("/api/admin/tryouts?isPractice=false")
+            const params = new URLSearchParams({ isPractice: "false" })
+            if (filter !== "all") params.set("subject", filter)
+            const res = await fetch(`/api/admin/tryouts?${params}`)
             const data = await res.json()
             if (!res.ok) {
                 toast.error(data.error || "Gagal mengambil data tryout.")
@@ -110,6 +121,7 @@ export default function AdminTryoutsPage() {
                 title: data.tryout.title,
                 description: data.tryout.description || "",
                 duration: data.tryout.duration,
+                subject: data.tryout.subject,
             })
             setSelectedQuestionIds(new Set(data.questionIds || []))
             setEditingId(tryout.id)
@@ -159,6 +171,7 @@ export default function AdminTryoutsPage() {
                 description: formData.description,
                 duration: formData.duration,
                 questionIds: Array.from(selectedQuestionIds),
+                subject: formData.subject,
             }
 
             const method = editingId ? "PATCH" : "POST"
@@ -253,10 +266,22 @@ export default function AdminTryoutsPage() {
                     <h1 className="text-2xl font-bold text-foreground">Manajemen Tryout</h1>
                     <p className="text-muted-foreground">Buat dan kelola tryout.</p>
                 </div>
-                <Button onClick={() => setShowForm(true)} className="bg-dark-brown hover:bg-soft-brown text-cream">
-                    <Plus className="w-4 h-4 mr-2" />
-                    Buat Tryout
-                </Button>
+                <div className="flex items-center gap-3">
+                    <Select value={filter} onValueChange={setFilter}>
+                        <SelectTrigger className="w-[180px] bg-white border-warm-gray">
+                            <SelectValue placeholder="Semua Mata Kuliah" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">Semua Mata Kuliah</SelectItem>
+                            <SelectItem value="FISDAS2">Fisika Dasar 2</SelectItem>
+                            <SelectItem value="FISMAT">Fisika Matematika</SelectItem>
+                        </SelectContent>
+                    </Select>
+                    <Button onClick={() => setShowForm(true)} className="bg-dark-brown hover:bg-soft-brown text-cream">
+                        <Plus className="w-4 h-4 mr-2" />
+                        Buat Tryout
+                    </Button>
+                </div>
             </div>
 
             {/* Tryouts List */}
@@ -283,6 +308,9 @@ export default function AdminTryoutsPage() {
                                                     {t.category
                                                         ? CATEGORY_LABELS[t.category as keyof typeof CATEGORY_LABELS] || t.category
                                                         : "Semua Materi"}
+                                                </Badge>
+                                                <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 text-xs">
+                                                    {t.subject === "FISDAS2" ? "Fisika Dasar 2" : "Fisika Matematika"}
                                                 </Badge>
                                                 <Badge
                                                     variant="outline"
@@ -404,6 +432,21 @@ export default function AdminTryoutsPage() {
                                         placeholder="Penjelasan singkat mengenai tryout ini..."
                                         rows={2}
                                     />
+                                </div>
+                                <div className="space-y-2 md:col-span-2">
+                                    <Label>Mata Kuliah</Label>
+                                    <Select 
+                                        value={formData.subject} 
+                                        onValueChange={(v) => setFormData({ ...formData, subject: v })}
+                                    >
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Pilih mata kuliah" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="FISDAS2">Fisika Dasar 2</SelectItem>
+                                            <SelectItem value="FISMAT">Fisika Matematika</SelectItem>
+                                        </SelectContent>
+                                    </Select>
                                 </div>
                             </div>
 

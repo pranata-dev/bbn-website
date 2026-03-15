@@ -19,6 +19,7 @@ export async function PATCH(
         // Extract text fields from FormData
         const text = formData.get("text") as string
         const category = formData.get("category") as string
+        const subject = formData.get("subject") as string
         const optionA = formData.get("optionA") as string
         const optionB = formData.get("optionB") as string
         const optionC = formData.get("optionC") as string
@@ -89,6 +90,7 @@ export async function PATCH(
             .update({
                 text,
                 category,
+                subject,
                 option_a: optionA,
                 option_b: optionB,
                 option_c: optionC,

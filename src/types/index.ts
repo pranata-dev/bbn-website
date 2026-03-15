@@ -82,6 +82,7 @@ export interface Question {
     id: string
     text: string
     category: QuestionCategory
+    subject: Subject
     optionA: string
     optionB: string
     optionC: string

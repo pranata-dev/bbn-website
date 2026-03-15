@@ -11,6 +11,7 @@ export async function GET(request: NextRequest) {
 
         const url = new URL(request.url)
         const isPractice = url.searchParams.get("isPractice")
+        const subject = url.searchParams.get("subject")
 
         let query = adminSupabase
             .from("tryouts")
@@ -19,6 +20,10 @@ export async function GET(request: NextRequest) {
 
         if (isPractice !== null) {
             query = query.eq("is_practice", isPractice === "true")
+        }
+
+        if (subject && subject !== "all") {
+            query = query.eq("subject", subject)
         }
 
         const { data: tryouts, error } = await query
@@ -39,7 +44,7 @@ export async function POST(request: NextRequest) {
     try {
         const supabase = createServiceClient()
         const body = await request.json()
-        const { title, description, category, duration, isPractice, questionIds } = body
+        const { title, description, category, duration, isPractice, questionIds, subject } = body
 
         if (!title || typeof duration === 'undefined' || !Array.isArray(questionIds) || questionIds.length === 0) {
             return NextResponse.json({ error: "Missing required fields or no questions attached" }, { status: 400 })
@@ -56,6 +61,7 @@ export async function POST(request: NextRequest) {
                 title,
                 description: description || null,
                 category: category || null,
+                subject: subject || "FISDAS2",
                 duration: parseInt(duration as string, 10),
                 status: "DRAFT", // Default state
                 max_attempts: 1,

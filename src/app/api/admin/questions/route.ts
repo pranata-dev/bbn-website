@@ -10,11 +10,16 @@ export async function GET(request: NextRequest) {
         const adminSupabase = await createAdminClient()
         const { searchParams } = new URL(request.url)
         const category = searchParams.get("category")
+        const subject = searchParams.get("subject")
 
         let query = adminSupabase.from("questions").select("*").order("created_at", { ascending: false })
 
         if (category && category !== "all") {
             query = query.eq("category", category)
+        }
+
+        if (subject && subject !== "all") {
+            query = query.eq("subject", subject)
         }
 
         const { data: questions, error } = await query
@@ -38,6 +43,7 @@ export async function POST(request: NextRequest) {
         // Extract text fields from FormData
         const text = formData.get("text") as string
         const category = formData.get("category") as string
+        const subject = (formData.get("subject") as string) || "FISDAS2"
         const optionA = formData.get("optionA") as string
         const optionB = formData.get("optionB") as string
         const optionC = formData.get("optionC") as string
@@ -97,6 +103,7 @@ export async function POST(request: NextRequest) {
                 id: questionId,
                 text,
                 category,
+                subject,
                 option_a: optionA,
                 option_b: optionB,
                 option_c: optionC,
