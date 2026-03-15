@@ -54,26 +54,42 @@ export async function POST(request: NextRequest) {
         }
 
         // Update registration status
-        await adminClient
+        const { error: regUpdateError } = await adminClient
             .from("registrations")
             .update({
                 status: action,
-                reviewed_by: "ADMIN_SYSTEM", // Admin is purely static based on env via custom JWT
+                reviewed_by: "ADMIN_SYSTEM",
                 reviewed_at: new Date().toISOString(),
-                // If there's a custom DB column for notes in registrations, you can add it to the schema, 
-                // but currently schema.prisma doesn't have it for `registrations`. 
-                // Proceeding without notes column logic for Registration unless added later.
             })
             .eq("id", registrationId)
 
-        if (action === "APPROVED") {
-            // Check if user account already exists (it should, from registration)
-            const { data: existingUser } = await adminClient
-                .from("users")
-                .select("id")
-                .eq("email", registration.email)
-                .maybeSingle()
+        if (regUpdateError) {
+            console.error("Registration update error:", regUpdateError)
+            return NextResponse.json({ error: "Gagal memperbarui status pendaftaran." }, { status: 500 })
+        }
 
+        // Get existing user to sync payment status and provision access
+        const { data: existingUser } = await adminClient
+            .from("users")
+            .select("id")
+            .eq("email", registration.email)
+            .maybeSingle()
+
+        // Sync with payments table if user exists
+        if (existingUser) {
+            await adminClient
+                .from("payments")
+                .update({
+                    status: action,
+                    reviewed_by: "ADMIN_SYSTEM",
+                    reviewed_at: new Date().toISOString(),
+                    notes: notes || undefined
+                })
+                .eq("user_id", existingUser.id)
+                .eq("status", "PENDING")
+        }
+
+        if (action === "APPROVED") {
             if (!existingUser) {
                 return NextResponse.json(
                     { error: "Akun pengguna tidak ditemukan. Tidak dapat mengaktifkan akun." },
@@ -83,7 +99,7 @@ export async function POST(request: NextRequest) {
 
             // Determine correct role and package_type based on registration type
             let userRole = "STUDENT_BASIC"
-            let packageType = "REGULER" // Default
+            let packageType = "REGULER"
 
             if (registration.type === "UTS") {
                 const { data: utsDetail } = await adminClient
@@ -113,10 +129,6 @@ export async function POST(request: NextRequest) {
                 packageType = "REGULER"
             }
 
-            // Calculate accessEndsAt (current date + 30 days)
-            const accessEndsAt = new Date()
-            accessEndsAt.setDate(accessEndsAt.getDate() + 30)
-
             // Update user status to active
             const { error: userUpdateError } = await adminClient
                 .from("users")
@@ -139,7 +151,9 @@ export async function POST(request: NextRequest) {
                 "fisika-dasar-2": "FISDAS2",
                 "fisika-matematika": "FISMAT",
             }
-            const mappedSubject = subjectMap[registration.subject] || "FISDAS2"
+            
+            const normalizedSubject = (registration.subject || "").toLowerCase().trim()
+            const mappedSubject = subjectMap[normalizedSubject] || "FISDAS2"
 
             const { error: accessError } = await adminClient
                 .from("user_subject_access")
