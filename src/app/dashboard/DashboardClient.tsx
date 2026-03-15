@@ -49,17 +49,10 @@ export default function DashboardClient({ dbUser, subjectAccess }: DashboardClie
     const { selectedSubject } = useSubject()
 
     useEffect(() => {
-        // Reset and reload when subject changes if the API supported it
-        // For now, FISMAT just shows Coming Soon
-        if (selectedSubject === "FISMAT") {
-            setLoading(false)
-            return
-        }
-
         const loadStats = async () => {
             setLoading(true)
             try {
-                const res = await fetch("/api/dashboard/stats")
+                const res = await fetch(`/api/dashboard/stats?subject=${selectedSubject}`)
                 if (res.ok) {
                     const data = await res.json()
                     setDashboardData(data)
@@ -73,34 +66,6 @@ export default function DashboardClient({ dbUser, subjectAccess }: DashboardClie
         loadStats()
     }, [selectedSubject])
 
-    if (selectedSubject === "FISMAT") {
-        return (
-            <div className="flex flex-col items-center justify-center min-h-[60vh] text-center space-y-6 animate-in fade-in zoom-in duration-500">
-                <div className="relative">
-                    <div className="w-24 h-24 rounded-3xl bg-earthy-gold/10 flex items-center justify-center">
-                        <TrendingUp className="w-12 h-12 text-earthy-gold" />
-                    </div>
-                    <div className="absolute -bottom-2 -right-2 w-10 h-10 rounded-2xl bg-white shadow-lg border border-warm-gray/20 flex items-center justify-center">
-                        <Clock className="w-5 h-5 text-soft-brown" />
-                    </div>
-                </div>
-                <div className="space-y-2 max-w-md">
-                    <h2 className="text-2xl font-bold text-foreground">Coming Soon!</h2>
-                    <p className="text-muted-foreground">
-                        Materi Fisika Matematika sedang dipersiapkan oleh tim kami. Kami akan segera hadir dengan konten berkualitas untuk membantumu belajar!
-                    </p>
-                </div>
-                <div className="flex gap-3">
-                    <Button variant="outline" onClick={() => window.location.reload()}>
-                        Refresh
-                    </Button>
-                    <Button asChild className="bg-dark-brown hover:bg-soft-brown text-cream">
-                        <Link href="/dashboard/profile">Cek Paket</Link>
-                    </Button>
-                </div>
-            </div>
-        )
-    }
 
     // Aggregate features or use a specific one? For now, we'll map per subject.
     // The previous logic used a single 'packageType' and 'usedQuota'.

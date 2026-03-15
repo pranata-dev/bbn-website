@@ -59,7 +59,7 @@ export default function TryoutDetailPage() {
                     }
 
                     // Fetch user stats for global quota
-                    const resStats = await fetch("/api/dashboard/stats")
+                    const resStats = await fetch(`/api/dashboard/stats?subject=${found.subject || "FISDAS2"}`)
                     
                     if (resStats.ok) {
                         const statsData = await resStats.json()

@@ -1,8 +1,8 @@
-import { NextResponse } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
 
-// GET /api/dashboard/stats - Get user-specific dashboard data
-export async function GET() {
+// GET /api/dashboard/stats?subject=FISDAS2 - Get user-specific dashboard data filtered by subject
+export async function GET(request: NextRequest) {
     try {
         const supabase = await createClient()
         const { data: { user } } = await supabase.auth.getUser()
@@ -24,6 +24,10 @@ export async function GET() {
 
         const userId = dbUser.id
         const subjectAccess = dbUser.subject_access || []
+
+        // Read the subject filter from the URL query parameter
+        const { searchParams } = new URL(request.url)
+        const subjectParam = searchParams.get("subject") || "FISDAS2"
         
         const { getPackageFeatures } = await import("@/lib/package-features")
         
@@ -37,12 +41,17 @@ export async function GET() {
         // Fetch all SUBMITTED and IN_PROGRESS submissions for this user with tryout info
         const { data: submissions } = await supabase
             .from("submissions")
-            .select("id, status, score, correct_count, total_count, created_at, tryout_id, tryouts(title, is_practice, category)")
+            .select("id, status, score, correct_count, total_count, created_at, tryout_id, tryouts(title, is_practice, category, subject)")
             .eq("user_id", userId)
             .in("status", ["SUBMITTED", "IN_PROGRESS"])
             .order("created_at", { ascending: false })
 
-        const allSubmissions = submissions || []
+        // Filter submissions to only include those matching the requested subject
+        const allSubmissions = (submissions || []).filter((sub) => {
+            const tryoutRaw = sub.tryouts
+            const tryout = Array.isArray(tryoutRaw) ? tryoutRaw[0] : tryoutRaw
+            return (tryout as any)?.subject === subjectParam
+        })
 
         // --- Recent Activity (most recent 5, only SUBMITTED) ---
         const recentActivity = allSubmissions
