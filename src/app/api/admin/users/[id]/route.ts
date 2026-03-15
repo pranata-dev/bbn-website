@@ -31,22 +31,26 @@ export async function DELETE(
 
         const authId = userProfile.auth_id
 
-        // 2. Delete the user from Supabase Auth (this should cascade to public.users if references are set up, but we'll manually ensure deletion)
-        const { error: authDeleteError } = await supabase.auth.admin.deleteUser(authId)
-        
-        if (authDeleteError) {
-             console.error("Failed to delete auth user:", authDeleteError)
-             // We fallback to deleting just the public record if we can't delete auth, though unlikely with service role
-        }
+        if (authId) {
+            // 2. Delete the user from Supabase Auth
+            // Our new PostgreSQL trigger `on_auth_user_deleted` will automatically cascade 
+            // and delete the record from `public.users`.
+            const { error: authDeleteError } = await supabase.auth.admin.deleteUser(authId)
+            
+            if (authDeleteError) {
+                console.error("Failed to delete auth user:", authDeleteError)
+                return NextResponse.json({ error: `Failed to delete auth user: ${authDeleteError.message}` }, { status: 500 })
+            }
+        } else {
+            // 3. Fallback: If this is a legacy corrupted record with no auth_id, just delete the public profile
+            const { error: deleteError } = await supabase
+                .from("users")
+                .delete()
+                .eq("id", id)
 
-        // 3. Delete from public.users (in case cascade isn't set up perfectly or authDeleteError occurred)
-        const { error: deleteError } = await supabase
-            .from("users")
-            .delete()
-            .eq("id", id)
-
-        if (deleteError) {
-            return NextResponse.json({ error: `Failed to delete user: ${deleteError.message}` }, { status: 500 })
+            if (deleteError) {
+                return NextResponse.json({ error: `Failed to delete public user: ${deleteError.message}` }, { status: 500 })
+            }
         }
 
         return NextResponse.json({ success: true })
