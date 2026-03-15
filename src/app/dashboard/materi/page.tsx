@@ -1,11 +1,9 @@
+"use client"
+
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Download, BookOpen, FileText } from "lucide-react"
-
-export const metadata = {
-    title: "Materi Belajar - BBN",
-    description: "Unduh materi belajar Fisika Dasar BBN",
-}
+import { useSubject } from "@/contexts/SubjectContext"
 
 const materials = [
     {
@@ -41,6 +39,8 @@ const materials = [
 ]
 
 export default function MateriPage() {
+    const { selectedSubject } = useSubject()
+
     return (
         <div className="space-y-8">
             <div>
@@ -49,53 +49,69 @@ export default function MateriPage() {
                     Materi Belajar
                 </h1>
                 <p className="text-muted-foreground mt-2">
-                    Unduh materi belajar Fisika Dasar yang telah dirangkum khusus untuk persiapan ujianmu di bawah ini.
+                    Unduh materi belajar yang telah dirangkum khusus untuk persiapan ujianmu di bawah ini.
                 </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {materials.map((materi, idx) => (
-                    <Card key={idx} className="border-warm-gray/60 hover:border-earthy-gold/50 hover:shadow-md transition-all group flex flex-col h-full">
-                        <CardContent className="p-6 flex flex-col flex-grow items-center text-center">
-                            <div className="w-14 h-14 rounded-full bg-earthy-gold/10 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
-                                {materi.icon}
-                            </div>
-                            
-                            <h3 className="text-sm font-bold text-foreground leading-snug mb-6 flex-grow">
-                                {materi.title}
-                            </h3>
-
-                            <Button 
-                                asChild 
-                                className="w-full bg-dark-brown text-cream hover:bg-soft-brown shadow-sm group-hover:shadow transition-all"
-                            >
-                                <a 
-                                    href={materi.link} 
-                                    target="_blank" 
-                                    rel="noopener noreferrer"
-                                    download
-                                >
-                                    <Download className="w-4 h-4 mr-2" />
-                                    Unduh Materi
-                                </a>
-                            </Button>
-                        </CardContent>
-                    </Card>
-                ))}
-            </div>
-            
-            {materials.length === 0 && (
+            {selectedSubject === "FISMAT" ? (
                 <Card className="border-warm-gray/60 bg-warm-gray/5">
                     <CardContent className="flex flex-col items-center justify-center py-16 text-center">
                         <div className="w-16 h-16 rounded-full bg-warm-gray/20 flex items-center justify-center mb-4">
                             <BookOpen className="w-8 h-8 text-muted-foreground/50" />
                         </div>
-                        <h3 className="text-lg font-medium text-foreground mb-1">Belum Ada Materi</h3>
-                        <p className="text-sm text-muted-foreground max-w-sm">
-                            Materi belajar akan diunggah pada halaman ini saat sudah tersedia. Silakan cek kembali nanti.
+                        <h3 className="text-lg font-medium text-foreground mb-1">Coming Soon!</h3>
+                        <p className="text-sm text-muted-foreground max-w-lg">
+                            Materi Fisika Matematika sedang dipersiapkan oleh tim kami. Kami akan segera hadir dengan konten berkualitas untuk membantumu belajar!
                         </p>
                     </CardContent>
                 </Card>
+            ) : (
+                <>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {materials.map((materi, idx) => (
+                            <Card key={idx} className="border-warm-gray/60 hover:border-earthy-gold/50 hover:shadow-md transition-all group flex flex-col h-full">
+                                <CardContent className="p-6 flex flex-col flex-grow items-center text-center">
+                                    <div className="w-14 h-14 rounded-full bg-earthy-gold/10 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
+                                        {materi.icon}
+                                    </div>
+                                    
+                                    <h3 className="text-sm font-bold text-foreground leading-snug mb-6 flex-grow">
+                                        {materi.title}
+                                    </h3>
+
+                                    <Button 
+                                        asChild 
+                                        className="w-full bg-dark-brown text-cream hover:bg-soft-brown shadow-sm group-hover:shadow transition-all"
+                                    >
+                                        <a 
+                                            href={materi.link} 
+                                            target="_blank" 
+                                            rel="noopener noreferrer"
+                                            download
+                                        >
+                                            <Download className="w-4 h-4 mr-2" />
+                                            Unduh Materi
+                                        </a>
+                                    </Button>
+                                </CardContent>
+                            </Card>
+                        ))}
+                    </div>
+                    
+                    {materials.length === 0 && (
+                        <Card className="border-warm-gray/60 bg-warm-gray/5">
+                            <CardContent className="flex flex-col items-center justify-center py-16 text-center">
+                                <div className="w-16 h-16 rounded-full bg-warm-gray/20 flex items-center justify-center mb-4">
+                                    <BookOpen className="w-8 h-8 text-muted-foreground/50" />
+                                </div>
+                                <h3 className="text-lg font-medium text-foreground mb-1">Belum Ada Materi</h3>
+                                <p className="text-sm text-muted-foreground max-w-sm">
+                                    Materi belajar akan diunggah pada halaman ini saat sudah tersedia. Silakan cek kembali nanti.
+                                </p>
+                            </CardContent>
+                        </Card>
+                    )}
+                </>
             )}
         </div>
     )
