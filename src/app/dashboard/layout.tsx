@@ -14,14 +14,23 @@ import {
     BookOpen,
     Menu,
     X,
+    Lock,
+    ChevronDown,
+    Check
 } from "lucide-react"
 import { useState, useEffect } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { APP_NAME } from "@/constants"
 import { getPackageFeatures, PackageFeatures } from "@/lib/package-features"
-import { PackageType, Role } from "@prisma/client"
-import { Lock } from "lucide-react"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { SubjectProvider, useSubject } from "@/contexts/SubjectContext"
+import { Subject } from "@/types"
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 // Base nav structure without features
 const navItems = [
@@ -39,11 +48,80 @@ export default function DashboardLayout({
 }: {
     children: React.ReactNode
 }) {
+    return (
+        <SubjectProvider>
+            <DashboardLayoutInner>
+                {children}
+            </DashboardLayoutInner>
+        </SubjectProvider>
+    )
+}
+
+function SubjectSwitcher({ subjectAccess }: { subjectAccess: any[] }) {
+    const { selectedSubject, setSelectedSubject } = useSubject()
+    
+    const subjects: { id: Subject; label: string }[] = [
+        { id: "FISDAS2", label: "Fisika Dasar 2" },
+        { id: "FISMAT", label: "Fisika Matematika" },
+    ]
+
+    const getAccess = (subject: Subject) => subjectAccess.find(a => a.subject === subject && a.is_active)
+
+    return (
+        <div className="space-y-1.5">
+            <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider ml-1">
+                Pilih Mata Kuliah
+            </label>
+            <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                    <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="w-full justify-between bg-warm-beige/20 border-warm-gray/40 h-10 px-3 hover:bg-warm-beige/40 transition-colors text-left"
+                    >
+                        <span className="truncate font-medium text-foreground">
+                            {subjects.find(s => s.id === selectedSubject)?.label}
+                        </span>
+                        <ChevronDown className="w-4 h-4 text-muted-foreground shrink-0 ml-2" />
+                    </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56" align="start">
+                    {subjects.map((s) => {
+                        const hasAccess = !!getAccess(s.id)
+                        const isSelected = selectedSubject === s.id
+                        
+                        return (
+                            <DropdownMenuItem
+                                key={s.id}
+                                className={`flex items-center justify-between cursor-pointer ${!hasAccess ? "opacity-60" : ""}`}
+                                onClick={() => {
+                                    if (hasAccess) {
+                                        setSelectedSubject(s.id)
+                                    }
+                                }}
+                                disabled={!hasAccess}
+                            >
+                                <span className="font-medium">{s.label}</span>
+                                <div className="flex items-center gap-2">
+                                    {!hasAccess && <Lock className="w-3 h-3 text-muted-foreground" />}
+                                    {isSelected && <Check className="w-4 h-4 text-dark-brown" />}
+                                </div>
+                            </DropdownMenuItem>
+                        )
+                    })}
+                </DropdownMenuContent>
+            </DropdownMenu>
+        </div>
+    )
+}
+
+function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
     const pathname = usePathname()
     const router = useRouter()
     const [sidebarOpen, setSidebarOpen] = useState(false)
     const [subjectAccess, setSubjectAccess] = useState<any[]>([])
     const [isLoadingUser, setIsLoadingUser] = useState(true)
+    const { selectedSubject } = useSubject()
 
     useEffect(() => {
         const fetchUserPackage = async () => {
@@ -75,14 +153,10 @@ export default function DashboardLayout({
         fetchUserPackage()
     }, [])
 
-    // Aggregate features: if any subject has a feature, the user has it in the global sidebar
-    const allFeatures = subjectAccess.map(a => getPackageFeatures(a.package_type, a.role))
-    const packageFeatures: PackageFeatures = {
-        canAccessLatihan: allFeatures.some(f => f.canAccessLatihan),
-        canAccessTryout: allFeatures.some(f => f.canAccessTryout),
-        hasVideoExplanation: allFeatures.some(f => f.hasVideoExplanation),
-        tryoutLimit: Math.max(0, ...allFeatures.map(f => f.tryoutLimit)),
-    }
+    const activeAccess = subjectAccess.find(a => a.subject === selectedSubject && a.is_active)
+    const features = activeAccess 
+        ? getPackageFeatures(activeAccess.package_type, activeAccess.role)
+        : getPackageFeatures(null, "STUDENT_BASIC")
 
     const handleLogout = async () => {
         const supabase = createClient()
@@ -94,13 +168,20 @@ export default function DashboardLayout({
     const SidebarContent = () => (
         <div className="flex flex-col h-full">
             {/* Logo */}
-            <div className="p-6 border-b border-warm-gray/60">
-                <Link href="/dashboard" className="flex items-center gap-2">
+            <div className="p-6 border-b border-warm-gray/60 text-center lg:text-left">
+                <Link href="/dashboard" className="flex items-center gap-2 justify-center lg:justify-start">
                     <div className="w-8 h-8 rounded-lg bg-dark-brown flex items-center justify-center">
-                        < BookOpen className="w-4 h-4 text-cream" />
+                        <BookOpen className="w-4 h-4 text-cream" />
                     </div>
                     <span className="font-semibold text-foreground tracking-tight">{APP_NAME}</span>
                 </Link>
+            </div>
+
+            {/* Subject Switcher */}
+            <div className="px-4 py-4 border-b border-warm-gray/60">
+                <SubjectSwitcher 
+                    subjectAccess={subjectAccess} 
+                />
             </div>
 
             {/* Navigation */}
@@ -109,12 +190,10 @@ export default function DashboardLayout({
                     <TooltipProvider>
                         {navItems.map((item) => {
                             const isActive = pathname === item.href
-                            // Check if item is locked based on features
                             let isLocked = false
-                            if (item.requiredFeature && !packageFeatures[item.requiredFeature]) {
+                            if (item.requiredFeature && !features[item.requiredFeature]) {
                                 isLocked = true
                             }
-
 
                             const navContent = (
                                 <div
@@ -135,7 +214,7 @@ export default function DashboardLayout({
 
                             if (isLocked) {
                                 let lockdownMessage = "Fitur ini tidak tersedia di paket Anda."
-                                if (item.id === "tryouts" && !packageFeatures.canAccessTryout) {
+                                if (item.id === "tryouts" && !features.canAccessTryout) {
                                     lockdownMessage = "Upgrade paket Anda untuk membuka TryOut"
                                 }
                                 return (
@@ -210,7 +289,7 @@ export default function DashboardLayout({
                             className="absolute inset-0 bg-black/30"
                             onClick={() => setSidebarOpen(false)}
                         />
-                        <aside className="relative w-64 h-full bg-white">
+                        <aside className="relative w-64 h-full bg-white shadow-xl">
                             <SidebarContent />
                         </aside>
                     </div>
