@@ -21,6 +21,9 @@ export async function GET(request: NextRequest) {
             return NextResponse.json({ tryouts: [] })
         }
 
+        const url = new URL(request.url)
+        const subjectParam = url.searchParams.get("subject")
+
         const subjectAccess = profile.subject_access
         const accessibleSubjects = subjectAccess.map((a: any) => a.subject)
 
@@ -28,8 +31,13 @@ export async function GET(request: NextRequest) {
             .from("tryouts")
             .select("*, tryout_questions(count)")
             .eq("status", "ACTIVE")
-            .in("subject", accessibleSubjects)
             .order("created_at", { ascending: false })
+
+        if (subjectParam && accessibleSubjects.includes(subjectParam)) {
+            query = query.eq("subject", subjectParam)
+        } else {
+            query = query.in("subject", accessibleSubjects)
+        }
 
         const { data: tryouts, error } = await query
 
