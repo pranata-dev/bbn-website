@@ -15,33 +15,38 @@ interface Material {
 const MATERIALS_DATA: Record<Subject, Material[]> = {
     FISDAS2: [
         {
-            title: "FISDAS PEKAN 1: COULOMB'S LAW AND ELECTRIC FIELDS",
-            link: "https://drive.google.com/uc?export=download&id=1KhY1W5Dg01rw3WA-qCTXdV8UXuhZtHW6",
+            title: "BASIC PHYSICS 2 WEEK 1 - COULOMB'S LAW AND ELECTRIC FIELD",
+            link: "https://drive.google.com/uc?export=download&id=15FjanBliqSbGNLflR0ulE3Se4dE-Whmm",
             icon: <BookOpen className="w-5 h-5 text-earthy-gold" />,
         },
         {
-            title: "FISDAS PEKAN 2: GAUSS LAW",
-            link: "https://drive.google.com/uc?export=download&id=1XYG7Y2lteJJnY4urNSbxRkwYvNNb3zj9",
+            title: "BASIC PHYSICS 2 WEEK 2 - GAUSS LAW",
+            link: "https://drive.google.com/uc?export=download&id=1UYV9xYq9BNRpVThSkN1sr57F9s8xq9mh",
             icon: <BookOpen className="w-5 h-5 text-earthy-gold" />,
         },
         {
-            title: "FISDAS PEKAN 3: ELECTRIC POTENTIAL & CAPACITANCE",
-            link: "https://drive.google.com/uc?export=download&id=1yL5m0YZ4Vd34os7ar-X93CkUzlCkqYs5",
+            title: "BASIC PHYSICS 2 WEEK 3 - ELECTRIC POTENTIAL AND CAPACITANCE",
+            link: "https://drive.google.com/uc?export=download&id=1ows4NXU-_xrMrQeL9ap4oOm-Ihf5RVhO",
             icon: <BookOpen className="w-5 h-5 text-earthy-gold" />,
         },
         {
-            title: "FISDAS PEKAN 4: CURRENT AND RESISTANCE & CIRCUITS",
-            link: "https://drive.google.com/uc?export=download&id=1kT9Osca_OMPazH-2O7pcRkh6MII62G4U",
+            title: "BASIC PHYSICS 2 WEEK 4 - CURRENT, RESISTANCE, AND CIRCUIT",
+            link: "https://drive.google.com/uc?export=download&id=1Rpid7KYmMce3p9wt62ZXMsLs6K1yB1fU",
             icon: <BookOpen className="w-5 h-5 text-earthy-gold" />,
         },
         {
-            title: "FISDAS PEKAN 5: MAGNETIC FIELDS & MAGNETIC FIELDS DUE TO CURRENT",
-            link: "https://drive.google.com/uc?export=download&id=1NWkzY-5o0tDf2MeiGlixy9eJ3ox_UvHr",
+            title: "BASIC PHYSICS 2 WEEK 5 - MAGNETIC FIELDS & MAGNETIC FIELDS DUE TO CURRENT",
+            link: "https://drive.google.com/uc?export=download&id=1vYSiKUZhJZRU2w1C5RXrNkvEjsGroBoG",
             icon: <BookOpen className="w-5 h-5 text-earthy-gold" />,
         },
         {
-            title: "FISDAS PEKAN 6: INDUCTION & INDUCTANCE",
-            link: "https://drive.google.com/uc?export=download&id=15Rgo1ofJxVvUb14jTAOuUuNToWvLhx0m",
+            title: "BASIC PHYSICS 2 WEEK 6 - INDUCTION & INDUCTANCE",
+            link: "https://drive.google.com/uc?export=download&id=1hA8yDh1OMG-Zmhe8P435BFWuTruIaTjF",
+            icon: <BookOpen className="w-5 h-5 text-earthy-gold" />,
+        },
+        {
+            title: "BASIC PHYSICS 2 WEEK 7 - ELECTROMAGNETIC OSCILLATIONS AND ALTERNATING CURRENT",
+            link: "https://drive.google.com/uc?export=download&id=17d5CVzPSePU-MBnFtNljPHzDh5lhbE0T",
             icon: <BookOpen className="w-5 h-5 text-earthy-gold" />,
         },
     ],
