@@ -247,37 +247,50 @@ export default function LatihanPracticePage() {
                         )}
                     </div>
 
-                    {/* Options */}
-                    <div className="space-y-3">
-                        {["A", "B", "C", "D", "E"].map((opt) => {
-                            const optKey = `option_${opt.toLowerCase()}` as keyof Question
-                            const optionText = currentQuestion[optKey] as string | null
-                            if (!optionText) return null
+                    {/* Options — MCQ or Short Answer */}
+                    {currentQuestion.option_a !== "-" ? (
+                        <div className="space-y-3">
+                            {["A", "B", "C", "D", "E"].map((opt) => {
+                                const optKey = `option_${opt.toLowerCase()}` as keyof Question
+                                const optionText = currentQuestion[optKey] as string | null
+                                if (!optionText || optionText === "-") return null
 
-                            const isSelected = answers[currentQuestion.id]?.answer === opt
+                                const isSelected = answers[currentQuestion.id]?.answer === opt
 
-                            return (
-                                <button
-                                    key={opt}
-                                    onClick={() => handleAnswer(currentQuestion.id, opt)}
-                                    className={`w-full text-left p-4 rounded-xl border-2 transition-all text-sm flex items-center ${isSelected
-                                        ? "border-dark-brown bg-dark-brown/5 text-foreground"
-                                        : "border-warm-gray/60 hover:border-soft-brown/40 text-foreground/80 hover:bg-warm-beige/50"
-                                        }`}
-                                >
-                                    <span className={`inline-flex items-center justify-center min-w-7 h-7 rounded-full text-xs font-bold mr-3 ${isSelected
-                                        ? "bg-dark-brown text-cream"
-                                        : "bg-warm-beige text-soft-brown"
-                                        }`}>
-                                        {opt}
-                                    </span>
-                                    <div className="prose prose-sm max-w-none">
-                                        <MarkdownLatex>{optionText}</MarkdownLatex>
-                                    </div>
-                                </button>
-                            )
-                        })}
-                    </div>
+                                return (
+                                    <button
+                                        key={opt}
+                                        onClick={() => handleAnswer(currentQuestion.id, opt)}
+                                        className={`w-full text-left p-4 rounded-xl border-2 transition-all text-sm flex items-center ${isSelected
+                                            ? "border-dark-brown bg-dark-brown/5 text-foreground"
+                                            : "border-warm-gray/60 hover:border-soft-brown/40 text-foreground/80 hover:bg-warm-beige/50"
+                                            }`}
+                                    >
+                                        <span className={`inline-flex items-center justify-center min-w-7 h-7 rounded-full text-xs font-bold mr-3 ${isSelected
+                                            ? "bg-dark-brown text-cream"
+                                            : "bg-warm-beige text-soft-brown"
+                                            }`}>
+                                            {opt}
+                                        </span>
+                                        <div className="prose prose-sm max-w-none">
+                                            <MarkdownLatex>{optionText}</MarkdownLatex>
+                                        </div>
+                                    </button>
+                                )
+                            })}
+                        </div>
+                    ) : (
+                        <div className="space-y-3">
+                            <label className="text-sm font-medium text-muted-foreground">Jawaban Singkat</label>
+                            <textarea
+                                value={answers[currentQuestion.id]?.answer || ""}
+                                onChange={(e) => handleAnswer(currentQuestion.id, e.target.value)}
+                                placeholder="Tulis jawabanmu di sini..."
+                                rows={3}
+                                className="w-full p-4 rounded-xl border-2 border-warm-gray/60 focus:border-dark-brown focus:ring-1 focus:ring-dark-brown/20 outline-none text-sm resize-none transition-all bg-white"
+                            />
+                        </div>
+                    )}
                 </CardContent>
             </Card>
 
