@@ -67,7 +67,7 @@ export async function POST(
             if (!features.canAccessLatihan) {
                 return NextResponse.json({ error: "Akses latihan tidak diizinkan untuk paket Anda." }, { status: 403 })
             }
-            if (!canAccessPracticePart(access.package_type, access.role, tryout.practice_part)) {
+            if (!canAccessPracticePart(access.package_type, access.role, tryout.practice_part ?? null, tryout.title)) {
                 return NextResponse.json({ error: "Upgrade paket Anda untuk mengakses bagian ini." }, { status: 403 })
             }
         } else {

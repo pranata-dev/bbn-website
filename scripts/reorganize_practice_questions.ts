@@ -132,7 +132,7 @@ async function run() {
                 title: `Latihan Soal Week ${weekNum} - Part ${partNum}`,
                 category: weekKey,
                 is_practice: true,
-                practice_part: partNum,
+                // practice_part: partNum, // Column must exist in DB first — will be backfilled after ALTER TABLE
                 status: 'ACTIVE',
                 duration: 60,
                 max_attempts: 999,

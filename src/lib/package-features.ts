@@ -81,7 +81,18 @@ export function getPackageFeatures(packageType: PackageType | null | undefined, 
     }
 }
 
-export function canAccessPracticePart(packageType: PackageType | null | undefined, role: string | undefined, partNumber: number | null): boolean {
+export function parsePracticePartFromTitle(title: string | null | undefined): number | null {
+    if (!title) return null
+    const match = title.match(/Part\s+(\d+)/i)
+    return match ? parseInt(match[1], 10) : null
+}
+
+export function canAccessPracticePart(
+    packageType: PackageType | null | undefined,
+    role: string | undefined,
+    partNumber: number | null | undefined,
+    title?: string | null
+): boolean {
     if (role === "ADMIN") return true
     
     // Fallback logic for legacy accounts that have a Role but no PackageType yet
@@ -104,13 +115,16 @@ export function canAccessPracticePart(packageType: PackageType | null | undefine
         }
     }
 
-    if (!activePackage || !partNumber) return false
+    // Resolve part number: use DB value, or parse from title as fallback
+    const resolvedPart = partNumber ?? parsePracticePartFromTitle(title)
+
+    if (!activePackage || !resolvedPart) return false
 
     switch (activePackage) {
         case "FLUX":
-            return partNumber <= 1
+            return resolvedPart <= 1
         case "SENKU":
-            return partNumber <= 2
+            return resolvedPart <= 2
         case "EINSTEIN":
             return true
         default:
