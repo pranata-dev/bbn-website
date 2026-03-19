@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic"
 // GET /api/admin/tryouts - List all tryouts
 export async function GET(request: NextRequest) {
     try {
-        const adminSupabase = await createAdminClient()
+        const adminSupabase = createServiceClient()
 
         const url = new URL(request.url)
         const isPractice = url.searchParams.get("isPractice")

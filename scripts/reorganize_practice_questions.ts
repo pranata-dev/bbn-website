@@ -131,6 +131,7 @@ async function run() {
                 id: tryoutId,
                 title: `Latihan Soal Week ${weekNum} - Part ${partNum}`,
                 category: weekKey,
+                subject: 'FISDAS2',
                 is_practice: true,
                 // practice_part: partNum, // Column must exist in DB first — will be backfilled after ALTER TABLE
                 status: 'ACTIVE',
