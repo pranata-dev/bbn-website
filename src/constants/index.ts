@@ -55,7 +55,7 @@ export const UTS_PACKAGES: UTSPackage[] = [
         price: 35_000,
         originalPrice: 50_000,
         features: [
-            "Latihan soal pekan 1–7 (20–30 soal setiap pekan)",
+            "Akses Latihan Soal (1 Part / Minggu)",
             "Pembahasan lengkap dan terstruktur",
             "Auto-save jawaban",
             "Akses fleksibel 24/7 selama 30 hari",
@@ -70,6 +70,7 @@ export const UTS_PACKAGES: UTSPackage[] = [
         originalPrice: 65_000,
         features: [
             "Semua benefit Flux Session",
+            "Akses Latihan Soal (2 Parts / Minggu)",
             "Try Out UTS 120 menit (50 soal)",
             "Format: sebab-akibat, benar-salah, kombinasi 1-2-3-4 benar, dll",
             "Pembahasan detail & Analisis skor performa",
@@ -86,6 +87,7 @@ export const UTS_PACKAGES: UTSPackage[] = [
         isPopular: true,
         features: [
             "Semua benefit Flux Session & Berotak Senku Mode",
+            "Akses UNLIMITED Latihan Soal",
             "Tambahan hingga 3x Try Out (soal berbeda)",
             "Analisis performa lanjutan & evaluasi kelemahan",
         ],
