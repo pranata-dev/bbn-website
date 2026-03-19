@@ -6,8 +6,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { FileText, BatteryWarning, ArrowRight, Loader2 } from "lucide-react"
+import { FileText, BatteryWarning, ArrowRight, Loader2, Lock } from "lucide-react"
 import { CATEGORY_LABELS, QuestionCategory } from "@/types"
+import { createClient } from "@/lib/supabase/client"
+import { canAccessPracticePart } from "@/lib/package-features"
+import { toast } from "sonner"
 
 interface LatihanItem {
     id: string
@@ -16,6 +19,7 @@ interface LatihanItem {
     category: QuestionCategory | null
     status: string
     is_practice: boolean
+    practice_part: number | null
     created_at: string
     tryout_questions: { count: number }[]
 }
@@ -28,9 +32,31 @@ export default function LatihanPage() {
     const [filter, setFilter] = useState<string>("all")
     const { selectedSubject } = useSubject()
 
+    const [subjectAccess, setSubjectAccess] = useState<any[]>([])
+
     useEffect(() => {
         fetchLatihan()
+        fetchUserAccess()
     }, [selectedSubject])
+
+    const fetchUserAccess = async () => {
+        try {
+            const supabase = createClient()
+            const { data: { user } } = await supabase.auth.getUser()
+            if (user) {
+                const { data: profile } = await supabase
+                    .from("users")
+                    .select("*, subject_access:user_subject_access(*)")
+                    .eq("auth_id", user.id)
+                    .single()
+                if (profile?.subject_access) {
+                    setSubjectAccess(profile.subject_access)
+                }
+            }
+        } catch (error) {
+            console.error("Failed to fetch user profile", error)
+        }
+    }
 
     const fetchLatihan = async () => {
         setLoading(true)
@@ -130,48 +156,74 @@ export default function LatihanPage() {
                 </Card>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {filteredLatihans.map((latihan) => (
-                        <Card
-                            key={latihan.id}
-                            className="border-warm-gray/60 hover:shadow-md hover:border-soft-brown/30 transition-all"
-                        >
-                            <CardHeader className="pb-3">
-                                <div className="flex items-start justify-between">
-                                    <div className="flex-1">
-                                        <Badge variant="secondary" className="mb-2 bg-warm-beige text-soft-brown text-xs whitespace-normal h-auto text-left">
-                                            {latihan.category
-                                                ? CATEGORY_LABELS[latihan.category]
-                                                : "Semua Materi"}
-                                        </Badge>
-                                        <CardTitle className="text-lg">{latihan.title}</CardTitle>
+                    {filteredLatihans.map((latihan) => {
+                        const activeAccess = subjectAccess.find(a => a.subject === selectedSubject && a.is_active)
+                        const isLocked = !canAccessPracticePart(activeAccess?.package_type, activeAccess?.role, latihan.practice_part)
+
+                        return (
+                            <Card
+                                key={latihan.id}
+                                className={`border-warm-gray/60 transition-all ${
+                                    isLocked ? "opacity-75 bg-warm-gray/5" : "hover:shadow-md hover:border-soft-brown/30"
+                                }`}
+                            >
+                                <CardHeader className="pb-3">
+                                    <div className="flex items-start justify-between">
+                                        <div className="flex-1">
+                                            <div className="flex items-center gap-2 mb-2">
+                                                <Badge variant="secondary" className="bg-warm-beige text-soft-brown text-xs whitespace-normal h-auto text-left">
+                                                    {latihan.category
+                                                        ? CATEGORY_LABELS[latihan.category]
+                                                        : "Semua Materi"}
+                                                </Badge>
+                                                {isLocked && (
+                                                    <Badge variant="outline" className="text-[10px] text-muted-foreground border-muted-foreground/30 flex items-center gap-1">
+                                                        <Lock className="w-3 h-3" /> Upgrade
+                                                    </Badge>
+                                                )}
+                                            </div>
+                                            <CardTitle className={`text-lg ${isLocked ? "text-muted-foreground" : ""}`}>
+                                                {latihan.title}
+                                            </CardTitle>
+                                        </div>
                                     </div>
-                                </div>
-                            </CardHeader>
-                            <CardContent>
-                                {latihan.description && (
-                                    <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
-                                        {latihan.description}
-                                    </p>
-                                )}
-                                <div className="flex items-center gap-4 text-xs text-muted-foreground mb-4">
-                                    <div className="flex items-center gap-1">
-                                        <FileText className="w-3.5 h-3.5" />
-                                        <span>{latihan.tryout_questions?.[0]?.count || 0} soal</span>
+                                </CardHeader>
+                                <CardContent>
+                                    {latihan.description && (
+                                        <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
+                                            {latihan.description}
+                                        </p>
+                                    )}
+                                    <div className="flex items-center gap-4 text-xs text-muted-foreground mb-4">
+                                        <div className="flex items-center gap-1">
+                                            <FileText className="w-3.5 h-3.5" />
+                                            <span>{latihan.tryout_questions?.[0]?.count || 0} soal</span>
+                                        </div>
                                     </div>
-                                </div>
-                                <Button
-                                    asChild
-                                    className="w-full bg-dark-brown hover:bg-soft-brown text-cream"
-                                    size="sm"
-                                >
-                                    <Link href={`/dashboard/latihan/${latihan.id}`}>
-                                        Masuk Latihan
-                                        <ArrowRight className="ml-2 w-4 h-4" />
-                                    </Link>
-                                </Button>
-                            </CardContent>
-                        </Card>
-                    ))}
+                                    {isLocked ? (
+                                        <Button
+                                            className="w-full bg-warm-gray/20 text-muted-foreground hover:bg-warm-gray/30"
+                                            size="sm"
+                                            onClick={() => toast.error("Upgrade paket Anda ke Senku atau Einstein untuk mengakses bagian ini!")}
+                                        >
+                                            <Lock className="w-4 h-4 mr-2" /> Terkunci
+                                        </Button>
+                                    ) : (
+                                        <Button
+                                            asChild
+                                            className="w-full bg-dark-brown hover:bg-soft-brown text-cream"
+                                            size="sm"
+                                        >
+                                            <Link href={`/dashboard/latihan/${latihan.id}`}>
+                                                Masuk Latihan
+                                                <ArrowRight className="ml-2 w-4 h-4" />
+                                            </Link>
+                                        </Button>
+                                    )}
+                                </CardContent>
+                            </Card>
+                        )
+                    })}
                 </div>
             )}
         </div>
