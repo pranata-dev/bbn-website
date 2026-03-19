@@ -12,6 +12,7 @@ export type QuestionCategory =
     | "WEEK_5"
     | "WEEK_6"
     | "WEEK_7"
+    | "SERIES_POWER"
 
 export const CATEGORY_LABELS: Record<QuestionCategory, string> = {
     WEEK_1: "Week 1 (Coulomb's Law & Electric Fields)",
@@ -21,6 +22,7 @@ export const CATEGORY_LABELS: Record<QuestionCategory, string> = {
     WEEK_5: "Week 5 (Magnetic Fields & Magnetic Fields Due to Current)",
     WEEK_6: "Week 6 (Induction and Inductance)",
     WEEK_7: "Week 7 (Electromagnetic Oscillations and Alternating Current)",
+    SERIES_POWER: "Infinite Series and Power Series",
 }
 
 export interface UserSubjectAccess {
@@ -34,6 +36,8 @@ export interface UserSubjectAccess {
     createdAt: string
     updatedAt: string
 }
+
+export type QuestionType = "MULTIPLE_CHOICE" | "ESSAY"
 
 export type PackageType = "REGULER" | "FLUX" | "SENKU" | "EINSTEIN"
 
@@ -83,6 +87,7 @@ export interface Question {
     text: string
     category: QuestionCategory
     subject: Subject
+    type: QuestionType
     optionA: string
     optionB: string
     optionC: string

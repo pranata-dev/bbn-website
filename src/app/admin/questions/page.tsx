@@ -55,6 +55,7 @@ import {
 
 interface QuestionItem {
     id: string
+    type: "MULTIPLE_CHOICE" | "ESSAY"
     text: string
     category: string
     subject: string
@@ -70,7 +71,7 @@ interface QuestionItem {
     created_at: string
 }
 
-const INITIAL_FORM_DATA = {
+    type: "MULTIPLE_CHOICE",
     text: "",
     category: "",
     optionA: "",
@@ -337,6 +338,7 @@ export default function QuestionsPage() {
 
     const handleEdit = (q: QuestionItem) => {
         setFormData({
+            type: (q.type as any) || "MULTIPLE_CHOICE",
             text: q.text,
             category: q.category,
             optionA: q.option_a,
@@ -382,8 +384,8 @@ export default function QuestionsPage() {
             toast.error("Mohon isi semua field yang diperlukan.")
             return
         }
-        if (!formData.optionA || !formData.optionB || !formData.optionC || !formData.optionD) {
-            toast.error("Mohon isi opsi A, B, C, dan D.")
+        if (formData.type === "MULTIPLE_CHOICE" && (!formData.optionA || !formData.optionB || !formData.optionC || !formData.optionD)) {
+            toast.error("Mohon isi opsi A, B, C, dan D untuk pilihan ganda.")
             return
         }
 
@@ -391,6 +393,7 @@ export default function QuestionsPage() {
         try {
             // Build FormData for multipart upload (text fields + image)
             const payload = new FormData()
+            payload.append("type", formData.type)
             payload.append("text", formData.text)
             payload.append("category", formData.category)
             payload.append("optionA", formData.optionA)
@@ -557,6 +560,20 @@ export default function QuestionsPage() {
                     </DialogHeader>
 
                     <div className="space-y-5">
+                        {/* Question Type */}
+                        <div className="space-y-2">
+                            <Label>Tipe Soal *</Label>
+                            <Select value={formData.type} onValueChange={(v: any) => setFormData({ ...formData, type: v })}>
+                                <SelectTrigger className="border-warm-gray">
+                                    <SelectValue placeholder="Pilih tipe" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="MULTIPLE_CHOICE">Pilihan Ganda (MCQ)</SelectItem>
+                                    <SelectItem value="ESSAY">Essay / Uraian</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+
                         {/* Question text with preview */}
                         <div className="space-y-2">
                             <Label>Soal *</Label>
@@ -622,38 +639,55 @@ export default function QuestionsPage() {
                             </Select>
                         </div>
 
-                        {/* Options A-E with inline preview */}
-                        <div className="space-y-3">
-                            <Label className="text-sm font-medium">Opsi Jawaban</Label>
-                            {["A", "B", "C", "D", "E"].map((opt) => (
-                                <div key={opt} className="space-y-1">
-                                    <div className="flex items-center gap-2">
-                                        <span className="w-6 h-6 rounded-full bg-warm-beige text-soft-brown text-xs font-semibold flex items-center justify-center shrink-0">
-                                            {opt}
-                                        </span>
-                                        <Input
-                                            value={formData[`option${opt}` as keyof typeof formData] as string}
-                                            onChange={(e) => setFormData({ ...formData, [`option${opt}`]: e.target.value })}
-                                            placeholder={`Opsi ${opt}${opt === "E" ? " (opsional)" : ""} — mendukung LaTeX`}
-                                            className="border-warm-gray"
-                                        />
+                        {/* Options A-E with inline preview (Only for MCQ) */}
+                        {formData.type === "MULTIPLE_CHOICE" ? (
+                            <div className="space-y-3">
+                                <Label className="text-sm font-medium">Opsi Jawaban</Label>
+                                {["A", "B", "C", "D", "E"].map((opt) => (
+                                    <div key={opt} className="space-y-1">
+                                        <div className="flex items-center gap-2">
+                                            <span className="w-6 h-6 rounded-full bg-warm-beige text-soft-brown text-xs font-semibold flex items-center justify-center shrink-0">
+                                                {opt}
+                                            </span>
+                                            <Input
+                                                value={formData[`option${opt}` as keyof typeof formData] as string}
+                                                onChange={(e) => setFormData({ ...formData, [`option${opt}`]: e.target.value })}
+                                                placeholder={`Opsi ${opt}${opt === "E" ? " (opsional)" : ""} — mendukung LaTeX`}
+                                                className="border-warm-gray"
+                                            />
+                                        </div>
+                                        <LatexPreview content={formData[`option${opt}` as keyof typeof formData] as string} />
                                     </div>
-                                    <LatexPreview content={formData[`option${opt}` as keyof typeof formData] as string} />
-                                </div>
-                            ))}
-                        </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="p-4 bg-blue-50/50 rounded-lg border border-blue-100">
+                                <p className="text-sm text-blue-800">
+                                    <strong>Format Essay:</strong> Opsi A-E tidak diperlukan. Jawaban benar akan disimpan langsung.
+                                </p>
+                            </div>
+                        )}
 
                         {/* Correct answer */}
                         <div className="space-y-2">
-                            <Label>Jawaban Benar *</Label>
-                            <Select value={formData.correctAnswer} onValueChange={(v) => setFormData({ ...formData, correctAnswer: v })}>
-                                <SelectTrigger className="border-warm-gray"><SelectValue placeholder="Pilih jawaban" /></SelectTrigger>
-                                <SelectContent>
-                                    {["A", "B", "C", "D", "E"].map((o) => (
-                                        <SelectItem key={o} value={o}>{o}</SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
+                            <Label>{formData.type === "MULTIPLE_CHOICE" ? "Jawaban Benar *" : "Kunci Jawaban / Hasil Akhir *"}</Label>
+                            {formData.type === "MULTIPLE_CHOICE" ? (
+                                <Select value={formData.correctAnswer} onValueChange={(v) => setFormData({ ...formData, correctAnswer: v })}>
+                                    <SelectTrigger className="border-warm-gray"><SelectValue placeholder="Pilih jawaban" /></SelectTrigger>
+                                    <SelectContent>
+                                        {["A", "B", "C", "D", "E"].map((o) => (
+                                            <SelectItem key={o} value={o}>{o}</SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            ) : (
+                                <Input
+                                    value={formData.correctAnswer}
+                                    onChange={(e) => setFormData({ ...formData, correctAnswer: e.target.value })}
+                                    placeholder="Contoh: 125, x=5, atau teks jawaban singkat"
+                                    className="border-warm-gray"
+                                />
+                            )}
                         </div>
 
                         {/* Explanation with preview */}

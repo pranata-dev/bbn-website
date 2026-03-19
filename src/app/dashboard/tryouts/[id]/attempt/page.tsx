@@ -302,36 +302,38 @@ export default function TryoutAttemptPage() {
                     </div>
 
                     {/* Options */}
-                    <div className="space-y-3">
-                        {["A", "B", "C", "D", "E"].map((opt) => {
-                            const optKey = `option_${opt.toLowerCase()}` as keyof Question
-                            const optionText = currentQuestion[optKey] as string | null
-                            if (!optionText) return null
+                    {questions[currentIndex].option_a !== "-" && (
+                        <div className="space-y-3">
+                            {["A", "B", "C", "D", "E"].map((opt) => {
+                                const optKey = `option_${opt.toLowerCase()}` as keyof Question
+                                const optionText = currentQuestion[optKey] as string | null
+                                if (!optionText || optionText === "-") return null
 
-                            const isSelected = answers[currentQuestion.id]?.answer === opt
+                                const isSelected = answers[currentQuestion.id]?.answer === opt
 
-                            return (
-                                <button
-                                    key={opt}
-                                    onClick={() => handleAnswer(currentQuestion.id, opt)}
-                                    className={`w-full text-left p-4 rounded-xl border-2 transition-all text-sm flex items-center ${isSelected
-                                        ? "border-dark-brown bg-dark-brown/5 text-foreground"
-                                        : "border-warm-gray/60 hover:border-soft-brown/40 text-foreground/80 hover:bg-warm-beige/50"
-                                        }`}
-                                >
-                                    <span className={`inline-flex items-center justify-center min-w-7 h-7 rounded-full text-xs font-bold mr-3 ${isSelected
-                                        ? "bg-dark-brown text-cream"
-                                        : "bg-warm-beige text-soft-brown"
-                                        }`}>
-                                        {opt}
-                                    </span>
-                                    <div className="prose prose-sm max-w-none">
-                                        <MarkdownLatex>{optionText}</MarkdownLatex>
-                                    </div>
-                                </button>
-                            )
-                        })}
-                    </div>
+                                return (
+                                    <button
+                                        key={opt}
+                                        onClick={() => handleAnswer(currentQuestion.id, opt)}
+                                        className={`w-full text-left p-4 rounded-xl border-2 transition-all text-sm flex items-center ${isSelected
+                                            ? "border-dark-brown bg-dark-brown/5 text-foreground"
+                                            : "border-warm-gray/60 hover:border-soft-brown/40 text-foreground/80 hover:bg-warm-beige/50"
+                                            }`}
+                                    >
+                                        <span className={`inline-flex items-center justify-center min-w-7 h-7 rounded-full text-xs font-bold mr-3 ${isSelected
+                                            ? "bg-dark-brown text-cream"
+                                            : "bg-warm-beige text-soft-brown"
+                                            }`}>
+                                            {opt}
+                                        </span>
+                                        <div className="prose prose-sm max-w-none">
+                                            <MarkdownLatex>{optionText}</MarkdownLatex>
+                                        </div>
+                                    </button>
+                                )
+                            })}
+                        </div>
+                    )}
                 </CardContent>
             </Card>
 

@@ -92,6 +92,7 @@ model Question {
   correctAnswer String           @map("correct_answer")
   explanation   String?
   weight        Float            @default(1)
+  type          QuestionType     @default(MULTIPLE_CHOICE)
   imageUrl      String?          @map("image_url")
   createdAt     DateTime         @default(now()) @map("created_at")
   updatedAt     DateTime         @updatedAt @map("updated_at")
@@ -236,6 +237,12 @@ enum QuestionCategory {
   WEEK_5
   WEEK_6
   WEEK_7
+  SERIES_POWER
+}
+
+enum QuestionType {
+  MULTIPLE_CHOICE
+  ESSAY
 }
 
 enum RegistrationType {
