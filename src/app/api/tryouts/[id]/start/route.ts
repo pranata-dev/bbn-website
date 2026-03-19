@@ -60,12 +60,15 @@ export async function POST(
         }
 
         // 5. Check role-based permissions and quotas
-        const { getPackageFeatures } = await import("@/lib/package-features")
+        const { getPackageFeatures, canAccessPracticePart } = await import("@/lib/package-features")
         const features = getPackageFeatures(access.package_type, access.role)
 
         if (tryout.is_practice) {
             if (!features.canAccessLatihan) {
                 return NextResponse.json({ error: "Akses latihan tidak diizinkan untuk paket Anda." }, { status: 403 })
+            }
+            if (!canAccessPracticePart(access.package_type, access.role, tryout.practice_part)) {
+                return NextResponse.json({ error: "Upgrade paket Anda untuk mengakses bagian ini." }, { status: 403 })
             }
         } else {
             if (!features.canAccessTryout && access.role !== "ADMIN") {
