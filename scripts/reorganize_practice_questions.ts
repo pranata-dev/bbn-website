@@ -132,6 +132,7 @@ async function run() {
                 title: `Latihan Soal Week ${weekNum} - Part ${partNum}`,
                 category: weekKey,
                 is_practice: true,
+                practice_part: partNum,
                 status: 'ACTIVE',
                 duration: 60,
                 max_attempts: 999,
