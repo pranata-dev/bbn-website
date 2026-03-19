@@ -71,7 +71,8 @@ interface QuestionItem {
     created_at: string
 }
 
-    type: "MULTIPLE_CHOICE",
+const INITIAL_FORM_DATA = {
+    type: "MULTIPLE_CHOICE" as "MULTIPLE_CHOICE" | "ESSAY",
     text: "",
     category: "",
     optionA: "",
