@@ -16,7 +16,7 @@ if (!supabaseUrl || !supabaseKey) {
 
 const supabase = createClient(supabaseUrl, supabaseKey)
 
-const SOURCE_FILE = "C:/Users/p/OneDrive/Dokumen/FISMAT - DERET SOAL.txt"
+const SOURCE_FILE = "C:/Users/p/OneDrive/Dokumen/FISMAT - DERET SOAL 2.txt"
 const SUBJECT = "FISMAT"
 const CATEGORY = "SERIES_POWER"
 
@@ -30,23 +30,7 @@ async function run() {
         process.exit(1)
     }
 
-    // Step 1: Delete ALL existing SERIES_POWER questions and their tryout links
-    console.log("🗑️  Deleting existing SERIES_POWER data...")
-
-    const { data: existingTryouts } = await supabase
-        .from("tryouts")
-        .select("id")
-        .eq("category", CATEGORY)
-
-    if (existingTryouts && existingTryouts.length > 0) {
-        const tIds = existingTryouts.map(t => t.id)
-        await supabase.from("tryout_questions").delete().in("tryout_id", tIds)
-        await supabase.from("tryouts").delete().in("id", tIds)
-        console.log(`  Deleted ${existingTryouts.length} tryouts`)
-    }
-
-    await supabase.from("questions").delete().eq("category", CATEGORY)
-    console.log("  Deleted existing questions")
+    console.log("📥 Importing NEW questions from batch 2 (appending to existing)...")
 
     // Step 2: Parse the source file
     const content = fs.readFileSync(SOURCE_FILE, "utf-8")

@@ -51,13 +51,25 @@ async function run() {
 
     console.log(`📋 Found ${questions.length} questions`)
 
+    // Shuffle all questions using Fisher-Yates algorithm
+    function shuffle<T>(arr: T[]): T[] {
+        const a = [...arr]
+        for (let i = a.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [a[i], a[j]] = [a[j], a[i]]
+        }
+        return a
+    }
+    const shuffled = shuffle(questions)
+    console.log(`🔀 Shuffled all ${shuffled.length} questions`)
+
     // 3. Split into parts of QUESTIONS_PER_PART each
-    const numParts = Math.ceil(questions.length / QUESTIONS_PER_PART)
+    const numParts = Math.ceil(shuffled.length / QUESTIONS_PER_PART)
 
     for (let i = 0; i < numParts; i++) {
         const partNum = i + 1
         const startIdx = i * QUESTIONS_PER_PART
-        const partQuestions = questions.slice(startIdx, startIdx + QUESTIONS_PER_PART)
+        const partQuestions = shuffled.slice(startIdx, startIdx + QUESTIONS_PER_PART)
 
         const tryoutId = uuidv4()
         const now = new Date().toISOString()
