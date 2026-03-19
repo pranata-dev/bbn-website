@@ -80,3 +80,41 @@ export function getPackageFeatures(packageType: PackageType | null | undefined, 
             return defaultFeatures
     }
 }
+
+export function canAccessPracticePart(packageType: PackageType | null | undefined, role: string | undefined, partNumber: number | null): boolean {
+    if (role === "ADMIN") return true
+    
+    // Fallback logic for legacy accounts that have a Role but no PackageType yet
+    let activePackage = packageType
+    
+    if (!activePackage && role) {
+        switch (role) {
+            case "UTS_EINSTEIN":
+                activePackage = "EINSTEIN"
+                break
+            case "UTS_SENKU":
+                activePackage = "SENKU"
+                break
+            case "UTS_FLUX":
+                activePackage = "FLUX"
+                break
+            case "STUDENT_PREMIUM":
+                activePackage = "REGULER"
+                break
+        }
+    }
+
+    if (!activePackage || !partNumber) return false
+
+    switch (activePackage) {
+        case "FLUX":
+            return partNumber <= 1
+        case "SENKU":
+            return partNumber <= 2
+        case "EINSTEIN":
+            return true
+        default:
+            return false
+    }
+}
+

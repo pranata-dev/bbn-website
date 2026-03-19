@@ -7,17 +7,17 @@ datasource db {
 }
 
 model User {
-  id                  String              @id @default(uuid())
-  authId              String              @unique @map("auth_id")
-  email               String              @unique
-  name                String
-  isActive     Boolean              @default(false) @map("is_active")
-  avatarUrl    String?              @map("avatar_url")
-  lastLoginAt  DateTime?            @map("last_login_at")
-  sessionToken String?              @map("session_token")
-  createdAt    DateTime             @default(now()) @map("created_at")
-  updatedAt    DateTime             @updatedAt @map("updated_at")
-  accessEndsAt DateTime?            @map("access_ends_at")
+  id           String    @id @default(uuid())
+  authId       String    @unique @map("auth_id")
+  email        String    @unique
+  name         String
+  isActive     Boolean   @default(false) @map("is_active")
+  avatarUrl    String?   @map("avatar_url")
+  lastLoginAt  DateTime? @map("last_login_at")
+  sessionToken String?   @map("session_token")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+  accessEndsAt DateTime? @map("access_ends_at")
 
   payments      Payment[]
   submissions   Submission[]
@@ -59,21 +59,22 @@ model Payment {
 }
 
 model Tryout {
-  id          String            @id @default(uuid())
-  title       String
-  description String?
-  category    QuestionCategory?
-  subject     Subject           @default(FISDAS2)
-  duration    Int
-  status      TryoutStatus      @default(DRAFT)
-  maxAttempts Int               @default(1) @map("max_attempts")
-  startDate   DateTime?         @map("start_date")
-  endDate     DateTime?         @map("end_date")
-  createdAt   DateTime          @default(now()) @map("created_at")
-  updatedAt   DateTime          @updatedAt @map("updated_at")
-  isPractice  Boolean           @default(false) @map("is_practice")
-  submissions Submission[]
-  questions   TryoutQuestion[]
+  id           String            @id @default(uuid())
+  title        String
+  description  String?
+  category     QuestionCategory?
+  subject      Subject           @default(FISDAS2)
+  duration     Int
+  status       TryoutStatus      @default(DRAFT)
+  maxAttempts  Int               @default(1) @map("max_attempts")
+  startDate    DateTime?         @map("start_date")
+  endDate      DateTime?         @map("end_date")
+  createdAt    DateTime          @default(now()) @map("created_at")
+  updatedAt    DateTime          @updatedAt @map("updated_at")
+  isPractice   Boolean           @default(false) @map("is_practice")
+  practicePart Int?              @map("practice_part")
+  submissions  Submission[]
+  questions    TryoutQuestion[]
 
   @@map("tryouts")
 }
