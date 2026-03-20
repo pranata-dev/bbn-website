@@ -86,7 +86,6 @@ async function run() {
                         text: questionText,
                         category: CATEGORY,
                         subject: SUBJECT,
-                        type: "ESSAY",
                         option_a: "-",
                         option_b: "-",
                         option_c: "-",
@@ -197,9 +196,7 @@ async function run() {
             duration: 60, // 60 minutes
             max_attempts: 999,
             created_at: now,
-            updated_at: now,
-            practice_part: partNum,
-            description: `Latihan Soal Ujian ${title} untuk persiapan ujian.`
+            updated_at: now
         })
 
         if (tErr) {
