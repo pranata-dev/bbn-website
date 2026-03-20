@@ -50,7 +50,18 @@ const MATERIALS_DATA: Record<Subject, Material[]> = {
             icon: <BookOpen className="w-5 h-5 text-earthy-gold" />,
         },
     ],
-    FISMAT: [],
+    FISMAT: [
+        {
+            title: "MATHEMATICAL PHYSICS - INFINITE SERIES AND POWER SERIES",
+            link: "https://drive.google.com/uc?export=download&id=1bkj9HAmLtR6IqmfM1dHoPeSa89s_uMZQ",
+            icon: <BookOpen className="w-5 h-5 text-earthy-gold" />,
+        },
+        {
+            title: "MATHEMATICAL PHYSICS - COMPLEX NUMBERS",
+            link: "https://drive.google.com/uc?export=download&id=1D9DJXMUaVexRqWDTpz20egIm5rlAxBmA",
+            icon: <BookOpen className="w-5 h-5 text-earthy-gold" />,
+        },
+    ],
 }
 
 export default function MateriPage() {
