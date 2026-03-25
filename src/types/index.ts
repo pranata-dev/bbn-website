@@ -13,6 +13,7 @@ export type QuestionCategory =
     | "WEEK_6"
     | "WEEK_7"
     | "SERIES_POWER"
+    | "COMPLEX_NUMBERS"
 
 export const CATEGORY_LABELS: Record<QuestionCategory, string> = {
     WEEK_1: "Week 1 (Coulomb's Law & Electric Fields)",
@@ -23,6 +24,7 @@ export const CATEGORY_LABELS: Record<QuestionCategory, string> = {
     WEEK_6: "Week 6 (Induction and Inductance)",
     WEEK_7: "Week 7 (Electromagnetic Oscillations and Alternating Current)",
     SERIES_POWER: "Infinite Series and Power Series",
+    COMPLEX_NUMBERS: "Complex Numbers",
 }
 
 export interface UserSubjectAccess {

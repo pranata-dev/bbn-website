@@ -238,6 +238,7 @@ enum QuestionCategory {
   WEEK_6
   WEEK_7
   SERIES_POWER
+  COMPLEX_NUMBERS
 }
 
 enum QuestionType {
