@@ -149,6 +149,18 @@ export async function POST(
             return NextResponse.json({ error: "Gagal memulai tryout." }, { status: 500 })
         }
 
+        // Increment usage quota exclusively for real tryouts (practice does not use attempts)
+        if (!tryout.is_practice && access.role !== "ADMIN") {
+            const { error: updateAccessErr } = await supabase
+                .from("user_subject_access")
+                .update({ tryout_attempts_used: access.tryout_attempts_used + 1 })
+                .eq("id", access.id)
+            
+            if (updateAccessErr) {
+                console.error("Failed to increment tryout quota:", updateAccessErr)
+            }
+        }
+
         const { data: questions } = await supabase
             .from("questions")
             .select("id, text, category, option_a, option_b, option_c, option_d, option_e, weight, image_url")
