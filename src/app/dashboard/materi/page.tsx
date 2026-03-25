@@ -60,14 +60,22 @@ const MATERIALS_DATA: Record<Subject, Material[]> = {
     ],
     FISMAT: [
         {
-            title: "MATHEMATICAL PHYSICS - INFINITE SERIES AND POWER SERIES",
-            link: "https://drive.google.com/uc?export=download&id=1bkj9HAmLtR6IqmfM1dHoPeSa89s_uMZQ",
+            title: "FISMAT - BILANGAN KOMPLEKS",
+            link: "https://drive.google.com/uc?export=download&id=1D9DJXMUaVexRqWDTpz20egIm5rlAxBmA",
+            podcastLink: "https://drive.google.com/uc?export=download&id=17I6oVcUdQ_f2fxnu1YotnPt5ZbPxt7JK",
             icon: <BookOpen className="w-5 h-5 text-earthy-gold" />,
         },
         {
-            title: "MATHEMATICAL PHYSICS - COMPLEX NUMBERS",
-            link: "https://drive.google.com/uc?export=download&id=1D9DJXMUaVexRqWDTpz20egIm5rlAxBmA",
-            icon: <BookOpen className="w-5 h-5 text-earthy-gold" />,
+            title: "FISMAT - ALJABAR LINEAR",
+            link: "https://drive.google.com/uc?export=download&id=1IiC84g0ryUq13MrYnyHW0VvIJ9Zh5eCN",
+            podcastLink: "https://drive.google.com/uc?export=download&id=1MVtoBGhjiHn8kFzKM2utzOYoG3b0wOgo",
+            icon: <FileText className="w-5 h-5 text-earthy-gold" />,
+        },
+        {
+            title: "FISMAT - DERET TAK HINGGA DAN DERET PANGKAT",
+            link: "#",
+            podcastLink: "https://drive.google.com/uc?export=download&id=1Y7nlDQrwng2tqsh9afchZjy0JI7DaUSz",
+            icon: <FileText className="w-5 h-5 text-earthy-gold" />,
         },
     ],
 }
@@ -102,20 +110,22 @@ export default function MateriPage() {
                                 </h3>
 
                                 <div className="flex flex-col gap-2 mt-auto w-full">
-                                    <Button 
-                                        asChild 
-                                        className="w-full bg-dark-brown text-cream hover:bg-soft-brown shadow-sm group-hover:shadow transition-all"
-                                    >
-                                        <a 
-                                            href={materi.link} 
-                                            target="_blank" 
-                                            rel="noopener noreferrer"
-                                            download
+                                    {materi.link && materi.link !== "#" && (
+                                        <Button 
+                                            asChild 
+                                            className="w-full bg-dark-brown text-cream hover:bg-soft-brown shadow-sm group-hover:shadow transition-all"
                                         >
-                                            <Download className="w-4 h-4 mr-2" />
-                                            Unduh Materi
-                                        </a>
-                                    </Button>
+                                            <a 
+                                                href={materi.link} 
+                                                target="_blank" 
+                                                rel="noopener noreferrer"
+                                                download
+                                            >
+                                                <Download className="w-4 h-4 mr-2" />
+                                                Unduh Materi
+                                            </a>
+                                        </Button>
+                                    )}
 
                                     {materi.podcastLink && (
                                         <Button
@@ -129,7 +139,7 @@ export default function MateriPage() {
                                                 rel="noopener noreferrer"
                                             >
                                                 <Headphones className="w-4 h-4 mr-2" />
-                                                Unduh Podcast
+                                                Unduh Podcast (AI)
                                             </a>
                                         </Button>
                                     )}
