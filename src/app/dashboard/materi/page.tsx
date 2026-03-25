@@ -2,13 +2,14 @@
 
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Download, BookOpen, FileText } from "lucide-react"
+import { Download, BookOpen, FileText, Headphones } from "lucide-react"
 import { useSubject } from "@/contexts/SubjectContext"
 import { Subject } from "@/types"
 
 interface Material {
     title: string
     link: string
+    podcastLink?: string
     icon: React.ReactNode
 }
 
@@ -17,36 +18,43 @@ const MATERIALS_DATA: Record<Subject, Material[]> = {
         {
             title: "BASIC PHYSICS 2 WEEK 1 - COULOMB'S LAW AND ELECTRIC FIELD",
             link: "https://drive.google.com/uc?export=download&id=15FjanBliqSbGNLflR0ulE3Se4dE-Whmm",
+            podcastLink: "https://drive.google.com/uc?export=download&id=1d3VdZspBokYYZj8amEWI3ihd6hlF8ieT",
             icon: <BookOpen className="w-5 h-5 text-earthy-gold" />,
         },
         {
             title: "BASIC PHYSICS 2 WEEK 2 - GAUSS LAW",
             link: "https://drive.google.com/uc?export=download&id=1UYV9xYq9BNRpVThSkN1sr57F9s8xq9mh",
+            podcastLink: "https://drive.google.com/uc?export=download&id=1LDj-L3h9s6ZJTBTJnTZnB-QrPg2tT9Ik",
             icon: <BookOpen className="w-5 h-5 text-earthy-gold" />,
         },
         {
             title: "BASIC PHYSICS 2 WEEK 3 - ELECTRIC POTENTIAL AND CAPACITANCE",
             link: "https://drive.google.com/uc?export=download&id=1ows4NXU-_xrMrQeL9ap4oOm-Ihf5RVhO",
+            podcastLink: "https://drive.google.com/uc?export=download&id=1C_wSu7OcJexlLp0EHE2xa2uqy7RiCIck",
             icon: <BookOpen className="w-5 h-5 text-earthy-gold" />,
         },
         {
             title: "BASIC PHYSICS 2 WEEK 4 - CURRENT, RESISTANCE, AND CIRCUIT",
             link: "https://drive.google.com/uc?export=download&id=1Rpid7KYmMce3p9wt62ZXMsLs6K1yB1fU",
+            podcastLink: "https://drive.google.com/uc?export=download&id=1L_H2JT5QRm7ngpd7vfokNF_ZDVC_PzXv",
             icon: <BookOpen className="w-5 h-5 text-earthy-gold" />,
         },
         {
             title: "BASIC PHYSICS 2 WEEK 5 - MAGNETIC FIELDS & MAGNETIC FIELDS DUE TO CURRENT",
             link: "https://drive.google.com/uc?export=download&id=1vYSiKUZhJZRU2w1C5RXrNkvEjsGroBoG",
+            podcastLink: "https://drive.google.com/uc?export=download&id=1joT4j5rSuiPgihQmDI5RLKs7s3OIyAZj",
             icon: <BookOpen className="w-5 h-5 text-earthy-gold" />,
         },
         {
             title: "BASIC PHYSICS 2 WEEK 6 - INDUCTION & INDUCTANCE",
             link: "https://drive.google.com/uc?export=download&id=1hA8yDh1OMG-Zmhe8P435BFWuTruIaTjF",
+            podcastLink: "https://drive.google.com/uc?export=download&id=1dw8EuYSaM8lsOUhWX-9ngoFyLQLeG11K",
             icon: <BookOpen className="w-5 h-5 text-earthy-gold" />,
         },
         {
             title: "BASIC PHYSICS 2 WEEK 7 - ELECTROMAGNETIC OSCILLATIONS AND ALTERNATING CURRENT",
             link: "https://drive.google.com/uc?export=download&id=17d5CVzPSePU-MBnFtNljPHzDh5lhbE0T",
+            podcastLink: "https://drive.google.com/uc?export=download&id=1hj0oJCJBEA5TE-MZrQ5On6XPfmpNv0Rb",
             icon: <BookOpen className="w-5 h-5 text-earthy-gold" />,
         },
     ],
@@ -93,20 +101,39 @@ export default function MateriPage() {
                                     {materi.title}
                                 </h3>
 
-                                <Button 
-                                    asChild 
-                                    className="w-full bg-dark-brown text-cream hover:bg-soft-brown shadow-sm group-hover:shadow transition-all"
-                                >
-                                    <a 
-                                        href={materi.link} 
-                                        target="_blank" 
-                                        rel="noopener noreferrer"
-                                        download
+                                <div className="flex flex-col gap-2 mt-auto w-full">
+                                    <Button 
+                                        asChild 
+                                        className="w-full bg-dark-brown text-cream hover:bg-soft-brown shadow-sm group-hover:shadow transition-all"
                                     >
-                                        <Download className="w-4 h-4 mr-2" />
-                                        Unduh Materi
-                                    </a>
-                                </Button>
+                                        <a 
+                                            href={materi.link} 
+                                            target="_blank" 
+                                            rel="noopener noreferrer"
+                                            download
+                                        >
+                                            <Download className="w-4 h-4 mr-2" />
+                                            Unduh Materi
+                                        </a>
+                                    </Button>
+
+                                    {materi.podcastLink && (
+                                        <Button
+                                            asChild
+                                            variant="outline"
+                                            className="w-full border-earthy-gold text-earthy-gold hover:bg-earthy-gold/10 transition-all font-semibold"
+                                        >
+                                            <a
+                                                href={materi.podcastLink}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                            >
+                                                <Headphones className="w-4 h-4 mr-2" />
+                                                Unduh Podcast
+                                            </a>
+                                        </Button>
+                                    )}
+                                </div>
                             </CardContent>
                         </Card>
                     ))}
