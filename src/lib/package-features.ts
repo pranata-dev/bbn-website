@@ -91,7 +91,9 @@ export function canAccessPracticePart(
     packageType: PackageType | null | undefined,
     role: string | undefined,
     partNumber: number | null | undefined,
-    title?: string | null
+    title?: string | null,
+    subject?: string | null,
+    totalPartsInCategory?: number | null
 ): boolean {
     if (role === "ADMIN") return true
     
@@ -120,6 +122,21 @@ export function canAccessPracticePart(
 
     if (!activePackage || !resolvedPart) return false
 
+    // FISMAT: Dynamic percentage-based access
+    if (subject === "FISMAT" && totalPartsInCategory && totalPartsInCategory > 0) {
+        switch (activePackage) {
+            case "FLUX":
+                return resolvedPart <= Math.ceil(totalPartsInCategory * 0.25)
+            case "SENKU":
+                return resolvedPart <= Math.ceil(totalPartsInCategory * 0.50)
+            case "EINSTEIN":
+                return true
+            default:
+                return false
+        }
+    }
+
+    // FISDAS2 (and fallback): Fixed part limits
     switch (activePackage) {
         case "FLUX":
             return resolvedPart <= 1

@@ -158,7 +158,13 @@ export default function LatihanPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {filteredLatihans.map((latihan) => {
                         const activeAccess = subjectAccess.find(a => a.subject === selectedSubject && a.is_active)
-                        const isLocked = !canAccessPracticePart(activeAccess?.package_type, activeAccess?.role, latihan.practice_part, latihan.title)
+
+                        // Compute total parts in this category from loaded data
+                        const totalPartsInCategory = latihan.category
+                            ? latihans.filter(l => l.category === latihan.category).length
+                            : latihans.length
+
+                        const isLocked = !canAccessPracticePart(activeAccess?.package_type, activeAccess?.role, latihan.practice_part, latihan.title, selectedSubject, totalPartsInCategory)
 
                         return (
                             <Card

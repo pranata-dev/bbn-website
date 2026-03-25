@@ -13,7 +13,7 @@ if (!DATABASE_URL) {
 
 const SUBJECT = "FISMAT"
 const CATEGORY = "COMPLEX_NUMBERS"
-const QUESTIONS_PER_PART = 20
+const QUESTIONS_PER_PART = 10
 
 function shuffleArray<T>(arr: T[]): T[] {
     const a = [...arr]

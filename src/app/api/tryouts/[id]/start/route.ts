@@ -67,7 +67,20 @@ export async function POST(
             if (!features.canAccessLatihan) {
                 return NextResponse.json({ error: "Akses latihan tidak diizinkan untuk paket Anda." }, { status: 403 })
             }
-            if (!canAccessPracticePart(access.package_type, access.role, tryout.practice_part ?? null, tryout.title)) {
+
+            // For FISMAT, dynamically count total practice parts in this category
+            let totalPartsInCategory: number | undefined
+            if (tryout.subject === "FISMAT" && tryout.category) {
+                const { count } = await supabase
+                    .from("tryouts")
+                    .select("*", { count: "exact", head: true })
+                    .eq("subject", "FISMAT")
+                    .eq("is_practice", true)
+                    .eq("category", tryout.category)
+                totalPartsInCategory = count ?? undefined
+            }
+
+            if (!canAccessPracticePart(access.package_type, access.role, tryout.practice_part ?? null, tryout.title, tryout.subject, totalPartsInCategory)) {
                 return NextResponse.json({ error: "Upgrade paket Anda untuk mengakses bagian ini." }, { status: 403 })
             }
         } else {
