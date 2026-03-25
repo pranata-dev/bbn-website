@@ -179,9 +179,10 @@ async function main() {
                     updated_at: new Date().toISOString()
                 });
 
-                if (pErr) throw new Error("Failed to create practice tryout: " + pErr.message);
-
-                const tqData = chunk.map((q, idx) => ({
+                if (pErr) {
+                    console.error(">>> DB ERROR on tryouts insert:", pErr);
+                    continue;
+                }                const tqData = chunk.map((q, idx) => ({
                     id: uuidv4(),
                     tryout_id: practiceTryoutId,
                     question_id: q.id,
@@ -190,7 +191,8 @@ async function main() {
 
                 for (let chunkIdx = 0; chunkIdx < tqData.length; chunkIdx += 50) {
                     const tqChunk = tqData.slice(chunkIdx, chunkIdx + 50);
-                    await supabase.from("tryout_questions").insert(tqChunk);
+                    const { error: tqErr } = await supabase.from("tryout_questions").insert(tqChunk);
+                    if (tqErr) console.error(">>> DB ERROR on tryout_questions insert:", tqErr);
                 }
                 
                 console.log(`    -> Assigned ${chunk.length} questions.`);
