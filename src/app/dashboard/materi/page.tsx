@@ -73,7 +73,7 @@ const MATERIALS_DATA: Record<Subject, Material[]> = {
         },
         {
             title: "FISMAT - DERET TAK HINGGA DAN DERET PANGKAT",
-            link: "#",
+            link: "https://drive.google.com/uc?export=download&id=1bkj9HAmLtR6IqmfM1dHoPeSa89s_uMZQ",
             podcastLink: "https://drive.google.com/uc?export=download&id=1Y7nlDQrwng2tqsh9afchZjy0JI7DaUSz",
             icon: <FileText className="w-5 h-5 text-earthy-gold" />,
         },
