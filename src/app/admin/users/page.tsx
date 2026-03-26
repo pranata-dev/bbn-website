@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useOnlineUsers } from "@/hooks/useOnlineUsers"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -35,6 +36,7 @@ import { toast } from "sonner"
 
 interface UserItem {
     id: string
+    auth_id: string
     name: string
     email: string
     is_active: boolean
@@ -46,6 +48,7 @@ export default function UsersPage() {
     const [users, setUsers] = useState<UserItem[]>([])
     const [loading, setLoading] = useState(true)
     const [deletingId, setDeletingId] = useState<string | null>(null)
+    const onlineUserIds = useOnlineUsers()
 
     // Manage Access Modal State
     const [managingUser, setManagingUser] = useState<UserItem | null>(null)
@@ -173,11 +176,23 @@ export default function UsersPage() {
                                     className="flex items-center justify-between p-4 hover:bg-warm-beige/30 transition-colors gap-4"
                                 >
                                     <div className="flex items-center gap-3 min-w-0 flex-1">
-                                        <div className="w-10 h-10 rounded-full bg-dark-brown flex items-center justify-center text-cream text-sm font-bold flex-shrink-0">
-                                            {u.name.charAt(0).toUpperCase()}
+                                        <div className="relative flex-shrink-0">
+                                            <div className="w-10 h-10 rounded-full bg-dark-brown flex items-center justify-center text-cream text-sm font-bold">
+                                                {u.name.charAt(0).toUpperCase()}
+                                            </div>
+                                            {onlineUserIds.includes(u.auth_id) && (
+                                                <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full animate-pulse" />
+                                            )}
                                         </div>
                                         <div className="min-w-0">
-                                            <p className="text-sm font-semibold text-foreground truncate">{u.name}</p>
+                                            <div className="flex items-center gap-2">
+                                                <p className="text-sm font-semibold text-foreground truncate">{u.name}</p>
+                                                {onlineUserIds.includes(u.auth_id) ? (
+                                                    <Badge className="bg-green-100 text-green-700 text-[10px] px-1.5 py-0">Online</Badge>
+                                                ) : (
+                                                    <Badge className="bg-gray-100 text-gray-500 text-[10px] px-1.5 py-0">Offline</Badge>
+                                                )}
+                                            </div>
                                             <p className="text-xs text-muted-foreground truncate">{u.email}</p>
                                         </div>
                                     </div>

@@ -3,6 +3,7 @@
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
+import UserPresenceTracker from "@/components/UserPresenceTracker"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import {
     LayoutDashboard,
@@ -259,6 +260,7 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
 
     return (
         <div className="min-h-screen bg-cream">
+            <UserPresenceTracker />
             {/* Mobile header */}
             <div className="lg:hidden flex items-center justify-between p-4 border-b border-warm-gray/60 bg-white">
                 <Link href="/dashboard" className="flex items-center gap-2">
