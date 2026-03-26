@@ -239,6 +239,7 @@ enum QuestionCategory {
   WEEK_7
   SERIES_POWER
   COMPLEX_NUMBERS
+  LINEAR_ALGEBRA
 }
 
 enum QuestionType {
