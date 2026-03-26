@@ -8,6 +8,7 @@ export function GoPayInfo() {
     const [copied, setCopied] = useState(false)
 
     const gopayNumber = process.env.NEXT_PUBLIC_GOPAY_NUMBER || "Nomor GoPay belum diatur"
+    const gopayName = process.env.NEXT_PUBLIC_GOPAY_NAME || "Nama belum diatur"
 
     const handleCopy = async () => {
         try {
@@ -65,6 +66,9 @@ export function GoPayInfo() {
                         )}
                     </button>
                 </div>
+                <p className="text-sm text-muted-foreground font-medium mt-1">
+                    a.n. <span className="text-foreground">{gopayName}</span>
+                </p>
             </div>
         </div>
     )
