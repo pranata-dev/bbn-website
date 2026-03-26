@@ -200,7 +200,7 @@ export async function submitTryout({
 
   // New: Increment attempts used for real tryouts
   if (!submission.tryouts.is_practice) {
-    const features = getPackageFeatures(access.packageType as any, access.role)
+    const features = getPackageFeatures(access.packageType as any, access.role, subject)
     const maxQuota = features.tryoutLimit
 
     if (access.role !== 'ADMIN' && access.tryoutAttemptsUsed >= maxQuota) {

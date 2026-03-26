@@ -160,7 +160,7 @@ export default function DashboardClient({ dbUser, subjectAccess }: DashboardClie
                          </Card>
                     ) : (
                         subjectAccess.map((access) => {
-                            const features = getPackageFeatures(access.package_type, access.role)
+                            const features = getPackageFeatures(access.package_type, access.role, access.subject)
                             const remainingTryouts = Math.max(0, features.tryoutLimit - access.tryout_attempts_used)
                             const subjectLabel = access.subject === "FISDAS2" ? "Fisika Dasar 2" : "Fisika Matematika"
 

@@ -7,7 +7,7 @@ export interface PackageFeatures {
     hasVideoExplanation: boolean
 }
 
-export function getPackageFeatures(packageType: PackageType | null | undefined, role?: Role | string): PackageFeatures {
+export function getPackageFeatures(packageType: PackageType | null | undefined, role?: Role | string, subject?: string | null): PackageFeatures {
     // Default features for users without a specific package (e.g., ADMIN or basic)
     const defaultFeatures: PackageFeatures = {
         canAccessLatihan: false,
@@ -66,14 +66,14 @@ export function getPackageFeatures(packageType: PackageType | null | undefined, 
             return {
                 canAccessLatihan: true,
                 canAccessTryout: true,
-                tryoutLimit: 1,
+                tryoutLimit: subject === "FISMAT" ? 3 : 1,
                 hasVideoExplanation: false,
             }
         case "EINSTEIN":
             return {
                 canAccessLatihan: true,
                 canAccessTryout: true,
-                tryoutLimit: 3,
+                tryoutLimit: subject === "FISMAT" ? 10 : 3,
                 hasVideoExplanation: true,
             }
         default:

@@ -61,7 +61,7 @@ export async function POST(
 
         // 5. Check role-based permissions and quotas
         const { getPackageFeatures, canAccessPracticePart } = await import("@/lib/package-features")
-        const features = getPackageFeatures(access.package_type, access.role)
+        const features = getPackageFeatures(access.package_type, access.role, tryout.subject)
 
         if (tryout.is_practice) {
             if (!features.canAccessLatihan) {
@@ -93,8 +93,8 @@ export async function POST(
 
             if (usedQuota >= maxQuota && access.role !== "ADMIN") {
                 return NextResponse.json(
-                    { error: `Kamu sudah mencapai batas kuota tryout (${maxQuota} kali).` },
-                    { status: 400 }
+                    { error: `Batas percobaan Tryout untuk paket Anda telah habis (${maxQuota} kali).` },
+                    { status: 403 }
                 )
             }
         }

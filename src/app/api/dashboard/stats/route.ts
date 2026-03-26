@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
         // Aggregate max quota across all subjects
         let totalMaxQuota = 0
         subjectAccess.forEach((acc: any) => {
-            const features = getPackageFeatures(acc.package_type, acc.role)
+            const features = getPackageFeatures(acc.package_type, acc.role, acc.subject)
             totalMaxQuota += features.tryoutLimit
         })
 
