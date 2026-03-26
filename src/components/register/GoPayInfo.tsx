@@ -1,24 +1,22 @@
 "use client"
 
 import { useState } from "react"
-import { Copy, Check, Landmark } from "lucide-react"
+import { Copy, Check, Wallet } from "lucide-react"
 import { toast } from "sonner"
 
-export function BankTransferInfo() {
+export function GoPayInfo() {
     const [copied, setCopied] = useState(false)
 
-    const bankName = process.env.NEXT_PUBLIC_BANK_NAME || "—"
-    const accountNumber = process.env.NEXT_PUBLIC_BANK_ACCOUNT_NUMBER || "—"
-    const accountHolder = process.env.NEXT_PUBLIC_BANK_ACCOUNT_HOLDER || "—"
+    const gopayNumber = process.env.NEXT_PUBLIC_GOPAY_NUMBER || "Nomor GoPay belum diatur"
 
     const handleCopy = async () => {
         try {
-            await navigator.clipboard.writeText(accountNumber)
+            await navigator.clipboard.writeText(gopayNumber)
             setCopied(true)
-            toast.success("Nomor rekening berhasil disalin!")
+            toast.success("Nomor GoPay berhasil disalin!")
             setTimeout(() => setCopied(false), 2000)
         } catch {
-            toast.error("Gagal menyalin nomor rekening.")
+            toast.error("Gagal menyalin nomor GoPay.")
         }
     }
 
@@ -27,26 +25,31 @@ export function BankTransferInfo() {
             {/* Header */}
             <div className="flex items-center gap-2">
                 <div className="w-8 h-8 rounded-lg bg-dark-brown/10 flex items-center justify-center">
-                    <Landmark className="w-4 h-4 text-dark-brown" />
+                    <Wallet className="w-4 h-4 text-dark-brown" />
                 </div>
                 <p className="text-sm font-semibold text-foreground">
-                    Silakan transfer ke:
+                    Pembayaran via GoPay
                 </p>
             </div>
 
-            {/* Bank details */}
+            {/* Instructional Text */}
+            <p className="text-xs text-muted-foreground">
+                Silakan lakukan transfer GoPay ke nomor berikut sesuai dengan total tagihan. Pastikan nominal transfer sama persis.
+            </p>
+
+            {/* GoPay details */}
             <div className="bg-white/60 rounded-lg p-3 space-y-1.5">
                 <p className="text-sm text-muted-foreground">
-                    Bank <span className="font-semibold text-foreground">{bankName}</span>
+                    Nomor GoPay
                 </p>
                 <div className="flex items-center justify-between gap-2">
                     <p className="text-lg font-bold text-dark-brown tracking-wide">
-                        {accountNumber}
+                        {gopayNumber}
                     </p>
                     <button
                         type="button"
                         onClick={handleCopy}
-                        aria-label="Salin nomor rekening"
+                        aria-label="Salin nomor GoPay"
                         className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg border border-warm-gray hover:bg-warm-beige/50 transition-colors text-muted-foreground hover:text-foreground"
                     >
                         {copied ? (
@@ -62,9 +65,6 @@ export function BankTransferInfo() {
                         )}
                     </button>
                 </div>
-                <p className="text-sm text-muted-foreground">
-                    A/n: <span className="font-medium text-foreground">{accountHolder}</span>
-                </p>
             </div>
         </div>
     )

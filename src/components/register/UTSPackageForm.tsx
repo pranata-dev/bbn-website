@@ -10,7 +10,7 @@ import {
     SelectValue,
 } from "@/components/ui/select"
 import { PaymentUpload } from "./PaymentUpload"
-import { BankTransferInfo } from "./BankTransferInfo"
+import { GoPayInfo } from "./GoPayInfo"
 import { UTSPackageSelector } from "./UTSPackageSelector"
 import { SUBJECTS, UTS_PACKAGES } from "@/constants"
 
@@ -176,8 +176,8 @@ export function UTSPackageForm({
                 <p className="text-xs text-muted-foreground">Format: 08xx, 62xx, atau +62xx</p>
             </div>
 
-            {/* Bank Transfer Info */}
-            <BankTransferInfo />
+            {/* GoPay Payment Info */}
+            <GoPayInfo />
 
             {/* Payment Upload */}
             <PaymentUpload

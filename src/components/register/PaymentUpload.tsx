@@ -58,7 +58,7 @@ export function PaymentUpload({ file, previewUrl, onFileChange }: PaymentUploadP
                     ) : (
                         <div className="flex flex-col items-center gap-2 text-muted-foreground">
                             <Upload className="w-8 h-8" />
-                            <span className="text-sm">Klik untuk unggah bukti transfer</span>
+                            <span className="text-sm">Klik untuk unggah bukti transfer GoPay</span>
                             <span className="text-xs">JPG, PNG, WebP (max 5MB)</span>
                         </div>
                     )}

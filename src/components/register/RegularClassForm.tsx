@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/select"
 import { PaymentUpload } from "./PaymentUpload"
 import { PricingBreakdown } from "./PricingBreakdown"
-import { BankTransferInfo } from "./BankTransferInfo"
+import { GoPayInfo } from "./GoPayInfo"
 import { SUBJECTS } from "@/constants"
 
 export interface RegularClassFormState {
@@ -225,8 +225,8 @@ export function RegularClassForm({
                 </p>
             </div>
 
-            {/* Bank Transfer Info */}
-            <BankTransferInfo />
+            {/* GoPay Payment Info */}
+            <GoPayInfo />
 
             {/* Payment Upload */}
             <PaymentUpload
