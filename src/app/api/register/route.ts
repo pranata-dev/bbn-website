@@ -4,7 +4,7 @@ import { WHATSAPP_REGEX, UTS_PACKAGES } from "@/constants"
 import { checkRateLimit } from "@/lib/rate-limit"
 import { calculatePrice } from "@/lib/pricing"
 
-const ACCEPTED_TYPES = ["REGULAR", "UTS"] as const
+const ACCEPTED_TYPES = ["REGULAR", "UTS", "KELAS_BESAR"] as const
 const ACCEPTED_FILE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"]
 const MAX_FILE_SIZE = 5 * 1024 * 1024
 
@@ -250,6 +250,9 @@ export async function POST(request: NextRequest) {
                 calculatedPrice = pkg.price
                 pricingTier = pkg.value.toUpperCase()
             }
+        } else if (type === "KELAS_BESAR") {
+            calculatedPrice = 30000
+            pricingTier = "KELAS_TUTOR_BESAR"
         }
 
         // 3. Create Registration Record
@@ -310,6 +313,15 @@ export async function POST(request: NextRequest) {
                         id: crypto.randomUUID(),
                         registration_id: registration.id,
                         package_type: formData.get("packageType") as string,
+                    })
+
+                if (detailError) throw detailError
+            } else if (type === "KELAS_BESAR") {
+                const { error: detailError } = await supabase
+                    .from("kelas_besar_details")
+                    .insert({
+                        id: crypto.randomUUID(),
+                        registration_id: registration.id,
                     })
 
                 if (detailError) throw detailError

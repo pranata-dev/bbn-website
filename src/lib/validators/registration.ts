@@ -47,6 +47,11 @@ export const utsPackageSchema = baseRegistrationSchema.extend({
         .min(1, "Pilih tipe paket"),
 })
 
+export const kelasBesarSchema = baseRegistrationSchema.extend({
+    type: z.literal("KELAS_BESAR"),
+})
+
 export type RegularClassFormData = z.infer<typeof regularClassSchema>
 export type UTSPackageFormData = z.infer<typeof utsPackageSchema>
-export type RegistrationType = "REGULAR" | "UTS"
+export type KelasBesarFormData = z.infer<typeof kelasBesarSchema>
+export type RegistrationType = "REGULAR" | "UTS" | "KELAS_BESAR"

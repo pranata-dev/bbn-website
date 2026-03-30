@@ -21,7 +21,7 @@ export function PricingBreakdown({ groupSize, sessionCount }: PricingBreakdownPr
     }, [pricing])
 
     return (
-        <div className="rounded-xl border border-warm-gray bg-warm-beige/20 p-4 space-y-3 transition-all duration-300">
+        <div className="rounded-xl border border-warm-gray bg-warm-beige/30 p-4 space-y-3 transition-all duration-300">
             {/* Header */}
             <div className="flex items-center justify-between">
                 <h4 className="text-sm font-semibold text-foreground">

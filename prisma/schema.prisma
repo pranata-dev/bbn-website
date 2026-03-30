@@ -191,6 +191,14 @@ model UTSPackageDetail {
   @@map("uts_package_details")
 }
 
+model KelasBesarDetail {
+  id             String   @id @default(uuid())
+  registrationId String   @unique @map("registration_id")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  @@map("kelas_besar_details")
+}
+
 enum Role {
   ADMIN
   STUDENT_BASIC
@@ -250,6 +258,7 @@ enum QuestionType {
 enum RegistrationType {
   REGULAR
   UTS
+  KELAS_BESAR
 }
 
 enum RegistrationStatus {

@@ -12,9 +12,11 @@ import {
     ProductSelector,
     RegularClassForm,
     UTSPackageForm,
+    KelasBesarForm,
 } from "@/components/register"
 import type { RegularClassFormState } from "@/components/register"
 import type { UTSPackageFormState } from "@/components/register"
+import type { KelasBesarFormState } from "@/components/register"
 import type { RegistrationType } from "@/lib/validators/registration"
 import { WHATSAPP_REGEX } from "@/constants"
 
@@ -43,6 +45,15 @@ const initialUTSData: UTSPackageFormState = {
     whatsapp: "",
 }
 
+const initialKelasBesarData: KelasBesarFormState = {
+    name: "",
+    email: "",
+    password: "",
+    nim: "",
+    subject: "",
+    whatsapp: "",
+}
+
 export default function RegisterPage() {
     const router = useRouter()
     const [isLoading, setIsLoading] = useState(false)
@@ -52,6 +63,7 @@ export default function RegisterPage() {
     // Form states
     const [regularData, setRegularData] = useState<RegularClassFormState>(initialRegularData)
     const [utsData, setUTSData] = useState<UTSPackageFormState>(initialUTSData)
+    const [kelasBesarData, setKelasBesarData] = useState<KelasBesarFormState>(initialKelasBesarData)
 
     // Payment file states
     const [paymentFile, setPaymentFile] = useState<File | null>(null)
@@ -156,6 +168,38 @@ export default function RegisterPage() {
         return true
     }
 
+    const validateKelasBesar = (): boolean => {
+        if (!kelasBesarData.name || kelasBesarData.name.length < 3) {
+            toast.error("Nama minimal 3 karakter.")
+            return false
+        }
+        if (!kelasBesarData.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(kelasBesarData.email)) {
+            toast.error("Email tidak valid.")
+            return false
+        }
+        if (!kelasBesarData.password || kelasBesarData.password.length < 6) {
+            toast.error("Password minimal 6 karakter.")
+            return false
+        }
+        if (!kelasBesarData.nim || kelasBesarData.nim.length < 5) {
+            toast.error("NIM minimal 5 karakter.")
+            return false
+        }
+        if (!kelasBesarData.subject) {
+            toast.error("Pilih mata kuliah dan jadwal.")
+            return false
+        }
+        if (!WHATSAPP_REGEX.test(kelasBesarData.whatsapp)) {
+            toast.error("Format nomor WhatsApp tidak valid.")
+            return false
+        }
+        if (!paymentFile) {
+            toast.error("Mohon unggah bukti pembayaran.")
+            return false
+        }
+        return true
+    }
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
 
@@ -175,6 +219,10 @@ export default function RegisterPage() {
             return
         }
         if (selectedType === "UTS" && !validateUTS()) {
+            isSubmittingRef.current = false
+            return
+        }
+        if (selectedType === "KELAS_BESAR" && !validateKelasBesar()) {
             isSubmittingRef.current = false
             return
         }
@@ -198,7 +246,7 @@ export default function RegisterPage() {
                 formPayload.append("scheduledDate", regularData.scheduledDate)
                 formPayload.append("scheduledTime", regularData.scheduledTime)
                 formPayload.append("notes", regularData.notes)
-            } else {
+            } else if (selectedType === "UTS") {
                 formPayload.append("name", utsData.name)
                 formPayload.append("email", utsData.email)
                 formPayload.append("password", utsData.password)
@@ -207,6 +255,13 @@ export default function RegisterPage() {
                 formPayload.append("whatsapp", utsData.whatsapp)
                 formPayload.append("packageType", utsData.packageType)
                 formPayload.append("price", utsData.price.toString())
+            } else if (selectedType === "KELAS_BESAR") {
+                formPayload.append("name", kelasBesarData.name)
+                formPayload.append("email", kelasBesarData.email)
+                formPayload.append("password", kelasBesarData.password)
+                formPayload.append("nim", kelasBesarData.nim)
+                formPayload.append("subject", kelasBesarData.subject)
+                formPayload.append("whatsapp", kelasBesarData.whatsapp)
             }
 
             const response = await fetch("/api/register", {
@@ -303,10 +358,18 @@ export default function RegisterPage() {
                                             paymentPreview={paymentPreview}
                                             onPaymentChange={handlePaymentChange}
                                         />
-                                    ) : (
+                                    ) : selectedType === "UTS" ? (
                                         <UTSPackageForm
                                             formData={utsData}
                                             onChange={setUTSData}
+                                            paymentFile={paymentFile}
+                                            paymentPreview={paymentPreview}
+                                            onPaymentChange={handlePaymentChange}
+                                        />
+                                    ) : (
+                                        <KelasBesarForm
+                                            formData={kelasBesarData}
+                                            onChange={setKelasBesarData}
                                             paymentFile={paymentFile}
                                             paymentPreview={paymentPreview}
                                             onPaymentChange={handlePaymentChange}

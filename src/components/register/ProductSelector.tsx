@@ -1,6 +1,6 @@
 "use client"
 
-import { GraduationCap, Rocket } from "lucide-react"
+import { GraduationCap, Rocket, MonitorPlay } from "lucide-react"
 import type { RegistrationType } from "@/lib/validators/registration"
 
 interface ProductSelectorProps {
@@ -24,6 +24,14 @@ const products = [
         subtitle: "Digital SaaS Product",
         description: "Paket persiapan ujian tengah semester dengan tryout, pembahasan soal, dan analisis performa.",
         features: ["Tryout online", "Pembahasan lengkap", "Analisis performa"],
+    },
+    {
+        type: "KELAS_BESAR" as RegistrationType,
+        icon: MonitorPlay,
+        title: "Kelas Tutor Besar",
+        subtitle: "Zoom Pembahasan Soal-Soal Ujian Tahun Lalu!",
+        description: "Kelas Masterclass intensif via Zoom yang difokuskan untuk membedah tuntas soal-soal ujian tahun lalu. Solusi cepat dan tepat untuk persiapan H-1 ujian.",
+        features: ["Akses zoom recording masterclass H-1", "Bahas soal-soal tahun lalu", "Tips pengerjaan cepat & santai", "Prediksi soal ujian", "Akses gratis soal-soal tahun lalu"],
     },
 ]
 
