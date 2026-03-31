@@ -252,7 +252,7 @@ export async function POST(request: NextRequest) {
             }
         } else if (type === "KELAS_BESAR") {
             calculatedPrice = 30000
-            pricingTier = "KELAS_TUTOR_BESAR"
+            pricingTier = "MASTERCLASS"
         }
 
         // 3. Create Registration Record
@@ -317,14 +317,7 @@ export async function POST(request: NextRequest) {
 
                 if (detailError) throw detailError
             } else if (type === "KELAS_BESAR") {
-                const { error: detailError } = await supabase
-                    .from("kelas_besar_details")
-                    .insert({
-                        id: crypto.randomUUID(),
-                        registration_id: registration.id,
-                    })
-
-                if (detailError) throw detailError
+                // DO NOTHING. We do not need a detail table for this type because it is a fixed-price event and all necessary data is already in the main Registration table.
             }
         } catch (detailError) {
             console.error("Detail insert error:", detailError)

@@ -176,9 +176,40 @@ export async function POST(request: NextRequest) {
 
             // Send activation email via Brevo
             try {
-                await brevoClient.transactionalEmails.sendTransacEmail({
-                    subject: "Akun Belajar Bareng Nata Telah Aktif!",
-                    htmlContent: `
+                const isKelasBesar = registration.type === "KELAS_BESAR"
+                const subject = (registration.subject || "").toUpperCase()
+                
+                let emailHtml = ""
+                let emailSubject = "Akun Belajar Bareng Nata Telah Aktif!"
+
+                if (isKelasBesar) {
+                    emailSubject = "Link Zoom Masterclass Belajar Bareng Nata"
+                    const zoomLink = subject === "FISMAT" 
+                        ? "https://www.google.com/url?q=https://ipb-university.zoom.us/j/94221411163?pwd%3DYhuEGMcjGTjNH37JQ4M6ap3vae43Fm.1&sa=D&source=calendar&ust=1775348655083593&usg=AOvVaw0jOzzPSYljZgXYgeiPvtCA"
+                        : "https://ipb-university.zoom.us/j/92555635040?pwd=HrkdcawyIXV9avQkuDZa2ZFbycA3oq.1"
+                    
+                    const schedule = subject === "FISMAT"
+                        ? "Minggu, 5 April 2026 pukul 19:00"
+                        : "Senin, 6 April 2026 pukul 19:00"
+
+                    emailHtml = `
+                        <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; color: #333;">
+                            <h2 style="color: #4A3C31;">Halo, ${registration.name}!</h2>
+                            <p>Pembayaran kamu untuk <strong>Kelas Tutor Besar (Masterclass)</strong> telah berhasil diverifikasi.</p>
+                            <p>Berikut adalah detail pendaftaran dan link Zoom untuk sesi masterclass kamu:</p>
+                            <div style="background-color: #FDFBF7; border: 1px solid #EFE8DF; padding: 25px; border-radius: 16px; margin: 25px 0;">
+                                <p style="margin: 0 0 10px 0; font-size: 14px;"><strong>Mata Kuliah:</strong> ${subject === "FISMAT" ? "Fisika-Matematika" : "Fisika Dasar 2"}</p>
+                                <p style="margin: 0 0 25px 0; font-size: 14px;"><strong>Jadwal:</strong> ${schedule}</p>
+                                <a href="${zoomLink}" style="background-color: #4A3C31; color: #ffffff; padding: 14px 28px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: bold; font-size: 16px;">Klik untuk Bergabung ke Zoom</a>
+                            </div>
+                            <p style="font-size: 12px; color: #666; line-height: 1.5;">Jika tombol di atas tidak berfungsi, kamu juga bisa menyalin link berikut ke browsermu:<br/>
+                            <span style="color: #4A3C31; word-break: break-all;">${zoomLink}</span></p>
+                            <br/>
+                            <p>Selamat belajar dan semoga sukses!<br/><strong>Tim Belajar Bareng Nata</strong></p>
+                        </div>
+                    `
+                } else {
+                    emailHtml = `
                         <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
                             <h2 style="color: #4A3C31;">Halo, ${registration.name}!</h2>
                             <p>Pembayaran kamu untuk pendaftaran <strong>${registration.type === "REGULAR" ? "Kelas Reguler" : "Persiapan UTS"}</strong> telah berhasil diverifikasi oleh Admin.</p>
@@ -188,7 +219,12 @@ export async function POST(request: NextRequest) {
                             <br/><br/>
                             <p>Selamat belajar dan semoga sukses!<br/>Tim Belajar Bareng Nata</p>
                         </div>
-                    `,
+                    `
+                }
+
+                await brevoClient.transactionalEmails.sendTransacEmail({
+                    subject: emailSubject,
+                    htmlContent: emailHtml,
                     sender: { name: "Belajar Bareng Nata", email: "dzulfikaryudha@gmail.com" },
                     to: [{ email: registration.email, name: registration.name }]
                 })
