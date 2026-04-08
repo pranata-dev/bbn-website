@@ -7,18 +7,17 @@ datasource db {
 }
 
 model User {
-  id           String    @id @default(uuid())
-  authId       String    @unique @map("auth_id")
-  email        String    @unique
-  name         String
-  isActive     Boolean   @default(false) @map("is_active")
-  avatarUrl    String?   @map("avatar_url")
-  lastLoginAt  DateTime? @map("last_login_at")
-  sessionToken String?   @map("session_token")
-  createdAt    DateTime  @default(now()) @map("created_at")
-  updatedAt    DateTime  @updatedAt @map("updated_at")
-  accessEndsAt DateTime? @map("access_ends_at")
-
+  id            String              @id @default(uuid())
+  authId        String              @unique @map("auth_id")
+  email         String              @unique
+  name          String
+  isActive      Boolean             @default(false) @map("is_active")
+  avatarUrl     String?             @map("avatar_url")
+  lastLoginAt   DateTime?           @map("last_login_at")
+  sessionToken  String?             @map("session_token")
+  createdAt     DateTime            @default(now()) @map("created_at")
+  updatedAt     DateTime            @updatedAt @map("updated_at")
+  accessEndsAt  DateTime?           @map("access_ends_at")
   payments      Payment[]
   submissions   Submission[]
   subjectAccess UserSubjectAccess[]
@@ -63,7 +62,6 @@ model Tryout {
   title        String
   description  String?
   category     QuestionCategory?
-  subject      Subject           @default(FISDAS2)
   duration     Int
   status       TryoutStatus      @default(DRAFT)
   maxAttempts  Int               @default(1) @map("max_attempts")
@@ -72,6 +70,7 @@ model Tryout {
   createdAt    DateTime          @default(now()) @map("created_at")
   updatedAt    DateTime          @updatedAt @map("updated_at")
   isPractice   Boolean           @default(false) @map("is_practice")
+  subject      Subject           @default(FISDAS2)
   practicePart Int?              @map("practice_part")
   submissions  Submission[]
   questions    TryoutQuestion[]
@@ -83,7 +82,6 @@ model Question {
   id            String           @id @default(uuid())
   text          String
   category      QuestionCategory
-  subject       Subject          @default(FISDAS2)
   optionA       String           @map("option_a")
   optionB       String           @map("option_b")
   optionC       String           @map("option_c")
@@ -92,10 +90,11 @@ model Question {
   correctAnswer String           @map("correct_answer")
   explanation   String?
   weight        Float            @default(1)
-  type          QuestionType     @default(MULTIPLE_CHOICE)
   imageUrl      String?          @map("image_url")
   createdAt     DateTime         @default(now()) @map("created_at")
   updatedAt     DateTime         @updatedAt @map("updated_at")
+  subject       Subject          @default(FISDAS2)
+  type          QuestionType     @default(MULTIPLE_CHOICE)
   answers       Answer[]
   tryouts       TryoutQuestion[]
 
@@ -202,6 +201,7 @@ model KelasBesarDetail {
 enum Role {
   ADMIN
   STUDENT_BASIC
+  STUDENT_PREMIUM
   UTS_FLUX
   UTS_SENKU
   UTS_EINSTEIN

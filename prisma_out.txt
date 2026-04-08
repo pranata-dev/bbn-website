@@ -1,0 +1,15 @@
+Loaded Prisma config from prisma.config.ts.
+
+Prisma schema loaded from prisma\schema.prisma.
+Datasource "db": PostgreSQL database "postgres", schema "public" at "db.bbhyrwouuqypuonckszo.supabase.co:5432"
+Error: ERROR: cannot drop type "Role_old" because other objects depend on it
+DETAIL: column role of table users depends on type "Role_old"
+HINT: Use DROP ... CASCADE to drop the dependent objects too.
+   0: sql_schema_connector::apply_migration::migration_step
+           with step=AlterEnum(AlterEnum { id: MigrationPair { previous: EnumId(6), next: EnumId(0) }, created_variants: [], dropped_variants: ["STUDENT_PREMIUM"], previous_usages_as_default: [(TableColumnId(97), None)] })
+             at schema-engine\connectors\sql-schema-connector\src\apply_migration.rs:28
+   1: sql_schema_connector::apply_migration::apply_migration
+             at schema-engine\connectors\sql-schema-connector\src\apply_migration.rs:11
+   2: schema_core::state::SchemaPush
+             at schema-engine\core\src\state.rs:533
+
