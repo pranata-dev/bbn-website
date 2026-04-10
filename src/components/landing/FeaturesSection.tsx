@@ -1,85 +1,93 @@
-import {
-    FileText,
-    BarChart3,
-    Trophy,
-    Clock,
-    ShieldCheck,
-    Layers,
-} from "lucide-react"
-import { FadeInUp, StaggerContainer, StaggerItem } from "@/components/animations"
+"use client"
 
-const features = [
-    {
-        icon: FileText,
-        title: "Bank Soal Lengkap",
-        description:
-            "Ratusan soal dari berbagai mata kuliah Fisika yang dikategorikan berdasarkan bab dan materi per minggu!",
-    },
-    {
-        icon: Clock,
-        title: "Tryout dengan Timer",
-        description:
-            "Simulasi ujian sungguhan dengan countdown timer, auto-submit, dan validasi waktu server.",
-    },
-    {
-        icon: BarChart3,
-        title: "Analisis Performa",
-        description:
-            "Lihat performa per materi secara detail. Ketahui kelemahanmu dan fokus belajar lebih efektif.",
-    },
-    {
-        icon: Trophy,
-        title: "Leaderboard & Ranking",
-        description:
-            "Bandingkan skormu dengan peserta lain. Motivasi diri untuk terus meningkatkan performa.",
-    },
-    {
-        icon: ShieldCheck,
-        title: "Anti-Cheating System",
-        description:
-            "Urutan soal diacak, deteksi pergantian tab, dan proteksi terhadap manipulasi skor.",
-    },
-    {
-        icon: Layers,
-        title: "Scoring Berbobot",
-        description:
-            "Sistem penilaian dengan bobot per soal. Nilai mencerminkan pemahaman, bukan hanya kuantitas jawaban.",
-    },
-]
+import Image from "next/image"
+import { useTheme } from "@/contexts/ThemeContext"
+
+function FeatureCard({ icon, title, desc }: { icon: string; title: string; desc: string }) {
+    return (
+        <div className="bg-[#FEFCF3] border-4 border-[#2b1b11] rounded-xl p-5 shadow-[4px_4px_0px_#2b1b11] flex flex-col transition-transform hover:-translate-y-1 hover:shadow-[6px_6px_0px_#2b1b11] mx-auto w-full max-w-[340px] place-self-start">
+            <div className="flex items-center gap-3 mb-3">
+                <div className="relative w-12 h-12 shrink-0 drop-shadow-md">
+                    <Image src={icon} alt={title} fill className="object-contain" />
+                </div>
+                <h3 className="text-base md:text-lg font-bold text-[#2b1b11] leading-tight font-mono whitespace-pre-wrap -mt-1">
+                    {title}
+                </h3>
+            </div>
+            <p className="text-xs md:text-sm text-[#3c5443] font-bold font-mono leading-relaxed mt-auto">
+                {desc}
+            </p>
+        </div>
+    )
+}
 
 export function FeaturesSection() {
+    const { isDark } = useTheme()
+
     return (
-        <section id="fitur" className="section-padding bg-warm-beige/40">
-            <div className="container-narrow mx-auto">
-                {/* Section header */}
-                <FadeInUp className="text-center mb-16">
-                    <span className="inline-block text-sm font-semibold text-soft-brown uppercase tracking-wider mb-3">
+        <section id="fitur" className={`relative w-full md:aspect-[2750/1536] min-h-[600px] flex flex-col justify-center overflow-hidden h-auto ${isDark ? "bg-[#0f1b2e]" : "bg-[#bed3c6]"}`}>
+            {/* Pixel Art Background */}
+            <div
+                className="absolute inset-0 z-0 opacity-80 [image-rendering:pixelated] [image-rendering:-moz-crisp-edges] [image-rendering:-webkit-optimize-contrast] [image-rendering:crisp-edges] [-ms-interpolation-mode:nearest-neighbor]"
+                style={{
+                    backgroundImage: isDark ? "url('/assets/background-only-malam.png')" : "url('/assets/background-only-2.png')",
+                    backgroundSize: "cover",
+                    backgroundPosition: "center center",
+                    backgroundRepeat: "no-repeat"
+                }}
+            />
+
+            <div className="container mx-auto px-4 lg:px-12 z-10 relative flex flex-col justify-center h-full py-20 md:py-12">
+                {/* Header */}
+                <div className="max-w-3xl mx-auto text-center mb-10 sm:mb-12">
+                    <p className={`text-sm md:text-base font-bold tracking-[0.25em] mb-4 font-mono uppercase ${isDark ? "text-[#FEFCF3] drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)]" : "text-[#2b1b11] drop-shadow-[0_1px_1px_rgba(255,255,255,0.8)]"}`}>
                         Fitur Unggulan
-                    </span>
-                    <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4 text-balance">
+                    </p>
+                    <h2
+                        className={`text-2xl md:text-3xl lg:text-4xl font-extrabold mb-6 ${isDark ? "text-[#FEFCF3] drop-shadow-[0_2px_2px_rgba(0,0,0,0.7)]" : "text-[#2b1b11] drop-shadow-[0_2px_2px_rgba(255,255,255,0.7)]"}`}
+                        style={{ fontFamily: "var(--font-press-start)", lineHeight: 1.4 }}
+                    >
                         Semua yang Kamu Butuhkan untuk Siap Ujian
                     </h2>
-                    <p className="text-muted-foreground max-w-2xl mx-auto text-balance">
-                        Dirancang khusus untuk mahasiswa Fisika semester 1 dan 2 yang ingin mempersiapkan diri
-                        dengan lebih terstruktur dan efisien.
+                    <p className={`text-base md:text-lg font-bold font-mono max-w-2xl mx-auto leading-relaxed ${isDark ? "text-[#bed3c6] drop-shadow-[0_1px_1px_rgba(0,0,0,0.9)]" : "text-[#3c5443] drop-shadow-[0_1px_1px_rgba(255,255,255,0.9)]"}`}>
+                        Platform kami dilengkapi dengan berbagai fitur canggih yang dirancang untuk
+                        memastikan kamu menguasai Fisika dan meraih hasil ujian terbaik.
                     </p>
-                </FadeInUp>
+                </div>
 
-                {/* Features grid */}
-                <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {features.map((feature, index) => (
-                        <StaggerItem
-                            key={feature.title}
-                            className="group p-6 rounded-2xl bg-white border border-warm-gray/60 hover:border-soft-brown/30 hover:shadow-lg hover:shadow-soft-brown/5 transition-all duration-300"
-                        >
-                            <div className="w-12 h-12 rounded-xl bg-warm-beige flex items-center justify-center mb-4 group-hover:bg-dark-brown/10 transition-colors">
-                                <feature.icon className="w-6 h-6 text-dark-brown" />
-                            </div>
-                            <h3 className="text-lg font-semibold text-foreground mb-2">{feature.title}</h3>
-                            <p className="text-sm text-muted-foreground leading-relaxed">{feature.description}</p>
-                        </StaggerItem>
-                    ))}
-                </StaggerContainer>
+                {/* Cards Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <FeatureCard
+                        icon="/assets/ikon-buku-integral.webp"
+                        title={"Bank Soal\nLengkap"}
+                        desc="Akses ribuan soal latihan dan pembahasan lengkap dari berbagai topik fisika."
+                    />
+                    <FeatureCard
+                        icon="/assets/ikon-kaca-pembesar.webp"
+                        title={"Tryout dengan\nTimer"}
+                        desc="Simulasi ujian nyata dengan batas waktu untuk melatih manajemen waktu dan mental."
+                    />
+                    <FeatureCard
+                        icon="/assets/ikon-lampu.webp"
+                        title={"Analisis\nPerforma"}
+                        desc="Dapatkan laporan detail kekuatan dan kelemahanmu untuk belajar lebih efektif."
+                    />
+                    <FeatureCard
+                        icon="/assets/ikon-bar-hijau.webp"
+                        title={"Leaderboard &\nRanking"}
+                        desc="Bersaing dengan murid lain dan pantau posisimu dalam peringkat"
+                    />
+                    <FeatureCard
+                        icon="/assets/ikon-kunci.webp"
+                        title={"Anti-Cheating\nSystem"}
+                        desc="Ujian yang aman dan adil dengan sistem deteksi kecurangan canggih."
+                    />
+                    <FeatureCard
+                        icon="/assets/ikon-tas.webp"
+                        title={"Scoring\nBerbobot"}
+                        desc="Sistem penilaian yang adil dengan bobot soal yang berbeda-beda."
+                    />
+                </div>
             </div>
         </section>
     )

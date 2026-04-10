@@ -2,9 +2,6 @@ import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
 import Link from "next/link"
 import MarkdownLatex from "@/components/ui/markdown-latex"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
 import { ArrowLeft, CheckCircle2, XCircle, AlertCircle, Info } from "lucide-react"
 import Image from "next/image"
 
@@ -77,61 +74,78 @@ export default async function LatihanDiscussionPage({ params }: { params: Promis
     }
 
     return (
-        <div className="max-w-4xl mx-auto space-y-6">
+        <div className="max-w-4xl mx-auto space-y-6 font-mono">
+            {/* Header */}
             <div className="flex items-center gap-4">
-                <Button variant="ghost" size="icon" asChild className="hover:bg-warm-beige hover:text-dark-brown">
-                    <Link href={`/dashboard/latihan/${tryoutId}/result?score=${submission.score}&correct=${submission.correct_count}&total=${submission.total_count}`}>
-                        <ArrowLeft className="w-5 h-5" />
-                    </Link>
-                </Button>
+                <Link
+                    href={`/dashboard/latihan/${tryoutId}/result?score=${submission.score}&correct=${submission.correct_count}&total=${submission.total_count}`}
+                    className="w-10 h-10 bg-[#FEFCF3] border-2 border-[#2b1b11] flex items-center justify-center shadow-[2px_2px_0px_#2b1b11] hover:shadow-[3px_3px_0px_#2b1b11] hover:-translate-y-0.5 transition-all shrink-0"
+                >
+                    <ArrowLeft className="w-5 h-5 text-[#2b1b11] stroke-[2]" />
+                </Link>
                 <div>
-                    <h1 className="text-2xl font-bold font-serif text-dark-brown">Pembahasan Latihan</h1>
-                    <p className="text-muted-foreground">{submission.tryouts.title}</p>
+                    <h1 className="text-lg font-bold text-[#2b1b11]" style={{ fontFamily: "var(--font-press-start)", fontSize: "0.85rem", lineHeight: 1.5 }}>
+                        Pembahasan Latihan
+                    </h1>
+                    <p className="text-sm text-[#3c5443] font-bold">{submission.tryouts.title}</p>
                 </div>
             </div>
 
-            <Card className="border-warm-gray/60 bg-warm-beige shadow-sm">
-                <CardContent className="p-4 sm:p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+            {/* Score summary */}
+            <div className="bg-[#FEFCF3] border-4 border-[#2b1b11] shadow-[4px_4px_0px_#2b1b11]">
+                <div className="border-b-4 border-[#2b1b11] bg-[#bed3c6] px-4 py-2">
+                    <span className="text-xs font-bold text-[#2b1b11] uppercase tracking-wider">Ringkasan Hasil</span>
+                </div>
+                <div className="p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
                     <div className="flex items-center gap-4">
-                        <div className="text-center px-4 py-2 bg-cream rounded-lg border border-warm-gray">
-                            <p className="text-sm text-muted-foreground mb-1">Skor Akhir</p>
-                            <p className="text-2xl font-bold text-dark-brown">{submission.score}%</p>
+                        <div className="text-center bg-[#bed3c6] border-4 border-[#2b1b11] px-4 py-2 shadow-[2px_2px_0px_#2b1b11]">
+                            <p className="text-[10px] text-[#3c5443] font-bold uppercase tracking-wider">Skor Akhir</p>
+                            <p className="text-2xl font-extrabold text-[#2b1b11]">{submission.score}%</p>
                         </div>
-                        <div className="text-center px-4 py-2 bg-cream rounded-lg border border-warm-gray">
-                            <p className="text-sm text-muted-foreground mb-1">Benar</p>
-                            <p className="text-2xl font-bold text-earthy-green">{submission.correct_count}/{submission.total_count}</p>
+                        <div className="text-center bg-[#bed3c6] border-4 border-[#2b1b11] px-4 py-2 shadow-[2px_2px_0px_#2b1b11]">
+                            <p className="text-[10px] text-[#3c5443] font-bold uppercase tracking-wider">Benar</p>
+                            <p className="text-2xl font-extrabold text-[#2b1b11]">{submission.correct_count}/{submission.total_count}</p>
                         </div>
                     </div>
-                    <Badge variant={submission.status === "TIMED_OUT" ? "destructive" : "default"} className={submission.status === "TIMED_OUT" ? "" : "bg-dark-brown"}>
+                    <span className={`text-[10px] font-bold uppercase tracking-wider px-3 py-1 border-2 ${
+                        submission.status === "TIMED_OUT" 
+                            ? "bg-[#e87a5d] text-[#FEFCF3] border-[#2b1b11]" 
+                            : "bg-[#2b1b11] text-[#FEFCF3] border-[#2b1b11]"
+                    }`}>
                         {submission.status === "TIMED_OUT" ? "Waktu Habis" : "Selesai"}
-                    </Badge>
-                </CardContent>
-            </Card>
+                    </span>
+                </div>
+            </div>
 
+            {/* Questions */}
             <div className="space-y-8">
                 {orderedQuestions.map((q: any) => (
-                    <Card key={q.id} className="border-warm-gray/60 shadow-md overflow-hidden">
-                        <div className="bg-dark-brown/5 px-6 py-3 border-b border-warm-gray/60 flex justify-between items-center">
-                            <h3 className="font-bold font-serif text-dark-brown">Soal {q.index}</h3>
+                    <div key={q.id} className="bg-[#FEFCF3] border-4 border-[#2b1b11] shadow-[4px_4px_0px_#2b1b11] overflow-hidden">
+                        {/* Question header */}
+                        <div className="bg-[#bed3c6] px-4 py-3 border-b-4 border-[#2b1b11] flex justify-between items-center">
+                            <h3 className="font-bold text-[#2b1b11] text-sm" style={{ fontFamily: "var(--font-press-start)", fontSize: "0.65rem" }}>
+                                Soal {q.index}
+                            </h3>
                             {q.isCorrect ? (
-                                <Badge className="bg-earthy-green hover:bg-earthy-green/90 text-white flex items-center gap-1.5">
-                                    <CheckCircle2 className="w-3.5 h-3.5" /> Benar
-                                </Badge>
+                                <span className="text-[10px] font-bold text-[#FEFCF3] bg-[#3c5443] border-2 border-[#2b1b11] px-2 py-0.5 flex items-center gap-1">
+                                    <CheckCircle2 className="w-3 h-3" /> BENAR
+                                </span>
                             ) : (
-                                <Badge variant="destructive" className="flex items-center gap-1.5">
-                                    <XCircle className="w-3.5 h-3.5" /> Salah
-                                </Badge>
+                                <span className="text-[10px] font-bold text-[#FEFCF3] bg-[#e87a5d] border-2 border-[#2b1b11] px-2 py-0.5 flex items-center gap-1">
+                                    <XCircle className="w-3 h-3" /> SALAH
+                                </span>
                             )}
                         </div>
-                        <CardContent className="p-6 space-y-6">
+
+                        <div className="p-6 space-y-6">
                             {/* Question Text */}
-                            <div className="prose prose-sm max-w-none prose-p:leading-relaxed prose-pre:bg-dark-brown/5 prose-pre:text-dark-brown text-foreground">
+                            <div className="prose prose-sm max-w-none text-[#2b1b11] font-bold">
                                 <MarkdownLatex>{q.text}</MarkdownLatex>
                             </div>
 
                             {/* Question Image */}
                             {q.image_url && (
-                                <div className="relative w-full max-w-lg h-64 mx-auto rounded-lg overflow-hidden border border-warm-gray/60">
+                                <div className="relative w-full max-w-lg h-64 mx-auto overflow-hidden border-2 border-[#2b1b11]">
                                     <Image
                                         src={q.image_url}
                                         alt="Gambar soal"
@@ -150,31 +164,30 @@ export default async function LatihanDiscussionPage({ params }: { params: Promis
                                     const isUserChoice = q.userAnswer === opt
                                     const isCorrectChoice = q.correct_answer === opt
 
-                                    let bgClass = "bg-white border-warm-gray"
+                                    let containerClass = "bg-[#FEFCF3] border-[#2b1b11]/30"
+                                    let badgeClass = "bg-[#bed3c6] text-[#2b1b11] border-[#2b1b11]"
                                     let icon = null
 
                                     if (isCorrectChoice) {
-                                        bgClass = "bg-green-50/50 border-earthy-green ring-1 ring-earthy-green"
-                                        icon = <CheckCircle2 className="w-5 h-5 text-earthy-green shrink-0" />
+                                        containerClass = "bg-green-50 border-[#3c5443] border-4"
+                                        badgeClass = "bg-[#3c5443] text-[#FEFCF3] border-[#2b1b11]"
+                                        icon = <CheckCircle2 className="w-5 h-5 text-[#3c5443] shrink-0 stroke-[2]" />
                                     } else if (isUserChoice && !isCorrectChoice) {
-                                        bgClass = "bg-red-50/50 border-red-500 ring-1 ring-red-500"
-                                        icon = <XCircle className="w-5 h-5 text-red-500 shrink-0" />
+                                        containerClass = "bg-red-50 border-[#e87a5d] border-4"
+                                        badgeClass = "bg-[#e87a5d] text-[#FEFCF3] border-[#2b1b11]"
+                                        icon = <XCircle className="w-5 h-5 text-[#e87a5d] shrink-0 stroke-[2]" />
                                     }
 
                                     return (
                                         <div
                                             key={opt}
-                                            className={`flex p-4 rounded-xl border items-start transition-colors ${bgClass}`}
+                                            className={`flex p-3 border-2 items-start ${containerClass}`}
                                         >
                                             <div className="flex-1 flex gap-3">
-                                                <span className={`font-bold shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-sm ${
-                                                    isCorrectChoice ? "bg-earthy-green text-white" :
-                                                    isUserChoice && !isCorrectChoice ? "bg-red-500 text-white" :
-                                                    "bg-warm-beige text-dark-brown"
-                                                }`}>
+                                                <span className={`font-extrabold shrink-0 w-7 h-7 flex items-center justify-center text-xs border-2 ${badgeClass}`}>
                                                     {opt}
                                                 </span>
-                                                <div className="prose prose-sm max-w-none text-foreground mt-0.5">
+                                                <div className="prose prose-sm max-w-none text-[#2b1b11] mt-0.5 font-bold">
                                                     <MarkdownLatex>{optionText}</MarkdownLatex>
                                                 </div>
                                             </div>
@@ -186,33 +199,38 @@ export default async function LatihanDiscussionPage({ params }: { params: Promis
 
                             {/* Unanswered Badge */}
                             {!q.userAnswer && (
-                                <div className="flex items-center gap-2 text-sm text-amber-600 bg-amber-50 p-3 rounded-lg border border-amber-200">
-                                    <AlertCircle className="w-4 h-4" />
+                                <div className="flex items-center gap-2 text-xs text-amber-700 font-bold bg-amber-50 p-3 border-2 border-amber-500 shadow-[2px_2px_0px_#b45309]">
+                                    <AlertCircle className="w-4 h-4 stroke-[2]" />
                                     <span>Kamu tidak menjawab soal ini.</span>
                                 </div>
                             )}
 
                             {/* Explanation */}
                             {q.explanation && (
-                                <div className="mt-8 rounded-xl border border-warm-gray/60 overflow-hidden">
-                                    <div className="bg-warm-beige px-5 py-3 border-b border-warm-gray/60 flex items-center gap-2">
-                                        <Info className="w-4 h-4 text-soft-brown" />
-                                        <h4 className="font-bold text-dark-brown">Pembahasan</h4>
+                                <div className="border-4 border-[#2b1b11] overflow-hidden shadow-[2px_2px_0px_#2b1b11]">
+                                    <div className="bg-[#bed3c6] px-4 py-2 border-b-4 border-[#2b1b11] flex items-center gap-2">
+                                        <Info className="w-4 h-4 text-[#2b1b11] stroke-[2]" />
+                                        <h4 className="font-bold text-[#2b1b11] text-xs uppercase tracking-wider">Pembahasan</h4>
                                     </div>
-                                    <div className="bg-white p-5 prose prose-sm max-w-none text-foreground">
+                                    <div className="bg-[#FEFCF3] p-5 prose prose-sm max-w-none text-[#2b1b11] font-bold">
                                         <MarkdownLatex>{q.explanation}</MarkdownLatex>
                                     </div>
                                 </div>
                             )}
-                        </CardContent>
-                    </Card>
+                        </div>
+                    </div>
                 ))}
             </div>
             
+            {/* Back to Dashboard - uses colors readable in both light and dark mode */}
             <div className="flex justify-center pt-4 pb-8">
-                <Button asChild variant="outline" className="border-warm-gray text-dark-brown hover:bg-warm-beige hover:text-dark-brown">
-                    <Link href="/dashboard">Kembali ke Dashboard</Link>
-                </Button>
+                <Link
+                    href="/dashboard"
+                    className="inline-flex items-center gap-2 bg-[#e87a5d] text-[#FEFCF3] font-bold text-sm px-6 py-3 border-2 border-[#2b1b11] shadow-[3px_3px_0px_#2b1b11] hover:shadow-[4px_4px_0px_#2b1b11] hover:-translate-y-0.5 transition-all"
+                >
+                    <ArrowLeft className="w-4 h-4 stroke-[3]" />
+                    Kembali ke Dashboard
+                </Link>
             </div>
         </div>
     )

@@ -3,8 +3,6 @@
 import { useState, useEffect } from "react"
 import { useParams, useRouter } from "next/navigation"
 import Link from "next/link"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { FileText, ArrowLeft, ArrowRight, Loader2, BatteryWarning } from "lucide-react"
 
@@ -85,144 +83,144 @@ export default function LatihanDetailPage() {
 
     if (loading) {
         return (
-            <div className="min-h-[60vh] flex flex-col items-center justify-center">
-                <Loader2 className="w-8 h-8 animate-spin text-muted-foreground mb-4" />
-                <p className="text-muted-foreground">Memuat detail latihan...</p>
+            <div className="min-h-[60vh] flex flex-col items-center justify-center font-mono">
+                <Loader2 className="w-8 h-8 animate-spin text-[#e87a5d] mb-4" />
+                <p className="text-[#2b1b11] font-bold text-sm">Memuat detail latihan...</p>
             </div>
         )
     }
 
     if (error || !latihan) {
         return (
-            <div className="space-y-6">
-                <Button variant="ghost" onClick={() => router.back()} className="mb-4">
-                    <ArrowLeft className="w-4 h-4 mr-2" />
+            <div className="space-y-6 font-mono">
+                <button onClick={() => router.back()} className="inline-flex items-center gap-2 text-sm font-bold text-[#2b1b11] bg-[#FEFCF3] border-2 border-[#2b1b11] px-4 py-2 shadow-[2px_2px_0px_#2b1b11] hover:shadow-[3px_3px_0px_#2b1b11] hover:-translate-y-0.5 transition-all">
+                    <ArrowLeft className="w-4 h-4 stroke-[3]" />
                     Kembali
-                </Button>
-                <Card className="border-red-200 bg-red-50/50">
-                    <CardContent className="flex flex-col items-center justify-center py-16 text-center">
-                        <div className="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center mb-4">
-                            <FileText className="w-8 h-8 text-red-600" />
-                        </div>
-                        <h3 className="text-lg font-semibold text-red-900 mb-2">Latihan Tidak Ditemukan</h3>
-                        <p className="text-sm text-red-600/80 mb-6 max-w-md">
-                            {error || "Latihan soal yang Anda cari tidak tersedia."}
-                        </p>
-                    </CardContent>
-                </Card>
+                </button>
+                <div className="bg-[#FEFCF3] border-4 border-[#e87a5d] p-8 shadow-[4px_4px_0px_#2b1b11] text-center">
+                    <div className="w-16 h-16 bg-[#e87a5d]/20 border-2 border-[#e87a5d] flex items-center justify-center mx-auto mb-4">
+                        <FileText className="w-8 h-8 text-[#e87a5d] stroke-[2]" />
+                    </div>
+                    <h3 className="text-lg font-bold text-[#2b1b11] mb-2" style={{ fontFamily: "var(--font-press-start)", fontSize: "0.9rem" }}>Latihan Tidak Ditemukan</h3>
+                    <p className="text-sm text-[#3c5443] font-bold">
+                        {error || "Latihan soal yang Anda cari tidak tersedia."}
+                    </p>
+                </div>
             </div>
         )
     }
 
     return (
-        <div className="space-y-6">
-            <Button variant="ghost" asChild className="mb-2 text-muted-foreground hover:text-foreground">
-                <Link href="/dashboard/latihan">
-                    <ArrowLeft className="w-4 h-4 mr-2" />
-                    Kembali ke Daftar Latihan
-                </Link>
-            </Button>
+        <div className="space-y-6 font-mono">
+            {/* Back button */}
+            <Link
+                href="/dashboard/latihan"
+                className="inline-flex items-center gap-2 text-sm font-bold text-[#2b1b11] bg-[#FEFCF3] border-2 border-[#2b1b11] px-4 py-2 shadow-[2px_2px_0px_#2b1b11] hover:shadow-[3px_3px_0px_#2b1b11] hover:-translate-y-0.5 transition-all"
+            >
+                <ArrowLeft className="w-4 h-4 stroke-[3]" />
+                Kembali ke Daftar Latihan
+            </Link>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <Card className="lg:col-span-2 border-warm-gray/60 shadow-sm">
-                    <CardHeader className="border-b border-warm-gray/30 bg-warm-beige/10 pb-6">
-                        <div className="flex justify-between items-start gap-4">
-                            <div>
-                                <Badge variant="secondary" className="mb-3 bg-earthy-gold/20 text-earthy-gold hover:bg-earthy-gold/30">
-                                    {latihan.category || "Semua Materi"}
-                                </Badge>
-                                <CardTitle className="text-2xl font-bold text-foreground">
-                                    {latihan.title}
-                                </CardTitle>
-                            </div>
-                        </div>
-                    </CardHeader>
-                    <CardContent className="pt-6 text-muted-foreground space-y-4">
-                        <h3 className="text-sm font-semibold text-foreground uppercase tracking-wider">
-                            Deskripsi Latihan
-                        </h3>
-                        <p className="leading-relaxed">
-                            {latihan.description || "Tidak ada deskripsi untuk latihan soal ini."}
-                        </p>
+                {/* Main detail card */}
+                <div className="lg:col-span-2 bg-[#FEFCF3] border-4 border-[#2b1b11] shadow-[4px_4px_0px_#2b1b11]">
+                    {/* Header */}
+                    <div className="border-b-4 border-[#2b1b11] bg-[#bed3c6] px-6 py-4">
+                        <span className="inline-block text-[10px] font-bold text-[#2b1b11] bg-[#FEFCF3] border-2 border-[#2b1b11] px-2 py-0.5 mb-2 uppercase tracking-wider">
+                            {latihan.category || "Semua Materi"}
+                        </span>
+                        <h1 className="text-xl font-bold text-[#2b1b11]" style={{ fontFamily: "var(--font-press-start)", fontSize: "1rem", lineHeight: 1.5 }}>
+                            {latihan.title}
+                        </h1>
+                    </div>
 
-                        <div className="mt-8 bg-cream p-4 rounded-lg border border-warm-gray/50 flex flex-col sm:flex-row items-center justify-between gap-4">
-                            <div className="flex items-center gap-3">
-                                <BatteryWarning className="w-10 h-10 text-earthy-gold" />
-                                <div>
-                                    <p className="font-semibold text-foreground">Siap berlatih?</p>
-                                    <p className="text-xs text-muted-foreground">Tidak ada batas waktu. Pelajari pembahasannya.</p>
-                                </div>
-                            </div>
-                            {previousSubmission ? (
-                                previousSubmission.status === "IN_PROGRESS" ? (
-                                    <Button 
-                                        asChild
-                                        className="w-full sm:w-auto bg-dark-brown hover:bg-soft-brown text-cream shadow-sm transition-all hover:scale-[1.02]"
-                                    >
-                                        <Link href={`/dashboard/latihan/${validId}/practice`}>
-                                            Lanjutkan Latihan
-                                            <ArrowRight className="w-4 h-4 ml-2" />
-                                        </Link>
-                                    </Button>
-                                ) : (
-                                    <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-                                        <Button 
-                                            asChild
-                                            variant="outline"
-                                            className="w-full sm:w-auto border-warm-gray text-dark-brown hover:bg-warm-beige transition-all"
-                                        >
-                                            <Link href={`/dashboard/latihan/${validId}/discussion`}>
-                                                Lihat Pembahasan Terakhir
-                                            </Link>
-                                        </Button>
-                                        <Button 
-                                            asChild
-                                            className="w-full sm:w-auto bg-dark-brown hover:bg-soft-brown text-cream shadow-sm transition-all hover:scale-[1.02]"
-                                        >
-                                            <Link href={`/dashboard/latihan/${validId}/practice`}>
-                                                Ulangi Latihan
-                                                <ArrowRight className="w-4 h-4 ml-2" />
-                                            </Link>
-                                        </Button>
+                    {/* Content */}
+                    <div className="p-6 space-y-6">
+                        <div>
+                            <h3 className="text-xs font-bold text-[#2b1b11] uppercase tracking-wider mb-2 flex items-center gap-2">
+                                <span className="w-1.5 h-4 bg-[#e87a5d]"></span>
+                                Deskripsi Latihan
+                            </h3>
+                            <p className="text-sm text-[#3c5443] font-bold leading-relaxed">
+                                {latihan.description || "Tidak ada deskripsi untuk latihan soal ini."}
+                            </p>
+                        </div>
+
+                        {/* CTA box */}
+                        <div className="bg-[#bed3c6] border-4 border-[#2b1b11] p-4 shadow-[2px_2px_0px_#2b1b11]">
+                            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-10 h-10 bg-[#FEFCF3] border-2 border-[#2b1b11] flex items-center justify-center shadow-[2px_2px_0px_#2b1b11]">
+                                        <BatteryWarning className="w-5 h-5 text-[#e87a5d] stroke-[2]" />
                                     </div>
-                                )
-                            ) : (
-                                <Button 
-                                    asChild
-                                    className="w-full sm:w-auto bg-dark-brown hover:bg-soft-brown text-cream shadow-sm transition-all hover:scale-[1.02]"
-                                >
-                                    <Link href={`/dashboard/latihan/${validId}/practice`}>
+                                    <div>
+                                        <p className="font-bold text-sm text-[#2b1b11]">Siap berlatih?</p>
+                                        <p className="text-[10px] text-[#3c5443] font-bold">Tidak ada batas waktu. Pelajari pembahasannya.</p>
+                                    </div>
+                                </div>
+                                {previousSubmission ? (
+                                    previousSubmission.status === "IN_PROGRESS" ? (
+                                        <Link
+                                            href={`/dashboard/latihan/${validId}/practice`}
+                                            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-[#e87a5d] text-[#FEFCF3] font-bold text-sm px-6 py-3 border-2 border-[#2b1b11] shadow-[3px_3px_0px_#2b1b11] hover:shadow-[4px_4px_0px_#2b1b11] hover:-translate-y-0.5 transition-all"
+                                        >
+                                            Lanjutkan Latihan
+                                            <ArrowRight className="w-4 h-4 stroke-[3]" />
+                                        </Link>
+                                    ) : (
+                                        <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+                                            <Link
+                                                href={`/dashboard/latihan/${validId}/discussion`}
+                                                className="inline-flex items-center justify-center gap-2 bg-[#FEFCF3] text-[#2b1b11] font-bold text-xs px-4 py-2 border-2 border-[#2b1b11] shadow-[2px_2px_0px_#2b1b11] hover:shadow-[3px_3px_0px_#2b1b11] hover:-translate-y-0.5 transition-all"
+                                            >
+                                                Lihat Pembahasan
+                                            </Link>
+                                            <Link
+                                                href={`/dashboard/latihan/${validId}/practice`}
+                                                className="inline-flex items-center justify-center gap-2 bg-[#e87a5d] text-[#FEFCF3] font-bold text-xs px-4 py-2 border-2 border-[#2b1b11] shadow-[2px_2px_0px_#2b1b11] hover:shadow-[3px_3px_0px_#2b1b11] hover:-translate-y-0.5 transition-all"
+                                            >
+                                                Ulangi Latihan
+                                                <ArrowRight className="w-4 h-4 stroke-[3]" />
+                                            </Link>
+                                        </div>
+                                    )
+                                ) : (
+                                    <Link
+                                        href={`/dashboard/latihan/${validId}/practice`}
+                                        className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-[#e87a5d] text-[#FEFCF3] font-bold text-sm px-6 py-3 border-2 border-[#2b1b11] shadow-[3px_3px_0px_#2b1b11] hover:shadow-[4px_4px_0px_#2b1b11] hover:-translate-y-0.5 transition-all"
+                                    >
                                         Mulai Latihan
-                                        <ArrowRight className="w-4 h-4 ml-2" />
+                                        <ArrowRight className="w-4 h-4 stroke-[3]" />
                                     </Link>
-                                </Button>
-                            )}
+                                )}
+                            </div>
                         </div>
-                    </CardContent>
-                </Card>
+                    </div>
+                </div>
 
+                {/* Sidebar - info module */}
                 <div className="space-y-6">
-                    <Card className="border-warm-gray/60 shadow-sm">
-                        <CardHeader>
-                            <CardTitle className="text-lg">Informasi Modul</CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                            <div className="flex items-start gap-3">
-                                <div className="w-8 h-8 rounded-full bg-warm-beige/50 flex items-center justify-center shrink-0">
-                                    <FileText className="w-4 h-4 text-soft-brown" />
+                    <div className="bg-[#FEFCF3] border-4 border-[#2b1b11] shadow-[4px_4px_0px_#2b1b11]">
+                        <div className="border-b-4 border-[#2b1b11] bg-[#bed3c6] px-4 py-3">
+                            <h2 className="text-sm font-bold text-[#2b1b11]" style={{ fontFamily: "var(--font-press-start)", fontSize: "0.65rem" }}>Informasi Modul</h2>
+                        </div>
+                        <div className="p-4 space-y-4">
+                            <div className="flex items-center gap-3">
+                                <div className="w-8 h-8 bg-[#bed3c6] border-2 border-[#2b1b11] flex items-center justify-center shadow-[1px_1px_0px_#2b1b11]">
+                                    <FileText className="w-4 h-4 text-[#2b1b11] stroke-[2]" />
                                 </div>
                                 <div>
-                                    <p className="text-sm font-medium text-foreground">Total Soal</p>
-                                    <p className="text-sm text-muted-foreground">{latihan.questionCount} Butir</p>
+                                    <p className="text-[10px] text-[#3c5443] font-bold uppercase tracking-wider">Total Soal</p>
+                                    <p className="text-sm font-extrabold text-[#2b1b11]">{latihan.questionCount} Butir</p>
                                 </div>
                             </div>
-                            <div className="flex items-start gap-3">
-                                <div className="w-8 h-8 rounded-full bg-warm-beige/50 flex items-center justify-center shrink-0">
-                                    <BatteryWarning className="w-4 h-4 text-soft-brown" />
+                            <div className="flex items-center gap-3">
+                                <div className="w-8 h-8 bg-[#bed3c6] border-2 border-[#2b1b11] flex items-center justify-center shadow-[1px_1px_0px_#2b1b11]">
+                                    <BatteryWarning className="w-4 h-4 text-[#e87a5d] stroke-[2]" />
                                 </div>
                                 <div>
-                                    <p className="text-sm font-medium text-foreground">Status Latihan</p>
-                                    <p className="text-sm text-muted-foreground">
+                                    <p className="text-[10px] text-[#3c5443] font-bold uppercase tracking-wider">Status Latihan</p>
+                                    <p className="text-sm font-extrabold text-[#2b1b11]">
                                         {previousSubmission 
                                             ? previousSubmission.status === "IN_PROGRESS" 
                                                 ? "Sedang dikerjakan" 
@@ -231,8 +229,8 @@ export default function LatihanDetailPage() {
                                     </p>
                                 </div>
                             </div>
-                        </CardContent>
-                    </Card>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

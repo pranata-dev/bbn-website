@@ -17,7 +17,9 @@ import {
     X,
     Lock,
     ChevronDown,
-    Check
+    Check,
+    Sun,
+    Moon
 } from "lucide-react"
 import { useState, useEffect } from "react"
 import { createClient } from "@/lib/supabase/client"
@@ -25,6 +27,7 @@ import { APP_NAME } from "@/constants"
 import { getPackageFeatures, PackageFeatures } from "@/lib/package-features"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { SubjectProvider, useSubject } from "@/contexts/SubjectContext"
+import { useTheme } from "@/contexts/ThemeContext"
 import { Subject } from "@/types"
 import {
     DropdownMenu,
@@ -60,6 +63,11 @@ export default function DashboardLayout({
 
 function SubjectSwitcher({ subjectAccess }: { subjectAccess: any[] }) {
     const { selectedSubject, setSelectedSubject } = useSubject()
+    const [isMounted, setIsMounted] = useState(false)
+    
+    useEffect(() => {
+        setIsMounted(true)
+    }, [])
     
     const subjects: { id: Subject; label: string }[] = [
         { id: "FISDAS2", label: "Fisika Dasar 2" },
@@ -69,49 +77,61 @@ function SubjectSwitcher({ subjectAccess }: { subjectAccess: any[] }) {
     const getAccess = (subject: Subject) => subjectAccess.find(a => a.subject === subject && a.is_active)
 
     return (
-        <div className="space-y-1.5">
-            <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider ml-1">
+        <div className="space-y-1.5 font-mono">
+            <label className="text-[10px] font-bold text-[#2b1b11] uppercase tracking-wider ml-1">
                 Pilih Mata Kuliah
             </label>
-            <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                    <Button 
-                        variant="outline" 
-                        size="sm" 
-                        className="w-full justify-between bg-warm-beige/20 border-warm-gray/40 h-10 px-3 hover:bg-warm-beige/40 transition-colors text-left"
-                    >
-                        <span className="truncate font-medium text-foreground">
-                            {subjects.find(s => s.id === selectedSubject)?.label}
-                        </span>
-                        <ChevronDown className="w-4 h-4 text-muted-foreground shrink-0 ml-2" />
-                    </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-56" align="start">
-                    {subjects.map((s) => {
-                        const hasAccess = !!getAccess(s.id)
-                        const isSelected = selectedSubject === s.id
-                        
-                        return (
-                            <DropdownMenuItem
-                                key={s.id}
-                                className={`flex items-center justify-between cursor-pointer ${!hasAccess ? "opacity-60" : ""}`}
-                                onClick={() => {
-                                    if (hasAccess) {
-                                        setSelectedSubject(s.id)
-                                    }
-                                }}
-                                disabled={!hasAccess}
-                            >
-                                <span className="font-medium">{s.label}</span>
-                                <div className="flex items-center gap-2">
-                                    {!hasAccess && <Lock className="w-3 h-3 text-muted-foreground" />}
-                                    {isSelected && <Check className="w-4 h-4 text-dark-brown" />}
-                                </div>
-                            </DropdownMenuItem>
-                        )
-                    })}
-                </DropdownMenuContent>
-            </DropdownMenu>
+            {isMounted ? (
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="w-full justify-between bg-[#bed3c6]/30 border-2 border-[#2b1b11] h-10 px-3 hover:bg-[#bed3c6]/50 transition-colors text-left rounded-none shadow-[2px_2px_0px_#2b1b11] font-mono"
+                        >
+                            <span className="truncate font-bold text-[#2b1b11]">
+                                {subjects.find(s => s.id === selectedSubject)?.label}
+                            </span>
+                            <ChevronDown className="w-4 h-4 text-[#2b1b11] shrink-0 ml-2 stroke-[2]" />
+                        </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="w-56 bg-[#FEFCF3] border-2 border-[#2b1b11] rounded-none shadow-[4px_4px_0px_#2b1b11] font-mono" align="start">
+                        {subjects.map((s) => {
+                            const hasAccess = !!getAccess(s.id)
+                            const isSelected = selectedSubject === s.id
+                            
+                            return (
+                                <DropdownMenuItem
+                                    key={s.id}
+                                    className={`flex items-center justify-between cursor-pointer font-bold text-sm ${!hasAccess ? "opacity-40" : "text-[#2b1b11] hover:bg-[#bed3c6]"}`}
+                                    onClick={() => {
+                                        if (hasAccess) {
+                                            setSelectedSubject(s.id)
+                                        }
+                                    }}
+                                    disabled={!hasAccess}
+                                >
+                                    <span>{s.label}</span>
+                                    <div className="flex items-center gap-2">
+                                        {!hasAccess && <Lock className="w-3 h-3 text-[#2b1b11]/40" />}
+                                        {isSelected && <Check className="w-4 h-4 text-[#e87a5d] stroke-[3]" />}
+                                    </div>
+                                </DropdownMenuItem>
+                            )
+                        })}
+                    </DropdownMenuContent>
+                </DropdownMenu>
+            ) : (
+                <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="w-full justify-between bg-[#bed3c6]/30 border-2 border-[#2b1b11] h-10 px-3 transition-colors text-left rounded-none shadow-[2px_2px_0px_#2b1b11] font-mono opacity-50"
+                    disabled
+                >
+                    <span className="truncate font-bold text-[#2b1b11]">Memuat...</span>
+                    <ChevronDown className="w-4 h-4 text-[#2b1b11] shrink-0 ml-2 stroke-[2]" />
+                </Button>
+            )}
         </div>
     )
 }
@@ -167,27 +187,27 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
     }
 
     const SidebarContent = () => (
-        <div className="flex flex-col h-full">
+        <div className="flex flex-col h-full font-mono bg-[#FEFCF3]">
             {/* Logo */}
-            <div className="p-6 border-b border-warm-gray/60 text-center lg:text-left">
+            <div className="p-5 border-b-4 border-[#2b1b11] text-center lg:text-left bg-[#bed3c6]">
                 <Link href="/dashboard" className="flex items-center gap-2 justify-center lg:justify-start">
-                    <div className="w-8 h-8 rounded-lg bg-dark-brown flex items-center justify-center">
-                        <BookOpen className="w-4 h-4 text-cream" />
+                    <div className="w-8 h-8 bg-[#FEFCF3] border-2 border-[#2b1b11] flex items-center justify-center shadow-[2px_2px_0px_#2b1b11]">
+                        <BookOpen className="w-4 h-4 text-[#2b1b11] stroke-[2]" />
                     </div>
-                    <span className="font-semibold text-foreground tracking-tight">{APP_NAME}</span>
+                    <span className="font-bold text-[#2b1b11] tracking-tight">{APP_NAME}</span>
                 </Link>
             </div>
 
             {/* Subject Switcher */}
-            <div className="px-4 py-4 border-b border-warm-gray/60">
+            <div className="px-4 py-4 border-b-2 border-[#2b1b11]/20">
                 <SubjectSwitcher 
                     subjectAccess={subjectAccess} 
                 />
             </div>
 
             {/* Navigation */}
-            <ScrollArea className="flex-1 p-4">
-                <nav className="space-y-1">
+            <ScrollArea className="flex-1 p-3">
+                <nav className="space-y-1.5">
                     <TooltipProvider>
                         {navItems.map((item) => {
                             const isActive = pathname === item.href
@@ -198,18 +218,18 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
 
                             const navContent = (
                                 <div
-                                    className={`flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${isActive && !isLocked
-                                        ? "bg-dark-brown text-cream"
+                                    className={`flex items-center justify-between px-3 py-2.5 text-sm font-bold transition-all border-2 ${isActive && !isLocked
+                                        ? "bg-[#2b1b11] text-[#FEFCF3] border-[#2b1b11] shadow-[3px_3px_0px_#e87a5d]"
                                         : isLocked
-                                            ? "text-muted-foreground/50 bg-warm-gray/10 cursor-not-allowed"
-                                            : "text-muted-foreground hover:bg-warm-beige hover:text-foreground"
+                                            ? "text-[#2b1b11]/30 bg-[#bed3c6]/20 border-transparent cursor-not-allowed"
+                                            : "text-[#3c5443] border-transparent hover:bg-[#bed3c6]/40 hover:border-[#2b1b11]/30 hover:text-[#2b1b11]"
                                         }`}
                                 >
                                     <div className="flex items-center gap-3">
-                                        <item.icon className="w-4 h-4" />
+                                        <item.icon className="w-4 h-4 stroke-[2]" />
                                         {item.label}
                                     </div>
-                                    {isLocked && <Lock className="w-4 h-4 text-muted-foreground/60" />}
+                                    {isLocked && <Lock className="w-4 h-4 text-[#2b1b11]/30" />}
                                 </div>
                             )
 
@@ -223,7 +243,7 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
                                         <TooltipTrigger asChild>
                                             <div className="w-full text-left">{navContent}</div>
                                         </TooltipTrigger>
-                                        <TooltipContent side="right">
+                                        <TooltipContent side="right" className="bg-[#2b1b11] text-[#FEFCF3] border-2 border-[#e87a5d] font-mono text-xs">
                                             <p>{lockdownMessage}</p>
                                         </TooltipContent>
                                     </Tooltip>
@@ -244,43 +264,101 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
                 </nav>
             </ScrollArea>
 
-            {/* Logout */}
-            <div className="p-4 border-t border-warm-gray/60">
+            {/* Logout + Theme Toggle */}
+            <div className="p-3 border-t-2 border-[#2b1b11]/20 space-y-2">
+                <button
+                    onClick={toggleTheme}
+                    className="w-full flex items-center gap-3 px-3 py-2 text-sm font-bold font-mono text-[#2b1b11] hover:bg-[#bed3c6]/50 border-2 border-transparent hover:border-[#2b1b11]/20 transition-all"
+                >
+                    {isDark ? <Sun className="w-4 h-4 stroke-[2] text-[#e87a5d]" /> : <Moon className="w-4 h-4 stroke-[2]" />}
+                    {isDark ? "Mode Terang" : "Mode Malam"}
+                </button>
                 <Button
                     variant="ghost"
-                    className="w-full justify-start text-muted-foreground hover:text-foreground"
+                    className="w-full justify-start text-[#e87a5d] hover:text-[#d95a4f] hover:bg-[#e87a5d]/10 font-bold font-mono border-2 border-transparent hover:border-[#e87a5d]/30"
                     onClick={handleLogout}
                 >
-                    <LogOut className="w-4 h-4 mr-3" />
+                    <LogOut className="w-4 h-4 mr-3 stroke-[2]" />
                     Keluar
                 </Button>
             </div>
         </div>
     )
 
+    const { isDark, toggleTheme } = useTheme()
+
     return (
-        <div className="min-h-screen bg-cream">
+        <div className={`relative min-h-screen ${isDark ? "bg-[#0f1b2e]" : "bg-[#bed3c6]"}`}>
             <UserPresenceTracker />
+
+            {/* Pixel Art Background — per-route + theme */}
+            {(() => {
+                const isMateri = pathname.startsWith("/dashboard/materi")
+                const isLatihan = pathname.startsWith("/dashboard/latihan")
+                const isTryout = pathname.startsWith("/dashboard/tryouts")
+
+                if (isMateri) {
+                    return null
+                }
+
+                if (isLatihan || isTryout) {
+                    return (
+                        <div
+                            className="fixed inset-0 z-0 opacity-70 [image-rendering:pixelated] [image-rendering:-moz-crisp-edges] [image-rendering:-webkit-optimize-contrast] [image-rendering:crisp-edges] [-ms-interpolation-mode:nearest-neighbor]"
+                            style={{
+                                backgroundImage: isDark ? "url('/assets/background-latihan-tryout-malam.png')" : "url('/assets/background-latihan-tryout-3.png')",
+                                backgroundSize: "100% 100%",
+                                backgroundPosition: "center center",
+                                backgroundRepeat: "no-repeat"
+                            }}
+                        />
+                    )
+                }
+
+                return (
+                    <div
+                        className="fixed inset-0 z-0 opacity-60 [image-rendering:pixelated] [image-rendering:-moz-crisp-edges] [image-rendering:-webkit-optimize-contrast] [image-rendering:crisp-edges] [-ms-interpolation-mode:nearest-neighbor]"
+                        style={{
+                            backgroundImage: isDark ? "url('/assets/background-only-malam.png')" : "url('/assets/background-only-2.png')",
+                            backgroundSize: "cover",
+                            backgroundPosition: "center center",
+                            backgroundRepeat: "no-repeat"
+                        }}
+                    />
+                )
+            })()}
+
             {/* Mobile header */}
-            <div className="lg:hidden flex items-center justify-between p-4 border-b border-warm-gray/60 bg-white">
+            <div className={`lg:hidden flex items-center justify-between p-4 border-b-4 relative z-20 ${isDark ? "border-[#e87a5d] bg-[#1a1a2e]" : "border-[#2b1b11] bg-[#bed3c6]"}`}>
                 <Link href="/dashboard" className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-lg bg-dark-brown flex items-center justify-center shrink-0">
-                        <BookOpen className="w-4 h-4 text-cream" />
+                    <div className={`w-8 h-8 border-2 flex items-center justify-center shadow-[2px_2px_0px] shrink-0 ${isDark ? "bg-[#16213e] border-[#e87a5d] shadow-[#e87a5d]" : "bg-[#FEFCF3] border-[#2b1b11] shadow-[#2b1b11]"}`}>
+                        <BookOpen className={`w-4 h-4 stroke-[2] ${isDark ? "text-[#e87a5d]" : "text-[#2b1b11]"}`} />
                     </div>
-                    <span className="font-semibold text-sm text-foreground">{APP_NAME}</span>
+                    <span className={`font-bold text-sm font-mono ${isDark ? "text-[#FEFCF3]" : "text-[#2b1b11]"}`}>{APP_NAME}</span>
                 </Link>
-                <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => setSidebarOpen(!sidebarOpen)}
-                >
-                    {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-                </Button>
+                <div className="flex items-center gap-2">
+                    <button
+                        onClick={toggleTheme}
+                        className={`w-9 h-9 border-2 flex items-center justify-center shadow-[2px_2px_0px] transition-colors ${isDark ? "bg-[#16213e] border-[#e87a5d] shadow-[#e87a5d] text-[#e87a5d] hover:bg-[#0f3460]" : "bg-[#FEFCF3] border-[#2b1b11] shadow-[#2b1b11] text-[#2b1b11] hover:bg-[#bed3c6]"}`}
+                        aria-label="Toggle dark mode"
+                    >
+                        {isDark ? <Sun className="w-4 h-4 stroke-[2]" /> : <Moon className="w-4 h-4 stroke-[2]" />}
+                    </button>
+                    <button
+                        onClick={() => setSidebarOpen(!sidebarOpen)}
+                        className={`w-9 h-9 border-2 flex items-center justify-center shadow-[2px_2px_0px] transition-colors ${isDark ? "bg-[#16213e] border-[#e87a5d] shadow-[#e87a5d] hover:bg-[#0f3460]" : "bg-[#FEFCF3] border-[#2b1b11] shadow-[#2b1b11] hover:bg-[#bed3c6]"}`}
+                    >
+                        {sidebarOpen 
+                            ? <X className={`w-5 h-5 stroke-[2] ${isDark ? "text-[#e87a5d]" : "text-[#2b1b11]"}`} /> 
+                            : <Menu className={`w-5 h-5 stroke-[2] ${isDark ? "text-[#e87a5d]" : "text-[#2b1b11]"}`} />
+                        }
+                    </button>
+                </div>
             </div>
 
-            <div className="flex">
+            <div className="flex relative z-10">
                 {/* Desktop sidebar */}
-                <aside className="hidden lg:block w-64 h-screen sticky top-0 bg-white border-r border-warm-gray/60">
+                <aside className="hidden lg:block w-64 h-screen sticky top-0 border-r-4 border-[#2b1b11] shadow-[4px_0px_0px_#2b1b11] z-20">
                     <SidebarContent />
                 </aside>
 
@@ -288,17 +366,17 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
                 {sidebarOpen && (
                     <div className="lg:hidden fixed inset-0 z-50">
                         <div
-                            className="absolute inset-0 bg-black/30"
+                            className="absolute inset-0 bg-[#2b1b11]/40"
                             onClick={() => setSidebarOpen(false)}
                         />
-                        <aside className="relative w-64 h-full bg-white shadow-xl">
+                        <aside className="relative w-64 h-full shadow-[8px_0px_0px_#2b1b11] z-10">
                             <SidebarContent />
                         </aside>
                     </div>
                 )}
 
                 {/* Main content */}
-                <main className="flex-1 min-h-screen">
+                <main className="flex-1 min-h-screen relative">
                     <div className="p-6 sm:p-8 max-w-6xl mx-auto">
                         {children}
                     </div>

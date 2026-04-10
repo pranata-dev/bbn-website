@@ -1,82 +1,79 @@
+"use client"
+
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { ArrowRight, Sparkles } from "lucide-react"
-import { FadeInUp, HoverScale } from "@/components/animations"
+import { ArrowRight } from "lucide-react"
+import { useTheme } from "@/contexts/ThemeContext"
 
 export function HeroSection() {
+    const { isDark } = useTheme()
+
     return (
-        <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-            {/* Background decoration */}
-            <div className="absolute inset-0 -z-10">
-                <div className="absolute top-20 left-10 w-72 h-72 bg-earthy-gold/10 rounded-full blur-3xl" />
-                <div className="absolute bottom-20 right-10 w-96 h-96 bg-soft-brown/8 rounded-full blur-3xl" />
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-warm-beige/60 rounded-full blur-3xl" />
+        <section className={`relative w-full md:aspect-[2750/1536] min-h-[650px] flex flex-col justify-between overflow-hidden h-auto py-20 md:py-0 ${isDark ? "bg-[#0f1b2e]" : "bg-[#cde0d5]"}`}>
+            <div
+                className="absolute inset-0 z-0 [image-rendering:pixelated] [image-rendering:-moz-crisp-edges] [image-rendering:-webkit-optimize-contrast] [image-rendering:crisp-edges] [-ms-interpolation-mode:nearest-neighbor]"
+                style={{
+                    backgroundImage: isDark
+                        ? "url('/assets/background-rubah-malam.png')"
+                        : "url('/assets/background-rubah-3.png')",
+                    backgroundSize: "cover",
+                    backgroundPosition: "center",
+                    backgroundRepeat: "no-repeat"
+                }}
+            />
+
+            <div className="container-narrow mx-auto px-4 z-10 flex flex-col items-center pt-[8%] md:pt-[8%] shrink-0">
+                <h1
+                    className={`font-bold leading-tight tracking-tight mb-8 text-center ${isDark ? "text-[#FEFCF3]" : "text-[#2b1b11]"}`}
+                    style={{
+                        fontFamily: "var(--font-press-start)",
+                        fontSize: "calc(1.5rem + 1vw)",
+                        lineHeight: 1.4,
+                        textShadow: isDark 
+                            ? "2px 2px 0px rgba(0,0,0,0.6)" 
+                            : "2px 2px 0px rgba(255,255,255,0.4)"
+                    }}
+                >
+                    Belajar Bareng Nata
+                </h1>
+
+                <p className={`text-base md:text-lg font-bold font-mono max-w-3xl mx-auto text-center leading-relaxed ${
+                    isDark 
+                        ? "text-[#FEFCF3] drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]" 
+                        : "text-[#2b1b11] drop-shadow-[0_1px_1px_rgba(255,255,255,0.9)]"
+                }`}>
+                    Platform tryout dan latihan soal mata kuliah Fisika yang dirancang untuk membantumu memahami konsep, mengukur kemampuan, dan pastinya siap menghadapi ujian!
+                </p>
             </div>
 
-            <div className="container-narrow mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-16 text-center">
-                {/* Badge */}
-                <FadeInUp>
-                    <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-warm-beige border border-warm-gray text-sm font-medium text-soft-brown mb-8">
-                        <Sparkles className="w-4 h-4" />
-                        <span>Platform Tutor Fisika Personal</span>
-                    </div>
-                </FadeInUp>
+            <div className="container-narrow mx-auto px-4 z-10 flex flex-col items-center w-full mt-auto pb-[1%]">
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-8 mb-4">
+                    <Button size="lg" asChild className="bg-[#4A3C28] hover:bg-[#3D3120] border-2 border-[#2D2418] text-white rounded-2xl px-8 h-12 shadow-[0_4px_0_rgba(45,36,24,1)] hover:shadow-[0_2px_0_rgba(45,36,24,1)] active:translate-y-1 hover:-translate-y-0.5 transition-all text-sm font-bold">
+                        <Link href="/register">
+                            Mulai Belajar Sekarang <ArrowRight className="ml-2 w-4 h-4" />
+                        </Link>
+                    </Button>
+                    <Button size="lg" asChild className="px-8 h-12 text-sm bg-[#C4A881]/90 hover:bg-[#B39871] border-2 border-[#8C7456] text-[#2D2418] rounded-2xl shadow-[0_4px_0_rgba(140,116,86,1)] hover:shadow-[0_2px_0_rgba(140,116,86,1)] active:translate-y-1 font-extrabold backdrop-blur-sm transition-all hover:-translate-y-0.5">
+                        <a href="#fitur">Pelajari Lebih Lanjut</a>
+                    </Button>
+                </div>
 
-                {/* Heading */}
-                <FadeInUp delay={0.1}>
-                    <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-foreground leading-tight tracking-tight mb-6 text-balance">
-                        Belajar Fisika
-                        <br />
-                        <span className="text-soft-brown">Lebih Terarah,</span>
-                        <br />
-                        <span className="text-dark-brown">Lebih Siap Ujian.</span>
-                    </h1>
-                </FadeInUp>
-
-                {/* Subtitle */}
-                <FadeInUp delay={0.2}>
-                    <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 text-balance">
-                        Platform tryout dan latihan soal mata kuliah Fisika yang dirancang untuk membantumu
-                        memahami konsep, mengukur kemampuan, dan pastinya siap menghadapi ujian!
-                    </p>
-                </FadeInUp>
-
-                {/* CTA Buttons */}
-                <FadeInUp delay={0.3}>
-                    <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                        <HoverScale>
-                            <Button size="lg" asChild className="bg-dark-brown hover:bg-soft-brown text-cream px-8 h-12 text-base shadow-lg shadow-dark-brown/20 transition-all hover:shadow-xl hover:shadow-dark-brown/25">
-                                <Link href="/register">
-                                    Mulai Belajar Sekarang
-                                    <ArrowRight className="ml-2 w-4 h-4" />
-                                </Link>
-                            </Button>
-                        </HoverScale>
-                        <HoverScale>
-                            <Button size="lg" asChild className="px-8 h-12 text-base border-2 border-dark-brown bg-transparent text-dark-brown hover:bg-dark-brown hover:text-cream font-medium shadow-none transition-all">
-                                <a href="#fitur">Pelajari Lebih Lanjut</a>
-                            </Button>
-                        </HoverScale>
-                    </div>
-                </FadeInUp>
-
-                {/* Stats */}
-                <FadeInUp delay={0.4}>
-                    <div className="mt-16 grid grid-cols-3 gap-8 max-w-md mx-auto">
+                <div className="w-full flex justify-center mt-4">
+                    <div className="grid grid-cols-3 gap-12 sm:gap-24 text-center" style={{ fontFamily: "var(--font-vt323)" }}>
                         <div>
-                            <div className="text-2xl sm:text-3xl font-bold text-dark-brown">500+</div>
-                            <div className="text-sm text-muted-foreground">Soal Latihan</div>
+                            <div className={`text-3xl sm:text-4xl font-extrabold ${isDark ? "text-[#FEFCF3]" : "text-[#2b1b11]"}`}>500+</div>
+                            <div className={`text-sm sm:text-lg font-bold ${isDark ? "text-[#bed3c6]" : "text-[#3c5443]"}`}>Latihan Soal</div>
                         </div>
                         <div>
-                            <div className="text-2xl sm:text-3xl font-bold text-dark-brown">8</div>
-                            <div className="text-sm text-muted-foreground">Kategori Materi</div>
+                            <div className={`text-3xl sm:text-4xl font-extrabold ${isDark ? "text-[#FEFCF3]" : "text-[#2b1b11]"}`}>8</div>
+                            <div className={`text-sm sm:text-lg font-bold ${isDark ? "text-[#bed3c6]" : "text-[#3c5443]"}`}>Kategori Materi</div>
                         </div>
                         <div>
-                            <div className="text-2xl sm:text-3xl font-bold text-dark-brown">100%</div>
-                            <div className="text-sm text-muted-foreground">Auto Scoring</div>
+                            <div className={`text-3xl sm:text-4xl font-extrabold ${isDark ? "text-[#FEFCF3]" : "text-[#2b1b11]"}`}>100%</div>
+                            <div className={`text-sm sm:text-lg font-bold ${isDark ? "text-[#bed3c6]" : "text-[#3c5443]"}`}>Auto Scoring</div>
                         </div>
                     </div>
-                </FadeInUp>
+                </div>
             </div>
         </section>
     )

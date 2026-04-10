@@ -1,6 +1,4 @@
-import { Card, CardContent } from "@/components/ui/card"
 import { User, Mail, Calendar, Package } from "lucide-react"
-import { Badge } from "@/components/ui/badge"
 import { createClient } from "@/lib/supabase/server"
 import { format } from "date-fns"
 import { id } from "date-fns/locale"
@@ -27,64 +25,84 @@ export default async function ProfilePage() {
         ? format(new Date(dbUser.created_at), "dd MMMM yyyy", { locale: id })
         : "-"
     const initial = userName.charAt(0).toUpperCase()
+
     return (
-        <div className="space-y-6">
-            <div>
-                <h1 className="text-2xl font-bold text-foreground">Profil</h1>
-                <p className="text-muted-foreground">Informasi akun kamu.</p>
+        <div className="space-y-6 font-mono">
+            <div className="bg-[#FEFCF3] border-4 border-[#2b1b11] rounded-2xl p-5 shadow-[6px_6px_0px_#2b1b11]">
+                <h1
+                    className="text-lg md:text-xl font-extrabold text-[#2b1b11] mb-1 flex items-center gap-3"
+                    style={{ fontFamily: "var(--font-press-start)", lineHeight: 1.4 }}
+                >
+                    <User className="w-6 h-6 text-[#e87a5d] stroke-[2]" />
+                    Profil
+                </h1>
+                <p className="text-sm text-[#3c5443] font-bold">Informasi akun kamu.</p>
             </div>
 
-            <Card className="border-warm-gray/60">
-                <CardContent className="p-6 space-y-6">
+            <div className="bg-[#FEFCF3] border-4 border-[#2b1b11] shadow-[4px_4px_0px_#2b1b11] overflow-hidden">
+                <div className="p-6 space-y-6">
+                    {/* Avatar + Name */}
                     <div className="flex items-center gap-4">
-                        <div className="w-16 h-16 rounded-full bg-dark-brown flex items-center justify-center text-cream text-xl font-bold">
+                        <div className="w-16 h-16 bg-[#2b1b11] border-4 border-[#2b1b11] flex items-center justify-center text-[#FEFCF3] text-xl font-extrabold shadow-[3px_3px_0px_#e87a5d]">
                             {initial}
                         </div>
                         <div>
-                            <h2 className="text-lg font-semibold text-foreground">{userName}</h2>
+                            <h2 className="text-base font-extrabold text-[#2b1b11]">{userName}</h2>
                         </div>
                     </div>
 
+                    {/* Info Grid */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div className="flex items-center gap-3 p-4 rounded-xl bg-warm-beige">
-                            <Mail className="w-5 h-5 text-soft-brown" />
+                        {/* Email */}
+                        <div className="flex items-center gap-3 p-4 bg-[#bed3c6]/30 border-2 border-[#2b1b11]">
+                            <div className="w-9 h-9 bg-[#bed3c6] border-2 border-[#2b1b11] flex items-center justify-center shadow-[1px_1px_0px_#2b1b11]">
+                                <Mail className="w-4 h-4 text-[#2b1b11] stroke-[2]" />
+                            </div>
                             <div>
-                                <p className="text-xs text-muted-foreground">Email</p>
-                                <p className="text-sm font-medium text-foreground">{userEmail}</p>
+                                <p className="text-[10px] text-[#3c5443] font-bold uppercase tracking-wider">Email</p>
+                                <p className="text-xs font-extrabold text-[#2b1b11]">{userEmail}</p>
                             </div>
                         </div>
-                        <div className="flex flex-col gap-3 p-4 rounded-xl bg-warm-beige sm:col-span-2">
+
+                        {/* Join Date */}
+                        <div className="flex items-center gap-3 p-4 bg-[#bed3c6]/30 border-2 border-[#2b1b11]">
+                            <div className="w-9 h-9 bg-[#bed3c6] border-2 border-[#2b1b11] flex items-center justify-center shadow-[1px_1px_0px_#2b1b11]">
+                                <Calendar className="w-4 h-4 text-[#2b1b11] stroke-[2]" />
+                            </div>
+                            <div>
+                                <p className="text-[10px] text-[#3c5443] font-bold uppercase tracking-wider">Bergabung Sejak</p>
+                                <p className="text-xs font-extrabold text-[#2b1b11]">{joinDate}</p>
+                            </div>
+                        </div>
+
+                        {/* Paket Aktif */}
+                        <div className="flex flex-col gap-3 p-4 bg-[#bed3c6]/30 border-2 border-[#2b1b11] sm:col-span-2">
                             <div className="flex items-center gap-3">
-                                <Package className="w-5 h-5 text-soft-brown" />
-                                <p className="text-xs text-muted-foreground">Paket Aktif</p>
+                                <div className="w-9 h-9 bg-[#bed3c6] border-2 border-[#2b1b11] flex items-center justify-center shadow-[1px_1px_0px_#2b1b11]">
+                                    <Package className="w-4 h-4 text-[#2b1b11] stroke-[2]" />
+                                </div>
+                                <p className="text-[10px] text-[#3c5443] font-bold uppercase tracking-wider">Paket Aktif</p>
                             </div>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-1">
                                 {subjectAccess.length === 0 ? (
-                                    <p className="text-sm font-medium text-foreground">Belum Ada Paket</p>
+                                    <p className="text-xs font-extrabold text-[#2b1b11]">Belum Ada Paket</p>
                                 ) : (
                                     subjectAccess.map((acc: any) => (
-                                        <div key={acc.id} className="flex items-center justify-between bg-white/50 p-2 rounded-lg border border-warm-gray/20">
-                                            <span className="text-xs font-bold text-dark-brown">
+                                        <div key={acc.id} className="flex items-center justify-between bg-[#FEFCF3] p-2 border-2 border-[#2b1b11]/30">
+                                            <span className="text-[10px] font-extrabold text-[#2b1b11]">
                                                 {acc.subject === "FISDAS2" ? "Fisika Dasar 2" : acc.subject}
                                             </span>
-                                            <Badge variant="secondary" className="text-[10px] bg-warm-beige text-soft-brown">
+                                            <span className="text-[10px] font-bold bg-[#bed3c6] text-[#2b1b11] px-2 py-0.5 border border-[#2b1b11]">
                                                 {acc.package_type}
-                                            </Badge>
+                                            </span>
                                         </div>
                                     ))
                                 )}
                             </div>
                         </div>
-                        <div className="flex items-center gap-3 p-4 rounded-xl bg-warm-beige">
-                            <Calendar className="w-5 h-5 text-soft-brown" />
-                            <div>
-                                <p className="text-xs text-muted-foreground">Bergabung Sejak</p>
-                                <p className="text-sm font-medium text-foreground">{joinDate}</p>
-                            </div>
-                        </div>
                     </div>
-                </CardContent>
-            </Card>
+                </div>
+            </div>
         </div>
     )
 }

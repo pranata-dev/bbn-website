@@ -1,10 +1,12 @@
+"use client"
+
 import {
     Accordion,
     AccordionContent,
     AccordionItem,
     AccordionTrigger,
 } from "@/components/ui/accordion"
-import { FadeInUp } from "@/components/animations"
+import { useTheme } from "@/contexts/ThemeContext"
 
 const faqs = [
     {
@@ -50,39 +52,78 @@ const faqs = [
 ]
 
 export function FAQSection() {
-    return (
-        <section id="faq" className="section-padding bg-warm-beige/40">
-            <div className="container-narrow mx-auto">
-                <FadeInUp className="text-center mb-16">
-                    <span className="inline-block text-sm font-semibold text-soft-brown uppercase tracking-wider mb-3">
-                        FAQ
-                    </span>
-                    <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4 text-balance">
-                        Pertanyaan yang Sering Ditanyakan
-                    </h2>
-                    <p className="text-muted-foreground max-w-2xl mx-auto text-balance">
-                        Temukan jawaban untuk pertanyaan umum tentang platform kami.
-                    </p>
-                </FadeInUp>
+    const leftFaqs = faqs.slice(0, 4)
+    const rightFaqs = faqs.slice(4)
+    const { isDark } = useTheme()
 
-                <FadeInUp className="max-w-3xl mx-auto">
+    return (
+        <section id="faq" className={`relative w-full md:aspect-[2750/1536] min-h-[600px] flex flex-col justify-center overflow-hidden h-auto ${isDark ? "bg-[#0f1b2e]" : "bg-[#bed3c6]"}`}>
+            {/* Pixel Art Background */}
+            <div 
+                className="absolute inset-0 z-0 opacity-80 [image-rendering:pixelated] [image-rendering:-moz-crisp-edges] [image-rendering:-webkit-optimize-contrast] [image-rendering:crisp-edges] [-ms-interpolation-mode:nearest-neighbor]"
+                style={{
+                    backgroundImage: isDark ? "url('/assets/background-only-malam.png')" : "url('/assets/background-only-2.png')",
+                    backgroundSize: "cover",
+                    backgroundPosition: "center center",
+                    backgroundRepeat: "no-repeat"
+                }}
+            />
+
+            <div className="container mx-auto px-4 lg:px-12 z-10 relative flex flex-col justify-center h-full py-20 md:py-10 text-center">
+                
+                {/* Header Section */}
+                <div className="max-w-3xl mx-auto mb-6 w-full">
+                    <p className={`text-sm md:text-base font-bold tracking-[0.25em] mb-2 font-mono uppercase ${isDark ? "text-[#FEFCF3] drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)]" : "text-[#2b1b11] drop-shadow-[0_1px_1px_rgba(255,255,255,0.8)]"}`}>
+                        FAQ
+                    </p>
+                    <h2 
+                        className={`text-xl md:text-2xl lg:text-3xl font-extrabold mb-2 ${isDark ? "text-[#FEFCF3] drop-shadow-[0_2px_2px_rgba(0,0,0,0.7)]" : "text-[#2b1b11] drop-shadow-[0_2px_2px_rgba(255,255,255,0.7)]"}`}
+                        style={{ fontFamily: "var(--font-press-start)", lineHeight: 1.4 }}
+                    >
+                        Pertanyaan Umum
+                    </h2>
+                    <p className={`text-xs md:text-sm font-bold font-mono max-w-2xl mx-auto ${isDark ? "text-[#bed3c6] drop-shadow-[0_1px_1px_rgba(0,0,0,0.9)]" : "text-[#3c5443] drop-shadow-[0_1px_1px_rgba(255,255,255,0.9)]"}`}>
+                        Temukan petunjuk dari warga hutan tentang petualangan belajarmu.
+                    </p>
+                </div>
+
+                {/* FAQ 2-Column Grid */}
+                <div className="mx-auto w-full max-w-5xl text-left grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* Left Column */}
                     <Accordion type="single" collapsible className="space-y-3">
-                        {faqs.map((faq, index) => (
+                        {leftFaqs.map((faq, index) => (
                             <AccordionItem
                                 key={index}
                                 value={`item-${index}`}
-                                className="bg-white border border-warm-gray/60 rounded-xl px-6 data-[state=open]:shadow-md transition-all"
+                                className="bg-[#FEFCF3] border-3 border-[#2b1b11] rounded-lg px-3 md:px-4 shadow-[3px_3px_0px_#2b1b11] transition-transform hover:-translate-y-0.5 hover:shadow-[4px_4px_0px_#2b1b11]"
                             >
-                                <AccordionTrigger className="text-sm font-semibold text-foreground hover:text-soft-brown py-5 hover:no-underline">
+                                <AccordionTrigger className="text-xs md:text-sm font-bold text-[#2b1b11] font-mono hover:text-[#e87a5d] py-3 hover:no-underline text-left">
                                     {faq.question}
                                 </AccordionTrigger>
-                                <AccordionContent className="text-sm text-muted-foreground leading-relaxed pb-5">
+                                <AccordionContent className="text-xs text-[#3c5443] font-mono leading-relaxed pb-3 font-semibold">
                                     {faq.answer}
                                 </AccordionContent>
                             </AccordionItem>
                         ))}
                     </Accordion>
-                </FadeInUp>
+                    {/* Right Column */}
+                    <Accordion type="single" collapsible className="space-y-3">
+                        {rightFaqs.map((faq, index) => (
+                            <AccordionItem
+                                key={index + 4}
+                                value={`item-${index + 4}`}
+                                className="bg-[#FEFCF3] border-3 border-[#2b1b11] rounded-lg px-3 md:px-4 shadow-[3px_3px_0px_#2b1b11] transition-transform hover:-translate-y-0.5 hover:shadow-[4px_4px_0px_#2b1b11]"
+                            >
+                                <AccordionTrigger className="text-xs md:text-sm font-bold text-[#2b1b11] font-mono hover:text-[#e87a5d] py-3 hover:no-underline text-left">
+                                    {faq.question}
+                                </AccordionTrigger>
+                                <AccordionContent className="text-xs text-[#3c5443] font-mono leading-relaxed pb-3 font-semibold">
+                                    {faq.answer}
+                                </AccordionContent>
+                            </AccordionItem>
+                        ))}
+                    </Accordion>
+                </div>
             </div>
         </section>
     )

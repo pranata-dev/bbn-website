@@ -2,11 +2,9 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { FileText, Clock, Users, ArrowRight, Loader2 } from "lucide-react"
+import { FileText, Clock, ArrowRight, Loader2 } from "lucide-react"
 import { CATEGORY_LABELS } from "@/types"
 import type { QuestionCategory } from "@/types"
 
@@ -39,7 +37,6 @@ export default function TryoutsPage() {
         try {
             const res = await fetch(`/api/tryouts?subject=${selectedSubject}`)
             const data = await res.json()
-            // Filter strictly for tryouts, excluding practice questions
             const properTryouts = (data.tryouts || []).filter((t: any) => !t.is_practice)
             setTryouts(properTryouts)
         } catch (error) {
@@ -54,17 +51,22 @@ export default function TryoutsPage() {
         : tryouts.filter((t) => t.category === filter)
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-6 font-mono">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                <div>
-                    <h1 className="text-2xl font-bold text-foreground">Tryout</h1>
-                    <p className="text-muted-foreground">Pilih dan kerjakan tryout yang tersedia.</p>
+                <div className="bg-[#FEFCF3] border-4 border-[#2b1b11] rounded-2xl p-5 shadow-[6px_6px_0px_#2b1b11] flex-1">
+                    <h1
+                        className="text-lg md:text-xl font-extrabold text-[#2b1b11] mb-1"
+                        style={{ fontFamily: "var(--font-press-start)", lineHeight: 1.4 }}
+                    >
+                        Tryout
+                    </h1>
+                    <p className="text-sm text-[#3c5443] font-bold">Pilih dan kerjakan tryout yang tersedia.</p>
                 </div>
                 <Select value={filter} onValueChange={setFilter}>
-                    <SelectTrigger className="w-[200px] bg-white border-warm-gray">
+                    <SelectTrigger className="w-[200px] bg-[#FEFCF3] border-2 border-[#2b1b11] rounded-none shadow-[2px_2px_0px_#2b1b11] font-mono font-bold text-[#2b1b11]">
                         <SelectValue placeholder="Filter kategori" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="bg-[#FEFCF3] border-2 border-[#2b1b11] rounded-none shadow-[4px_4px_0px_#2b1b11] font-mono">
                         <SelectItem value="all">Semua Kategori</SelectItem>
                         {Object.entries(CATEGORY_LABELS).map(([key, label]) => (
                             <SelectItem key={key} value={key}>{label}</SelectItem>
@@ -75,108 +77,98 @@ export default function TryoutsPage() {
 
             {/* Mini Statistic Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <Card className="border-warm-gray/60 bg-cream">
-                    <CardContent className="p-4 flex items-center justify-between">
+                <div className="bg-[#FEFCF3] border-4 border-[#2b1b11] p-4 shadow-[4px_4px_0px_#2b1b11]">
+                    <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-sm font-medium text-muted-foreground">Total Tryout</p>
-                            <h3 className="text-2xl font-bold text-foreground">{tryouts.length}</h3>
+                            <p className="text-xs text-[#3c5443] font-bold">Total Tryout</p>
+                            <h3 className="text-2xl font-extrabold text-[#2b1b11]">{tryouts.length}</h3>
                         </div>
-                        <div className="w-10 h-10 rounded-full bg-warm-beige flex items-center justify-center">
-                            <FileText className="w-5 h-5 text-dark-brown" />
+                        <div className="w-10 h-10 bg-[#bed3c6] border-2 border-[#2b1b11] flex items-center justify-center shadow-[2px_2px_0px_#2b1b11]">
+                            <FileText className="w-5 h-5 text-[#2b1b11] stroke-[2]" />
                         </div>
-                    </CardContent>
-                </Card>
-                <Card className="border-warm-gray/60 bg-cream">
-                    <CardContent className="p-4 flex items-center justify-between">
+                    </div>
+                </div>
+                <div className="bg-[#FEFCF3] border-4 border-[#2b1b11] p-4 shadow-[4px_4px_0px_#2b1b11]">
+                    <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-sm font-medium text-muted-foreground">Week 1–4</p>
-                            <h3 className="text-2xl font-bold text-foreground">
+                            <p className="text-xs text-[#3c5443] font-bold">Week 1–4</p>
+                            <h3 className="text-2xl font-extrabold text-[#2b1b11]">
                                 {tryouts.filter(t => t.category && ["WEEK_1", "WEEK_2", "WEEK_3", "WEEK_4"].includes(t.category)).length}
                             </h3>
                         </div>
-                        <div className="w-10 h-10 rounded-full bg-earthy-green/20 flex items-center justify-center">
-                            <ArrowRight className="w-5 h-5 text-earthy-green" />
+                        <div className="w-10 h-10 bg-[#bed3c6] border-2 border-[#2b1b11] flex items-center justify-center shadow-[2px_2px_0px_#2b1b11]">
+                            <ArrowRight className="w-5 h-5 text-[#2b1b11] stroke-[2]" />
                         </div>
-                    </CardContent>
-                </Card>
-                <Card className="border-warm-gray/60 bg-cream">
-                    <CardContent className="p-4 flex items-center justify-between">
+                    </div>
+                </div>
+                <div className="bg-[#FEFCF3] border-4 border-[#2b1b11] p-4 shadow-[4px_4px_0px_#2b1b11]">
+                    <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-sm font-medium text-muted-foreground">Week 5–7</p>
-                            <h3 className="text-2xl font-bold text-foreground">
+                            <p className="text-xs text-[#3c5443] font-bold">Week 5–7</p>
+                            <h3 className="text-2xl font-extrabold text-[#2b1b11]">
                                 {tryouts.filter(t => t.category && ["WEEK_5", "WEEK_6", "WEEK_7"].includes(t.category)).length}
                             </h3>
                         </div>
-                        <div className="w-10 h-10 rounded-full bg-earthy-gold/20 flex items-center justify-center">
-                            <ArrowRight className="w-5 h-5 text-earthy-gold" />
+                        <div className="w-10 h-10 bg-[#e87a5d]/20 border-2 border-[#2b1b11] flex items-center justify-center shadow-[2px_2px_0px_#2b1b11]">
+                            <ArrowRight className="w-5 h-5 text-[#e87a5d] stroke-[2]" />
                         </div>
-                    </CardContent>
-                </Card>
+                    </div>
+                </div>
             </div>
 
             {loading ? (
                 <div className="flex items-center justify-center py-20">
-                    <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+                    <Loader2 className="w-6 h-6 animate-spin text-[#2b1b11]" />
                 </div>
             ) : filteredTryouts.length === 0 ? (
-                <Card className="border-warm-gray/60">
-                    <CardContent className="flex flex-col items-center justify-center py-16 text-center">
-                        <div className="w-16 h-16 rounded-full bg-warm-beige flex items-center justify-center mb-4">
-                            <FileText className="w-8 h-8 text-muted-foreground" />
+                <div className="bg-[#FEFCF3] border-4 border-[#2b1b11] shadow-[4px_4px_0px_#2b1b11]">
+                    <div className="flex flex-col items-center justify-center py-16 text-center">
+                        <div className="w-14 h-14 bg-[#bed3c6] border-2 border-[#2b1b11] flex items-center justify-center shadow-[2px_2px_0px_#2b1b11] mb-4">
+                            <FileText className="w-7 h-7 text-[#2b1b11] stroke-[2]" />
                         </div>
-                        <h3 className="text-lg font-semibold text-foreground mb-2">Belum Ada Tryout</h3>
-                        <p className="text-sm text-muted-foreground">
-                            Belum ada tryout aktif saat ini. Cek kembali nanti!
-                        </p>
-                    </CardContent>
-                </Card>
+                        <h3 className="text-sm font-extrabold text-[#2b1b11] mb-1" style={{ fontFamily: "var(--font-press-start)" }}>Belum Ada Tryout</h3>
+                        <p className="text-xs text-[#3c5443] font-bold">Belum ada tryout aktif saat ini. Cek kembali nanti!</p>
+                    </div>
+                </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {filteredTryouts.map((tryout) => (
-                        <Card
+                        <div
                             key={tryout.id}
-                            className="border-warm-gray/60 hover:shadow-md hover:border-soft-brown/30 transition-all"
+                            className="bg-[#FEFCF3] border-4 border-[#2b1b11] shadow-[4px_4px_0px_#2b1b11] hover:-translate-y-1 hover:shadow-[6px_6px_0px_#2b1b11] transition-all"
                         >
-                            <CardHeader className="pb-3">
-                                <div className="flex items-start justify-between">
-                                    <div className="flex-1">
-                                        <Badge variant="secondary" className="mb-2 bg-warm-beige text-soft-brown text-xs">
-                                            {tryout.category
-                                                ? CATEGORY_LABELS[tryout.category]
-                                                : "Semua Materi"}
-                                        </Badge>
-                                        <CardTitle className="text-lg">{tryout.title}</CardTitle>
-                                    </div>
-                                </div>
-                            </CardHeader>
-                            <CardContent>
+                            <div className="p-4 border-b-2 border-[#2b1b11]/20">
+                                <span className="text-[10px] px-2 py-0.5 font-bold bg-[#bed3c6] text-[#2b1b11] border border-[#2b1b11] mb-2 inline-block">
+                                    {tryout.category ? CATEGORY_LABELS[tryout.category] : "Semua Materi"}
+                                </span>
+                                <h3 className="text-sm font-extrabold text-[#2b1b11]">{tryout.title}</h3>
+                            </div>
+                            <div className="p-4">
                                 {tryout.description && (
-                                    <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
-                                        {tryout.description}
-                                    </p>
+                                    <p className="text-xs text-[#3c5443] font-bold mb-3 line-clamp-2">{tryout.description}</p>
                                 )}
-                                <div className="flex items-center gap-4 text-xs text-muted-foreground mb-4">
+                                <div className="flex items-center gap-4 text-[10px] text-[#3c5443] font-bold mb-4">
                                     <div className="flex items-center gap-1">
-                                        <Clock className="w-3.5 h-3.5" />
+                                        <Clock className="w-3.5 h-3.5 stroke-[2]" />
                                         <span>{tryout.duration} menit</span>
                                     </div>
                                     <div className="flex items-center gap-1">
-                                        <FileText className="w-3.5 h-3.5" />
+                                        <FileText className="w-3.5 h-3.5 stroke-[2]" />
                                         <span>{tryout.tryout_questions?.[0]?.count || 0} soal</span>
                                     </div>
                                 </div>
                                 <Button
                                     asChild
-                                    className="w-full bg-dark-brown hover:bg-soft-brown text-cream"
+                                    className="w-full bg-[#e87a5d] hover:bg-[#d95a4f] text-[#FEFCF3] border-2 border-[#2b1b11] shadow-[2px_2px_0px_#2b1b11] rounded-none font-bold text-xs"
                                     size="sm"
                                 >
                                     <Link href={`/dashboard/tryouts/${tryout.id}`}>
                                         Mulai Tryout
-                                        <ArrowRight className="ml-2 w-4 h-4" />
+                                        <ArrowRight className="ml-2 w-4 h-4 stroke-[2]" />
                                     </Link>
                                 </Button>
-                            </CardContent>
-                        </Card>
+                            </div>
+                        </div>
                     ))}
                 </div>
             )}

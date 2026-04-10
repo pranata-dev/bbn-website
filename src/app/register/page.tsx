@@ -4,21 +4,18 @@ import { useState, useRef } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { BookOpen, Loader2, ArrowLeft } from "lucide-react"
 import { toast } from "sonner"
-import { APP_NAME } from "@/constants"
 import {
     ProductSelector,
     RegularClassForm,
-    UTSPackageForm,
     KelasBesarForm,
 } from "@/components/register"
 import type { RegularClassFormState } from "@/components/register"
-import type { UTSPackageFormState } from "@/components/register"
 import type { KelasBesarFormState } from "@/components/register"
 import type { RegistrationType } from "@/lib/validators/registration"
 import { WHATSAPP_REGEX } from "@/constants"
+import { useTheme } from "@/contexts/ThemeContext"
 
 const initialRegularData: RegularClassFormState = {
     name: "",
@@ -32,17 +29,6 @@ const initialRegularData: RegularClassFormState = {
     scheduledTime: "",
     whatsapp: "",
     notes: "",
-}
-
-const initialUTSData: UTSPackageFormState = {
-    name: "",
-    email: "",
-    password: "",
-    nim: "",
-    subject: "",
-    packageType: "",
-    price: 0,
-    whatsapp: "",
 }
 
 const initialKelasBesarData: KelasBesarFormState = {
@@ -62,7 +48,6 @@ export default function RegisterPage() {
 
     // Form states
     const [regularData, setRegularData] = useState<RegularClassFormState>(initialRegularData)
-    const [utsData, setUTSData] = useState<UTSPackageFormState>(initialUTSData)
     const [kelasBesarData, setKelasBesarData] = useState<KelasBesarFormState>(initialKelasBesarData)
 
     // Payment file states
@@ -76,7 +61,6 @@ export default function RegisterPage() {
 
     const handleProductSelect = (type: RegistrationType) => {
         setSelectedType(type)
-        // Reset payment when switching types
         if (paymentPreview) URL.revokeObjectURL(paymentPreview)
         setPaymentFile(null)
         setPaymentPreview(null)
@@ -109,8 +93,8 @@ export default function RegisterPage() {
             return false
         }
         const sessionCount = Number(regularData.sessionCount)
-        if (sessionCount < 1 || sessionCount > 30) {
-            toast.error("Jumlah pertemuan harus antara 1–30.")
+        if (sessionCount < 1 || sessionCount > 14) {
+            toast.error("Jumlah minggu harus antara 1–14.")
             return false
         }
         if (!regularData.scheduledDate) {
@@ -122,42 +106,6 @@ export default function RegisterPage() {
             return false
         }
         if (!WHATSAPP_REGEX.test(regularData.whatsapp)) {
-            toast.error("Format nomor WhatsApp tidak valid.")
-            return false
-        }
-        if (!paymentFile) {
-            toast.error("Mohon unggah bukti pembayaran.")
-            return false
-        }
-        return true
-    }
-
-    const validateUTS = (): boolean => {
-        if (!utsData.name || utsData.name.length < 3) {
-            toast.error("Nama minimal 3 karakter.")
-            return false
-        }
-        if (!utsData.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(utsData.email)) {
-            toast.error("Email tidak valid.")
-            return false
-        }
-        if (!utsData.password || utsData.password.length < 6) {
-            toast.error("Password minimal 6 karakter.")
-            return false
-        }
-        if (!utsData.nim || utsData.nim.length < 5) {
-            toast.error("NIM minimal 5 karakter.")
-            return false
-        }
-        if (!utsData.subject) {
-            toast.error("Pilih mata kuliah.")
-            return false
-        }
-        if (!utsData.packageType) {
-            toast.error("Pilih tipe paket.")
-            return false
-        }
-        if (!WHATSAPP_REGEX.test(utsData.whatsapp)) {
             toast.error("Format nomor WhatsApp tidak valid.")
             return false
         }
@@ -203,7 +151,6 @@ export default function RegisterPage() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
 
-        // Prevent double-click submission
         if (isSubmittingRef.current) return
         isSubmittingRef.current = true
 
@@ -213,12 +160,7 @@ export default function RegisterPage() {
             return
         }
 
-        // Validate based on type
         if (selectedType === "REGULAR" && !validateRegular()) {
-            isSubmittingRef.current = false
-            return
-        }
-        if (selectedType === "UTS" && !validateUTS()) {
             isSubmittingRef.current = false
             return
         }
@@ -246,15 +188,6 @@ export default function RegisterPage() {
                 formPayload.append("scheduledDate", regularData.scheduledDate)
                 formPayload.append("scheduledTime", regularData.scheduledTime)
                 formPayload.append("notes", regularData.notes)
-            } else if (selectedType === "UTS") {
-                formPayload.append("name", utsData.name)
-                formPayload.append("email", utsData.email)
-                formPayload.append("password", utsData.password)
-                formPayload.append("nim", utsData.nim)
-                formPayload.append("subject", utsData.subject)
-                formPayload.append("whatsapp", utsData.whatsapp)
-                formPayload.append("packageType", utsData.packageType)
-                formPayload.append("price", utsData.price.toString())
             } else if (selectedType === "KELAS_BESAR") {
                 formPayload.append("name", kelasBesarData.name)
                 formPayload.append("email", kelasBesarData.email)
@@ -285,48 +218,57 @@ export default function RegisterPage() {
         }
     }
 
-    return (
-        <div className="min-h-screen bg-gradient-to-b from-[#F8F5F0] to-[#EFE8DF] flex items-center justify-center p-4 py-12 md:py-16">
-            {/* Background decoration */}
-            <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
-                <div className="absolute -top-[10%] -left-[10%] w-[40%] h-[40%] bg-soft-brown/8 rounded-full blur-[120px]" />
-                <div className="absolute -bottom-[10%] -right-[10%] w-[50%] h-[50%] bg-soft-brown/6 rounded-full blur-[120px]" />
-                <div
-                    className="absolute inset-0 opacity-[0.015]"
-                    style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")` }}
-                />
-            </div>
+    const { isDark } = useTheme()
 
-            <div className="w-full max-w-6xl px-4 sm:px-6 lg:px-8">
+    return (
+        <div className={`relative min-h-screen flex items-center justify-center p-4 py-12 md:py-16 ${isDark ? "bg-[#0f1b2e]" : "bg-[#bed3c6]"}`}>
+            {/* Pixel Art Background */}
+            <div
+                className="fixed inset-0 z-0 opacity-80 [image-rendering:pixelated] [image-rendering:-moz-crisp-edges] [image-rendering:-webkit-optimize-contrast] [image-rendering:crisp-edges] [-ms-interpolation-mode:nearest-neighbor]"
+                style={{
+                    backgroundImage: isDark ? "url('/assets/background-only-malam.png')" : "url('/assets/background-only-2.png')",
+                    backgroundSize: "cover",
+                    backgroundPosition: "center center",
+                    backgroundRepeat: "no-repeat"
+                }}
+            />
+
+            <div className="w-full max-w-4xl px-4 sm:px-6 lg:px-8 z-10 relative">
                 {/* Back link */}
                 <Link
                     href="/"
-                    className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-10"
+                    className="inline-flex items-center gap-2 text-sm font-bold text-[#2b1b11] font-mono hover:text-[#e87a5d] transition-colors mb-8 bg-[#FEFCF3] border-2 border-[#2b1b11] px-4 py-2 shadow-[2px_2px_0px_#2b1b11] hover:shadow-[3px_3px_0px_#2b1b11] hover:-translate-y-0.5 transition-all"
                 >
-                    <ArrowLeft className="w-4 h-4" />
+                    <ArrowLeft className="w-4 h-4 stroke-[3]" />
                     Kembali ke beranda
                 </Link>
 
-                <Card className="border-dark-brown/10 shadow-xl shadow-dark-brown/5 overflow-hidden backdrop-blur-sm bg-white/95 shadow-[inset_0_1px_1px_rgba(255,255,255,0.8),inset_0_-1px_1px_rgba(0,0,0,0.02),0_10px_30px_-5px_rgba(107,91,62,0.1)]">
-                    <CardHeader className="text-center space-y-6 pt-10 pb-2">
-                        <div className="mx-auto w-12 h-12 rounded-xl bg-dark-brown flex items-center justify-center">
-                            <BookOpen className="w-6 h-6 text-cream" />
+                {/* Main Card */}
+                <div className="bg-[#FEFCF3] border-4 border-[#2b1b11] rounded-2xl shadow-[8px_8px_0px_#2b1b11] overflow-hidden">
+                    {/* Header */}
+                    <div className="text-center pt-8 pb-4 px-6 border-b-4 border-[#2b1b11] bg-[#bed3c6]">
+                        <div className="mx-auto w-12 h-12 bg-[#FEFCF3] border-2 border-[#2b1b11] flex items-center justify-center shadow-[2px_2px_0px_#2b1b11] mb-4">
+                            <BookOpen className="w-6 h-6 text-[#2b1b11] stroke-[2]" />
                         </div>
-                        <div>
-                            <CardTitle className="text-xl font-bold text-foreground">Daftar Sekarang</CardTitle>
-                            <CardDescription className="text-muted-foreground">
-                                Pilih layanan yang sesuai dengan kebutuhanmu di {APP_NAME}.
-                            </CardDescription>
-                        </div>
-                    </CardHeader>
+                        <h1
+                            className="text-xl md:text-2xl font-extrabold text-[#2b1b11] mb-2"
+                            style={{ fontFamily: "var(--font-press-start)", lineHeight: 1.4 }}
+                        >
+                            Daftar Sekarang
+                        </h1>
+                        <p className="text-xs md:text-sm text-[#3c5443] font-bold font-mono">
+                            Pilih layanan yang sesuai dengan kebutuhanmu.
+                        </p>
+                    </div>
 
-                    <CardContent className="p-6 md:p-10">
-                        <form onSubmit={handleSubmit} className="space-y-12" aria-label="Formulir pendaftaran">
+                    {/* Content */}
+                    <div className="p-6 md:p-10">
+                        <form onSubmit={handleSubmit} className="space-y-10" aria-label="Formulir pendaftaran">
                             {/* Step 1: Product Selection */}
                             <div className="space-y-5">
-                                <div className="flex items-center gap-2">
-                                    <span className="w-6 h-6 rounded-full bg-dark-brown text-cream text-xs font-bold flex items-center justify-center">1</span>
-                                    <p className="text-sm font-semibold text-foreground tracking-tight">
+                                <div className="flex items-center gap-3">
+                                    <span className="w-8 h-8 bg-[#e87a5d] border-2 border-[#2b1b11] text-[#FEFCF3] text-xs font-bold flex items-center justify-center shadow-[2px_2px_0px_#2b1b11] font-mono">1</span>
+                                    <p className="text-sm font-bold text-[#2b1b11] font-mono tracking-tight">
                                         Pilih Layanan
                                     </p>
                                 </div>
@@ -338,14 +280,10 @@ export default function RegisterPage() {
 
                             {/* Step 2: Dynamic Form */}
                             {selectedType && (
-                                <div
-                                    className="animate-fade-up"
-                                    style={{ animationDelay: "0.1s" }}
-                                >
-                                    {/* Step 2 header */}
-                                    <div className="flex items-center gap-2 mb-8">
-                                        <span className="w-6 h-6 rounded-full bg-dark-brown text-cream text-xs font-bold flex items-center justify-center">2</span>
-                                        <p className="text-sm font-semibold text-foreground tracking-tight">
+                                <div className="animate-fade-up" style={{ animationDelay: "0.1s" }}>
+                                    <div className="flex items-center gap-3 mb-8">
+                                        <span className="w-8 h-8 bg-[#e87a5d] border-2 border-[#2b1b11] text-[#FEFCF3] text-xs font-bold flex items-center justify-center shadow-[2px_2px_0px_#2b1b11] font-mono">2</span>
+                                        <p className="text-sm font-bold text-[#2b1b11] font-mono tracking-tight">
                                             Isi Detail
                                         </p>
                                     </div>
@@ -354,14 +292,6 @@ export default function RegisterPage() {
                                         <RegularClassForm
                                             formData={regularData}
                                             onChange={setRegularData}
-                                            paymentFile={paymentFile}
-                                            paymentPreview={paymentPreview}
-                                            onPaymentChange={handlePaymentChange}
-                                        />
-                                    ) : selectedType === "UTS" ? (
-                                        <UTSPackageForm
-                                            formData={utsData}
-                                            onChange={setUTSData}
                                             paymentFile={paymentFile}
                                             paymentPreview={paymentPreview}
                                             onPaymentChange={handlePaymentChange}
@@ -379,7 +309,7 @@ export default function RegisterPage() {
                                     {/* Submit */}
                                     <Button
                                         type="submit"
-                                        className="w-full bg-dark-brown hover:bg-soft-brown text-cream h-11 mt-6"
+                                        className="w-full bg-[#e87a5d] hover:bg-[#d95a4f] text-[#FEFCF3] h-12 mt-6 rounded-none border-2 border-[#2b1b11] shadow-[4px_4px_0px_#2b1b11] hover:shadow-[6px_6px_0px_#2b1b11] hover:-translate-y-1 transition-all font-bold font-mono text-base"
                                         disabled={isLoading}
                                     >
                                         {isLoading ? (
@@ -394,15 +324,15 @@ export default function RegisterPage() {
                                 </div>
                             )}
 
-                            <p className="text-center text-sm text-muted-foreground">
+                            <p className="text-center text-xs font-bold text-[#3c5443] font-mono">
                                 Sudah punya akun?{" "}
-                                <Link href="/login" className="text-dark-brown font-medium hover:underline">
+                                <Link href="/login" className="text-[#e87a5d] hover:underline">
                                     Masuk
                                 </Link>
                             </p>
                         </form>
-                    </CardContent>
-                </Card>
+                    </div>
+                </div>
             </div>
         </div>
     )
