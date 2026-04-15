@@ -19,7 +19,8 @@ import {
     ChevronDown,
     Check,
     Sun,
-    Moon
+    Moon,
+    PlusCircle
 } from "lucide-react"
 import { useState, useEffect } from "react"
 import { createClient } from "@/lib/supabase/client"
@@ -44,6 +45,7 @@ const navItems = [
     { id: "tryouts", href: "/dashboard/tryouts", label: "Tryout", icon: FileText, requiredFeature: "canAccessTryout" as keyof PackageFeatures },
     { id: "leaderboard", href: "/dashboard/leaderboard", label: "Leaderboard", icon: Trophy, requiredFeature: null },
     { id: "history", href: "/dashboard/history", label: "Riwayat", icon: History, requiredFeature: null },
+    { id: "beli-paket", href: "/dashboard/beli-paket", label: "Beli Paket", icon: PlusCircle, requiredFeature: null },
     { id: "profile", href: "/dashboard/profile", label: "Profil", icon: User, requiredFeature: null },
 ]
 
