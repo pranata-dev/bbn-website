@@ -58,32 +58,32 @@ export function FeaturesSection() {
                 {/* Cards Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                     <FeatureCard
-                        icon="/assets/ikon-buku-integral.webp"
+                        icon="/assets/ikon-buku-integral.png"
                         title={"Bank Soal\nLengkap"}
                         desc="Akses ribuan soal latihan dan pembahasan lengkap dari berbagai topik fisika."
                     />
                     <FeatureCard
-                        icon="/assets/ikon-kaca-pembesar.webp"
+                        icon="/assets/ikon-kaca-pembesar.png"
                         title={"Tryout dengan\nTimer"}
                         desc="Simulasi ujian nyata dengan batas waktu untuk melatih manajemen waktu dan mental."
                     />
                     <FeatureCard
-                        icon="/assets/ikon-lampu.webp"
+                        icon="/assets/ikon-lampu.png"
                         title={"Analisis\nPerforma"}
                         desc="Dapatkan laporan detail kekuatan dan kelemahanmu untuk belajar lebih efektif."
                     />
                     <FeatureCard
-                        icon="/assets/ikon-bar-hijau.webp"
+                        icon="/assets/ikon-bar-hijau.png"
                         title={"Leaderboard &\nRanking"}
                         desc="Bersaing dengan murid lain dan pantau posisimu dalam peringkat"
                     />
                     <FeatureCard
-                        icon="/assets/ikon-kunci.webp"
+                        icon="/assets/ikon-kunci.png"
                         title={"Anti-Cheating\nSystem"}
                         desc="Ujian yang aman dan adil dengan sistem deteksi kecurangan canggih."
                     />
                     <FeatureCard
-                        icon="/assets/ikon-tas.webp"
+                        icon="/assets/ikon-tas-berisi-buku.png"
                         title={"Scoring\nBerbobot"}
                         desc="Sistem penilaian yang adil dengan bobot soal yang berbeda-beda."
                     />

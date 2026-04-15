@@ -76,19 +76,19 @@ export function HowItWorksSection() {
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-y-20 md:gap-4 relative pb-0">
                     <StepCard
                         number="01"
-                        icon="/assets/ikon-pohon-1.webp"
+                        icon="/assets/ikon-pohon-1.png"
                         title="Daftar Akun"
                         desc="Isi data diri dan unggah bukti pembayaran untuk mendaftar."
                     />
                     <StepCard
                         number="02"
-                        icon="/assets/ikon-gelas-kopi.webp"
+                        icon="/assets/ikon-gelas-kopi.png"
                         title="Verifikasi"
                         desc="Admin akan memverifikasi pembayaranmu dan mengaktifkan akun."
                     />
                     <StepCard
                         number="03"
-                        icon="/assets/ikon-kunci.webp"
+                        icon="/assets/ikon-kunci.png"
                         title="Aktivasi Akun"
                         desc="Kamu akan menerima email aktivasi. Set password dan login."
                     />
@@ -99,7 +99,7 @@ export function HowItWorksSection() {
                                 04
                             </div>
                             <div className="relative w-14 h-14 drop-shadow-md">
-                                <Image src="/assets/ikon-buku-integral.webp" alt="Mulai Belajar" fill className="object-contain" />
+                                <Image src="/assets/ikon-buku-integral.png" alt="Mulai Belajar" fill className="object-contain" />
                             </div>
                         </div>
 
