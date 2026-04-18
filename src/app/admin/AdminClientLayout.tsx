@@ -17,6 +17,7 @@ import {
     X,
     Shield,
     BatteryWarning,
+    BookOpen,
 } from "lucide-react"
 import { useState } from "react"
 import { APP_NAME } from "@/constants"
@@ -25,6 +26,7 @@ const navItems = [
     { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
     { href: "/admin/payments", label: "Pembayaran", icon: CreditCard },
     { href: "/admin/users", label: "Pengguna", icon: Users },
+    { href: "/admin/materials", label: "Materi", icon: BookOpen },
     { href: "/admin/questions", label: "Soal", icon: HelpCircle },
     { href: "/admin/tryouts", label: "Tryout", icon: FileText },
     { href: "/admin/latihan", label: "Latihan Soal", icon: BatteryWarning },

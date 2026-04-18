@@ -60,6 +60,12 @@ export default function AdminTryoutsPage() {
     const [loadingQuestions, setLoadingQuestions] = useState(false)
     const [selectedQuestionIds, setSelectedQuestionIds] = useState<Set<string>>(new Set())
 
+    // Bulk actions state
+    const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
+    const [showBulkDeleteConfirm, setShowBulkDeleteConfirm] = useState(false)
+    const [isBulkDeleting, setIsBulkDeleting] = useState(false)
+    const [isBulkArchiving, setIsBulkArchiving] = useState(false)
+
     useEffect(() => {
         fetchTryouts()
     }, [filter])
@@ -89,6 +95,7 @@ export default function AdminTryoutsPage() {
 
     const fetchTryouts = async () => {
         try {
+            setSelectedIds(new Set()) // Reset selection
             const params = new URLSearchParams({ isPractice: "false" })
             if (filter !== "all") params.set("subject", filter)
             const res = await fetch(`/api/admin/tryouts?${params}`)
@@ -248,6 +255,77 @@ export default function AdminTryoutsPage() {
         }
     }
 
+    const handleSelectAll = (checked: boolean) => {
+        if (checked) {
+            setSelectedIds(new Set(tryouts.map(t => t.id)))
+        } else {
+            setSelectedIds(new Set())
+        }
+    }
+
+    const toggleSelect = (id: string) => {
+        const newSet = new Set(selectedIds)
+        if (newSet.has(id)) {
+            newSet.delete(id)
+        } else {
+            newSet.add(id)
+        }
+        setSelectedIds(newSet)
+    }
+
+    const handleBulkDelete = async () => {
+        if (selectedIds.size === 0) return
+        setIsBulkDeleting(true)
+
+        try {
+            const res = await fetch(`/api/admin/tryouts/bulk`, {
+                method: "DELETE",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ ids: Array.from(selectedIds) }),
+            })
+
+            if (!res.ok) {
+                const data = await res.json().catch(() => ({}))
+                throw new Error(data.error || "Gagal menghapus tryout massal")
+            }
+
+            toast.success(`${selectedIds.size} data berhasil dihapus.`)
+            setSelectedIds(new Set())
+            setShowBulkDeleteConfirm(false)
+            fetchTryouts()
+        } catch (error) {
+            toast.error(error instanceof Error ? error.message : "Gagal menghapus data massal.")
+        } finally {
+            setIsBulkDeleting(false)
+        }
+    }
+
+    const handleBulkArchive = async () => {
+        if (selectedIds.size === 0) return
+        setIsBulkArchiving(true)
+
+        try {
+            const res = await fetch(`/api/admin/tryouts/bulk`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ ids: Array.from(selectedIds), status: "ARCHIVED" }),
+            })
+
+            if (!res.ok) {
+                const data = await res.json().catch(() => ({}))
+                throw new Error(data.error || "Gagal mengarsipkan data massal")
+            }
+
+            toast.success(`${selectedIds.size} data berhasil diarsipkan.`)
+            setSelectedIds(new Set())
+            fetchTryouts()
+        } catch (error) {
+            toast.error(error instanceof Error ? error.message : "Gagal mengarsipkan data massal.")
+        } finally {
+            setIsBulkArchiving(false)
+        }
+    }
+
     // Group questions by category
     const questionsByCategory = availableQuestions.reduce<Record<string, any[]>>((acc, q) => {
         const cat = q.category || "UNCATEGORIZED"
@@ -297,11 +375,25 @@ export default function AdminTryoutsPage() {
                             <p className="text-sm text-muted-foreground">Belum ada tryout.</p>
                         </div>
                     ) : (
-                        <div className="divide-y divide-warm-gray/40">
-                            {tryouts.map((t) => (
-                                <div key={t.id} className="p-4 hover:bg-warm-beige/30 transition-colors">
-                                    <div className="flex items-start justify-between gap-4">
-                                        <div className="flex-1 min-w-0">
+                        <>
+                            <div className="flex items-center gap-3 px-4 py-3 bg-warm-beige/30 border-b border-warm-gray/40">
+                                <Checkbox 
+                                    checked={selectedIds.size > 0 && selectedIds.size === tryouts.length}
+                                    onCheckedChange={(checked) => handleSelectAll(checked as boolean)}
+                                />
+                                <span className="text-sm font-semibold text-foreground">Pilih Semua ({selectedIds.size} terpilih)</span>
+                            </div>
+                            <div className="divide-y divide-warm-gray/40">
+                                {tryouts.map((t) => (
+                                    <div key={t.id} className={`p-4 transition-colors ${selectedIds.has(t.id) ? "bg-emerald-50/50" : "hover:bg-warm-beige/30"}`}>
+                                        <div className="flex items-start justify-between gap-4">
+                                            <div className="pt-1 select-none shrink-0">
+                                                <Checkbox 
+                                                    checked={selectedIds.has(t.id)}
+                                                    onCheckedChange={() => toggleSelect(t.id)}
+                                                />
+                                            </div>
+                                            <div className="flex-1 min-w-0">
                                             <div className="flex items-center gap-2 mb-1">
                                                 <h3 className="font-semibold text-foreground text-lg">{t.title}</h3>
                                                 <Badge variant="secondary" className="bg-warm-beige text-soft-brown text-xs">
@@ -386,6 +478,7 @@ export default function AdminTryoutsPage() {
                                 </div>
                             ))}
                         </div>
+                        </>
                     )}
                 </CardContent>
             </Card>
@@ -578,6 +671,64 @@ export default function AdminTryoutsPage() {
                     </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialog>
+
+            {/* Bulk Delete Dialog */}
+            <AlertDialog open={showBulkDeleteConfirm} onOpenChange={setShowBulkDeleteConfirm}>
+                <AlertDialogContent className="border-4 border-red-600 shadow-[8px_8px_0px_#dc2626] rounded-none">
+                    <AlertDialogHeader>
+                        <AlertDialogTitle className="text-red-600 font-extrabold flex items-center gap-2" style={{ fontFamily: "var(--font-press-start)" }}>
+                            <Trash2 className="w-6 h-6" /> PERINGATAN HAPUS MASSAL!
+                        </AlertDialogTitle>
+                        <AlertDialogDescription className="font-mono text-[#2b1b11] font-medium mt-2 text-sm leading-relaxed">
+                            Menghapus <span className="font-bold text-red-600 bg-red-100 px-1">{selectedIds.size} tryout</span> ini akan ikut menghapus SEMUA riwayat nilai dan jawaban siswa terkait (Cascade Delete).
+                            <br /><br />
+                            Apakah Anda yakin? Tindakan ini <strong className="text-red-600">TIDAK DAPAT DIBATALKAN</strong>.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter className="mt-4">
+                        <AlertDialogCancel className="border-2 border-[#2b1b11] rounded-none shadow-[2px_2px_0px_#2b1b11] font-mono font-bold hover:bg-warm-beige text-[#2b1b11]">Batal</AlertDialogCancel>
+                        <AlertDialogAction 
+                            onClick={handleBulkDelete}
+                            disabled={isBulkDeleting}
+                            className="bg-red-600 border-2 border-red-800 text-white shadow-[2px_2px_0px_#991b1b] rounded-none font-mono font-bold hover:bg-red-700 hover:-translate-y-1 hover:shadow-[4px_4px_0px_#991b1b] transition-all"
+                        >
+                            {isBulkDeleting ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+                            Ya, Hapus Semua
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+
+            {/* Floating Bulk Action Bar */}
+            {selectedIds.size > 0 && (
+                <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 animate-in slide-in-from-bottom-5 fade-in duration-300">
+                    <div className="bg-[#FEFCF3] border-4 border-[#2b1b11] shadow-[8px_8px_0px_#2b1b11] p-3 flex w-[90vw] sm:w-[500px] flex-col sm:flex-row items-center justify-between gap-4">
+                        <span className="text-sm font-bold font-mono text-[#2b1b11] px-2">
+                            {selectedIds.size} tryout terpilih
+                        </span>
+                        <div className="flex items-center gap-2">
+                            <Button 
+                                variant="outline"
+                                className="bg-[#FEFCF3] border-2 border-[#2b1b11] shadow-[2px_2px_0px_#2b1b11] hover:-translate-y-1 hover:shadow-[4px_4px_0px_#2b1b11] text-[#2b1b11] rounded-none transition-all font-mono font-bold w-full sm:w-auto"
+                                onClick={handleBulkArchive}
+                                disabled={isBulkArchiving || isBulkDeleting}
+                            >
+                                {isBulkArchiving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Archive className="w-4 h-4 mr-2" />}
+                                Arsipkan
+                            </Button>
+                            <Button 
+                                variant="outline"
+                                className="bg-[#FEFCF3] border-2 border-[#2b1b11] shadow-[2px_2px_0px_#2b1b11] hover:-translate-y-1 hover:shadow-[4px_4px_0px_#2b1b11] hover:bg-red-50 text-red-600 rounded-none transition-all font-mono font-bold w-full sm:w-auto"
+                                onClick={() => setShowBulkDeleteConfirm(true)}
+                                disabled={isBulkArchiving || isBulkDeleting}
+                            >
+                                <Trash2 className="w-4 h-4 mr-2" />
+                                Hapus
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     )
 }

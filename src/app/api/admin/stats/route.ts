@@ -1,12 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createAdminClient } from "@/lib/supabase/server"
-import { checkRateLimit } from "@/lib/rate-limit"
 
 export async function GET(request: NextRequest) {
-    // 1. Rate Limiting
-    const rateLimitResponse = checkRateLimit(request)
-    if (rateLimitResponse) return rateLimitResponse
-
     try {
         const adminSupabase = await createAdminClient()
 

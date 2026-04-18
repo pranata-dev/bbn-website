@@ -270,3 +270,15 @@ enum RegistrationStatus {
   APPROVED
   REJECTED
 }
+
+model Material {
+  id         String   @id @default(uuid())
+  title      String
+  driveUrl   String   @map("drive_url")
+  podcastUrl String?  @map("podcast_url")
+  subject    Subject
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  @@map("materials")
+}
