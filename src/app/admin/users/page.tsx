@@ -97,8 +97,11 @@ export default function UsersPage() {
                 const data = await res.json()
                 throw new Error(data.error || "Gagal menghapus pengguna")
             }
+            
+            // Perbarui state UI secara langsung agar data hilang dari tabel tanpa delay
+            setUsers(prev => prev.filter(user => user.id !== deletingId))
             toast.success("Pengguna berhasil dihapus.")
-            fetchUsers()
+            
         } catch (error) {
             toast.error(error instanceof Error ? error.message : "Terjadi kesalahan")
         } finally {

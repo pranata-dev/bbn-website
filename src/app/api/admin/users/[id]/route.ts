@@ -38,8 +38,20 @@ export async function DELETE(
             const { error: authDeleteError } = await supabase.auth.admin.deleteUser(authId)
             
             if (authDeleteError) {
-                console.error("Failed to delete auth user:", authDeleteError)
-                return NextResponse.json({ error: `Failed to delete auth user: ${authDeleteError.message}` }, { status: 500 })
+                if (authDeleteError.status === 404 || authDeleteError.message.toLowerCase().includes("not found")) {
+                    console.warn(`Orphaned user detected for auth_id ${authId}, falling back to manual public.users deletion...`)
+                    const { error: deleteError } = await supabase
+                        .from("users")
+                        .delete()
+                        .eq("id", id)
+
+                    if (deleteError) {
+                        return NextResponse.json({ error: `Failed to delete orphaned public user: ${deleteError.message}` }, { status: 500 })
+                    }
+                } else {
+                    console.error("Failed to delete auth user:", authDeleteError)
+                    return NextResponse.json({ error: `Failed to delete auth user: ${authDeleteError.message}` }, { status: 500 })
+                }
             }
         } else {
             // 3. Fallback: If this is a legacy corrupted record with no auth_id, just delete the public profile
