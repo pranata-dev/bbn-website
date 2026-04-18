@@ -143,10 +143,17 @@ export function KelasBesarForm({
                     <span className="w-2 h-5 bg-[#e87a5d]"></span>
                     Investasi Belajar
                 </h4>
-                <div className="flex justify-between items-center mb-4 pb-3 border-b-2 border-[#2b1b11]/20">
-                    <span className="text-sm text-[#3c5443] font-bold">Biaya Kelas</span>
-                    <div className="flex items-center gap-2">
-                        <span className="text-sm font-bold line-through text-[#3c5443]/50">Rp 45.000</span>
+                <div className="flex justify-between items-end mb-4 pb-3 border-b-2 border-[#2b1b11]/20">
+                    <span className="text-sm text-[#3c5443] font-bold mb-1">Biaya Kelas</span>
+                    <div className="flex flex-col items-end">
+                        <div className="flex items-center gap-2 mb-1">
+                            <span className="inline-flex items-center text-[10px] font-bold bg-red-600 text-white px-1.5 py-0.5 rounded-sm outline outline-1 outline-red-600">
+                                Hemat 33%
+                            </span>
+                            <span className="line-through text-muted-foreground text-sm decoration-red-600 font-mono">
+                                Rp 45.000
+                            </span>
+                        </div>
                         <span className="text-lg font-bold text-[#e87a5d]">Rp 30.000</span>
                     </div>
                 </div>

@@ -42,10 +42,15 @@ export function UTSPackageSelector({ selected, onSelect }: UTSPackageSelectorPro
 
                         <div className="mb-6">
                             <div className="flex flex-col">
-                                {pkg.originalPrice && (
-                                    <span className="text-lg line-through text-muted-foreground/60 mb-0.5">
-                                        {formatRupiah(pkg.originalPrice)}
-                                    </span>
+                                {pkg.originalPrice && pkg.originalPrice > pkg.price && (
+                                    <div className="flex items-center gap-2 mb-1">
+                                        <span className="inline-flex items-center text-[10px] font-bold bg-red-600 text-white px-1.5 py-0.5 rounded-sm outline outline-1 outline-red-600">
+                                            Hemat {Math.round(((pkg.originalPrice - pkg.price) / pkg.originalPrice) * 100)}%
+                                        </span>
+                                        <span className="line-through text-muted-foreground text-sm decoration-red-600 font-mono">
+                                            {formatRupiah(pkg.originalPrice)}
+                                        </span>
+                                    </div>
                                 )}
                                 <div className="flex items-baseline">
                                     <span className="text-2xl font-black text-dark-brown">

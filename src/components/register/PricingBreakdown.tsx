@@ -46,17 +46,46 @@ export function PricingBreakdown({ groupSize, sessionCount }: PricingBreakdownPr
             <div className="border-t-2 border-[#2b1b11]/20" />
 
             {/* Total */}
-            <div className="flex justify-between items-baseline">
-                <span className="text-sm font-bold text-[#2b1b11]">
+            <div className="flex justify-between items-end">
+                <span className="text-sm font-bold text-[#2b1b11] mb-1">
                     Total yang harus dibayarkan
                 </span>
-                <span className="text-lg font-bold text-[#e87a5d]">
-                    {formatRupiah(pricing.subtotal)}
-                </span>
+                <div className="flex flex-col items-end">
+                    {(() => {
+                        const basePrice = pricing.pricePerPerson;
+                        const originalTotalPrice = basePrice * pricing.sessionCount;
+                        const finalPrice = pricing.subtotal;
+
+                        if (finalPrice < originalTotalPrice) {
+                            const discountPercentage = Math.round(((originalTotalPrice - finalPrice) / originalTotalPrice) * 100);
+                            return (
+                                <>
+                                    <div className="flex items-center gap-2 mb-1">
+                                        <span className="inline-flex items-center text-[10px] font-bold bg-red-600 text-white px-1.5 py-0.5 rounded-sm">
+                                            Hemat {discountPercentage}%
+                                        </span>
+                                        <span className="line-through text-muted-foreground text-sm decoration-red-600">
+                                            {formatRupiah(originalTotalPrice)}
+                                        </span>
+                                    </div>
+                                    <span className="text-lg font-bold text-[#e87a5d]">
+                                        {formatRupiah(finalPrice)}
+                                    </span>
+                                </>
+                            );
+                        } else {
+                            return (
+                                <span className="text-lg font-bold text-[#e87a5d]">
+                                    {formatRupiah(finalPrice)}
+                                </span>
+                            );
+                        }
+                    })()}
+                </div>
             </div>
 
             {/* Tariff note */}
-            <p className="text-xs text-[#3c5443] font-semibold leading-relaxed">
+            <p className="text-xs text-[#3c5443] font-semibold leading-relaxed mt-4">
                 Harga di atas adalah harga total untuk 1 orang.
                 Tarif sudah termasuk konsultasi tugas dan bebas bertanya selama 1 pekan.
                 Maksimal {MAX_WEEKS} minggu.
