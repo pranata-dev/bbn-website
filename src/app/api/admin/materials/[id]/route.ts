@@ -5,10 +5,10 @@ export const dynamic = "force-dynamic"
 
 export async function PATCH(
     request: NextRequest,
-    context: { params: { id: string } }
+    context: { params: Promise<{ id: string }> }
 ) {
     try {
-        const { id } = context.params
+        const { id } = await context.params
         const supabase = await createAdminClient()
         const body = await request.json()
         const { title, driveUrl, podcastUrl, subject } = body
@@ -46,10 +46,10 @@ export async function PATCH(
 
 export async function DELETE(
     request: NextRequest,
-    context: { params: { id: string } }
+    context: { params: Promise<{ id: string }> }
 ) {
     try {
-        const { id } = context.params
+        const { id } = await context.params
         const supabase = await createAdminClient()
 
         const { error } = await supabase
