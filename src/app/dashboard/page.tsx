@@ -27,14 +27,14 @@ export default async function DashboardPage() {
     return (
         <div className="space-y-8">
             {/* Welcome header */}
-            <div className="bg-[#FEFCF3] border-4 border-[#2b1b11] rounded-2xl p-6 shadow-[6px_6px_0px_#2b1b11]">
+            <div className="bg-[#FEFCF3] border-4 border-[#2b1b11] p-6 shadow-[8px_8px_0px_#2b1b11] inline-block">
                 <h1
-                    className="text-lg md:text-xl font-extrabold text-[#2b1b11] mb-1"
+                    className="text-xl md:text-2xl font-extrabold text-[#2b1b11] mb-3"
                     style={{ fontFamily: "var(--font-press-start)", lineHeight: 1.4 }}
                 >
                     Dashboard
                 </h1>
-                <p className="text-sm text-[#3c5443] font-bold font-mono">
+                <p className="text-sm font-bold text-[#3c5443] font-mono">
                     Halo {firstName}, selamat datang kembali! Pantau progres belajarmu di sini.
                 </p>
             </div>

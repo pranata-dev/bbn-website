@@ -72,16 +72,16 @@ export default function DashboardClient({ dbUser, subjectAccess }: DashboardClie
     // The previous logic used a single 'packageType' and 'usedQuota'.
 
     const tryoutStats = [
-        { label: "Tryout Selesai", value: dashboardData?.tryoutStats.completed ?? 0, icon: FileText, color: "text-dark-brown" },
-        { label: "Rata-rata Skor", value: `${dashboardData?.tryoutStats.avgScore ?? 0}%`, icon: Target, color: "text-earthy-green" },
-        { label: "Skor Tertinggi", value: `${dashboardData?.tryoutStats.highestScore ?? 0}%`, icon: TrendingUp, color: "text-earthy-gold" },
-        { label: "Peringkat", value: "-", icon: Trophy, color: "text-soft-brown" },
+        { label: "Tryout Selesai", value: dashboardData?.tryoutStats.completed ?? 0, icon: FileText, color: "bg-[#bed3c6]" },
+        { label: "Rata-rata Skor", value: `${dashboardData?.tryoutStats.avgScore ?? 0}%`, icon: Target, color: "bg-earthy-gold" },
+        { label: "Skor Tertinggi", value: `${dashboardData?.tryoutStats.highestScore ?? 0}%`, icon: TrendingUp, color: "bg-[#e87a5d]" },
+        { label: "Peringkat", value: "-", icon: Trophy, color: "bg-[#FEFCF3]" },
     ]
 
     const latihanStats = [
-        { label: "Latihan Selesai", value: dashboardData?.latihanStats.completed ?? 0, icon: BookOpen, color: "text-dark-brown" },
-        { label: "Rata-rata Skor", value: `${dashboardData?.latihanStats.avgScore ?? 0}%`, icon: Target, color: "text-earthy-green" },
-        { label: "Skor Tertinggi", value: `${dashboardData?.latihanStats.highestScore ?? 0}%`, icon: TrendingUp, color: "text-earthy-gold" },
+        { label: "Latihan Selesai", value: dashboardData?.latihanStats.completed ?? 0, icon: BookOpen, color: "bg-[#bed3c6]" },
+        { label: "Rata-rata Skor", value: `${dashboardData?.latihanStats.avgScore ?? 0}%`, icon: Target, color: "bg-earthy-gold" },
+        { label: "Skor Tertinggi", value: `${dashboardData?.latihanStats.highestScore ?? 0}%`, icon: TrendingUp, color: "bg-[#e87a5d]" },
     ]
 
     const formatDate = (dateStr: string) => {
@@ -101,18 +101,20 @@ export default function DashboardClient({ dbUser, subjectAccess }: DashboardClie
                 </h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     {tryoutStats.map((stat) => (
-                        <div key={stat.label} className="bg-[#FEFCF3] border-4 border-[#2b1b11] p-4 shadow-[4px_4px_0px_#2b1b11] hover:-translate-y-1 hover:shadow-[6px_6px_0px_#2b1b11] transition-all">
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <p className="text-xs text-[#3c5443] font-bold">{stat.label}</p>
-                                    {loading ? (
-                                        <Loader2 className="w-4 h-4 animate-spin text-[#2b1b11] mt-2" />
-                                    ) : (
-                                        <p className="text-2xl font-extrabold text-[#2b1b11] mt-1">{stat.value}</p>
-                                    )}
+                        <div key={stat.label} className="border-4 border-[#2b1b11] bg-[#FEFCF3] shadow-[6px_6px_0px_#2b1b11] hover:shadow-[8px_8px_0px_#2b1b11] hover:-translate-y-1 transition-all p-5">
+                            <div className="flex flex-col gap-4">
+                                <div className={`w-12 h-12 border-2 border-[#2b1b11] shadow-[2px_2px_0px_#2b1b11] flex items-center justify-center ${stat.color} shrink-0`}>
+                                    <stat.icon className={`w-6 h-6 stroke-[2.5] ${stat.color === 'bg-[#e87a5d]' ? 'text-[#FEFCF3]' : 'text-[#2b1b11]'}`} />
                                 </div>
-                                <div className="w-10 h-10 bg-[#bed3c6] border-2 border-[#2b1b11] flex items-center justify-center shadow-[2px_2px_0px_#2b1b11]">
-                                    <stat.icon className="w-5 h-5 text-[#2b1b11] stroke-[2]" />
+                                <div>
+                                    <p className="text-[11px] uppercase tracking-tighter font-extrabold text-[#3c5443] font-mono mb-1">{stat.label}</p>
+                                    <div className="flex items-center gap-2 mt-2">
+                                        {loading ? (
+                                            <Loader2 className="w-5 h-5 animate-spin text-[#2b1b11]" />
+                                        ) : (
+                                            <p className="text-2xl font-extrabold text-[#2b1b11]" style={{ fontFamily: "var(--font-press-start)" }}>{stat.value}</p>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -128,18 +130,20 @@ export default function DashboardClient({ dbUser, subjectAccess }: DashboardClie
                 </h2>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     {latihanStats.map((stat) => (
-                        <div key={stat.label} className="bg-[#FEFCF3] border-4 border-[#2b1b11] p-4 shadow-[4px_4px_0px_#2b1b11] hover:-translate-y-1 hover:shadow-[6px_6px_0px_#2b1b11] transition-all">
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <p className="text-xs text-[#3c5443] font-bold">{stat.label}</p>
-                                    {loading ? (
-                                        <Loader2 className="w-4 h-4 animate-spin text-[#2b1b11] mt-2" />
-                                    ) : (
-                                        <p className="text-2xl font-extrabold text-[#2b1b11] mt-1">{stat.value}</p>
-                                    )}
+                        <div key={stat.label} className="border-4 border-[#2b1b11] bg-[#FEFCF3] shadow-[6px_6px_0px_#2b1b11] hover:shadow-[8px_8px_0px_#2b1b11] hover:-translate-y-1 transition-all p-5">
+                            <div className="flex flex-col gap-4">
+                                <div className={`w-12 h-12 border-2 border-[#2b1b11] shadow-[2px_2px_0px_#2b1b11] flex items-center justify-center ${stat.color} shrink-0`}>
+                                    <stat.icon className={`w-6 h-6 stroke-[2.5] ${stat.color === 'bg-[#e87a5d]' ? 'text-[#FEFCF3]' : 'text-[#2b1b11]'}`} />
                                 </div>
-                                <div className="w-10 h-10 bg-[#bed3c6] border-2 border-[#2b1b11] flex items-center justify-center shadow-[2px_2px_0px_#2b1b11]">
-                                    <stat.icon className="w-5 h-5 text-[#2b1b11] stroke-[2]" />
+                                <div>
+                                    <p className="text-[11px] uppercase tracking-tighter font-extrabold text-[#3c5443] font-mono mb-1">{stat.label}</p>
+                                    <div className="flex items-center gap-2 mt-2">
+                                        {loading ? (
+                                            <Loader2 className="w-5 h-5 animate-spin text-[#2b1b11]" />
+                                        ) : (
+                                            <p className="text-2xl font-extrabold text-[#2b1b11]" style={{ fontFamily: "var(--font-press-start)" }}>{stat.value}</p>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -155,7 +159,7 @@ export default function DashboardClient({ dbUser, subjectAccess }: DashboardClie
                         Akses Mata Kuliah
                     </h2>
                     {subjectAccess.length === 0 ? (
-                        <div className="bg-[#FEFCF3] border-4 border-[#2b1b11] p-6 shadow-[4px_4px_0px_#2b1b11]">
+                        <div className="bg-[#FEFCF3] border-4 border-[#2b1b11] p-6 shadow-[8px_8px_0px_#2b1b11]">
                             <p className="text-center text-[#3c5443] text-sm font-bold">
                                 Kamu belum memiliki akses aktif ke mata kuliah apapun.
                             </p>
@@ -167,9 +171,9 @@ export default function DashboardClient({ dbUser, subjectAccess }: DashboardClie
                             const subjectLabel = access.subject === "FISDAS2" ? "Fisika Dasar 2" : "Fisika Matematika"
 
                             return (
-                                <div key={access.id} className="bg-[#FEFCF3] border-4 border-[#2b1b11] shadow-[4px_4px_0px_#2b1b11] overflow-hidden">
-                                    <div className="bg-[#bed3c6] px-4 py-2 border-b-2 border-[#2b1b11] flex justify-between items-center">
-                                        <span className="text-xs font-bold text-[#2b1b11]">{subjectLabel}</span>
+                                <div key={access.id} className="bg-[#FEFCF3] border-4 border-[#2b1b11] shadow-[8px_8px_0px_#2b1b11] overflow-hidden">
+                                    <div className="bg-[#bed3c6] px-4 py-3 border-b-4 border-[#2b1b11] flex justify-between items-center">
+                                        <span className="text-xs font-bold text-[#2b1b11]" style={{ fontFamily: "var(--font-press-start)" }}>{subjectLabel}</span>
                                         <span className="text-[10px] font-bold text-[#2b1b11] bg-[#FEFCF3] px-2 py-0.5 border border-[#2b1b11]">
                                             {access.role.replace("UTS_", "")}
                                         </span>
@@ -205,14 +209,14 @@ export default function DashboardClient({ dbUser, subjectAccess }: DashboardClie
                 </div>
 
                 {/* Recent activity */}
-                <div className="bg-[#FEFCF3] border-4 border-[#2b1b11] shadow-[4px_4px_0px_#2b1b11] overflow-hidden">
-                    <div className="flex items-center justify-between px-5 py-4 border-b-2 border-[#2b1b11]/20">
-                        <h3 className="text-sm font-extrabold text-[#2b1b11] flex items-center gap-2">
-                            <span className="w-1.5 h-4 bg-[#e87a5d]"></span>
+                <div className="bg-[#FEFCF3] border-4 border-[#2b1b11] shadow-[8px_8px_0px_#2b1b11] overflow-hidden">
+                    <div className="flex items-center justify-between p-4 md:p-6 border-b-4 border-[#2b1b11] bg-[#bed3c6]">
+                        <h3 className="text-sm md:text-base font-extrabold flex items-center gap-3 text-[#2b1b11]" style={{ fontFamily: "var(--font-press-start)", lineHeight: 1.4 }}>
+                            <Clock className="w-6 h-6 stroke-[3]" />
                             Aktivitas Terakhir
                         </h3>
-                        <Link href="/dashboard/history" className="text-[10px] font-bold text-[#e87a5d] hover:underline flex items-center gap-1">
-                            Lihat Semua
+                        <Link href="/dashboard/history" className="text-[10px] font-bold text-[#2b1b11] hover:-translate-y-0.5 transition-transform flex items-center gap-1 bg-[#FEFCF3] border-2 border-[#2b1b11] px-2 py-1 shadow-[2px_2px_0px_#2b1b11]">
+                            Semua
                             <ArrowRight className="w-3 h-3" />
                         </Link>
                     </div>
@@ -229,14 +233,14 @@ export default function DashboardClient({ dbUser, subjectAccess }: DashboardClie
                                         href={activity.type === "Tryout"
                                             ? `/dashboard/tryouts/${activity.tryoutId}/result`
                                             : `/dashboard/latihan/${activity.tryoutId}/result`}
-                                        className="flex items-center justify-between p-3 border-2 border-[#2b1b11]/20 hover:border-[#2b1b11] hover:bg-[#bed3c6]/20 transition-all"
+                                        className="flex items-center justify-between p-3 border-2 border-[#2b1b11] bg-[#FEFCF3] hover:bg-[#bed3c6] transition-colors shadow-[4px_4px_0px_#2b1b11]"
                                     >
                                         <div className="flex items-center gap-3 min-w-0">
                                             <div className={`w-8 h-8 flex items-center justify-center shrink-0 border-2 border-[#2b1b11] shadow-[1px_1px_0px_#2b1b11] ${
-                                                activity.type === "Tryout" ? "bg-[#e87a5d]/20" : "bg-[#bed3c6]"
+                                                activity.type === "Tryout" ? "bg-[#e87a5d]" : "bg-[#bed3c6]"
                                             }`}>
                                                 {activity.type === "Tryout" ? (
-                                                    <FileText className="w-4 h-4 text-[#e87a5d] stroke-[2]" />
+                                                    <FileText className="w-4 h-4 text-[#FEFCF3] stroke-[2]" />
                                                 ) : (
                                                     <BookOpen className="w-4 h-4 text-[#2b1b11] stroke-[2]" />
                                                 )}
@@ -246,8 +250,8 @@ export default function DashboardClient({ dbUser, subjectAccess }: DashboardClie
                                                 <div className="flex items-center gap-2">
                                                     <span className={`text-[10px] px-1.5 py-0 font-bold border border-[#2b1b11] ${
                                                         activity.type === "Tryout"
-                                                            ? "bg-[#e87a5d]/10 text-[#e87a5d]"
-                                                            : "bg-[#bed3c6] text-[#2b1b11]"
+                                                            ? "bg-earthy-gold text-[#2b1b11]"
+                                                            : "bg-[#e87a5d] text-[#FEFCF3]"
                                                     }`}>
                                                         {activity.type}
                                                     </span>
@@ -283,13 +287,17 @@ export default function DashboardClient({ dbUser, subjectAccess }: DashboardClie
             </div>
 
             {/* Performance overview */}
-            <div className="bg-[#FEFCF3] border-4 border-[#2b1b11] shadow-[4px_4px_0px_#2b1b11] overflow-hidden">
-                <div className="px-5 py-4 border-b-2 border-[#2b1b11]/20">
-                    <h3 className="text-sm font-extrabold text-[#2b1b11] flex items-center gap-2">
-                        <BarChart3 className="w-5 h-5 text-[#e87a5d] stroke-[2]" />
-                        Analisis Performa Per Materi
-                        <span className="text-[10px] font-bold bg-[#bed3c6] text-[#2b1b11] px-2 py-0.5 border border-[#2b1b11] ml-1">Tryout Only</span>
-                    </h3>
+            <div className="bg-[#FEFCF3] border-4 border-[#2b1b11] shadow-[8px_8px_0px_#2b1b11] overflow-hidden flex flex-col">
+                <div className="p-4 md:p-6 border-b-4 border-[#2b1b11] bg-earthy-gold">
+                    <div className="flex flex-col gap-3">
+                        <h3 className="text-sm md:text-base font-extrabold flex items-center gap-3 text-[#2b1b11]" style={{ fontFamily: "var(--font-press-start)", lineHeight: 1.4 }}>
+                            <BarChart3 className="w-6 h-6 stroke-[3]" />
+                            Analisis Performa Per Materi
+                        </h3>
+                        <div className="inline-flex w-fit px-3 py-1 bg-[#FEFCF3] border-2 border-[#2b1b11] shadow-[2px_2px_0px_#2b1b11]">
+                            <span className="text-[10px] uppercase font-bold font-mono text-[#2b1b11]">Tryout Only</span>
+                        </div>
+                    </div>
                 </div>
                 <div className="p-5">
                     {loading ? (

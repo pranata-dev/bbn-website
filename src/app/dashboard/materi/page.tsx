@@ -87,16 +87,7 @@ export default function MateriPage() {
 
     return (
         <div className="relative -m-6 sm:-m-8 min-h-screen">
-            {/* Dedicated materi background */}
-            <div
-                className="fixed inset-0 z-0 opacity-70 [image-rendering:pixelated] [image-rendering:-moz-crisp-edges] [image-rendering:-webkit-optimize-contrast] [image-rendering:crisp-edges] [-ms-interpolation-mode:nearest-neighbor]"
-                style={{
-                    backgroundImage: isDark ? "url('/assets/background-materi-malam.png')" : "url('/assets/background-materi.webp')",
-                    backgroundSize: "100% 100%",
-                    backgroundPosition: "center center",
-                    backgroundRepeat: "no-repeat"
-                }}
-            />
+            {/* No pixel art background to match admin style */}
 
             <div className="relative z-10 p-6 sm:p-8 space-y-8 font-mono">
                 {/* Header */}

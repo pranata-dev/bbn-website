@@ -191,12 +191,15 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
     const SidebarContent = () => (
         <div className="flex flex-col h-full font-mono bg-[#FEFCF3]">
             {/* Logo */}
-            <div className="p-5 border-b-4 border-[#2b1b11] text-center lg:text-left bg-[#bed3c6]">
-                <Link href="/dashboard" className="flex items-center gap-2 justify-center lg:justify-start">
-                    <div className="w-8 h-8 bg-[#FEFCF3] border-2 border-[#2b1b11] flex items-center justify-center shadow-[2px_2px_0px_#2b1b11]">
-                        <BookOpen className="w-4 h-4 text-[#2b1b11] stroke-[2]" />
+            <div className="p-6 border-b-4 border-[#2b1b11] bg-[#bed3c6]">
+                <Link href="/dashboard" className="flex items-center gap-3 justify-center lg:justify-start">
+                    <div className="w-10 h-10 bg-[#e87a5d] border-2 border-[#2b1b11] flex items-center justify-center shadow-[2px_2px_0px_#2b1b11]">
+                        <BookOpen className="w-5 h-5 text-[#FEFCF3] stroke-[2]" />
                     </div>
-                    <span className="font-bold text-[#2b1b11] tracking-tight">{APP_NAME}</span>
+                    <div>
+                        <span className="font-extrabold text-[#2b1b11] text-[10px] sm:text-xs block" style={{ fontFamily: "var(--font-press-start)", lineHeight: 1.4 }}>{APP_NAME}</span>
+                        <span className="text-[10px] text-[#3c5443] font-mono font-bold mt-1 block">Student Portal</span>
+                    </div>
                 </Link>
             </div>
 
@@ -208,9 +211,9 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
             </div>
 
             {/* Navigation */}
-            <ScrollArea className="flex-1 p-3">
-                <nav className="space-y-1.5">
-                    <TooltipProvider>
+            <ScrollArea className="flex-1 min-h-0 p-4">
+                <TooltipProvider>
+                    <nav className="flex flex-col gap-3">
                         {navItems.map((item) => {
                             const isActive = pathname === item.href
                             let isLocked = false
@@ -220,11 +223,11 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
 
                             const navContent = (
                                 <div
-                                    className={`flex items-center justify-between px-3 py-2.5 text-sm font-bold transition-all border-2 ${isActive && !isLocked
-                                        ? "bg-[#2b1b11] text-[#FEFCF3] border-[#2b1b11] shadow-[3px_3px_0px_#e87a5d]"
+                                    className={`flex items-center justify-between px-4 py-3 text-sm font-bold font-mono transition-all border-2 border-[#2b1b11] ${isActive && !isLocked
+                                        ? "bg-[#e87a5d] text-[#FEFCF3] shadow-[4px_4px_0px_#2b1b11] -translate-y-1"
                                         : isLocked
-                                            ? "text-[#2b1b11]/30 bg-[#bed3c6]/20 border-transparent cursor-not-allowed"
-                                            : "text-[#3c5443] border-transparent hover:bg-[#bed3c6]/40 hover:border-[#2b1b11]/30 hover:text-[#2b1b11]"
+                                            ? "text-[#2b1b11]/40 bg-[#bed3c6]/40 border-[#2b1b11]/50 cursor-not-allowed shadow-[2px_2px_0px_#2b1b11]/50"
+                                            : "bg-[#FEFCF3] text-[#2b1b11] shadow-[2px_2px_0px_#2b1b11] hover:bg-[#bed3c6] hover:shadow-[4px_4px_0px_#2b1b11] hover:-translate-y-1"
                                         }`}
                                 >
                                     <div className="flex items-center gap-3">
@@ -243,7 +246,7 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
                                 return (
                                     <Tooltip key={item.id}>
                                         <TooltipTrigger asChild>
-                                            <div className="w-full text-left">{navContent}</div>
+                                            <div className="w-full text-left block">{navContent}</div>
                                         </TooltipTrigger>
                                         <TooltipContent side="right" className="bg-[#2b1b11] text-[#FEFCF3] border-2 border-[#e87a5d] font-mono text-xs">
                                             <p>{lockdownMessage}</p>
@@ -257,30 +260,32 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
                                     key={item.id}
                                     href={item.href}
                                     onClick={() => setSidebarOpen(false)}
+                                    className="block"
                                 >
                                     {navContent}
                                 </Link>
                             )
                         })}
-                    </TooltipProvider>
-                </nav>
+                    </nav>
+                </TooltipProvider>
             </ScrollArea>
 
             {/* Logout + Theme Toggle */}
-            <div className="p-3 border-t-2 border-[#2b1b11]/20 space-y-2">
-                <button
-                    onClick={toggleTheme}
-                    className="w-full flex items-center gap-3 px-3 py-2 text-sm font-bold font-mono text-[#2b1b11] hover:bg-[#bed3c6]/50 border-2 border-transparent hover:border-[#2b1b11]/20 transition-all"
-                >
-                    {isDark ? <Sun className="w-4 h-4 stroke-[2] text-[#e87a5d]" /> : <Moon className="w-4 h-4 stroke-[2]" />}
-                    {isDark ? "Mode Terang" : "Mode Malam"}
-                </button>
+            <div className="p-4 border-t-4 border-[#2b1b11] bg-[#FEFCF3] space-y-3">
                 <Button
-                    variant="ghost"
-                    className="w-full justify-start text-[#e87a5d] hover:text-[#d95a4f] hover:bg-[#e87a5d]/10 font-bold font-mono border-2 border-transparent hover:border-[#e87a5d]/30"
+                    variant="outline"
+                    onClick={toggleTheme}
+                    className="w-full h-12 justify-start bg-[#FEFCF3] hover:bg-[#bed3c6] text-[#2b1b11] border-2 border-[#2b1b11] shadow-[4px_4px_0px_#2b1b11] hover:shadow-[6px_6px_0px_#2b1b11] hover:-translate-y-1 transition-all rounded-none font-bold font-mono"
+                >
+                    {isDark ? <Sun className="w-4 h-4 mr-3 stroke-[3] text-[#e87a5d]" /> : <Moon className="w-4 h-4 mr-3 stroke-[3]" />}
+                    {isDark ? "Mode Terang" : "Mode Malam"}
+                </Button>
+                <Button
+                    variant="outline"
+                    className="w-full h-12 justify-start bg-[#FEFCF3] hover:bg-[#e87a5d] text-[#e87a5d] hover:text-[#FEFCF3] border-2 border-[#2b1b11] shadow-[4px_4px_0px_#2b1b11] hover:shadow-[6px_6px_0px_#2b1b11] hover:-translate-y-1 transition-all rounded-none font-bold font-mono"
                     onClick={handleLogout}
                 >
-                    <LogOut className="w-4 h-4 mr-3 stroke-[2]" />
+                    <LogOut className="w-4 h-4 mr-3 stroke-[3]" />
                     Keluar
                 </Button>
             </div>
@@ -293,50 +298,15 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
         <div className={`relative min-h-screen ${isDark ? "bg-[#0f1b2e]" : "bg-[#bed3c6]"}`}>
             <UserPresenceTracker />
 
-            {/* Pixel Art Background — per-route + theme */}
-            {(() => {
-                const isMateri = pathname.startsWith("/dashboard/materi")
-                const isLatihan = pathname.startsWith("/dashboard/latihan")
-                const isTryout = pathname.startsWith("/dashboard/tryouts")
-
-                if (isMateri) {
-                    return null
-                }
-
-                if (isLatihan || isTryout) {
-                    return (
-                        <div
-                            className="fixed inset-0 z-0 opacity-70 [image-rendering:pixelated] [image-rendering:-moz-crisp-edges] [image-rendering:-webkit-optimize-contrast] [image-rendering:crisp-edges] [-ms-interpolation-mode:nearest-neighbor]"
-                            style={{
-                                backgroundImage: isDark ? "url('/assets/background-latihan-tryout-malam.png')" : "url('/assets/background-latihan-tryout-3.png')",
-                                backgroundSize: "100% 100%",
-                                backgroundPosition: "center center",
-                                backgroundRepeat: "no-repeat"
-                            }}
-                        />
-                    )
-                }
-
-                return (
-                    <div
-                        className="fixed inset-0 z-0 opacity-60 [image-rendering:pixelated] [image-rendering:-moz-crisp-edges] [image-rendering:-webkit-optimize-contrast] [image-rendering:crisp-edges] [-ms-interpolation-mode:nearest-neighbor]"
-                        style={{
-                            backgroundImage: isDark ? "url('/assets/background-only-malam.png')" : "url('/assets/background-only-2.png')",
-                            backgroundSize: "cover",
-                            backgroundPosition: "center center",
-                            backgroundRepeat: "no-repeat"
-                        }}
-                    />
-                )
-            })()}
+            {/* No pixel art background to match admin style */}
 
             {/* Mobile header */}
-            <div className={`lg:hidden flex items-center justify-between p-4 border-b-4 relative z-20 ${isDark ? "border-[#e87a5d] bg-[#1a1a2e]" : "border-[#2b1b11] bg-[#bed3c6]"}`}>
-                <Link href="/dashboard" className="flex items-center gap-2">
-                    <div className={`w-8 h-8 border-2 flex items-center justify-center shadow-[2px_2px_0px] shrink-0 ${isDark ? "bg-[#16213e] border-[#e87a5d] shadow-[#e87a5d]" : "bg-[#FEFCF3] border-[#2b1b11] shadow-[#2b1b11]"}`}>
-                        <BookOpen className={`w-4 h-4 stroke-[2] ${isDark ? "text-[#e87a5d]" : "text-[#2b1b11]"}`} />
+            <div className={`lg:hidden flex items-center justify-between p-4 border-b-4 sticky top-0 z-40 ${isDark ? "border-[#e87a5d] bg-[#1a1a2e]" : "border-[#2b1b11] bg-[#FEFCF3]"}`}>
+                <Link href="/dashboard" className="flex items-center gap-3">
+                    <div className={`w-8 h-8 border-2 flex items-center justify-center shadow-[2px_2px_0px] shrink-0 ${isDark ? "bg-[#e87a5d] border-[#e87a5d] shadow-[#e87a5d]" : "bg-[#e87a5d] border-[#2b1b11] shadow-[#2b1b11]"}`}>
+                        <BookOpen className={`w-4 h-4 stroke-[2] text-[#FEFCF3]`} />
                     </div>
-                    <span className={`font-bold text-sm font-mono ${isDark ? "text-[#FEFCF3]" : "text-[#2b1b11]"}`}>{APP_NAME}</span>
+                    <span className={`font-extrabold text-[9px] ${isDark ? "text-[#FEFCF3]" : "text-[#2b1b11]"}`} style={{ fontFamily: "var(--font-press-start)" }}>Student</span>
                 </Link>
                 <div className="flex items-center gap-2">
                     <button
