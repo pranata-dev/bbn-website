@@ -1,353 +1,380 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
 import Link from "next/link"
-import { useSubject } from "@/contexts/SubjectContext"
-import {
-    FileText,
-    Trophy,
-    Target,
-    TrendingUp,
-    ArrowRight,
-    Clock,
-    Lock,
-    Unlock,
-    Loader2,
-    BookOpen,
-    BarChart3,
-} from "lucide-react"
-import { getPackageFeatures } from "@/lib/package-features"
-import { useTheme } from "@/contexts/ThemeContext"
-import { PackageType } from "@prisma/client"
+import { useRouter } from "next/navigation"
+import { createClient } from "@/lib/supabase/client"
 
-interface DashboardData {
-    recentActivity: {
-        id: string
-        tryoutId: string
-        title: string
-        type: "Tryout" | "Latihan"
-        score: number | null
-        correctCount: number | null
-        totalCount: number | null
-        createdAt: string
-    }[]
-    tryoutStats: { completed: number; avgScore: number; highestScore: number }
-    latihanStats: { completed: number; avgScore: number; highestScore: number }
-    performancePerMateri: { category: string; avgScore: number; totalAttempts: number }[]
+export interface CourseItem {
+  name: string
+  slug: string
+}
+
+// -------------------------------------------------------------
+// COURSE CONSTANTS (With Slugs for Routing)
+// -------------------------------------------------------------
+export const PHYSICS_COURSES: CourseItem[] = [
+  { name: "Mekanika Newton", slug: "mekanika-newton" },
+  { name: "Fisika-Matematika Lanjut", slug: "fisika-matematika-lanjut" },
+  { name: "Gelombang", slug: "gelombang" },
+  { name: "Elektrostatika", slug: "elektrostatika" },
+  { name: "Termodinamika", slug: "termodinamika" },
+  { name: "Fisika Komputasi", slug: "fisika-komputasi" },
+]
+
+export const GENERAL_COURSES: CourseItem[] = [
+  { name: "Fisika Dasar 1", slug: "fisika-dasar-1" },
+  { name: "Fisika Dasar 2", slug: "fisika-dasar-2" },
+  { name: "Statistika dan Analisis Data", slug: "statistika-dan-analisis-data" },
+  { name: "Matematika 1", slug: "matematika-1" },
+]
+
+export interface UserDashboardState {
+  name: string
+  email?: string
+  student_category: "PHYSICS_SEM_3" | "NON_PHYSICS"
+  package_type: string
+  billing_cycle: string
 }
 
 interface DashboardClientProps {
-    dbUser: any
-    subjectAccess: any[]
+  dbUser?: any
+  subjectAccess?: any[]
 }
 
-export default function DashboardClient({ dbUser, subjectAccess }: DashboardClientProps) {
-    const [dashboardData, setDashboardData] = useState<DashboardData | null>(null)
-    const [loading, setLoading] = useState(true)
-    const { selectedSubject } = useSubject()
+export default function DashboardClient({ dbUser }: DashboardClientProps) {
+  const router = useRouter()
+  const [user, setUser] = useState<UserDashboardState | null>(null)
+  const [loading, setLoading] = useState(true)
 
-    useEffect(() => {
-        const loadStats = async () => {
-            setLoading(true)
-            try {
-                const res = await fetch(`/api/dashboard/stats?subject=${selectedSubject}`)
-                if (res.ok) {
-                    const data = await res.json()
-                    setDashboardData(data)
-                }
-            } catch (error) {
-                console.error("Failed to load dashboard stats:", error)
-            } finally {
-                setLoading(false)
-            }
+  // 1. Supabase Session & User Profile Fetching
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const supabase = createClient()
+        const {
+          data: { user: authUser },
+        } = await supabase.auth.getUser()
+
+        if (!authUser && !dbUser) {
+          router.push("/login")
+          return
         }
-        loadStats()
-    }, [selectedSubject])
 
+        let profile = dbUser
+        if (!profile && authUser) {
+          const { data } = await supabase
+            .from("users")
+            .select("name, full_name, email, student_category, package_type, billing_cycle")
+            .eq("auth_id", authUser.id)
+            .single()
+          profile = data
+        }
 
-    // Aggregate features or use a specific one? For now, we'll map per subject.
-    // The previous logic used a single 'packageType' and 'usedQuota'.
+        const name =
+          profile?.name ||
+          profile?.full_name ||
+          authUser?.user_metadata?.full_name ||
+          authUser?.user_metadata?.name ||
+          authUser?.email?.split("@")[0] ||
+          "Pelajar"
 
-    const tryoutStats = [
-        { label: "Tryout Selesai", value: dashboardData?.tryoutStats.completed ?? 0, icon: FileText, color: "bg-[#bed3c6]" },
-        { label: "Rata-rata Skor", value: `${dashboardData?.tryoutStats.avgScore ?? 0}%`, icon: Target, color: "bg-earthy-gold" },
-        { label: "Skor Tertinggi", value: `${dashboardData?.tryoutStats.highestScore ?? 0}%`, icon: TrendingUp, color: "bg-[#e87a5d]" },
-        { label: "Peringkat", value: "-", icon: Trophy, color: "bg-[#FEFCF3]" },
-    ]
+        const studentCategory =
+          (profile?.student_category as "PHYSICS_SEM_3" | "NON_PHYSICS") ||
+          "PHYSICS_SEM_3"
 
-    const latihanStats = [
-        { label: "Latihan Selesai", value: dashboardData?.latihanStats.completed ?? 0, icon: BookOpen, color: "bg-[#bed3c6]" },
-        { label: "Rata-rata Skor", value: `${dashboardData?.latihanStats.avgScore ?? 0}%`, icon: Target, color: "bg-earthy-gold" },
-        { label: "Skor Tertinggi", value: `${dashboardData?.latihanStats.highestScore ?? 0}%`, icon: TrendingUp, color: "bg-[#e87a5d]" },
-    ]
+        const packageType = profile?.package_type || "EINSTEIN"
+        const billingCycle = profile?.billing_cycle || "SEMESTER"
 
-    const formatDate = (dateStr: string) => {
-        const date = new Date(dateStr)
-        return date.toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" })
+        setUser({
+          name,
+          email: profile?.email || authUser?.email,
+          student_category: studentCategory,
+          package_type: packageType,
+          billing_cycle: billingCycle,
+        })
+      } catch (error) {
+        console.error("Failed to load user profile:", error)
+        // Fallback user state
+        setUser({
+          name: dbUser?.name || "Pelajar",
+          student_category: "PHYSICS_SEM_3",
+          package_type: "EINSTEIN",
+          billing_cycle: "SEMESTER",
+        })
+      } finally {
+        setLoading(false)
+      }
     }
 
-    const { isDark } = useTheme()
+    fetchUserData()
+  }, [dbUser, router])
 
+  // 2. Derived Active Courses list based on student_category
+  const activeCourses =
+    user?.student_category === "PHYSICS_SEM_3"
+      ? PHYSICS_COURSES
+      : GENERAL_COURSES
+
+  // Package display helper
+  const getPackageDisplayName = () => {
+    if (!user) return "Einstein Mode - Semester Pass"
+    const pkgMap: Record<string, string> = {
+      FLUX: "Flux Session",
+      flux_monthly: "Flux Session",
+      SENKU: "Berotak Senku Mode",
+      senku_monthly: "Berotak Senku Mode",
+      senku_semester: "Berotak Senku Semester",
+      EINSTEIN: "Einstein Mode",
+      einstein_monthly: "Einstein Mode",
+      einstein_semester: "Einstein Semester Pass",
+    }
+    const cycleMap: Record<string, string> = {
+      MONTHLY: "Bulanan",
+      bulanan: "Bulanan",
+      SEMESTER: "Semester Pass",
+      semester: "Semester Pass",
+    }
+
+    const pkgName = pkgMap[user.package_type] || "Einstein Mode"
+    const cycleName = cycleMap[user.billing_cycle] || "Semester Pass"
+    return `${pkgName} - ${cycleName}`
+  }
+
+  const canAccessTryout =
+    !user ||
+    user.package_type.toUpperCase().includes("SENKU") ||
+    user.package_type.toUpperCase().includes("EINSTEIN")
+
+  // Loading State Skeleton
+  if (loading) {
     return (
-        <div className="space-y-8 font-mono">
-            {/* Tryout Stats grid */}
-            <div>
-                <h2 className={`text-xs font-bold uppercase tracking-wider mb-3 flex items-center gap-2 ${isDark ? "text-[#FEFCF3]" : "text-[#2b1b11]"}`}>
-                    <span className="w-1.5 h-4 bg-[#e87a5d]"></span>
-                    Statistik Tryout
-                </h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    {tryoutStats.map((stat) => (
-                        <div key={stat.label} className="border-4 border-[#2b1b11] bg-[#FEFCF3] shadow-[6px_6px_0px_#2b1b11] hover:shadow-[8px_8px_0px_#2b1b11] hover:-translate-y-1 transition-all p-5">
-                            <div className="flex flex-col gap-4">
-                                <div className={`w-12 h-12 border-2 border-[#2b1b11] shadow-[2px_2px_0px_#2b1b11] flex items-center justify-center ${stat.color} shrink-0`}>
-                                    <stat.icon className={`w-6 h-6 stroke-[2.5] ${stat.color === 'bg-[#e87a5d]' ? 'text-[#FEFCF3]' : 'text-[#2b1b11]'}`} />
-                                </div>
-                                <div>
-                                    <p className="text-[11px] uppercase tracking-tighter font-extrabold text-[#3c5443] font-mono mb-1">{stat.label}</p>
-                                    <div className="flex items-center gap-2 mt-2">
-                                        {loading ? (
-                                            <Loader2 className="w-5 h-5 animate-spin text-[#2b1b11]" />
-                                        ) : (
-                                            <p className="text-2xl font-extrabold text-[#2b1b11]" style={{ fontFamily: "var(--font-press-start)" }}>{stat.value}</p>
-                                        )}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            </div>
-
-            {/* Latihan Stats grid */}
-            <div>
-                <h2 className={`text-xs font-bold uppercase tracking-wider mb-3 flex items-center gap-2 ${isDark ? "text-[#FEFCF3]" : "text-[#2b1b11]"}`}>
-                    <span className="w-1.5 h-4 bg-[#e87a5d]"></span>
-                    Statistik Latihan Soal
-                </h2>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    {latihanStats.map((stat) => (
-                        <div key={stat.label} className="border-4 border-[#2b1b11] bg-[#FEFCF3] shadow-[6px_6px_0px_#2b1b11] hover:shadow-[8px_8px_0px_#2b1b11] hover:-translate-y-1 transition-all p-5">
-                            <div className="flex flex-col gap-4">
-                                <div className={`w-12 h-12 border-2 border-[#2b1b11] shadow-[2px_2px_0px_#2b1b11] flex items-center justify-center ${stat.color} shrink-0`}>
-                                    <stat.icon className={`w-6 h-6 stroke-[2.5] ${stat.color === 'bg-[#e87a5d]' ? 'text-[#FEFCF3]' : 'text-[#2b1b11]'}`} />
-                                </div>
-                                <div>
-                                    <p className="text-[11px] uppercase tracking-tighter font-extrabold text-[#3c5443] font-mono mb-1">{stat.label}</p>
-                                    <div className="flex items-center gap-2 mt-2">
-                                        {loading ? (
-                                            <Loader2 className="w-5 h-5 animate-spin text-[#2b1b11]" />
-                                        ) : (
-                                            <p className="text-2xl font-extrabold text-[#2b1b11]" style={{ fontFamily: "var(--font-press-start)" }}>{stat.value}</p>
-                                        )}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            </div>
-
-            {/* Quick actions & Package specifics */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-4">
-                    <h2 className={`text-xs font-bold uppercase tracking-wider flex items-center gap-2 ${isDark ? "text-[#FEFCF3]" : "text-[#2b1b11]"}`}>
-                        <span className="w-1.5 h-4 bg-[#e87a5d]"></span>
-                        Akses Mata Kuliah
-                    </h2>
-                    {subjectAccess.length === 0 ? (
-                        <div className="bg-[#FEFCF3] border-4 border-[#2b1b11] p-6 shadow-[8px_8px_0px_#2b1b11]">
-                            <p className="text-center text-[#3c5443] text-sm font-bold">
-                                Kamu belum memiliki akses aktif ke mata kuliah apapun.
-                            </p>
-                        </div>
-                    ) : (
-                        subjectAccess.map((access) => {
-                            const features = getPackageFeatures(access.package_type, access.role, access.subject)
-                            const remainingTryouts = Math.max(0, features.tryoutLimit - access.tryout_attempts_used)
-                            const subjectLabel = access.subject === "FISDAS2" ? "Fisika Dasar 2" : "Fisika Matematika"
-
-                            return (
-                                <div key={access.id} className="bg-[#FEFCF3] border-4 border-[#2b1b11] shadow-[8px_8px_0px_#2b1b11] overflow-hidden">
-                                    <div className="bg-[#bed3c6] px-4 py-3 border-b-4 border-[#2b1b11] flex justify-between items-center">
-                                        <span className="text-xs font-bold text-[#2b1b11]" style={{ fontFamily: "var(--font-press-start)" }}>{subjectLabel}</span>
-                                        <span className="text-[10px] font-bold text-[#2b1b11] bg-[#FEFCF3] px-2 py-0.5 border border-[#2b1b11]">
-                                            {access.role.replace("UTS_", "")}
-                                        </span>
-                                    </div>
-                                    <div className="p-4">
-                                        <div className="flex items-center justify-between">
-                                            <div className="flex items-center gap-3">
-                                                <div className="w-8 h-8 bg-[#bed3c6] border-2 border-[#2b1b11] flex items-center justify-center shadow-[1px_1px_0px_#2b1b11]">
-                                                    <FileText className="w-4 h-4 text-[#2b1b11] stroke-[2]" />
-                                                </div>
-                                                <div>
-                                                    <p className="text-xs text-[#3c5443] font-bold">Kuota Tryout</p>
-                                                    <p className="text-sm font-extrabold text-[#2b1b11]">
-                                                        {features.canAccessTryout ? `${remainingTryouts} Tersisa` : "Tidak Ada"}
-                                                    </p>
-                                                </div>
-                                            </div>
-                                            {features.canAccessTryout && remainingTryouts > 0 ? (
-                                                <Button size="sm" asChild className="text-[10px] h-7 px-3 bg-[#e87a5d] hover:bg-[#d95a4f] text-[#FEFCF3] border-2 border-[#2b1b11] shadow-[2px_2px_0px_#2b1b11] rounded-none font-bold">
-                                                    <Link href="/dashboard/tryouts">Mulai</Link>
-                                                </Button>
-                                            ) : (
-                                                <span className="text-[10px] font-bold text-[#2b1b11]/40 flex items-center gap-1">
-                                                    <Lock className="w-3 h-3" /> Habis
-                                                </span>
-                                            )}
-                                        </div>
-                                    </div>
-                                </div>
-                            )
-                        })
-                    )}
-                </div>
-
-                {/* Recent activity */}
-                <div className="bg-[#FEFCF3] border-4 border-[#2b1b11] shadow-[8px_8px_0px_#2b1b11] overflow-hidden">
-                    <div className="flex items-center justify-between p-4 md:p-6 border-b-4 border-[#2b1b11] bg-[#bed3c6]">
-                        <h3 className="text-sm md:text-base font-extrabold flex items-center gap-3 text-[#2b1b11]" style={{ fontFamily: "var(--font-press-start)", lineHeight: 1.4 }}>
-                            <Clock className="w-6 h-6 stroke-[3]" />
-                            Aktivitas Terakhir
-                        </h3>
-                        <Link href="/dashboard/history" className="text-[10px] font-bold text-[#2b1b11] hover:-translate-y-0.5 transition-transform flex items-center gap-1 bg-[#FEFCF3] border-2 border-[#2b1b11] px-2 py-1 shadow-[2px_2px_0px_#2b1b11]">
-                            Semua
-                            <ArrowRight className="w-3 h-3" />
-                        </Link>
-                    </div>
-                    <div className="p-4">
-                        {loading ? (
-                            <div className="flex items-center justify-center py-8">
-                                <Loader2 className="w-6 h-6 animate-spin text-[#2b1b11]" />
-                            </div>
-                        ) : dashboardData && dashboardData.recentActivity.length > 0 ? (
-                            <div className="space-y-3">
-                                {dashboardData.recentActivity.map((activity) => (
-                                    <Link
-                                        key={activity.id}
-                                        href={activity.type === "Tryout"
-                                            ? `/dashboard/tryouts/${activity.tryoutId}/result`
-                                            : `/dashboard/latihan/${activity.tryoutId}/result`}
-                                        className="flex items-center justify-between p-3 border-2 border-[#2b1b11] bg-[#FEFCF3] hover:bg-[#bed3c6] transition-colors shadow-[4px_4px_0px_#2b1b11]"
-                                    >
-                                        <div className="flex items-center gap-3 min-w-0">
-                                            <div className={`w-8 h-8 flex items-center justify-center shrink-0 border-2 border-[#2b1b11] shadow-[1px_1px_0px_#2b1b11] ${
-                                                activity.type === "Tryout" ? "bg-[#e87a5d]" : "bg-[#bed3c6]"
-                                            }`}>
-                                                {activity.type === "Tryout" ? (
-                                                    <FileText className="w-4 h-4 text-[#FEFCF3] stroke-[2]" />
-                                                ) : (
-                                                    <BookOpen className="w-4 h-4 text-[#2b1b11] stroke-[2]" />
-                                                )}
-                                            </div>
-                                            <div className="min-w-0">
-                                                <p className="text-xs font-bold text-[#2b1b11] truncate">{activity.title}</p>
-                                                <div className="flex items-center gap-2">
-                                                    <span className={`text-[10px] px-1.5 py-0 font-bold border border-[#2b1b11] ${
-                                                        activity.type === "Tryout"
-                                                            ? "bg-earthy-gold text-[#2b1b11]"
-                                                            : "bg-[#e87a5d] text-[#FEFCF3]"
-                                                    }`}>
-                                                        {activity.type}
-                                                    </span>
-                                                    <span className="text-[10px] text-[#3c5443] font-bold">
-                                                        {formatDate(activity.createdAt)}
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div className="text-right shrink-0 ml-2">
-                                            <p className="text-sm font-extrabold text-[#2b1b11]">
-                                                {activity.score !== null ? `${Math.round(activity.score)}%` : "-"}
-                                            </p>
-                                            <p className="text-[10px] text-[#3c5443] font-bold">
-                                                {activity.correctCount ?? 0}/{activity.totalCount ?? 0}
-                                            </p>
-                                        </div>
-                                    </Link>
-                                ))}
-                            </div>
-                        ) : (
-                            <div className="flex flex-col items-center justify-center py-8 text-center">
-                                <div className="w-12 h-12 bg-[#bed3c6] border-2 border-[#2b1b11] flex items-center justify-center shadow-[2px_2px_0px_#2b1b11] mb-3">
-                                    <Clock className="w-6 h-6 text-[#2b1b11] stroke-[2]" />
-                                </div>
-                                <p className="text-xs text-[#3c5443] font-bold">
-                                    Belum ada aktivitas. Mulai tryout pertamamu!
-                                </p>
-                            </div>
-                        )}
-                    </div>
-                </div>
-            </div>
-
-            {/* Performance overview */}
-            <div className="bg-[#FEFCF3] border-4 border-[#2b1b11] shadow-[8px_8px_0px_#2b1b11] overflow-hidden flex flex-col">
-                <div className="p-4 md:p-6 border-b-4 border-[#2b1b11] bg-earthy-gold">
-                    <div className="flex flex-col gap-3">
-                        <h3 className="text-sm md:text-base font-extrabold flex items-center gap-3 text-[#2b1b11]" style={{ fontFamily: "var(--font-press-start)", lineHeight: 1.4 }}>
-                            <BarChart3 className="w-6 h-6 stroke-[3]" />
-                            Analisis Performa Per Materi
-                        </h3>
-                        <div className="inline-flex w-fit px-3 py-1 bg-[#FEFCF3] border-2 border-[#2b1b11] shadow-[2px_2px_0px_#2b1b11]">
-                            <span className="text-[10px] uppercase font-bold font-mono text-[#2b1b11]">Tryout Only</span>
-                        </div>
-                    </div>
-                </div>
-                <div className="p-5">
-                    {loading ? (
-                        <div className="flex items-center justify-center py-12">
-                            <Loader2 className="w-6 h-6 animate-spin text-[#2b1b11]" />
-                        </div>
-                    ) : dashboardData && dashboardData.performancePerMateri.length > 0 ? (
-                        <div className="space-y-4">
-                            {dashboardData.performancePerMateri.map((materi) => {
-                                const label = materi.category.replace("_", " ")
-                                const barWidth = Math.max(5, materi.avgScore)
-                                return (
-                                    <div key={materi.category} className="space-y-1.5">
-                                        <div className="flex items-center justify-between text-xs">
-                                            <span className="font-bold text-[#2b1b11]">{label}</span>
-                                            <span className="text-[#3c5443] font-bold">
-                                                {materi.avgScore}% avg · {materi.totalAttempts} attempt{materi.totalAttempts > 1 ? "s" : ""}
-                                            </span>
-                                        </div>
-                                        <div className="w-full h-4 bg-[#bed3c6]/40 border-2 border-[#2b1b11] overflow-hidden">
-                                            <div
-                                                className={`h-full transition-all duration-500 ${
-                                                    materi.avgScore >= 80
-                                                        ? "bg-[#3c7a56]"
-                                                        : materi.avgScore >= 60
-                                                            ? "bg-[#e87a5d]"
-                                                            : "bg-[#d95a4f]"
-                                                }`}
-                                                style={{ width: `${barWidth}%` }}
-                                            />
-                                        </div>
-                                    </div>
-                                )
-                            })}
-                        </div>
-                    ) : (
-                        <div className="flex flex-col items-center justify-center py-12 text-center">
-                            <div className="w-14 h-14 bg-[#bed3c6] border-2 border-[#2b1b11] flex items-center justify-center shadow-[2px_2px_0px_#2b1b11] mb-4">
-                                <TrendingUp className="w-7 h-7 text-[#2b1b11] stroke-[2]" />
-                            </div>
-                            <p className="text-xs text-[#3c5443] font-bold mb-4">
-                                Data analisis akan muncul setelah kamu menyelesaikan tryout.
-                            </p>
-                            <Button asChild className="bg-[#e87a5d] hover:bg-[#d95a4f] text-[#FEFCF3] border-2 border-[#2b1b11] shadow-[3px_3px_0px_#2b1b11] rounded-none font-bold">
-                                <Link href="/dashboard/tryouts">Mulai Tryout</Link>
-                            </Button>
-                        </div>
-                    )}
-                </div>
-            </div>
+      <div className="min-h-screen bg-[#FFEED6]/20 font-sans -m-4 sm:-m-6 lg:-m-8 p-6 sm:p-10 flex flex-col items-center justify-center">
+        <div className="w-12 h-12 rounded-2xl bg-[#FFEED6] flex items-center justify-center border border-[#827148]/15 mb-4 animate-pulse">
+          <div className="w-4 h-4 rounded-md bg-[#A5AF79]" />
         </div>
+        <p className="text-sm font-bold text-[#827148] animate-pulse">
+          Memuat data dashboard...
+        </p>
+      </div>
     )
+  }
+
+  return (
+    <div className="min-h-screen bg-[#FFEED6]/20 font-sans -m-4 sm:-m-6 lg:-m-8">
+      {/* ======================================================== */}
+      {/* 1. TOP NAVIGATION BAR                                    */}
+      {/* ======================================================== */}
+      <header className="bg-white shadow-xs border-b border-[#FFEED6] px-6 sm:px-8 py-4 flex justify-between items-center sticky top-0 z-30">
+        {/* Left: Logo placeholder */}
+        <Link href="/" className="flex items-center gap-3 group">
+          <div className="w-8 h-8 rounded-lg bg-[#FFEED6] flex items-center justify-center border border-[#827148]/15 group-hover:bg-[#A5AF79]/20 transition-colors">
+            <div className="w-3 h-3 rounded-xs bg-[#A5AF79]" />
+          </div>
+          <span className="text-[#827148] font-bold text-lg sm:text-xl tracking-tight">
+            Belajar Bareng Nata
+          </span>
+        </Link>
+
+        {/* Right: Dynamic User Profile Snippet */}
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-full bg-[#A5AF79] flex items-center justify-center text-white text-xs font-bold shadow-2xs">
+            {user?.name?.charAt(0).toUpperCase() || "P"}
+          </div>
+          <span className="text-sm font-semibold text-[#827148]">
+            {user?.name || "Pelajar"}
+          </span>
+        </div>
+      </header>
+
+      {/* ======================================================== */}
+      {/* 2. MAIN CONTENT CONTAINER (12-Column Grid)               */}
+      {/* ======================================================== */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-8 py-8 sm:py-10">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          
+          {/* ======================================================== */}
+          {/* LEFT COLUMN / MAIN AREA (lg:col-span-8)                  */}
+          {/* ======================================================== */}
+          <section className="lg:col-span-8 space-y-6">
+            
+            {/* Dynamic Greeting Header */}
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-bold text-[#827148] mb-2 tracking-tight">
+                Halo, {user?.name || "Pelajar"}! 👋
+              </h1>
+              <p className="text-sm text-[#827148]/70 font-medium">
+                Lanjutkan progres belajarmu hari ini.
+              </p>
+            </div>
+
+            {/* Lock Curriculum Indicator (Static Badge based on DB) */}
+            <div className="bg-white border border-[#FFEED6] rounded-2xl p-4 shadow-2xs flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <div className="w-2.5 h-2.5 rounded-full bg-[#A5AF79]" />
+                <span className="text-xs sm:text-sm font-bold text-[#827148]">
+                  Kategori Kurikulum Terpilih:
+                </span>
+              </div>
+
+              {user?.student_category === "PHYSICS_SEM_3" ? (
+                <span className="bg-[#A5AF79] text-white text-xs px-3.5 py-1.5 rounded-full font-bold shadow-2xs tracking-wide">
+                  Departemen Fisika Semester 3
+                </span>
+              ) : (
+                <span className="bg-[#A5AF79] text-white text-xs px-3.5 py-1.5 rounded-full font-bold shadow-2xs tracking-wide">
+                  Umum / Non-Fisika
+                </span>
+              )}
+            </div>
+
+            {/* Course Grid Section */}
+            <div>
+              <div className="flex items-center justify-between mt-8 mb-4">
+                <h2 className="text-xl font-bold text-[#827148] flex items-center gap-2">
+                  <span>📚</span>
+                  <span>Katalog Materi Kamu</span>
+                </h2>
+                <span className="text-xs text-[#827148]/70 font-semibold bg-white border border-[#FFEED6] px-3 py-1 rounded-full">
+                  {activeCourses.length} Mata Kuliah
+                </span>
+              </div>
+
+              {/* Grid: 2 Columns on Desktop */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {activeCourses.map((course, idx) => (
+                  <div
+                    key={course.slug}
+                    className="bg-white border-2 border-[#FFEED6] rounded-2xl p-6 hover:border-[#A5AF79] hover:-translate-y-0.5 transition-all shadow-xs flex flex-col justify-between min-h-[140px] group"
+                  >
+                    <div>
+                      {/* Top Row: Pseudo-Icon + Tag */}
+                      <div className="flex items-center justify-between">
+                        <div className="w-8 h-8 rounded-lg bg-[#FFEED6] flex items-center justify-center border border-[#827148]/10 group-hover:bg-[#A5AF79]/20 transition-colors">
+                          <div className="w-2.5 h-2.5 rounded-xs bg-[#A5AF79]" />
+                        </div>
+                        <span className="text-[10px] font-bold text-[#827148]/60 uppercase tracking-wider bg-[#FFEED6]/40 px-2 py-0.5 rounded-md">
+                          Modul {idx + 1}
+                        </span>
+                      </div>
+
+                      {/* Course Name */}
+                      <h3 className="font-bold text-[#827148] text-lg mt-3 group-hover:text-[#A5AF79] transition-colors leading-snug">
+                        {course.name}
+                      </h3>
+                    </div>
+
+                    {/* Bottom: Dynamic Link with Course Slug */}
+                    <div className="pt-4 mt-2 border-t border-[#FFEED6]/60 flex items-center justify-between">
+                      <Link
+                        href={`/materi?course=${course.slug}`}
+                        className="text-xs font-bold text-[#A5AF79] group-hover:underline flex items-center gap-1 cursor-pointer"
+                      >
+                        <span>Mulai Belajar</span>
+                        <span>&rarr;</span>
+                      </Link>
+                      <div className="w-1.5 h-1.5 rounded-full bg-[#A5AF79]/40 group-hover:bg-[#A5AF79] transition-colors" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+          </section>
+
+          {/* ======================================================== */}
+          {/* RIGHT COLUMN / SIDEBAR (lg:col-span-4)                   */}
+          {/* ======================================================== */}
+          <aside className="lg:col-span-4 space-y-6 lg:sticky lg:top-24">
+            
+            {/* 1. Active Package Card */}
+            <div className="bg-white border-2 border-[#FFEED6] rounded-3xl p-6 relative shadow-xs overflow-hidden">
+              {/* Highlight Top Accent Bar */}
+              <div className="absolute top-0 left-0 right-0 h-1.5 bg-[#E8A07C]" />
+
+              <div className="pt-1">
+                <span className="text-sm text-gray-500 font-semibold block">
+                  Paket Aktif
+                </span>
+
+                <h3 className="text-xl font-extrabold text-[#827148] mt-1 leading-tight tracking-tight">
+                  {getPackageDisplayName()}
+                </h3>
+
+                {/* Status Badge with Pseudo-Icon */}
+                <div className="bg-[#A5AF79] text-white text-xs px-2.5 py-1 rounded-full font-bold w-max mt-2 flex items-center gap-1.5 shadow-2xs">
+                  <div className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+                  <span>Status: Aktif</span>
+                </div>
+
+                {/* Package Highlights */}
+                <div className="mt-5 pt-4 border-t border-[#FFEED6] space-y-2 text-xs text-[#827148]/80 font-medium">
+                  <div className="flex items-center justify-between">
+                    <span>Akses Modul:</span>
+                    <span className="font-bold text-[#827148]">All-Access Penuh</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span>Durasi:</span>
+                    <span className="font-bold text-[#827148]">
+                      {user?.billing_cycle?.toUpperCase().includes("SEMESTER")
+                        ? "6 Bulan (1 Semester)"
+                        : "30 Hari (1 Bulan)"}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span>Tipe Akses:</span>
+                    <span className="font-bold text-[#A5AF79] uppercase">
+                      {user?.package_type || "EINSTEIN"}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* 2. Tryout & Simulation Card */}
+            <div className="bg-[#A5AF79]/10 border-2 border-[#A5AF79]/20 rounded-3xl p-6 shadow-2xs">
+              <div className="flex items-center gap-2 mb-1">
+                <span className="text-lg">🎯</span>
+                <h3 className="text-base font-bold text-[#827148]">
+                  Simulasi Tryout
+                </h3>
+              </div>
+
+              <p className="text-xs text-[#827148]/80 font-medium mb-5 leading-relaxed">
+                Uji pemahamanmu dengan simulasi ujian riil dan pembahasan soal interaktif.
+              </p>
+
+              {/* Conditional Action Button based on package_type */}
+              {canAccessTryout ? (
+                <Link
+                  href="/dashboard/tryouts"
+                  className="bg-[#827148] hover:bg-[#827148]/90 active:bg-[#6e5f3c] text-white rounded-xl py-3 w-full font-bold text-sm shadow-sm transition-colors text-center block cursor-pointer"
+                >
+                  Mulai Tryout
+                </Link>
+              ) : (
+                <div className="space-y-2">
+                  <button
+                    type="button"
+                    disabled
+                    className="bg-[#827148]/20 text-[#827148]/60 rounded-xl py-3 w-full font-bold text-xs text-center block cursor-not-allowed"
+                  >
+                    Upgrade ke Senku/Einstein untuk akses Tryout
+                  </button>
+                  <Link
+                    href="/dashboard/beli-paket"
+                    className="text-xs font-bold text-[#E8A07C] hover:underline text-center block"
+                  >
+                    Lihat Pilihan Upgrade &rarr;
+                  </Link>
+                </div>
+              )}
+            </div>
+
+          </aside>
+
+        </div>
+      </main>
+    </div>
+  )
 }
