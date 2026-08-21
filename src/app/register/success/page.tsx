@@ -3,109 +3,96 @@
 import { Suspense } from "react"
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { CheckCircle, ArrowLeft, Clock, GraduationCap, Rocket, MonitorPlay, MessageCircle } from "lucide-react"
 import { APP_NAME } from "@/constants"
-import { useTheme } from "@/contexts/ThemeContext"
 
 function SuccessContent() {
-    const searchParams = useSearchParams()
-    const type = searchParams.get("type")
+  const searchParams = useSearchParams()
+  const type = searchParams.get("type")
 
-    const isRegular = type === "REGULAR"
-    const isKelasBesar = type === "KELAS_BESAR"
-    const Icon = isKelasBesar ? MonitorPlay : isRegular ? GraduationCap : Rocket
+  const isRegular = type === "REGULAR"
+  const isKelasBesar = type === "KELAS_BESAR"
+  const typeLabel = isKelasBesar
+    ? "Kelas Tutor Besar"
+    : isRegular
+    ? "Kelas Reguler"
+    : "E-Learning Mandiri"
 
-    const { isDark } = useTheme()
-
-    return (
-        <div className={`relative min-h-screen flex items-center justify-center p-4 py-12 md:py-16 ${isDark ? "bg-[#0f1b2e]" : "bg-[#bed3c6]"}`}>
-            {/* Pixel Art Background */}
-            <div
-                className="fixed inset-0 z-0 opacity-80 [image-rendering:pixelated] [image-rendering:-moz-crisp-edges] [image-rendering:-webkit-optimize-contrast] [image-rendering:crisp-edges] [-ms-interpolation-mode:nearest-neighbor]"
-                style={{
-                    backgroundImage: isDark ? "url('/assets/background-only-malam.png')" : "url('/assets/background-only-2.png')",
-                    backgroundSize: "cover",
-                    backgroundPosition: "center center",
-                    backgroundRepeat: "no-repeat"
-                }}
-            />
-
-            <div className="w-full max-w-md text-center z-10 relative">
-                <div className="bg-[#FEFCF3] border-4 border-[#2b1b11] rounded-2xl shadow-[8px_8px_0px_#2b1b11] overflow-hidden">
-                    {/* Header */}
-                    <div className="text-center pt-8 pb-4 px-6 border-b-4 border-[#2b1b11] bg-[#bed3c6]">
-                        <div className="mx-auto w-16 h-16 bg-[#FEFCF3] border-2 border-[#2b1b11] flex items-center justify-center shadow-[2px_2px_0px_#2b1b11] mb-4">
-                            <CheckCircle className="w-8 h-8 text-[#2b1b11] stroke-[2]" />
-                        </div>
-                        <h2 className="text-xl md:text-2xl font-extrabold text-[#2b1b11] mb-2" style={{ fontFamily: "var(--font-press-start)", lineHeight: 1.4 }}>
-                            Pendaftaran Berhasil!
-                        </h2>
-                    </div>
-
-                    <div className="p-6 md:p-8 space-y-6">
-                        {/* Product type badge */}
-                        <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#FEFCF3] border-2 border-[#2b1b11] shadow-[2px_2px_0px_#2b1b11]">
-                            <Icon className="w-4 h-4 text-[#2b1b11] stroke-[2]" />
-                            <span className="text-xs md:text-sm font-bold text-[#2b1b11] font-mono">
-                                {isKelasBesar ? "Kelas Tutor Besar" : isRegular ? "Kelas Reguler" : "Persiapan UTS"}
-                            </span>
-                        </div>
-
-                        <div className="space-y-4">
-                            <p className="text-sm font-bold text-[#3c5443] font-mono">
-                                Terima kasih sudah mendaftar di {APP_NAME}.
-                            </p>
-                            <div className="flex items-start gap-3 p-4 bg-[#FEFCF3] border-2 border-[#2b1b11] shadow-[4px_4px_0px_#2b1b11] text-left">
-                                <Clock className="w-5 h-5 text-[#2b1b11] mt-0.5 flex-shrink-0 stroke-[2]" />
-                                <div>
-                                    <p className="text-sm font-bold text-[#2b1b11] font-mono">Menunggu Verifikasi</p>
-                                    <p className="text-xs text-[#3c5443] mt-2 font-mono leading-relaxed">
-                                        Admin akan memverifikasi pembayaranmu dalam 1x24 jam.
-                                        {isKelasBesar
-                                            ? " Link Zoom masterclass akan dikirimkan melalui email setelah disetujui."
-                                            : isRegular
-                                                ? " Kamu akan dihubungi via WhatsApp untuk konfirmasi jadwal."
-                                                : " Kamu akan menerima email aktivasi setelah pembayaran disetujui."
-                                        }
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="flex flex-col gap-4 mt-6">
-                            <Button asChild className="w-full h-12 bg-[#25D366] hover:bg-[#128C7E] text-white border-2 border-[#2b1b11] shadow-[4px_4px_0px_#2b1b11] hover:shadow-[6px_6px_0px_#2b1b11] hover:-translate-y-1 transition-all rounded-none font-bold font-mono">
-                                <a href="https://chat.whatsapp.com/Jw6ZTlTcKkw71epdsigMSz" target="_blank" rel="noopener noreferrer">
-                                    <MessageCircle className="mr-2 w-5 h-5" />
-                                    Gabung Grup WhatsApp
-                                </a>
-                            </Button>
-                            <Button asChild className="w-full h-12 bg-[#FEFCF3] hover:bg-[#f2efe4] text-[#2b1b11] border-2 border-[#2b1b11] shadow-[4px_4px_0px_#2b1b11] hover:shadow-[6px_6px_0px_#2b1b11] hover:-translate-y-1 transition-all rounded-none font-bold font-mono">
-                                <Link href="/">
-                                    <ArrowLeft className="mr-2 w-5 h-5" />
-                                    Kembali ke Beranda
-                                </Link>
-                            </Button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+  return (
+    <div className="bg-white max-w-md w-full rounded-3xl shadow-lg border border-[#FFEED6] p-8 sm:p-10 text-center">
+      {/* Success Badge / Icon Placeholder */}
+      <div 
+        className="w-16 h-16 rounded-2xl bg-[#FFEED6] mx-auto mb-6 flex items-center justify-center border border-[#827148]/10"
+        aria-label="Success checkmark"
+      >
+        <div className="w-8 h-8 rounded-xl bg-[#A5AF79] flex items-center justify-center text-white font-bold text-lg shadow-2xs">
+          ✓
         </div>
-    )
+      </div>
+
+      {/* Title & Subtitle */}
+      <h1 className="text-2xl sm:text-3xl font-bold text-[#827148] mb-2 tracking-tight">
+        Pendaftaran Berhasil!
+      </h1>
+      <p className="text-sm text-[#827148]/70 mb-6">
+        Terima kasih telah mendaftar di {APP_NAME}.
+      </p>
+
+      {/* Product Type Pill */}
+      <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-[#FFEED6] text-[#827148] rounded-full text-xs font-bold mb-6">
+        <div className="w-2 h-2 rounded-full bg-[#A5AF79]" />
+        <span>{typeLabel}</span>
+      </div>
+
+      {/* Verification Info Box */}
+      <div className="bg-[#FFEED6]/30 border border-[#FFEED6] rounded-2xl p-5 text-left mb-8 space-y-2">
+        <div className="flex items-center gap-2">
+          <div className="w-2 h-2 rounded-full bg-[#E8A07C]" />
+          <h2 className="text-sm font-bold text-[#827148]">
+            Menunggu Verifikasi Pembayaran
+          </h2>
+        </div>
+        <p className="text-xs text-[#827148]/75 leading-relaxed font-medium">
+          Admin kami akan memverifikasi bukti pembayaran dalam 1x24 jam.
+          {isKelasBesar
+            ? " Link Zoom masterclass akan dikirimkan via email/WhatsApp setelah disetujui."
+            : isRegular
+            ? " Kamu akan dihubungi via WhatsApp untuk konfirmasi jadwal kelas."
+            : " Akun dan akses paket belajarmu akan aktif otomatis setelah disetujui."}
+        </p>
+      </div>
+
+      {/* Action Buttons */}
+      <div className="flex flex-col gap-3">
+        <a
+          href="https://chat.whatsapp.com/Jw6ZTlTcKkw71epdsigMSz"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="w-full py-3.5 px-4 rounded-xl font-bold text-white text-xs sm:text-sm bg-[#A5AF79] hover:bg-[#949e6a] shadow-xs transition-colors block text-center"
+        >
+          Gabung Grup WhatsApp Komunitas
+        </a>
+
+        <Link
+          href="/"
+          className="w-full py-3 px-4 rounded-xl font-semibold text-xs sm:text-sm text-[#827148] bg-[#FFEED6]/40 hover:bg-[#FFEED6] transition-colors block text-center"
+        >
+          Kembali ke Beranda
+        </Link>
+      </div>
+    </div>
+  )
 }
 
 export default function RegisterSuccessPage() {
-    return (
-        <Suspense fallback={
-            <div className="min-h-screen bg-[#bed3c6] flex items-center justify-center">
-                <div className="animate-pulse text-[#2b1b11] font-mono font-bold">Memuat...</div>
-            </div>
-        }>
-            <RegisterSuccessContent />
-        </Suspense>
-    )
-}
-
-function RegisterSuccessContent() {
-    return <SuccessContent />
+  return (
+    <div className="min-h-screen w-full flex items-center justify-center p-4 sm:p-8 relative bg-gradient-to-b from-[#FFEED6]/60 via-[#FFEED6]/30 to-[#FFEED6]/50 font-sans">
+      <Suspense fallback={
+        <div className="bg-white max-w-md w-full rounded-3xl shadow-lg border border-[#FFEED6] p-12 text-center text-sm text-[#827148]/70">
+          Memuat konfirmasi pendaftaran...
+        </div>
+      }>
+        <SuccessContent />
+      </Suspense>
+    </div>
+  )
 }
