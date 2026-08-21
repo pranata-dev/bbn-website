@@ -2,174 +2,199 @@
 
 import { useState, Suspense } from "react"
 import Link from "next/link"
-import { useRouter, useSearchParams } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { BookOpen, Loader2, ArrowLeft } from "lucide-react"
+import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { createClient } from "@/lib/supabase/client"
-import { useTheme } from "@/contexts/ThemeContext"
 
-function LoginContent() {
-    const router = useRouter()
-    const searchParams = useSearchParams()
-    const redirect = searchParams.get("redirect") || "/dashboard"
-    const [isLoading, setIsLoading] = useState(false)
-    const [formData, setFormData] = useState({
-        email: "",
-        password: "",
-    })
+function LoginCard() {
+  const router = useRouter()
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [isLoading, setIsLoading] = useState(false)
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false)
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault()
-        setIsLoading(true)
+  // 1. Google OAuth Sign-In
+  const handleGoogleSignIn = async () => {
+    setIsGoogleLoading(true)
+    try {
+      const supabase = createClient()
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: `${typeof window !== "undefined" ? window.location.origin : ""}/dashboard`,
+        },
+      })
+      if (error) throw error
+    } catch (error: any) {
+      console.error("Google sign-in error:", error)
+      toast.error(error?.message || "Gagal masuk dengan Google. Silakan coba lagi.")
+      setIsGoogleLoading(false)
+    }
+  }
 
-        try {
-            const supabase = createClient()
-            const { error } = await supabase.auth.signInWithPassword({
-                email: formData.email,
-                password: formData.password,
-            })
-
-            if (error) {
-                throw new Error(error.message === "Invalid login credentials"
-                    ? "Email atau password salah."
-                    : error.message)
-            }
-
-            const { data: { user } } = await supabase.auth.getUser()
-            if (user) {
-                const res = await fetch(`/api/auth/session`, { method: "POST" })
-                const data = await res.json()
-
-                if (!res.ok) {
-                    await supabase.auth.signOut()
-                    throw new Error(data.error || "Gagal mengambil sesi.")
-                }
-
-                if (data.role === "ADMIN") {
-                    router.push("/admin")
-                } else {
-                    router.push(redirect)
-                }
-                router.refresh()
-            }
-
-            toast.success("Login berhasil!")
-        } catch (error) {
-            toast.error(error instanceof Error ? error.message : "Terjadi kesalahan.")
-        } finally {
-            setIsLoading(false)
-        }
+  // 2. Email & Password Manual Sign-In
+  const handleEmailSignIn = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!email || !password) {
+      toast.error("Mohon isi email dan password.")
+      return
     }
 
-    return (
-        <div className="bg-[#FEFCF3] border-4 border-[#2b1b11] rounded-2xl shadow-[8px_8px_0px_#2b1b11] overflow-hidden">
-            {/* Header */}
-            <div className="text-center pt-8 pb-4 px-6 border-b-4 border-[#2b1b11] bg-[#bed3c6]">
-                <div className="mx-auto w-12 h-12 bg-[#FEFCF3] border-2 border-[#2b1b11] flex items-center justify-center shadow-[2px_2px_0px_#2b1b11] mb-4">
-                    <BookOpen className="w-6 h-6 text-[#2b1b11] stroke-[2]" />
-                </div>
-                <h1
-                    className="text-xl md:text-2xl font-extrabold text-[#2b1b11] mb-2"
-                    style={{ fontFamily: "var(--font-press-start)", lineHeight: 1.4 }}
-                >
-                    Masuk
-                </h1>
-                <p className="text-xs md:text-sm text-[#3c5443] font-bold font-mono">
-                    Masuk ke akunmu untuk mulai belajar.
-                </p>
-            </div>
+    setIsLoading(true)
+    try {
+      const supabase = createClient()
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      })
 
-            {/* Content */}
-            <div className="p-6 md:p-8">
-                <form onSubmit={handleSubmit} className="space-y-5 font-mono" aria-label="Formulir login">
-                    <div className="space-y-2">
-                        <label htmlFor="email" className="text-sm font-bold text-[#2b1b11]">Email</label>
-                        <Input
-                            id="email"
-                            type="email"
-                            placeholder="nama@email.com"
-                            value={formData.email}
-                            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                            className="bg-[#bed3c6]/30 border-2 border-[#2b1b11] rounded-none shadow-[2px_2px_0px_#2b1b11] font-mono text-sm text-[#2b1b11] placeholder:text-[#3c5443]/50 focus:ring-[#e87a5d] focus:border-[#e87a5d] h-11"
-                            required
-                        />
-                    </div>
+      if (error) {
+        throw new Error(
+          error.message === "Invalid login credentials"
+            ? "Email atau password salah."
+            : error.message
+        )
+      }
 
-                    <div className="space-y-2">
-                        <label htmlFor="password" className="text-sm font-bold text-[#2b1b11]">Password</label>
-                        <Input
-                            id="password"
-                            type="password"
-                            placeholder="Masukkan password"
-                            value={formData.password}
-                            onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                            className="bg-[#bed3c6]/30 border-2 border-[#2b1b11] rounded-none shadow-[2px_2px_0px_#2b1b11] font-mono text-sm text-[#2b1b11] placeholder:text-[#3c5443]/50 focus:ring-[#e87a5d] focus:border-[#e87a5d] h-11"
-                            required
-                        />
-                    </div>
+      toast.success("Login berhasil! Mengalihkan ke dashboard...")
+      router.push("/dashboard")
+      router.refresh()
+    } catch (error: any) {
+      toast.error(error?.message || "Terjadi kesalahan saat masuk.")
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
-                    <Button
-                        type="submit"
-                        className="w-full bg-[#e87a5d] hover:bg-[#d95a4f] text-[#FEFCF3] h-12 rounded-none border-2 border-[#2b1b11] shadow-[4px_4px_0px_#2b1b11] hover:shadow-[6px_6px_0px_#2b1b11] hover:-translate-y-1 transition-all font-bold font-mono text-base"
-                        disabled={isLoading}
-                    >
-                        {isLoading ? (
-                            <>
-                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                Memproses...
-                            </>
-                        ) : (
-                            "Masuk"
-                        )}
-                    </Button>
-
-                    <p className="text-center text-xs font-bold text-[#3c5443] font-mono">
-                        Belum punya akun?{" "}
-                        <Link href="/register" className="text-[#e87a5d] hover:underline">
-                            Daftar Sekarang
-                        </Link>
-                    </p>
-                </form>
-            </div>
+  return (
+    <div className="max-w-md w-full bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-[#FFEED6] relative">
+      {/* Header Section */}
+      <div className="text-center">
+        {/* Pseudo-Icon Logo */}
+        <div
+          className="w-12 h-12 bg-[#FFEED6] rounded-2xl mx-auto mb-4 flex items-center justify-center border border-[#827148]/10 shadow-2xs"
+          aria-label="Logo placeholder"
+        >
+          <div className="w-4 h-4 rounded-md bg-[#A5AF79]" />
         </div>
-    )
+
+        <h1 className="text-2xl font-bold text-[#827148] text-center mb-2 tracking-tight">
+          Selamat Datang Kembali!
+        </h1>
+        <p className="text-sm text-gray-500 text-center mb-8">
+          Masuk ke Belajar Bareng Nata untuk melanjutkan progresmu.
+        </p>
+      </div>
+
+      {/* Google Sign-In Button (Primary Focus) */}
+      <button
+        type="button"
+        onClick={handleGoogleSignIn}
+        disabled={isGoogleLoading}
+        className="w-full bg-white border-2 border-[#FFEED6] text-[#827148] font-bold rounded-xl py-4 px-4 flex justify-center items-center gap-3 transition-colors hover:bg-gray-50 cursor-pointer shadow-2xs disabled:opacity-60 disabled:cursor-not-allowed text-sm sm:text-base"
+      >
+        {/* Google Logo Placeholder (Colored Dot in Box) */}
+        <div className="w-5 h-5 rounded-md bg-[#FFEED6] flex items-center justify-center p-1 border border-[#827148]/15">
+          <div className="w-2.5 h-2.5 rounded-full bg-[#A5AF79]" />
+        </div>
+        <span>{isGoogleLoading ? "Menghubungkan ke Google..." : "Masuk dengan Google"}</span>
+      </button>
+
+      {/* Subtle "ATAU" Visual Divider */}
+      <div className="flex items-center my-6 gap-3 text-xs text-gray-400 font-semibold uppercase tracking-wider">
+        <span className="flex-1 border-t border-[#FFEED6]" />
+        <span>ATAU</span>
+        <span className="flex-1 border-t border-[#FFEED6]" />
+      </div>
+
+      {/* Manual Login Form */}
+      <form onSubmit={handleEmailSignIn} aria-label="Formulir masuk">
+        {/* Email Input */}
+        <div className="mb-4">
+          <label
+            htmlFor="login-email"
+            className="text-sm font-semibold text-[#827148] mb-1.5 block"
+          >
+            Email
+          </label>
+          <input
+            id="login-email"
+            type="email"
+            placeholder="nama@email.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="w-full py-3 px-4 rounded-xl border border-[#FFEED6] bg-white text-sm text-[#827148] placeholder:text-[#827148]/40 focus:outline-none focus:ring-2 focus:ring-[#A5AF79] focus:border-transparent transition-all shadow-2xs font-medium"
+            required
+          />
+        </div>
+
+        {/* Password Input */}
+        <div className="mb-6">
+          <label
+            htmlFor="login-password"
+            className="text-sm font-semibold text-[#827148] mb-1.5 block"
+          >
+            Password
+          </label>
+          <input
+            id="login-password"
+            type="password"
+            placeholder="Masukkan password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="w-full py-3 px-4 rounded-xl border border-[#FFEED6] bg-white text-sm text-[#827148] placeholder:text-[#827148]/40 focus:outline-none focus:ring-2 focus:ring-[#A5AF79] focus:border-transparent transition-all shadow-2xs font-medium"
+            required
+          />
+        </div>
+
+        {/* Submit Button */}
+        <button
+          type="submit"
+          disabled={isLoading}
+          className="w-full bg-[#A5AF79] hover:bg-[#A5AF79]/90 active:bg-[#949e6a] text-white font-bold rounded-xl py-4 mt-2 transition-colors cursor-pointer text-sm sm:text-base shadow-xs disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {isLoading ? "Memproses..." : "Masuk"}
+        </button>
+
+        {/* Footer Link */}
+        <p className="text-center text-sm text-[#827148] mt-6 font-medium">
+          Belum punya akun?{" "}
+          <Link
+            href="/register"
+            className="font-bold text-[#827148] hover:underline cursor-pointer"
+          >
+            Daftar sekarang
+          </Link>
+        </p>
+      </form>
+    </div>
+  )
 }
 
 export default function LoginPage() {
-    const { isDark } = useTheme()
+  return (
+    <div className="min-h-screen w-full flex items-center justify-center p-4 sm:p-8 relative bg-[#FFEED6]/20 font-sans">
+      {/* Top-Left Back to Home Button */}
+      <div className="absolute top-6 left-6 sm:top-8 sm:left-8 z-20">
+        <Link
+          href="/"
+          className="inline-flex items-center gap-2 text-xs sm:text-sm font-medium text-[#827148] hover:text-[#A5AF79] transition-colors py-2 px-3.5 rounded-xl bg-white border border-[#FFEED6] shadow-2xs"
+        >
+          <span>&larr;</span>
+          <span>Kembali ke beranda</span>
+        </Link>
+      </div>
 
-    return (
-        <div className={`relative min-h-screen flex items-center justify-center p-4 ${isDark ? "bg-[#0f1b2e]" : "bg-[#bed3c6]"}`}>
-            {/* Pixel Art Background */}
-            <div
-                className="fixed inset-0 z-0 opacity-80 [image-rendering:pixelated] [image-rendering:-moz-crisp-edges] [image-rendering:-webkit-optimize-contrast] [image-rendering:crisp-edges] [-ms-interpolation-mode:nearest-neighbor]"
-                style={{
-                    backgroundImage: isDark ? "url('/assets/background-only-malam.png')" : "url('/assets/background-only-2.png')",
-                    backgroundSize: "cover",
-                    backgroundPosition: "center center",
-                    backgroundRepeat: "no-repeat"
-                }}
-            />
-
-            <div className="w-full max-w-md z-10 relative">
-                <Link
-                    href="/"
-                    className="inline-flex items-center gap-2 text-sm font-bold text-[#2b1b11] font-mono hover:text-[#e87a5d] transition-colors mb-8 bg-[#FEFCF3] border-2 border-[#2b1b11] px-4 py-2 shadow-[2px_2px_0px_#2b1b11] hover:shadow-[3px_3px_0px_#2b1b11] hover:-translate-y-0.5 transition-all"
-                >
-                    <ArrowLeft className="w-4 h-4 stroke-[3]" />
-                    Kembali ke beranda
-                </Link>
-
-                <Suspense fallback={
-                    <div className="bg-[#FEFCF3] border-4 border-[#2b1b11] rounded-2xl shadow-[8px_8px_0px_#2b1b11] flex items-center justify-center p-20">
-                        <Loader2 className="w-8 h-8 text-[#2b1b11] animate-spin" />
-                    </div>
-                }>
-                    <LoginContent />
-                </Suspense>
-            </div>
-        </div>
-    )
+      {/* Suspense Wrapper for Client Login Card */}
+      <Suspense
+        fallback={
+          <div className="max-w-md w-full bg-white rounded-3xl p-12 text-center text-[#827148]/60 text-sm border border-[#FFEED6]">
+            Memuat halaman masuk...
+          </div>
+        }
+      >
+        <LoginCard />
+      </Suspense>
+    </div>
+  )
 }
