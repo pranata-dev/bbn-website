@@ -1,130 +1,92 @@
 "use client"
 
 import {
-    Accordion,
-    AccordionContent,
-    AccordionItem,
-    AccordionTrigger,
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
 } from "@/components/ui/accordion"
-import { useTheme } from "@/contexts/ThemeContext"
 
-const faqs = [
-    {
-        question: "Apa itu Belajar Bareng Nata?",
-        answer:
-            "Belajar Bareng Nata adalah platform tutor fisika personal yang dirancang khusus untuk mahasiswa Fisika semester 1 dan 2. Platform ini menyediakan tryout online, bank soal, analisis performa, dan leaderboard untuk membantu persiapan ujian Fisika!",
-    },
-    {
-        question: "Bagaimana cara mendaftar?",
-        answer:
-            "Kamu bisa mendaftar dengan mengisi formulir registrasi dan mengunggah bukti pembayaran. Setelah admin memverifikasi pembayaran, kamu akan menerima email aktivasi untuk mengatur password dan mulai menggunakan platform.",
-    },
-    {
-        question: "Mata kuliah dan materi apa saja yang tersedia?",
-        answer:
-            "Saat ini tersedia mata kuliah Fisika Dasar 2 dan Fisika-Matematika! Materi yang tersedia mulai dari pekan 1 hingga pekan 7 perkuliahan!",
-    },
-    {
-        question: "Apakah soal-soalnya diacak?",
-        answer:
-            "Ya! Setiap kali kamu mengerjakan tryout, urutan soal akan diacak secara otomatis. Ini mencegah menghafal urutan jawaban dan memastikan pemahaman konsep yang lebih baik.",
-    },
-    {
-        question: "Bagaimana sistem penilaiannya?",
-        answer:
-            "Kami menggunakan sistem scoring berbobot. Setiap soal memiliki bobot yang berbeda berdasarkan tingkat kesulitannya. Nilai akhir mencerminkan pemahaman konsep secara menyeluruh, bukan hanya jumlah jawaban benar.",
-    },
-    {
-        question: "Apakah ada batas waktu mengerjakan tryout?",
-        answer:
-            "Ya, setiap tryout memiliki batas waktu yang sudah ditentukan. Timer akan berjalan secara real-time dan jawaban akan di-submit otomatis ketika waktu habis. Waktu juga divalidasi dari sisi server.",
-    },
-    {
-        question: "Bisa bayar pakai apa saja?",
-        answer:
-            "Saat ini kami menerima pembayaran via transfer bank. Unggah bukti transfer saat mendaftar, dan admin akan memverifikasi dalam 1x24 jam.",
-    },
-    {
-        question: "Apakah bisa melihat pembahasan soal?",
-        answer:
-            "Untuk pengguna Premium, pembahasan soal lengkap tersedia setelah tryout selesai. Pengguna Basic hanya bisa melihat skor dan jawaban yang benar.",
-    },
+const FAQS_DATA = [
+  {
+    question: "Apa itu Belajar Bareng Nata?",
+    answer:
+      "Belajar Bareng Nata adalah platform bimbingan belajar dan tryout interaktif yang dirancang khusus untuk membantu mahasiswa dan pelajar memahami konsep Fisika secara mendalam, mengukur kemampuan secara objektif, dan siap menghadapi ujian.",
+  },
+  {
+    question: "Bagaimana cara mendaftar?",
+    answer:
+      "Kamu bisa mendaftar dengan memilih paket program yang diinginkan, mengisi form registrasi singkat, dan menyelesaikan aktivasi akun. Setelah akun aktif, kamu bisa langsung mengakses latihan soal atau mengatur jadwal tutoring.",
+  },
+  {
+    question: "Mata kuliah dan materi apa saja yang tersedia?",
+    answer:
+      "Saat ini materi utama mencakup Fisika Dasar 1, Fisika Dasar 2, serta topik Fisika-Matematika pendukung lengkap dari konsep dasar hingga pembahasan soal ujian.",
+  },
+  {
+    question: "Apakah soal-soal tryout diacak?",
+    answer:
+      "Ya! Setiap kali kamu mengerjakan simulasi tryout, butir soal dan pilihan jawaban diacak secara sistematis untuk melatih pemahaman konsep murni dan mencegah penghafalan pola jawaban.",
+  },
+  {
+    question: "Bagaimana sistem penilaian dan evaluasinya?",
+    answer:
+      "Kami menerapkan sistem scoring terbobot dan analisis komprehensif. Setelah menyelesaikan latihan, kamu akan menerima laporan statistik yang memetakan topik kuat dan topik yang masih perlu ditingkatkan.",
+  },
+  {
+    question: "Apakah ada batas waktu saat mengerjakan tryout?",
+    answer:
+      "Ya, setiap paket tryout dilengkapi simulasi timer real-time untuk melatih manajemen waktu dan ketahanan fokus seperti kondisi ujian sesungguhnya.",
+  },
+  {
+    question: "Apa perbedaan program E-Learning dan Tutoring Offline?",
+    answer:
+      "E-Learning dirancang untuk belajar mandiri dengan akses bank soal interaktif dan tryout timer 24/7. Sedangkan Tutoring Offline memberikan sesi bimbingan tatap muka langsung bersama tutor untuk pendampingan intensif.",
+  },
+  {
+    question: "Metode pembayaran apa saja yang didukung?",
+    answer:
+      "Kami mendukung transfer bank, virtual account, dan QRIS agar proses aktivasi langgananmu dapat dilakukan secara mudah dan cepat.",
+  },
 ]
 
 export function FAQSection() {
-    const leftFaqs = faqs.slice(0, 4)
-    const rightFaqs = faqs.slice(4)
-    const { isDark } = useTheme()
+  return (
+    <section id="faq" className="py-16 md:py-24 px-4 sm:px-6 lg:px-8 w-full bg-white">
+      <div className="max-w-4xl mx-auto">
+        {/* Title Area */}
+        <div className="text-center mb-12 sm:mb-16">
+          <p className="text-xs sm:text-sm font-bold tracking-[0.25em] uppercase text-[#A5AF79] mb-2">
+            F A Q
+          </p>
+          <h2 className="text-3xl sm:text-4xl font-extrabold text-[#827148] tracking-tight">
+            Pertanyaan Umum
+          </h2>
+          <p className="text-sm sm:text-base text-[#827148]/80 mt-3 max-w-xl mx-auto leading-relaxed">
+            Semua yang perlu kamu ketahui tentang program belajar, fitur platform, dan sistem bimbingan kami.
+          </p>
+        </div>
 
-    return (
-        <section id="faq" className={`relative w-full md:aspect-[2750/1536] min-h-[600px] flex flex-col justify-center overflow-hidden h-auto ${isDark ? "bg-[#0f1b2e]" : "bg-[#bed3c6]"}`}>
-            {/* Pixel Art Background */}
-            <div 
-                className="absolute inset-0 z-0 opacity-80 [image-rendering:pixelated] [image-rendering:-moz-crisp-edges] [image-rendering:-webkit-optimize-contrast] [image-rendering:crisp-edges] [-ms-interpolation-mode:nearest-neighbor]"
-                style={{
-                    backgroundImage: isDark ? "url('/assets/background-only-malam.png')" : "url('/assets/background-only-2.png')",
-                    backgroundSize: "cover",
-                    backgroundPosition: "center center",
-                    backgroundRepeat: "no-repeat"
-                }}
-            />
-
-            <div className="container mx-auto px-4 lg:px-12 z-10 relative flex flex-col justify-center h-full py-20 md:py-10 text-center">
-                
-                {/* Header Section */}
-                <div className="max-w-3xl mx-auto mb-6 w-full">
-                    <p className={`text-sm md:text-base font-bold tracking-[0.25em] mb-2 font-mono uppercase ${isDark ? "text-[#FEFCF3] drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)]" : "text-[#2b1b11] drop-shadow-[0_1px_1px_rgba(255,255,255,0.8)]"}`}>
-                        FAQ
-                    </p>
-                    <h2 
-                        className={`text-xl md:text-2xl lg:text-3xl font-extrabold mb-2 ${isDark ? "text-[#FEFCF3] drop-shadow-[0_2px_2px_rgba(0,0,0,0.7)]" : "text-[#2b1b11] drop-shadow-[0_2px_2px_rgba(255,255,255,0.7)]"}`}
-                        style={{ fontFamily: "var(--font-press-start)", lineHeight: 1.4 }}
-                    >
-                        Pertanyaan Umum
-                    </h2>
-                    <p className={`text-xs md:text-sm font-bold font-mono max-w-2xl mx-auto ${isDark ? "text-[#bed3c6] drop-shadow-[0_1px_1px_rgba(0,0,0,0.9)]" : "text-[#3c5443] drop-shadow-[0_1px_1px_rgba(255,255,255,0.9)]"}`}>
-                        Temukan petunjuk dari warga hutan tentang petualangan belajarmu.
-                    </p>
-                </div>
-
-                {/* FAQ 2-Column Grid */}
-                <div className="mx-auto w-full max-w-5xl text-left grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {/* Left Column */}
-                    <Accordion type="single" collapsible className="space-y-3">
-                        {leftFaqs.map((faq, index) => (
-                            <AccordionItem
-                                key={index}
-                                value={`item-${index}`}
-                                className="bg-[#FEFCF3] border-3 border-[#2b1b11] rounded-lg px-3 md:px-4 shadow-[3px_3px_0px_#2b1b11] transition-transform hover:-translate-y-0.5 hover:shadow-[4px_4px_0px_#2b1b11]"
-                            >
-                                <AccordionTrigger className="text-xs md:text-sm font-bold text-[#2b1b11] font-mono hover:text-[#e87a5d] py-3 hover:no-underline text-left">
-                                    {faq.question}
-                                </AccordionTrigger>
-                                <AccordionContent className="text-xs text-[#3c5443] font-mono leading-relaxed pb-3 font-semibold">
-                                    {faq.answer}
-                                </AccordionContent>
-                            </AccordionItem>
-                        ))}
-                    </Accordion>
-                    {/* Right Column */}
-                    <Accordion type="single" collapsible className="space-y-3">
-                        {rightFaqs.map((faq, index) => (
-                            <AccordionItem
-                                key={index + 4}
-                                value={`item-${index + 4}`}
-                                className="bg-[#FEFCF3] border-3 border-[#2b1b11] rounded-lg px-3 md:px-4 shadow-[3px_3px_0px_#2b1b11] transition-transform hover:-translate-y-0.5 hover:shadow-[4px_4px_0px_#2b1b11]"
-                            >
-                                <AccordionTrigger className="text-xs md:text-sm font-bold text-[#2b1b11] font-mono hover:text-[#e87a5d] py-3 hover:no-underline text-left">
-                                    {faq.question}
-                                </AccordionTrigger>
-                                <AccordionContent className="text-xs text-[#3c5443] font-mono leading-relaxed pb-3 font-semibold">
-                                    {faq.answer}
-                                </AccordionContent>
-                            </AccordionItem>
-                        ))}
-                    </Accordion>
-                </div>
-            </div>
-        </section>
-    )
+        {/* Minimal Accordion Container */}
+        <div className="w-full">
+          <Accordion type="single" collapsible className="w-full space-y-2">
+            {FAQS_DATA.map((faq, index) => (
+              <AccordionItem
+                key={index}
+                value={`item-${index}`}
+                className="border-b border-[#A5AF79]/30 py-1 transition-colors"
+              >
+                <AccordionTrigger className="text-left font-semibold text-[#827148] text-base md:text-lg hover:no-underline py-4 cursor-pointer hover:text-[#827148]/80">
+                  {faq.question}
+                </AccordionTrigger>
+                <AccordionContent className="text-sm sm:text-base text-[#827148]/80 leading-relaxed pb-4 pt-1">
+                  {faq.answer}
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
+        </div>
+      </div>
+    </section>
+  )
 }

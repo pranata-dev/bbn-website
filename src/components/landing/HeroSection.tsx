@@ -2,79 +2,124 @@
 
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { ArrowRight } from "lucide-react"
-import { useTheme } from "@/contexts/ThemeContext"
+
+const STATS_DATA = [
+  {
+    title: "4 Skills",
+    subtitle: "Core Curriculum",
+  },
+  {
+    title: "350K+",
+    subtitle: "Active Community",
+  },
+  {
+    title: "1200+",
+    subtitle: "Tryouts & Mentoring",
+  },
+]
 
 export function HeroSection() {
-    const { isDark } = useTheme()
+  return (
+    <div id="home" className="relative w-full bg-gradient-to-b from-[#FFEED6]/50 via-white to-[#FFEED6]/20">
+      {/* HERO SECTION */}
+      <section className="w-full pt-12 pb-20 md:pt-20 md:pb-28">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* 2-Column Grid for Desktop (1-Column for Mobile) */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+            {/* LEFT COLUMN: Content */}
+            <div className="flex flex-col items-start text-left">
+              {/* Sub-headline */}
+              <p className="text-xs sm:text-sm font-bold uppercase tracking-widest text-[#A5AF79] mb-3">
+                ONLINE LEARNING & TRYOUT PLATFORM
+              </p>
 
-    return (
-        <section className={`relative w-full md:aspect-[2750/1536] min-h-[650px] flex flex-col justify-between overflow-hidden h-auto py-20 md:py-0 ${isDark ? "bg-[#0f1b2e]" : "bg-[#cde0d5]"}`}>
-            <div
-                className="absolute inset-0 z-0 [image-rendering:pixelated] [image-rendering:-moz-crisp-edges] [image-rendering:-webkit-optimize-contrast] [image-rendering:crisp-edges] [-ms-interpolation-mode:nearest-neighbor]"
-                style={{
-                    backgroundImage: isDark
-                        ? "url('/assets/background-rubah-malam.png')"
-                        : "url('/assets/background-rubah-3.png')",
-                    backgroundSize: "cover",
-                    backgroundPosition: "center",
-                    backgroundRepeat: "no-repeat"
-                }}
-            />
+              {/* Main Headline */}
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-[#827148] leading-[1.15] mb-6">
+                BELAJAR BARENG NATA
+              </h1>
 
-            <div className="container-narrow mx-auto px-4 z-10 flex flex-col items-center pt-[8%] md:pt-[8%] shrink-0">
-                <h1
-                    className={`font-bold leading-tight tracking-tight mb-8 text-center ${isDark ? "text-[#FEFCF3]" : "text-[#2b1b11]"}`}
-                    style={{
-                        fontFamily: "var(--font-press-start)",
-                        fontSize: "calc(1.5rem + 1vw)",
-                        lineHeight: 1.4,
-                        textShadow: isDark 
-                            ? "2px 2px 0px rgba(0,0,0,0.6)" 
-                            : "2px 2px 0px rgba(255,255,255,0.4)"
-                    }}
+              {/* Description Paragraph */}
+              <p className="text-base sm:text-lg text-[#827148]/80 max-w-xl mb-8 leading-relaxed">
+                Platform bimbingan belajar dan tryout interaktif yang dirancang untuk membantumu memahami konsep secara mendalam, mengukur kemampuan, dan siap menghadapi ujian.
+              </p>
+
+              {/* Call to Action (CTA) Row */}
+              <div className="flex flex-wrap items-center gap-4 w-full sm:w-auto">
+                {/* Primary Solid Button */}
+                <Button size="lg" className="h-12 px-6 rounded-xl font-semibold shadow-sm bg-[#A5AF79] hover:bg-[#949e6a] text-white transition-colors" asChild>
+                  <Link href="/register">
+                    Join Community
+                  </Link>
+                </Button>
+
+                {/* Secondary Outline/Ghost Button */}
+                <Button 
+                  variant="outline" 
+                  size="lg" 
+                  className="h-12 px-6 rounded-xl font-semibold border-[#FFEED6] text-[#827148] hover:bg-[#FFEED6]/60 transition-colors" 
+                  asChild
                 >
-                    Belajar Bareng Nata
-                </h1>
-
-                <p className={`text-base md:text-lg font-bold font-mono max-w-3xl mx-auto text-center leading-relaxed ${
-                    isDark 
-                        ? "text-[#FEFCF3] drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]" 
-                        : "text-[#2b1b11] drop-shadow-[0_1px_1px_rgba(255,255,255,0.9)]"
-                }`}>
-                    Platform tryout dan latihan soal mata kuliah Fisika yang dirancang untuk membantumu memahami konsep, mengukur kemampuan, dan pastinya siap menghadapi ujian!
-                </p>
+                  <a href="#program">
+                    View Programs
+                  </a>
+                </Button>
+              </div>
             </div>
 
-            <div className="container-narrow mx-auto px-4 z-10 flex flex-col items-center w-full mt-auto pb-[1%]">
-                <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-8 mb-4">
-                    <Button size="lg" asChild className="bg-[#4A3C28] hover:bg-[#3D3120] border-2 border-[#2D2418] text-white rounded-2xl px-8 h-12 shadow-[0_4px_0_rgba(45,36,24,1)] hover:shadow-[0_2px_0_rgba(45,36,24,1)] active:translate-y-1 hover:-translate-y-0.5 transition-all text-sm font-bold">
-                        <Link href="/register">
-                            Mulai Belajar Sekarang <ArrowRight className="ml-2 w-4 h-4" />
-                        </Link>
-                    </Button>
-                    <Button size="lg" asChild className="px-8 h-12 text-sm bg-[#C4A881]/90 hover:bg-[#B39871] border-2 border-[#8C7456] text-[#2D2418] rounded-2xl shadow-[0_4px_0_rgba(140,116,86,1)] hover:shadow-[0_2px_0_rgba(140,116,86,1)] active:translate-y-1 font-extrabold backdrop-blur-sm transition-all hover:-translate-y-0.5">
-                        <a href="#fitur">Pelajari Lebih Lanjut</a>
-                    </Button>
+            {/* RIGHT COLUMN: Image Placeholder */}
+            <div className="flex items-center justify-center w-full">
+              {/* Large, empty generic <div> placeholder for future character illustration */}
+              <div 
+                className="w-full h-96 rounded-2xl border-2 border-dashed border-[#827148]/30 bg-[#FFEED6]/30 flex flex-col items-center justify-center text-center p-6 transition-all hover:border-[#827148]/50"
+                aria-label="Character illustration placeholder"
+              >
+                <div className="w-16 h-16 rounded-full bg-[#FFEED6] border border-[#827148]/20 mb-3 flex items-center justify-center" />
+                <span className="text-sm font-semibold text-[#827148]/70">
+                  Character Illustration Placeholder
+                </span>
+                <span className="text-xs text-[#827148]/50 mt-1">
+                  (Visual Asset Area)
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* FLOATING STATS BANNER */}
+      <div className="relative z-20 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 -mt-10 md:-mt-14 mb-16">
+        <div className="bg-white rounded-2xl shadow-md border border-[#FFEED6] p-6 sm:p-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-[#FFEED6] gap-6 md:gap-0">
+            {STATS_DATA.map((stat, idx) => (
+              <div
+                key={idx}
+                className={`flex items-center gap-4 ${
+                  idx === 0
+                    ? "md:pr-6"
+                    : idx === STATS_DATA.length - 1
+                    ? "pt-6 md:pt-0 md:pl-6"
+                    : "pt-6 md:pt-0 md:px-6"
+                }`}
+              >
+                {/* Left side: Small placeholder circle for future icons */}
+                <div className="w-12 h-12 bg-[#FFEED6] rounded-full shrink-0 flex items-center justify-center border border-[#827148]/15">
+                  <div className="w-5 h-5 rounded-full bg-[#A5AF79]/40" />
                 </div>
 
-                <div className="w-full flex justify-center mt-4">
-                    <div className="grid grid-cols-3 gap-12 sm:gap-24 text-center" style={{ fontFamily: "var(--font-vt323)" }}>
-                        <div>
-                            <div className={`text-3xl sm:text-4xl font-extrabold ${isDark ? "text-[#FEFCF3]" : "text-[#2b1b11]"}`}>500+</div>
-                            <div className={`text-sm sm:text-lg font-bold ${isDark ? "text-[#bed3c6]" : "text-[#3c5443]"}`}>Latihan Soal</div>
-                        </div>
-                        <div>
-                            <div className={`text-3xl sm:text-4xl font-extrabold ${isDark ? "text-[#FEFCF3]" : "text-[#2b1b11]"}`}>8</div>
-                            <div className={`text-sm sm:text-lg font-bold ${isDark ? "text-[#bed3c6]" : "text-[#3c5443]"}`}>Kategori Materi</div>
-                        </div>
-                        <div>
-                            <div className={`text-3xl sm:text-4xl font-extrabold ${isDark ? "text-[#FEFCF3]" : "text-[#2b1b11]"}`}>100%</div>
-                            <div className={`text-sm sm:text-lg font-bold ${isDark ? "text-[#bed3c6]" : "text-[#3c5443]"}`}>Auto Scoring</div>
-                        </div>
-                    </div>
+                {/* Right side: Bold large stat number/title and smaller muted subtitle */}
+                <div className="flex flex-col">
+                  <span className="text-2xl sm:text-3xl font-extrabold text-[#827148] tracking-tight">
+                    {stat.title}
+                  </span>
+                  <span className="text-xs sm:text-sm text-[#827148]/70 font-medium mt-0.5">
+                    {stat.subtitle}
+                  </span>
                 </div>
-            </div>
-        </section>
-    )
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
 }
