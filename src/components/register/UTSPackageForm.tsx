@@ -2,9 +2,18 @@
 
 import { useState, useMemo, useEffect } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { MAX_FILE_SIZE, ACCEPTED_IMAGE_TYPES } from "@/constants"
 import { createClient } from "@/lib/supabase/client"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 
 export type StudentCategory = "PHYSICS_SEM_3" | "NON_PHYSICS"
 export type BillingCycle = "MONTHLY" | "SEMESTER"
@@ -19,6 +28,7 @@ export interface ELearningRegistrationPayload {
   selectedPackageName: string
   price: number
   paymentProof: File | null
+  authId?: string
 }
 
 export interface UTSPackageFormProps {
@@ -135,7 +145,6 @@ const SEMESTER_PACKAGES: PackageOption[] = [
   },
 ]
 
-// All-access curriculum lists as per prompt
 const PHYSICS_SEM_3_COURSES = [
   "Mekanika Newton",
   "Fisika-Matematika Lanjut",
@@ -157,13 +166,20 @@ export function UTSPackageForm({
   paymentPreview: propPaymentPreview,
   onPaymentChange: propOnPaymentChange,
   onSubmit,
-  isLoading = false,
+  isLoading: propIsLoading = false,
 }: UTSPackageFormProps) {
+  const router = useRouter()
+
   // Auth State
   const [currentUser, setCurrentUser] = useState<any>(null)
   const [isGoogleLoading, setIsGoogleLoading] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
-  // Personal Data State (NO NIM)
+  // Duplicate Account Modal State
+  const [showDuplicateModal, setShowDuplicateModal] = useState(false)
+  const [duplicateEmail, setDuplicateEmail] = useState("")
+
+  // Personal Data State
   const [fullName, setFullName] = useState("")
   const [email, setEmail] = useState("")
   const [whatsapp, setWhatsapp] = useState("")
@@ -181,23 +197,46 @@ export function UTSPackageForm({
   const activeFile = propPaymentFile !== undefined ? propPaymentFile : localPaymentFile
   const activePreview = propPaymentPreview !== undefined ? propPaymentPreview : localPaymentPreview
 
-  // Check existing Supabase auth session on mount
+  // Check existing Supabase auth session on mount & verify duplicate
   useEffect(() => {
-    const checkAuth = async () => {
+    const checkAuthAndDuplicate = async () => {
       try {
         const supabase = createClient()
-        const { data: { user } } = await supabase.auth.getUser()
+        const {
+          data: { user },
+        } = await supabase.auth.getUser()
+
         if (user) {
           setCurrentUser(user)
-          const metaName = user.user_metadata?.full_name || user.user_metadata?.name || user.user_metadata?.user_name || ""
+          const metaName =
+            user.user_metadata?.full_name ||
+            user.user_metadata?.name ||
+            user.user_metadata?.user_name ||
+            ""
           if (metaName) setFullName(metaName)
           if (user.email) setEmail(user.email)
+
+          // Check if this email already exists in users database
+          if (user.email) {
+            const checkRes = await fetch("/api/auth/check-email", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ email: user.email }),
+            })
+            const checkData = await checkRes.json()
+
+            if (checkData.exists) {
+              setDuplicateEmail(user.email)
+              setShowDuplicateModal(true)
+            }
+          }
         }
       } catch (err) {
         console.error("Auth check error:", err)
       }
     }
-    checkAuth()
+
+    checkAuthAndDuplicate()
   }, [])
 
   // Sync package selection when billing cycle toggle changes
@@ -209,10 +248,9 @@ export function UTSPackageForm({
     }
   }, [billingCycle])
 
-  // Active package cards list based on duration toggle
-  const activePackageList = billingCycle === "MONTHLY" ? BULANAN_PACKAGES : SEMESTER_PACKAGES
+  const activePackageList =
+    billingCycle === "MONTHLY" ? BULANAN_PACKAGES : SEMESTER_PACKAGES
 
-  // Currently selected package object
   const selectedPackage = useMemo(() => {
     const all = [...BULANAN_PACKAGES, ...SEMESTER_PACKAGES]
     return all.find((p) => p.id === selectedPackageId) || BULANAN_PACKAGES[2]
@@ -220,14 +258,13 @@ export function UTSPackageForm({
 
   // Google OAuth Sign-In Handler
   const handleGoogleSignIn = async () => {
-    console.log("Google Sign-In initiated...")
     setIsGoogleLoading(true)
     try {
       const supabase = createClient()
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${typeof window !== "undefined" ? window.location.origin : ""}/register`,
+          redirectTo: `${typeof window !== "undefined" ? window.location.origin : ""}/auth/callback?next=/register?step=details`,
         },
       })
       if (error) {
@@ -301,9 +338,10 @@ export function UTSPackageForm({
 
   const formatRupiah = (val: number) => `Rp ${val.toLocaleString("id-ID")}`
 
-  // Form Submission & Payload Preparation
-  const handleFormSubmit = (e: React.FormEvent) => {
+  // Form Submission & Database Sync
+  const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+
     if (!fullName || fullName.length < 3) {
       toast.error("Nama lengkap minimal 3 karakter.")
       return
@@ -317,40 +355,89 @@ export function UTSPackageForm({
       return
     }
     if (!activeFile) {
-      toast.error("Mohon unggah bukti pembayaran SeaBank.")
+      toast.error("Mohon unggah bukti pembayaran transfer SeaBank.")
       return
     }
 
-    const payload: ELearningRegistrationPayload = {
-      fullName,
-      email,
-      whatsapp,
-      studentCategory,
-      billingCycle,
-      selectedPackageId: selectedPackage.id,
-      selectedPackageName: selectedPackage.name,
-      price: selectedPackage.price,
-      paymentProof: activeFile,
+    // Check duplicate account before submission
+    try {
+      const checkRes = await fetch("/api/auth/check-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      })
+      const checkData = await checkRes.json()
+      if (checkData.exists) {
+        setDuplicateEmail(email)
+        setShowDuplicateModal(true)
+        return
+      }
+    } catch (err) {
+      console.warn("Pre-check error:", err)
     }
 
-    console.log("Submitting E-Learning Registration Payload:", payload)
+    setIsSubmitting(true)
 
-    if (onSubmit) {
-      onSubmit(e, payload)
-    } else {
-      toast.success("Pendaftaran E-Learning Mandiri berhasil diproses!")
+    try {
+      // Ensure auth session is resolved if already logged in via Google
+      const supabase = createClient()
+      const { data: { session } } = await supabase.auth.getSession()
+      const resolvedAuthId = session?.user?.id || currentUser?.id
+
+      const formPayload = new FormData()
+      formPayload.append("type", "UTS")
+      formPayload.append("fullName", fullName)
+      formPayload.append("name", fullName)
+      formPayload.append("email", email)
+      formPayload.append("whatsapp", whatsapp)
+      formPayload.append("phone", whatsapp)
+      formPayload.append("studentCategory", studentCategory)
+      formPayload.append("student_category", studentCategory)
+      formPayload.append("billingCycle", billingCycle)
+      formPayload.append("billing_cycle", billingCycle)
+      formPayload.append("selectedPackageId", selectedPackage.id)
+      formPayload.append("selectedPackageName", selectedPackage.name)
+      formPayload.append("packageType", selectedPackage.id)
+      formPayload.append("price", String(selectedPackage.price))
+      formPayload.append("paymentProof", activeFile)
+      if (resolvedAuthId) {
+        formPayload.append("authId", resolvedAuthId)
+      }
+
+      const res = await fetch("/api/register", {
+        method: "POST",
+        body: formPayload,
+      })
+
+      const data = await res.json()
+
+      if (!res.ok) {
+        throw new Error(data.error || "Gagal memproses pendaftaran.")
+      }
+
+      toast.success("Pendaftaran berhasil! Mengalihkan ke halaman verifikasi...")
+      router.push("/waiting-approval")
+    } catch (error: any) {
+      console.error("Submission error:", error)
+      toast.error(error?.message || "Terjadi kesalahan saat mendaftar.")
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
   const activeAllAccessCourses =
-    studentCategory === "PHYSICS_SEM_3" ? PHYSICS_SEM_3_COURSES : NON_PHYSICS_COURSES
+    studentCategory === "PHYSICS_SEM_3"
+      ? PHYSICS_SEM_3_COURSES
+      : NON_PHYSICS_COURSES
+
+  const isFormBusy = propIsLoading || isSubmitting
 
   return (
     <div className="w-full font-sans max-w-full">
       <form onSubmit={handleFormSubmit}>
         {/* 2-Column Grid Layout for Desktop (1-Column on Mobile) */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-start">
-
+          
           {/* ======================================================== */}
           {/* LEFT COLUMN (Auth, Form, Curriculum & Packages)          */}
           {/* ======================================================== */}
@@ -358,7 +445,7 @@ export function UTSPackageForm({
 
             {/* 1. Google Sign-In & Personal Data Container */}
             <div className="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-[#FFEED6] mb-6">
-
+              
               {/* Authenticated State vs Google Sign-In Button */}
               {currentUser ? (
                 /* Authenticated User Badge */
@@ -380,192 +467,229 @@ export function UTSPackageForm({
                   <button
                     type="button"
                     onClick={handleSignOutGoogle}
-                    className="text-xs text-[#827148]/80 hover:text-[#827148] underline font-semibold px-2 py-1 cursor-pointer transition-colors"
+                    className="text-xs font-bold text-[#827148] hover:text-[#E8A07C] underline cursor-pointer"
                   >
                     Ganti Akun
                   </button>
                 </div>
               ) : (
-                /* Google Sign-In Button & Divider */
-                <>
+                /* Google Sign-In Button */
+                <div className="mb-6">
                   <button
                     type="button"
                     onClick={handleGoogleSignIn}
                     disabled={isGoogleLoading}
-                    className="w-full bg-white hover:bg-[#FFEED6]/20 border-2 border-[#FFEED6] text-[#827148] font-bold rounded-xl py-3 px-4 flex justify-center items-center gap-3 transition-colors shadow-2xs cursor-pointer text-sm disabled:opacity-60 disabled:cursor-not-allowed"
+                    className="w-full bg-white border-2 border-[#FFEED6] text-[#827148] font-bold rounded-xl py-3.5 px-4 flex justify-center items-center gap-3 transition-colors hover:bg-gray-50 cursor-pointer shadow-2xs disabled:opacity-60 text-sm"
                   >
-                    {/* Google Logo Placeholder (Generic Colored Square Dot) */}
                     <div className="w-5 h-5 rounded-md bg-[#FFEED6] flex items-center justify-center p-1 border border-[#827148]/15">
                       <div className="w-2.5 h-2.5 rounded-full bg-[#A5AF79]" />
                     </div>
-                    <span>{isGoogleLoading ? "Menghubungkan ke Google..." : "Daftar dengan Google"}</span>
+                    <span>
+                      {isGoogleLoading
+                        ? "Menghubungkan ke Google..."
+                        : "Daftar Cepat dengan Google"}
+                    </span>
                   </button>
 
-                  {/* Visual Divider */}
-                  <div className="flex items-center my-6 gap-3 text-xs text-[#827148]/60 font-semibold uppercase tracking-wider">
+                  <div className="flex items-center my-5 gap-3 text-xs text-gray-400 font-semibold uppercase tracking-wider">
                     <span className="flex-1 border-t border-[#FFEED6]" />
-                    <span>Atau isi formulir di bawah</span>
+                    <span>ATAU ISI MANUAL</span>
                     <span className="flex-1 border-t border-[#FFEED6]" />
                   </div>
-                </>
+                </div>
               )}
 
-              {/* Personal Data Fields (NO NIM) */}
+              {/* Data Diri Form */}
               <div className="space-y-4">
+                {/* Full Name */}
                 <div>
-                  <label htmlFor="el-fullname" className="text-sm font-semibold text-[#827148] mb-1.5 block">
-                    Nama Lengkap
+                  <label className="text-xs font-bold text-[#827148] mb-1.5 block">
+                    Nama Lengkap <span className="text-[#E8A07C]">*</span>
                   </label>
                   <input
-                    id="el-fullname"
                     type="text"
-                    placeholder="Masukkan nama lengkap"
+                    required
+                    placeholder="Contoh: Najwa Aaliyah Priyatna"
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
-                    className="w-full py-3 px-4 rounded-xl border border-[#FFEED6] bg-white text-sm text-[#827148] placeholder:text-[#827148]/40 focus:outline-none focus:ring-2 focus:ring-[#A5AF79] focus:border-transparent transition-all shadow-2xs"
-                    required
+                    className="w-full bg-white border-2 border-[#FFEED6] focus:border-[#A5AF79] focus:outline-none text-xs font-medium text-[#827148] placeholder:text-[#827148]/40 px-3.5 py-3 rounded-xl shadow-2xs transition-colors"
                   />
                 </div>
 
+                {/* Email Address */}
                 <div>
-                  <label htmlFor="el-email" className="text-sm font-semibold text-[#827148] mb-1.5 block">
-                    Email
+                  <label className="text-xs font-bold text-[#827148] mb-1.5 block">
+                    Alamat Email <span className="text-[#E8A07C]">*</span>
                   </label>
                   <input
-                    id="el-email"
                     type="email"
+                    required
                     placeholder="nama@email.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full py-3 px-4 rounded-xl border border-[#FFEED6] bg-white text-sm text-[#827148] placeholder:text-[#827148]/40 focus:outline-none focus:ring-2 focus:ring-[#A5AF79] focus:border-transparent transition-all shadow-2xs"
-                    required
+                    className="w-full bg-white border-2 border-[#FFEED6] focus:border-[#A5AF79] focus:outline-none text-xs font-medium text-[#827148] placeholder:text-[#827148]/40 px-3.5 py-3 rounded-xl shadow-2xs transition-colors"
                   />
                 </div>
 
+                {/* WhatsApp Number */}
                 <div>
-                  <label htmlFor="el-whatsapp" className="text-sm font-semibold text-[#827148] mb-1.5 block">
-                    Nomor WhatsApp
+                  <label className="text-xs font-bold text-[#827148] mb-1.5 block">
+                    Nomor WhatsApp <span className="text-[#E8A07C]">*</span>
                   </label>
                   <input
-                    id="el-whatsapp"
                     type="tel"
+                    required
                     placeholder="08xxxxxxxxxx"
                     value={whatsapp}
                     onChange={(e) => setWhatsapp(e.target.value)}
-                    className="w-full py-3 px-4 rounded-xl border border-[#FFEED6] bg-white text-sm text-[#827148] placeholder:text-[#827148]/40 focus:outline-none focus:ring-2 focus:ring-[#A5AF79] focus:border-transparent transition-all shadow-2xs"
-                    required
+                    className="w-full bg-white border-2 border-[#FFEED6] focus:border-[#A5AF79] focus:outline-none text-xs font-medium text-[#827148] placeholder:text-[#827148]/40 px-3.5 py-3 rounded-xl shadow-2xs transition-colors"
                   />
-                  <p className="text-[11px] text-[#827148]/70 mt-1 font-medium">
-                    Format: 08xx, 62xx, atau +62xx
-                  </p>
                 </div>
               </div>
-
-              {/* 3. Curriculum Category & Access List (CRITICAL UPDATE) */}
-              <div className="pt-6 mt-6 border-t border-[#FFEED6] space-y-4">
-                <div>
-                  <label className="text-sm font-semibold text-[#827148] mb-2 block">
-                    Apakah kamu mahasiswa Departemen Fisika Semester 3?
-                  </label>
-                  <div className="grid grid-cols-2 gap-3">
-                    <button
-                      type="button"
-                      onClick={() => setStudentCategory("PHYSICS_SEM_3")}
-                      className={`py-3 px-4 rounded-xl text-sm font-bold border transition-all cursor-pointer flex items-center justify-center gap-2 ${studentCategory === "PHYSICS_SEM_3"
-                          ? "bg-[#A5AF79] text-white border-[#A5AF79] shadow-xs"
-                          : "bg-white text-[#827148] border-[#FFEED6] hover:border-[#A5AF79] hover:bg-[#FFEED6]/20"
-                        }`}
-                    >
-                      <div className={`w-2.5 h-2.5 rounded-full ${studentCategory === "PHYSICS_SEM_3" ? "bg-white" : "bg-[#827148]/30"}`} />
-                      <span>Iya</span>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => setStudentCategory("NON_PHYSICS")}
-                      className={`py-3 px-4 rounded-xl text-sm font-bold border transition-all cursor-pointer flex items-center justify-center gap-2 ${studentCategory === "NON_PHYSICS"
-                          ? "bg-[#A5AF79] text-white border-[#A5AF79] shadow-xs"
-                          : "bg-white text-[#827148] border-[#FFEED6] hover:border-[#A5AF79] hover:bg-[#FFEED6]/20"
-                        }`}
-                    >
-                      <div className={`w-2.5 h-2.5 rounded-full ${studentCategory === "NON_PHYSICS" ? "bg-white" : "bg-[#827148]/30"}`} />
-                      <span>Bukan</span>
-                    </button>
-                  </div>
-                </div>
-
-                {/* All-Access Materials Box with Pill Badges */}
-                <div className="bg-[#FFEED6]/30 border border-[#FFEED6] rounded-2xl p-5 mt-4">
-                  <div className="flex items-center gap-2 mb-3">
-                    <div className="w-1.5 h-4 bg-[#A5AF79] rounded-full" />
-                    <h4 className="text-sm font-bold text-[#827148]">
-                      Materi All-Access yang akan kamu dapatkan:
-                    </h4>
-                  </div>
-
-                  <div className="flex flex-wrap gap-2">
-                    {activeAllAccessCourses.map((course) => (
-                      <span
-                        key={course}
-                        className="bg-white border border-[#A5AF79] text-[#827148] text-xs font-semibold px-3.5 py-1.5 rounded-full shadow-2xs"
-                      >
-                        {course}
-                      </span>
-                    ))}
-                  </div>
-
-                  <p className="text-[11px] text-[#827148]/70 mt-3 font-medium">
-                    {studentCategory === "PHYSICS_SEM_3"
-                      ? "*Mencakup seluruh kurikulum semester 3 Departemen Fisika IPB."
-                      : "*Mencakup seluruh modul Fisika Dasar, Matematika, dan Statistika."}
-                  </p>
-                </div>
-              </div>
-
             </div>
 
-            {/* 4. Package Selection Area (Horizontal Cards) */}
-            <div className="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-[#FFEED6] space-y-6">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            {/* 2. Curriculum Category Selection */}
+            <div className="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-[#FFEED6]">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="w-2.5 h-2.5 rounded-full bg-[#A5AF79]" />
+                <h3 className="text-base font-extrabold text-[#827148]">
+                  Pilih Kategori Kurikulum
+                </h3>
+              </div>
+              <p className="text-xs text-[#827148]/70 font-medium mb-4">
+                Pilih jalur kurikulum mata kuliah yang sedang kamu tempuh di semester ini.
+              </p>
+
+              {/* Radio Group / Toggle Cards */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5">
+                <button
+                  type="button"
+                  onClick={() => setStudentCategory("PHYSICS_SEM_3")}
+                  className={`p-4 rounded-2xl border-2 text-left transition-all cursor-pointer shadow-2xs ${
+                    studentCategory === "PHYSICS_SEM_3"
+                      ? "border-[#A5AF79] bg-[#A5AF79]/10"
+                      : "border-[#FFEED6] bg-white hover:border-[#A5AF79]/50"
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="font-bold text-xs text-[#827148]">
+                      Dept. Fisika Smt 3
+                    </span>
+                    <div
+                      className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
+                        studentCategory === "PHYSICS_SEM_3"
+                          ? "border-[#A5AF79] bg-[#A5AF79]"
+                          : "border-[#827148]/30"
+                      }`}
+                    >
+                      {studentCategory === "PHYSICS_SEM_3" && (
+                        <div className="w-1.5 h-1.5 rounded-full bg-white" />
+                      )}
+                    </div>
+                  </div>
+                  <p className="text-[11px] text-[#827148]/70">
+                    6 Mata Kuliah Lengkap Fisika Murni Semester 3
+                  </p>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setStudentCategory("NON_PHYSICS")}
+                  className={`p-4 rounded-2xl border-2 text-left transition-all cursor-pointer shadow-2xs ${
+                    studentCategory === "NON_PHYSICS"
+                      ? "border-[#A5AF79] bg-[#A5AF79]/10"
+                      : "border-[#FFEED6] bg-white hover:border-[#A5AF79]/50"
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="font-bold text-xs text-[#827148]">
+                      Umum / Non-Fisika
+                    </span>
+                    <div
+                      className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
+                        studentCategory === "NON_PHYSICS"
+                          ? "border-[#A5AF79] bg-[#A5AF79]"
+                          : "border-[#827148]/30"
+                      }`}
+                    >
+                      {studentCategory === "NON_PHYSICS" && (
+                        <div className="w-1.5 h-1.5 rounded-full bg-white" />
+                      )}
+                    </div>
+                  </div>
+                  <p className="text-[11px] text-[#827148]/70">
+                    4 Mata Kuliah Fisika Dasar, Kalkulus & Statistika
+                  </p>
+                </button>
+              </div>
+
+              {/* All-Access Material Pill Badges Container */}
+              <div className="bg-[#FFEED6]/30 border border-[#FFEED6] rounded-2xl p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-xs font-bold text-[#827148]">
+                    Akses Materi Termasuk:
+                  </span>
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-[#A5AF79] bg-white px-2 py-0.5 rounded-md border border-[#FFEED6]">
+                    All-Access
+                  </span>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {activeAllAccessCourses.map((c) => (
+                    <span
+                      key={c}
+                      className="bg-white border border-[#FFEED6] text-[#827148] text-xs font-semibold px-3 py-1.5 rounded-xl shadow-2xs"
+                    >
+                      {c}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* 3. Package Selection Section */}
+            <div className="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-[#FFEED6]">
+              <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
                 <div>
-                  <h3 className="text-xl font-bold text-[#827148] tracking-tight">
-                    Pilih Tipe Paket
+                  <h3 className="text-base font-extrabold text-[#827148]">
+                    Pilih Paket Belajar
                   </h3>
-                  <p className="text-xs sm:text-sm text-[#827148]/70 mt-0.5 font-medium">
-                    Pilih durasi akses dan fitur belajar mandiri yang kamu inginkan.
+                  <p className="text-xs text-[#827148]/70 font-medium mt-0.5">
+                    Pilih durasi dan fasilitas belajar yang kamu inginkan.
                   </p>
                 </div>
 
-                {/* Duration Pill-shaped Toggle */}
-                <div className="bg-[#FFEED6]/50 p-1.5 rounded-full flex border border-[#FFEED6] shrink-0 self-start sm:self-auto">
+                {/* Billing Cycle Toggle */}
+                <div className="flex items-center bg-[#FFEED6]/50 p-1 rounded-2xl border border-[#FFEED6]">
                   <button
                     type="button"
                     onClick={() => setBillingCycle("MONTHLY")}
-                    className={`py-2 px-4 rounded-full text-xs sm:text-sm font-bold transition-all cursor-pointer ${billingCycle === "MONTHLY"
-                        ? "bg-[#A5AF79] text-white shadow-xs"
+                    className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                      billingCycle === "MONTHLY"
+                        ? "bg-[#A5AF79] text-white shadow-2xs"
                         : "text-[#827148] hover:bg-[#FFEED6]"
-                      }`}
+                    }`}
                   >
                     Bulanan
                   </button>
                   <button
                     type="button"
                     onClick={() => setBillingCycle("SEMESTER")}
-                    className={`py-2 px-4 rounded-full text-xs sm:text-sm font-bold transition-all cursor-pointer flex items-center gap-1.5 ${billingCycle === "SEMESTER"
-                        ? "bg-[#A5AF79] text-white shadow-xs"
+                    className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                      billingCycle === "SEMESTER"
+                        ? "bg-[#A5AF79] text-white shadow-2xs"
                         : "text-[#827148] hover:bg-[#FFEED6]"
-                      }`}
+                    }`}
                   >
                     <span>Semester Pass</span>
-                    <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-[#E8A07C] text-white font-bold">
-                      Hemat
+                    <span className="text-[9px] bg-[#E8A07C] text-white font-black px-1.5 py-0.5 rounded-md">
+                      HEMAT
                     </span>
                   </button>
                 </div>
               </div>
 
-              {/* HORIZONTAL CARDS CONTAINER - NO overflow-hidden, spacing on top for badges */}
-              <div className="space-y-6 pt-3 mt-6">
+              {/* Package Options Cards */}
+              <div className="space-y-4">
                 {activePackageList.map((pkg) => {
                   const isSelected = selectedPackageId === pkg.id
 
@@ -573,76 +697,57 @@ export function UTSPackageForm({
                     <div
                       key={pkg.id}
                       onClick={() => setSelectedPackageId(pkg.id)}
-                      className={`relative bg-white rounded-2xl border-2 p-6 transition-all duration-200 cursor-pointer flex flex-col md:flex-row items-stretch justify-between ${isSelected
-                          ? "border-[#A5AF79] bg-[#A5AF79]/5 shadow-md -translate-y-0.5"
-                          : "border-[#FFEED6] hover:border-[#A5AF79] hover:-translate-y-0.5 shadow-2xs"
-                        }`}
+                      className={`rounded-2xl border-2 p-5 transition-all cursor-pointer relative shadow-2xs ${
+                        isSelected
+                          ? "border-[#A5AF79] bg-[#A5AF79]/10"
+                          : "border-[#FFEED6] bg-white hover:border-[#A5AF79]/40"
+                      }`}
                     >
-                      {/* CRITICAL: Absolute Top Badges (No overflow-hidden on parent so fully visible) */}
                       {pkg.isPopular && (
-                        <div className="absolute -top-4 left-6 bg-[#E8A07C] text-white text-[10px] uppercase tracking-wider font-bold py-1 px-3.5 rounded-full shadow-xs z-10">
-                          PALING POPULER
-                        </div>
+                        <span className="absolute -top-3 right-4 bg-[#E8A07C] text-white text-[10px] font-black uppercase tracking-wider px-3 py-0.5 rounded-full shadow-2xs">
+                          Paling Populer
+                        </span>
                       )}
 
-                      {pkg.discountBadge && (
-                        <div className={`absolute -top-4 ${pkg.isPopular ? "left-38" : "left-6"} bg-[#A5AF79] text-white text-[10px] font-bold py-1 px-3 rounded-full shadow-xs z-10`}>
-                          {pkg.discountBadge}
-                        </div>
-                      )}
-
-                      {/* LEFT SIDE OF HORIZONTAL CARD: Name, Description & Price */}
-                      <div className="md:w-1/3 md:border-r border-dashed border-gray-200 pr-4 pb-4 md:pb-0 border-b md:border-b-0 flex flex-col justify-between">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                         <div>
-                          <h4 className="text-lg font-bold text-[#827148] leading-tight">
-                            {pkg.name}
-                          </h4>
-                          <p className="text-xs font-semibold text-[#827148]/70 mt-1 leading-snug">
+                          <div className="flex items-center gap-2">
+                            <h4 className="font-extrabold text-sm text-[#827148]">
+                              {pkg.name}
+                            </h4>
+                            {pkg.discountBadge && (
+                              <span className="text-[10px] font-bold text-[#E8A07C] bg-[#E8A07C]/15 px-2 py-0.5 rounded-md">
+                                {pkg.discountBadge}
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-xs text-[#827148]/70 mt-1">
                             {pkg.headline}
                           </p>
-                        </div>
 
-                        <div className="mt-4">
-                          {pkg.originalPrice && (
-                            <p className="text-xs text-[#827148]/50 line-through font-semibold mb-0.5">
-                              {formatRupiah(pkg.originalPrice)}
-                            </p>
-                          )}
-                          <div className="flex items-baseline gap-1">
-                            <span className="text-2xl font-extrabold text-[#827148] tracking-tight">
-                              {formatRupiah(pkg.price)}
-                            </span>
-                            <span className="text-xs text-[#827148]/65 font-medium">
-                              {pkg.cycle === "MONTHLY" ? "/ bulan" : "/ semester"}
-                            </span>
+                          <div className="flex flex-wrap gap-2 mt-3">
+                            {pkg.features.map((feat, i) => (
+                              <span
+                                key={i}
+                                className="text-[11px] font-medium text-[#827148]/80 bg-white/80 border border-[#FFEED6] px-2.5 py-0.5 rounded-lg"
+                              >
+                                ✓ {feat}
+                              </span>
+                            ))}
                           </div>
                         </div>
-                      </div>
 
-                      {/* RIGHT SIDE OF HORIZONTAL CARD: Features list & Selection button */}
-                      <div className="md:w-2/3 pl-0 md:pl-4 mt-4 md:mt-0 flex flex-col justify-between">
-                        <div className="space-y-2 mb-5">
-                          {pkg.features.map((feature, i) => (
-                            <div key={i} className="flex items-start gap-2.5 text-xs text-[#827148] font-medium leading-snug">
-                              <div className="w-3.5 h-3.5 rounded-full bg-[#A5AF79]/20 flex items-center justify-center shrink-0 mt-0.5">
-                                <div className="w-1.5 h-1.5 rounded-full bg-[#A5AF79]" />
-                              </div>
-                              <span>{feature}</span>
-                            </div>
-                          ))}
+                        <div className="text-left sm:text-right shrink-0 border-t sm:border-t-0 pt-3 sm:pt-0 border-[#FFEED6]">
+                          {pkg.originalPrice && (
+                            <span className="text-xs text-gray-400 line-through block">
+                              {formatRupiah(pkg.originalPrice)}
+                            </span>
+                          )}
+                          <span className="text-lg font-black text-[#827148]">
+                            {formatRupiah(pkg.price)}
+                          </span>
                         </div>
-
-                        <button
-                          type="button"
-                          className={`w-full py-2.5 px-4 rounded-xl text-xs font-bold transition-colors cursor-pointer text-center ${isSelected
-                              ? "bg-[#A5AF79] text-white shadow-2xs"
-                              : "bg-[#FFEED6]/40 text-[#827148] hover:bg-[#FFEED6]"
-                            }`}
-                        >
-                          {isSelected ? "Paket Terpilih ✓" : "Pilih Paket Ini"}
-                        </button>
                       </div>
-
                     </div>
                   )
                 })}
@@ -652,209 +757,180 @@ export function UTSPackageForm({
           </div>
 
           {/* ======================================================== */}
-          {/* RIGHT COLUMN (Summary & Payment - Sticky on Desktop)     */}
+          {/* RIGHT COLUMN (Order Summary, Payment, Upload & Checkout) */}
           {/* ======================================================== */}
-          <div className="lg:col-span-5 lg:sticky lg:top-8 flex flex-col space-y-6">
+          <div className="lg:col-span-5 space-y-6 lg:sticky lg:top-24">
+            
+            {/* Order Summary Card */}
+            <div className="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-[#FFEED6]">
+              <h3 className="text-base font-extrabold text-[#827148] mb-4 pb-2 border-b border-[#FFEED6]">
+                Ringkasan Pendaftaran
+              </h3>
 
-            {/* 1. Order Summary Card (Ringkasan Tagihan) */}
-            <div className="bg-white border-2 border-[#FFEED6] rounded-3xl p-6 shadow-sm">
-              {/* Header */}
-              <div className="flex justify-between items-center mb-6">
-                <div className="flex items-center">
-                  <div className="w-5 h-5 rounded-md bg-[#A5AF79] mr-2.5 flex items-center justify-center shadow-2xs">
-                    <div className="w-2 h-2 rounded-xs bg-white" />
-                  </div>
-                  <h3 className="text-base font-bold text-[#827148]">
-                    Ringkasan Tagihan
-                  </h3>
-                </div>
-                <span className="bg-[#FFEED6] text-[#827148] px-3 py-1 rounded-full text-xs font-bold">
-                  {billingCycle === "MONTHLY" ? "Bulanan" : "Semester Pass"}
-                </span>
-              </div>
-
-              {/* Dynamic Content */}
-              <div className="space-y-3 text-sm text-[#827148]/80 font-medium">
-                <div className="flex justify-between items-center">
-                  <span>Paket Aktif</span>
+              <div className="space-y-3 text-xs text-[#827148]">
+                <div className="flex items-center justify-between">
+                  <span className="text-[#827148]/70">Paket Terpilih:</span>
                   <span className="font-bold text-[#827148]">
                     {selectedPackage.name}
                   </span>
                 </div>
-                <div className="flex justify-between items-center">
-                  <span>Kategori Kurikulum</span>
-                  <span className="font-bold text-[#827148] truncate max-w-[200px] text-right">
-                    {studentCategory === "PHYSICS_SEM_3" ? "Dept. Fisika Smt 3" : "Umum / Non-Fisika"}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span>Periode Akses</span>
+
+                <div className="flex items-center justify-between">
+                  <span className="text-[#827148]/70">Durasi:</span>
                   <span className="font-bold text-[#827148]">
-                    {selectedPackage.cycle === "MONTHLY" ? "30 Hari (1 Bulan)" : "6 Bulan (1 Semester)"}
+                    {billingCycle === "SEMESTER" ? "6 Bulan (1 Semester)" : "30 Hari"}
                   </span>
                 </div>
-                <div className="flex justify-between items-center">
-                  <span>Biaya Layanan</span>
-                  <span className="font-bold text-[#A5AF79]">
-                    Gratis
+
+                <div className="flex items-center justify-between">
+                  <span className="text-[#827148]/70">Kategori:</span>
+                  <span className="font-bold text-[#827148]">
+                    {studentCategory === "PHYSICS_SEM_3"
+                      ? "Fisika Semester 3"
+                      : "Umum / Non-Fisika"}
                   </span>
                 </div>
-              </div>
 
-              {/* Divider */}
-              <div className="border-b-2 border-dashed border-[#FFEED6] my-4" />
-
-              {/* Grand Total Row */}
-              <div className="flex justify-between items-end mb-2">
-                <div>
-                  <p className="text-xs text-[#827148]/70 uppercase tracking-wider font-semibold">
-                    Total Pembayaran
-                  </p>
-                  <p className="text-xs text-[#827148]/60 mt-0.5">
-                    (Akses semua materi kategori)
-                  </p>
-                </div>
-
-                <div className="text-right">
-                  {selectedPackage.originalPrice && (
-                    <p className="text-xs text-[#827148]/50 line-through font-semibold mb-0.5">
-                      {formatRupiah(selectedPackage.originalPrice)}
-                    </p>
-                  )}
-                  <span className="text-2xl font-extrabold text-[#827148] tracking-tight">
+                <div className="pt-3 border-t border-[#FFEED6] flex items-center justify-between text-sm">
+                  <span className="font-bold text-[#827148]">Total Pembayaran:</span>
+                  <span className="text-xl font-black text-[#827148]">
                     {formatRupiah(selectedPackage.price)}
                   </span>
                 </div>
               </div>
-            </div>
 
-            {/* 2. Payment Instructions Card (SeaBank) */}
-            <div className="bg-[#FFEED6]/30 border border-[#FFEED6] rounded-3xl p-6 shadow-2xs">
-              {/* Title */}
-              <div className="flex items-center mb-2">
-                <div className="w-5 h-5 bg-[#A5AF79] rounded-md mr-3 flex items-center justify-center shadow-2xs">
-                  <div className="w-2 h-2 rounded-xs bg-white" />
+              {/* SeaBank Transfer Details */}
+              <div className="bg-[#FFEED6]/40 border border-[#FFEED6] rounded-2xl p-4 mt-6 space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-[#827148]">
+                    Transfer Bank (SeaBank)
+                  </span>
+                  <span className="text-[10px] font-bold uppercase text-[#A5AF79] bg-white px-2 py-0.5 rounded-md border border-[#FFEED6]">
+                    Manual
+                  </span>
                 </div>
-                <h4 className="font-bold text-sm text-[#827148]">
-                  Pembayaran via SeaBank
-                </h4>
-              </div>
 
-              {/* Instruction */}
-              <p className="text-xs text-[#827148]/80 mb-4 font-medium leading-relaxed">
-                Silakan lakukan transfer ke nomor berikut sesuai dengan total tagihan.
-              </p>
-
-              {/* Details Box */}
-              <div className="bg-white border border-[#FFEED6] rounded-2xl p-4 flex justify-between items-center shadow-2xs">
                 <div>
-                  <span className="text-[10px] font-bold text-[#827148]/60 uppercase tracking-wider block mb-0.5">
-                    NOMOR SEABANK
-                  </span>
-                  <span className="text-lg font-extrabold text-[#827148] tracking-wider block">
-                    901790900641
-                  </span>
-                  <span className="text-xs text-[#827148]/80 font-medium block mt-0.5">
+                  <div className="flex items-center justify-between bg-white p-2.5 rounded-xl border border-[#FFEED6]">
+                    <div>
+                      <span className="text-[10px] text-gray-400 uppercase font-bold block">
+                        No. Rekening
+                      </span>
+                      <span className="font-mono font-bold text-xs sm:text-sm text-[#827148]">
+                        901790900641
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleCopySeaBank}
+                      className="text-xs font-bold px-3 py-1.5 rounded-lg bg-[#FFEED6]/50 hover:bg-[#FFEED6] text-[#827148] transition-colors cursor-pointer"
+                    >
+                      {copiedBank ? "Tersalin ✓" : "Salin"}
+                    </button>
+                  </div>
+                  <span className="text-[11px] text-[#827148]/70 mt-1.5 block font-medium">
                     a.n. Najwa Aaliyah Priyatna
                   </span>
                 </div>
-
-                <button
-                  type="button"
-                  onClick={handleCopySeaBank}
-                  className="bg-[#A5AF79] hover:bg-[#949e6a] text-white text-xs px-4 py-2 rounded-xl font-bold transition-colors cursor-pointer shadow-2xs shrink-0"
-                >
-                  {copiedBank ? "Tersalin ✓" : "Salin"}
-                </button>
               </div>
-            </div>
 
-            {/* 3. File Upload Box */}
-            <div className="space-y-2">
-              <label className="text-sm font-semibold text-[#827148] block">
-                Bukti Pembayaran
-              </label>
-
-              <div className="relative">
-                <input
-                  id="el-payment-proof"
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileChange}
-                  className="hidden"
-                />
-
-                <label
-                  htmlFor="el-payment-proof"
-                  className="border-2 border-dashed border-[#A5AF79] bg-white rounded-2xl p-8 text-center flex flex-col items-center justify-center cursor-pointer hover:bg-[#FFEED6]/10 transition-colors shadow-2xs"
-                >
-                  {activePreview ? (
-                    <div className="relative w-full flex items-center justify-center">
-                      <img
-                        src={activePreview}
-                        alt="Bukti Transfer"
-                        className="max-h-32 object-contain rounded-lg"
-                      />
-                    </div>
-                  ) : (
-                    <div className="flex flex-col items-center gap-2 text-[#827148]">
-                      <div className="w-10 h-10 rounded-xl bg-[#FFEED6] flex items-center justify-center border border-[#827148]/10">
-                        <div className="w-3.5 h-3.5 rounded-sm bg-[#A5AF79]" />
-                      </div>
-                      <span className="text-sm font-bold text-[#827148]">
-                        Klik untuk unggah bukti transfer SeaBank
-                      </span>
-                      <span className="text-xs text-[#827148]/70 font-medium">
-                        JPG, PNG, WebP (maks. 5MB)
-                      </span>
-                    </div>
-                  )}
+              {/* File Upload Box */}
+              <div className="mt-6">
+                <label className="text-xs font-bold text-[#827148] mb-2 block">
+                  Unggah Bukti Transfer <span className="text-[#E8A07C]">*</span>
                 </label>
 
-                {activeFile && (
-                  <button
-                    type="button"
-                    onClick={handleClearFile}
-                    aria-label="Hapus bukti pembayaran"
-                    className="absolute top-3 right-3 w-7 h-7 bg-[#E8A07C] hover:bg-[#d8916e] text-white rounded-full flex items-center justify-center font-bold text-xs shadow-sm transition-colors cursor-pointer"
-                  >
-                    ✕
-                  </button>
+                {activePreview ? (
+                  <div className="relative border-2 border-[#A5AF79] rounded-2xl p-3 bg-[#A5AF79]/10 flex items-center justify-between">
+                    <div className="flex items-center gap-3 truncate">
+                      <div className="w-8 h-8 rounded-lg bg-[#A5AF79] text-white flex items-center justify-center font-bold text-xs shrink-0">
+                        ✓
+                      </div>
+                      <span className="text-xs font-bold text-[#827148] truncate">
+                        {activeFile?.name || "Bukti Transfer Terunggah"}
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleClearFile}
+                      className="text-xs font-bold text-[#E8A07C] hover:underline shrink-0 ml-2 cursor-pointer"
+                    >
+                      Hapus
+                    </button>
+                  </div>
+                ) : (
+                  <label className="border-2 border-dashed border-[#A5AF79] hover:border-[#827148] bg-[#FFEED6]/20 hover:bg-[#FFEED6]/40 rounded-2xl p-5 flex flex-col items-center justify-center text-center cursor-pointer transition-colors block">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFileChange}
+                      className="hidden"
+                    />
+                    <div className="w-10 h-10 rounded-2xl bg-[#FFEED6] flex items-center justify-center border border-[#827148]/15 mb-2 shadow-2xs">
+                      <div className="w-3.5 h-3.5 rounded-xs bg-[#A5AF79]" />
+                    </div>
+                    <span className="text-xs font-bold text-[#827148]">
+                      Klik untuk unggah bukti transfer SeaBank
+                    </span>
+                    <span className="text-[10px] text-[#827148]/60 mt-1">
+                      JPG, PNG, atau WebP (Maksimal 5MB)
+                    </span>
+                  </label>
                 )}
               </div>
 
-              {activeFile && (
-                <p className="text-xs text-[#827148]/80 font-medium">
-                  {activeFile.name} ({(activeFile.size / 1024 / 1024).toFixed(2)} MB)
-                </p>
-              )}
-            </div>
-
-            {/* 4. Submit Button & Footer Link */}
-            <div className="space-y-4 pt-2">
+              {/* Submit Checkout Button */}
               <button
                 type="submit"
-                disabled={isLoading}
-                className="w-full bg-[#E8A07C] hover:bg-[#E8A07C]/90 active:bg-[#d8916e] text-white font-bold rounded-xl py-4 transition-colors shadow-sm cursor-pointer text-center text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={isFormBusy}
+                className="w-full bg-[#A5AF79] hover:bg-[#949e6a] active:bg-[#8f9864] text-white font-bold rounded-xl py-4 px-4 mt-6 text-sm sm:text-base shadow-sm transition-all cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
               >
-                {isLoading ? "Memproses pendaftaran..." : "Daftar & Aktivasi Akun"}
+                {isFormBusy ? (
+                  <>
+                    <div className="w-2 h-2 rounded-full bg-white animate-ping" />
+                    <span>Memproses Pendaftaran...</span>
+                  </>
+                ) : (
+                  <span>Daftar & Konfirmasi Pembayaran</span>
+                )}
               </button>
-
-              <p className="text-center text-xs sm:text-sm text-[#827148]/80">
-                Sudah punya akun?{" "}
-                <Link
-                  href="/login"
-                  className="font-bold text-[#A5AF79] hover:underline"
-                >
-                  Masuk
-                </Link>
-              </p>
             </div>
 
           </div>
 
         </div>
       </form>
+
+      {/* ======================================================== */}
+      {/* TASK 1: DUPLICATE GOOGLE ACCOUNT PREVENTION MODAL         */}
+      {/* ======================================================== */}
+      <Dialog
+        open={showDuplicateModal}
+        onOpenChange={(open) => setShowDuplicateModal(open)}
+      >
+        <DialogContent className="max-w-md bg-white border-2 border-[#FFEED6] rounded-3xl p-6 sm:p-8 shadow-lg font-sans">
+          <DialogHeader>
+            <div className="w-12 h-12 rounded-2xl bg-[#E8A07C]/20 border border-[#E8A07C]/40 flex items-center justify-center mx-auto mb-3 shadow-2xs">
+              <div className="w-4 h-4 rounded-xs bg-[#E8A07C]" />
+            </div>
+            <DialogTitle className="text-lg sm:text-xl font-bold text-[#827148] text-center">
+              Akun Sudah Terdaftar
+            </DialogTitle>
+            <DialogDescription className="text-sm text-[#827148]/80 text-center leading-relaxed mt-2">
+              Akun Google dengan email <strong>{duplicateEmail}</strong> ini sudah pernah digunakan di Belajar Bareng Nata. Silakan langsung masuk melalui halaman Login.
+            </DialogDescription>
+          </DialogHeader>
+
+          <DialogFooter className="mt-4">
+            <Link
+              href="/login"
+              className="w-full bg-[#A5AF79] hover:bg-[#949e6a] text-white font-bold rounded-xl py-3 px-4 text-center text-sm sm:text-base shadow-2xs transition-colors block cursor-pointer"
+            >
+              Menuju Halaman Login
+            </Link>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

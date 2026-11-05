@@ -139,6 +139,7 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
   const router = useRouter()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [subjectAccess, setSubjectAccess] = useState<any[]>([])
+  const [userProfile, setUserProfile] = useState<any>(null)
   const [studentCategory, setStudentCategory] = useState<"PHYSICS_SEM_3" | "NON_PHYSICS">("PHYSICS_SEM_3")
   const { selectedSubject } = useSubject()
   const { isDark, toggleTheme } = useTheme()
@@ -150,13 +151,15 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
 
       if (user) {
         try {
+          const userEmail = (user.email || "").toLowerCase().trim()
           const { data: profile } = await supabase
             .from("users")
             .select("*, subject_access:user_subject_access(*)")
-            .eq("auth_id", user.id)
-            .single()
+            .or(`auth_id.eq.${user.id},email.ilike.${userEmail}`)
+            .maybeSingle()
 
           if (profile) {
+            setUserProfile(profile)
             if (profile.subject_access) {
               setSubjectAccess(profile.subject_access)
             }
@@ -173,10 +176,11 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
     fetchUserPackage()
   }, [])
 
-  const activeAccess = subjectAccess.find(a => a.subject === selectedSubject && a.is_active)
-  const features = activeAccess 
-    ? getPackageFeatures(activeAccess.package_type, activeAccess.role)
-    : getPackageFeatures(null, "STUDENT_BASIC")
+  const activeAccess = subjectAccess.find(a => (a.subject === selectedSubject || a.subject === "ALL") && a.is_active)
+  const effectivePackage = activeAccess?.package_type || userProfile?.package_type || "EINSTEIN"
+  const effectiveRole = activeAccess?.role || userProfile?.role || "STUDENT_BASIC"
+
+  const features = getPackageFeatures(effectivePackage, effectiveRole)
 
   const handleLogout = async () => {
     const supabase = createClient()
@@ -186,7 +190,7 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
   }
 
   const SidebarContent = () => (
-    <div className="flex flex-col h-full bg-white">
+    <div className="flex flex-col h-full bg-white font-sans">
       {/* Brand Area */}
       <div className="p-6 border-b border-[#FFEED6]">
         <Link href="/dashboard" className="flex items-center gap-3">
@@ -238,8 +242,8 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
                     <span>{item.label}</span>
                   </div>
                   {isLocked && (
-                    <span className="text-[10px] uppercase font-bold text-[#827148]/40 bg-[#FFEED6] px-1.5 py-0.5 rounded-md">
-                      Lock
+                    <span className="bg-[#FFEED6] text-[#827148] text-[10px] font-bold px-2 py-0.5 rounded-md">
+                      LOCK
                     </span>
                   )}
                 </div>
@@ -248,7 +252,9 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
               if (isLocked) {
                 let lockdownMessage = "Fitur ini tidak tersedia di paket Anda."
                 if (item.id === "tryouts" && !features.canAccessTryout) {
-                  lockdownMessage = "Upgrade paket Anda untuk membuka Tryout"
+                  lockdownMessage = "Upgrade ke Senku/Einstein untuk membuka Tryout"
+                } else if (item.id === "latihan" && !features.canAccessLatihan) {
+                  lockdownMessage = "Upgrade paket Anda untuk membuka Latihan Soal"
                 }
                 return (
                   <Tooltip key={item.id}>
@@ -263,12 +269,7 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
               }
 
               return (
-                <Link
-                  key={item.id}
-                  href={item.href}
-                  onClick={() => setSidebarOpen(false)}
-                  className="block"
-                >
+                <Link key={item.id} href={item.href} className="w-full block">
                   {navContent}
                 </Link>
               )

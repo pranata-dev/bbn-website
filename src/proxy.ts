@@ -81,17 +81,55 @@ export async function proxy(request: NextRequest) {
         return supabaseResponse
     }
 
+    // Special handling for /waiting-approval
+    if (pathname === "/waiting-approval") {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) {
+            const url = request.nextUrl.clone()
+            url.pathname = "/login"
+            return NextResponse.redirect(url)
+        }
+
+        const { data: profile } = await supabase
+            .from("users")
+            .select("is_active")
+            .eq("auth_id", user.id)
+            .maybeSingle()
+
+        if (profile && profile.is_active === true) {
+            const url = request.nextUrl.clone()
+            url.pathname = "/dashboard"
+            return NextResponse.redirect(url)
+        }
+
+        return supabaseResponse
+    }
+
     if (isPublicPath) {
         return supabaseResponse
     }
 
-    // Only force Supabase User auth redirect on standard (non-admin) secured routes e.g. /dashboard
+    // Only force Supabase User auth redirect on standard (non-admin) secured routes e.g. /dashboard, /materi
     if (!pathname.startsWith("/admin")) {
         const { data: { user } } = await supabase.auth.getUser()
         if (!user) {
             const url = request.nextUrl.clone()
             url.pathname = "/login"
             url.searchParams.set("redirect", pathname)
+            return NextResponse.redirect(url)
+        }
+
+        // Check if user is active; if inactive or no profile yet, redirect to /waiting-approval
+        const userEmail = (user.email || "").toLowerCase().trim()
+        const { data: profile } = await supabase
+            .from("users")
+            .select("is_active")
+            .or(`auth_id.eq.${user.id},email.ilike.${userEmail}`)
+            .maybeSingle()
+
+        if (!profile || profile.is_active === false || profile.is_active === null) {
+            const url = request.nextUrl.clone()
+            url.pathname = "/waiting-approval"
             return NextResponse.redirect(url)
         }
     }

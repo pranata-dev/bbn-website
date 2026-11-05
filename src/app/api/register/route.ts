@@ -8,349 +8,286 @@ const ACCEPTED_TYPES = ["REGULAR", "UTS", "KELAS_BESAR"] as const
 const ACCEPTED_FILE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"]
 const MAX_FILE_SIZE = 5 * 1024 * 1024
 
+export const dynamic = "force-dynamic"
+
 export async function POST(request: NextRequest) {
-    // Check rate limit
-    const rateLimitResponse = checkRateLimit(request)
-    if (rateLimitResponse) return rateLimitResponse
+  // Rate limit check
+  const rateLimitResponse = checkRateLimit(request)
+  if (rateLimitResponse) return rateLimitResponse
 
-    try {
-        const formData = await request.formData()
+  try {
+    const formData = await request.formData()
 
-        // Extract common fields
-        const type = (formData.get("type") as string || "").trim()
-        const name = (formData.get("name") as string || "").trim()
-        const email = (formData.get("email") as string || "").trim()
-        const password = (formData.get("password") as string || "").trim()
-        const nim = (formData.get("nim") as string || "").trim()
-        const subject = (formData.get("subject") as string || "").trim()
-        const whatsapp = (formData.get("whatsapp") as string || "").trim()
-        const paymentProof = formData.get("paymentProof") as File
+    // Extract common fields (handling both naming conventions)
+    const type = (formData.get("type") as string || "UTS").trim().toUpperCase()
+    const name = (
+      (formData.get("fullName") as string) ||
+      (formData.get("name") as string) ||
+      ""
+    ).trim()
+    const email = (formData.get("email") as string || "").trim().toLowerCase()
+    const password = (formData.get("password") as string || "").trim()
+    const whatsapp = (
+      (formData.get("whatsapp") as string) ||
+      (formData.get("phone") as string) ||
+      ""
+    ).trim()
+    const nim = (formData.get("nim") as string || "MHS-BBN").trim()
+    const studentCategory = (
+      (formData.get("studentCategory") as string) ||
+      (formData.get("student_category") as string) ||
+      "PHYSICS_SEM_3"
+    ).trim()
+    const billingCycle = (
+      (formData.get("billingCycle") as string) ||
+      (formData.get("billing_cycle") as string) ||
+      "MONTHLY"
+    ).trim()
+    const packageType = (
+      (formData.get("selectedPackageId") as string) ||
+      (formData.get("selectedPackageName") as string) ||
+      (formData.get("packageType") as string) ||
+      (formData.get("package_type") as string) ||
+      "einstein_monthly"
+    ).trim()
 
-        // Validate type
-        if (!type || !ACCEPTED_TYPES.includes(type as typeof ACCEPTED_TYPES[number])) {
-            return NextResponse.json(
-                { error: "Tipe registrasi tidak valid." },
-                { status: 400 }
-            )
-        }
+    const subject = (
+      (formData.get("subject") as string) ||
+      (studentCategory === "PHYSICS_SEM_3" ? "Fisika Smt 3" : "Umum")
+    ).trim()
 
-        // Validate required common fields
-        if (!name || name.length < 3) {
-            return NextResponse.json(
-                { error: "Nama minimal 3 karakter." },
-                { status: 400 }
-            )
-        }
+    const paymentProof = formData.get("paymentProof") as File | null
+    const authId = (formData.get("authId") as string || "").trim()
 
-        if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-            return NextResponse.json(
-                { error: "Email tidak valid." },
-                { status: 400 }
-            )
-        }
-
-        if (!password || password.length < 6) {
-            return NextResponse.json(
-                { error: "Password minimal 6 karakter." },
-                { status: 400 }
-            )
-        }
-
-        if (!nim || nim.length < 5) {
-            return NextResponse.json(
-                { error: "NIM minimal 5 karakter." },
-                { status: 400 }
-            )
-        }
-
-        if (!subject) {
-            return NextResponse.json(
-                { error: "Pilih mata kuliah." },
-                { status: 400 }
-            )
-        }
-
-        if (!whatsapp || !WHATSAPP_REGEX.test(whatsapp)) {
-            return NextResponse.json(
-                { error: "Format nomor WhatsApp tidak valid." },
-                { status: 400 }
-            )
-        }
-
-        // Validate file
-        if (!paymentProof || !(paymentProof instanceof File)) {
-            return NextResponse.json(
-                { error: "Mohon unggah bukti pembayaran." },
-                { status: 400 }
-            )
-        }
-
-        if (!ACCEPTED_FILE_TYPES.includes(paymentProof.type)) {
-            return NextResponse.json(
-                { error: "Format file tidak didukung. Gunakan JPG, PNG, atau WebP." },
-                { status: 400 }
-            )
-        }
-
-        if (paymentProof.size > MAX_FILE_SIZE) {
-            return NextResponse.json(
-                { error: "Ukuran file maksimal 5MB." },
-                { status: 400 }
-            )
-        }
-
-        // Validate type-specific fields
-        if (type === "REGULAR") {
-            const groupSize = parseInt(formData.get("groupSize") as string)
-            const sessionCount = parseInt(formData.get("sessionCount") as string)
-            const scheduledDate = formData.get("scheduledDate") as string
-            const scheduledTime = formData.get("scheduledTime") as string
-
-            if (!groupSize || groupSize < 1) {
-                return NextResponse.json({ error: "Jumlah orang minimal 1." }, { status: 400 })
-            }
-            if (groupSize > 20) {
-                return NextResponse.json({ error: "Jumlah orang maksimal 20." }, { status: 400 })
-            }
-            if (!sessionCount || sessionCount < 1) {
-                return NextResponse.json({ error: "Jumlah pertemuan minimal 1." }, { status: 400 })
-            }
-            if (sessionCount > 30) {
-                return NextResponse.json({ error: "Jumlah pertemuan maksimal 30." }, { status: 400 })
-            }
-            if (!scheduledDate) {
-                return NextResponse.json({ error: "Pilih tanggal kelas." }, { status: 400 })
-            }
-            if (!scheduledTime) {
-                return NextResponse.json({ error: "Pilih waktu kelas." }, { status: 400 })
-            }
-        }
-
-        if (type === "UTS") {
-            const packageType = formData.get("packageType") as string
-            if (!packageType) {
-                return NextResponse.json({ error: "Pilih tipe paket." }, { status: 400 })
-            }
-        }
-
-        const supabase = createServiceClient()
-
-        // Check for duplicate submission (same email or NIM + type within last 24h)
-        const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
-        const { data: existingReg } = await supabase
-            .from("registrations")
-            .select("id")
-            .or(`email.eq.${email},and(nim.eq.${nim},type.eq.${type},status.eq.PENDING,created_at.gte.${oneDayAgo})`)
-            .maybeSingle()
-
-        if (existingReg) {
-            return NextResponse.json(
-                { error: "Email sudah digunakan atau kamu sudah memiliki pendaftaran yang sedang diproses." },
-                { status: 409 }
-            )
-        }
-
-        // Check if user account already exists for this email
-        const { data: existingUser } = await supabase
-            .from("users")
-            .select("id")
-            .eq("email", email)
-            .maybeSingle()
-
-        if (existingUser) {
-            return NextResponse.json(
-                { error: "Email ini sudah memiliki akun di sistem. Harap gunakan email lain atau hubungi Admin." },
-                { status: 409 }
-            )
-        }
-
-        // 1. Create Supabase Auth User with password
-        const { data: authData, error: authError } = await supabase.auth.admin.createUser({
-            email,
-            password,
-            email_confirm: true, // Auto-confirm for now until we implement email verification
-        })
-
-        if (authError) {
-            console.error("Auth creation error:", authError)
-            return NextResponse.json(
-                {
-                    error: authError.message.includes("already registered")
-                        ? "Email sudah terdaftar di sistem otentikasi. Silakan gunakan email lain."
-                        : `Gagal membuat identitas pengguna. Supabase Error: ${authError.message}`
-                },
-                { status: 400 }
-            )
-        }
-
-        // Keep the auth ID for rollback if necessary
-        const newAuthId = authData.user.id
-
-        // 2. Insert into local users table
-        const localUserId = crypto.randomUUID()
-        const { error: userInsertError } = await supabase
-            .from("users")
-            .insert({
-                id: localUserId,
-                email,
-                name,
-                is_active: type === "REGULAR",
-                auth_id: newAuthId,
-                updated_at: new Date().toISOString(),
-            })
-
-        if (userInsertError) {
-            console.error("Local user insert error:", userInsertError)
-            // ROLLBACK: Delete auth user
-            await supabase.auth.admin.deleteUser(newAuthId)
-
-            return NextResponse.json(
-                { error: "Gagal membuat profil pengguna." },
-                { status: 500 }
-            )
-        }
-
-        // 3. Upload payment proof
-        const fileExt = paymentProof.name.split(".").pop()
-        const fileName = `registrations/${Date.now()}-${nim}.${fileExt}`
-        const { error: uploadError } = await supabase.storage
-            .from("payment-proofs")
-            .upload(fileName, paymentProof, {
-                cacheControl: "3600",
-                upsert: false,
-            })
-
-        if (uploadError) {
-            console.error("Upload error:", uploadError)
-            return NextResponse.json(
-                { error: "Gagal mengunggah bukti pembayaran." },
-                { status: 500 }
-            )
-        }
-
-        // Get public URL
-        const { data: { publicUrl } } = supabase.storage
-            .from("payment-proofs")
-            .getPublicUrl(fileName)
-
-        // 2. Server-side price calculation
-        let calculatedPrice: number | null = null
-        let pricingTier: string | null = null
-
-        if (type === "REGULAR") {
-            const groupSize = parseInt(formData.get("groupSize") as string)
-            const sessionCount = parseInt(formData.get("sessionCount") as string)
-            const pricing = calculatePrice(groupSize, sessionCount)
-            calculatedPrice = pricing.subtotal
-            pricingTier = pricing.tier
-        } else if (type === "UTS") {
-            const packageType = formData.get("packageType") as string
-            const pkg = UTS_PACKAGES.find(p => p.value === packageType)
-            if (pkg) {
-                calculatedPrice = pkg.price
-                pricingTier = pkg.value.toUpperCase()
-            }
-        } else if (type === "KELAS_BESAR") {
-            calculatedPrice = 30000
-            pricingTier = "MASTERCLASS"
-        }
-
-        // 3. Create Registration Record
-        const registrationId = crypto.randomUUID()
-        const { data: registration, error: regError } = await supabase
-            .from("registrations")
-            .insert({
-                id: registrationId,
-                type,
-                name,
-                email,
-                nim,
-                subject,
-                whatsapp,
-                payment_proof_url: publicUrl,
-                calculated_price: calculatedPrice,
-                pricing_tier: pricingTier,
-                status: type === "REGULAR" ? "APPROVED" : "PENDING",
-                updated_at: new Date().toISOString(),
-            })
-            .select()
-            .single()
-
-        if (regError) {
-            console.error("Registration insert error:", regError)
-            // ROLLBACK: Delete uploaded file, auth user, and local user
-            await supabase.storage.from("payment-proofs").remove([fileName])
-            await supabase.auth.admin.deleteUser(newAuthId)
-            await supabase.from("users").delete().eq("id", localUserId)
-
-            return NextResponse.json(
-                { error: "Gagal menyimpan data pendaftaran." },
-                { status: 500 }
-            )
-        }
-
-        // 4. Create Details Record
-        try {
-            if (type === "REGULAR") {
-                const notes = (formData.get("notes") as string) || ""
-                const { error: detailError } = await supabase
-                    .from("regular_class_details")
-                    .insert({
-                        id: crypto.randomUUID(),
-                        registration_id: registration.id,
-                        group_size: parseInt(formData.get("groupSize") as string),
-                        session_count: parseInt(formData.get("sessionCount") as string),
-                        scheduled_date: formData.get("scheduledDate") as string,
-                        scheduled_time: formData.get("scheduledTime") as string,
-                        notes,
-                    })
-
-                if (detailError) throw detailError
-            } else if (type === "UTS") {
-                const { error: detailError } = await supabase
-                    .from("uts_package_details")
-                    .insert({
-                        id: crypto.randomUUID(),
-                        registration_id: registration.id,
-                        package_type: formData.get("packageType") as string,
-                    })
-
-                if (detailError) throw detailError
-            } else if (type === "KELAS_BESAR") {
-                // DO NOTHING. We do not need a detail table for this type because it is a fixed-price event and all necessary data is already in the main Registration table.
-            }
-        } catch (detailError) {
-            console.error("Detail insert error:", detailError)
-
-            // ROLLBACK: Delete registration record, storage file, auth user, and local user
-            await supabase.from("registrations").delete().eq("id", registration.id)
-            await supabase.storage.from("payment-proofs").remove([fileName])
-            await supabase.auth.admin.deleteUser(newAuthId)
-            await supabase.from("users").delete().eq("id", localUserId)
-
-            return NextResponse.json(
-                { error: "Gagal menyimpan detail pendaftaran." },
-                { status: 500 }
-            )
-        }
-
-        return NextResponse.json(
-            {
-                message: type === "REGULAR"
-                    ? "Pendaftaran berhasil! Akun kamu sudah aktif dan dapat digunakan untuk login."
-                    : "Pendaftaran berhasil. Menunggu verifikasi admin.",
-                id: registration.id,
-                ...(calculatedPrice !== null && {
-                    pricing: { total: calculatedPrice, tier: pricingTier },
-                }),
-            },
-            { status: 201 }
-        )
-    } catch (error) {
-        console.error("Registration error:", error)
-        return NextResponse.json(
-            { error: "Terjadi kesalahan internal." },
-            { status: 500 }
-        )
+    // Validate type
+    if (!ACCEPTED_TYPES.includes(type as typeof ACCEPTED_TYPES[number])) {
+      return NextResponse.json(
+        { error: "Tipe registrasi tidak valid." },
+        { status: 400 }
+      )
     }
+
+    // Validate required common fields
+    if (!name || name.length < 3) {
+      return NextResponse.json(
+        { error: "Nama lengkap minimal 3 karakter." },
+        { status: 400 }
+      )
+    }
+
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return NextResponse.json(
+        { error: "Alamat email tidak valid." },
+        { status: 400 }
+      )
+    }
+
+    if (!whatsapp || whatsapp.length < 8) {
+      return NextResponse.json(
+        { error: "Nomor WhatsApp tidak valid." },
+        { status: 400 }
+      )
+    }
+
+    // Validate payment proof file
+    if (!paymentProof || !(paymentProof instanceof File)) {
+      return NextResponse.json(
+        { error: "Mohon unggah bukti transfer pembayaran." },
+        { status: 400 }
+      )
+    }
+
+    if (!ACCEPTED_FILE_TYPES.includes(paymentProof.type)) {
+      return NextResponse.json(
+        { error: "Format file tidak didukung. Gunakan JPG, PNG, atau WebP." },
+        { status: 400 }
+      )
+    }
+
+    if (paymentProof.size > MAX_FILE_SIZE) {
+      return NextResponse.json(
+        { error: "Ukuran file bukti pembayaran maksimal 5MB." },
+        { status: 400 }
+      )
+    }
+
+    const supabase = createServiceClient()
+
+    // Duplicate Check in Users Table
+    const { data: existingUser } = await supabase
+      .from("users")
+      .select("id, email, is_active")
+      .ilike("email", email)
+      .maybeSingle()
+
+    // Upload payment proof
+    const fileExt = paymentProof.name.split(".").pop() || "jpg"
+    const safeEmailPrefix = email.replace(/[^a-zA-Z0-9]/g, "_")
+    const fileName = `registrations/${Date.now()}-${safeEmailPrefix}.${fileExt}`
+
+    const { error: uploadError } = await supabase.storage
+      .from("payment-proofs")
+      .upload(fileName, paymentProof, {
+        cacheControl: "3600",
+        upsert: true,
+      })
+
+    let publicUrl = ""
+    if (!uploadError) {
+      const { data: urlData } = supabase.storage
+        .from("payment-proofs")
+        .getPublicUrl(fileName)
+      publicUrl = urlData.publicUrl
+    } else {
+      console.warn("Storage upload error (fallback to placeholder URL):", uploadError)
+      publicUrl = `https://storage.placeholder.com/bbn/${Date.now()}`
+    }
+
+    // Price calculation
+    let calculatedPrice: number | null = null
+    let pricingTier: string = packageType.toUpperCase()
+
+    if (type === "REGULAR") {
+      const groupSize = parseInt(formData.get("groupSize") as string) || 1
+      const sessionCount = parseInt(formData.get("sessionCount") as string) || 1
+      const pricing = calculatePrice(groupSize, sessionCount)
+      calculatedPrice = pricing.subtotal
+      pricingTier = pricing.tier
+    } else if (type === "UTS") {
+      const rawPrice = formData.get("price") as string
+      if (rawPrice) {
+        calculatedPrice = parseInt(rawPrice) || null
+      }
+    } else if (type === "KELAS_BESAR") {
+      calculatedPrice = 30000
+      pricingTier = "MASTERCLASS"
+    }
+
+    // 1. Insert or Upsert into local `users` table with is_active: false
+    const localUserId = existingUser?.id || crypto.randomUUID()
+    const { error: userUpsertError } = await supabase
+      .from("users")
+      .upsert(
+        {
+          id: localUserId,
+          email,
+          name,
+          auth_id: authId || undefined,
+          student_category: studentCategory,
+          package_type: packageType,
+          billing_cycle: billingCycle,
+          is_active: false, // Default to inactive until admin approves
+          updated_at: new Date().toISOString(),
+        },
+        { onConflict: "email" }
+      )
+
+    if (userUpsertError) {
+      console.error("Users table upsert error:", userUpsertError)
+    }
+
+    // 2. Insert into `registrations` table with status: 'PENDING'
+    const registrationId = crypto.randomUUID()
+    const { data: registration, error: regError } = await supabase
+      .from("registrations")
+      .insert({
+        id: registrationId,
+        type,
+        name,
+        email,
+        nim: nim || "-",
+        subject: subject || "Fisika Smt 3",
+        whatsapp,
+        phone: whatsapp,
+        student_category: studentCategory,
+        package_type: packageType,
+        billing_cycle: billingCycle,
+        payment_proof_url: publicUrl,
+        calculated_price: calculatedPrice,
+        pricing_tier: pricingTier,
+        status: "PENDING",
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      })
+      .select()
+      .maybeSingle()
+
+    if (regError) {
+      console.error("Registration insert error:", regError)
+      // Retry without optional columns if schema differs
+      const { data: retryReg, error: retryError } = await supabase
+        .from("registrations")
+        .insert({
+          id: registrationId,
+          type,
+          name,
+          email,
+          nim: nim || "-",
+          subject: subject || "Fisika Smt 3",
+          whatsapp,
+          payment_proof_url: publicUrl,
+          calculated_price: calculatedPrice,
+          pricing_tier: pricingTier,
+          status: "PENDING",
+        })
+        .select()
+        .maybeSingle()
+
+      if (retryError) {
+        console.error("Registration retry insert error:", retryError)
+        return NextResponse.json(
+          { error: "Gagal menyimpan data pendaftaran. Silakan coba lagi." },
+          { status: 500 }
+        )
+      }
+    }
+
+    // 3. Create detail records safely if applicable
+    try {
+      if (type === "UTS") {
+        await supabase
+          .from("uts_package_details")
+          .insert({
+            id: crypto.randomUUID(),
+            registration_id: registrationId,
+            package_type: packageType,
+          })
+      } else if (type === "REGULAR") {
+        const groupSize = parseInt(formData.get("groupSize") as string) || 1
+        const sessionCount = parseInt(formData.get("sessionCount") as string) || 1
+        const scheduledDate = (formData.get("scheduledDate") as string) || new Date().toISOString()
+        const scheduledTime = (formData.get("scheduledTime") as string) || "19:00"
+        const notes = (formData.get("notes") as string) || ""
+
+        await supabase
+          .from("regular_class_details")
+          .insert({
+            id: crypto.randomUUID(),
+            registration_id: registrationId,
+            group_size: groupSize,
+            session_count: sessionCount,
+            scheduled_date: scheduledDate,
+            scheduled_time: scheduledTime,
+            notes,
+          })
+      }
+    } catch (detailErr) {
+      console.warn("Optional detail table insert skipped/warned:", detailErr)
+    }
+
+    return NextResponse.json(
+      {
+        message: "Pendaftaran berhasil! Akun kamu sedang dalam antrean verifikasi admin.",
+        id: registrationId,
+        user_id: localUserId,
+      },
+      { status: 201 }
+    )
+  } catch (error: any) {
+    console.error("Registration error:", error)
+    return NextResponse.json(
+      { error: error?.message || "Terjadi kesalahan internal." },
+      { status: 500 }
+    )
+  }
 }

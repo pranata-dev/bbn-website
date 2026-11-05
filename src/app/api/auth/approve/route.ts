@@ -71,8 +71,8 @@ export async function POST(request: NextRequest) {
         // Get existing user to sync payment status and provision access
         const { data: existingUser } = await adminClient
             .from("users")
-            .select("id")
-            .eq("email", registration.email)
+            .select("id, email, auth_id")
+            .ilike("email", registration.email)
             .maybeSingle()
 
         // Sync with payments table if user exists
@@ -90,38 +90,43 @@ export async function POST(request: NextRequest) {
         }
 
         if (action === "APPROVED") {
-            if (!existingUser) {
-                return NextResponse.json(
-                    { error: "Akun pengguna tidak ditemukan. Tidak dapat mengaktifkan akun." },
-                    { status: 500 }
-                )
-            }
-
             // Determine correct role and package_type based on registration type
             let userRole = "STUDENT_BASIC"
             let packageType = "REGULER"
 
-            if (registration.type === "UTS") {
-                const { data: utsDetail } = await adminClient
-                    .from("uts_package_details")
-                    .select("package_type")
-                    .eq("registration_id", registration.id)
-                    .maybeSingle()
+            if (registration.type === "UTS" || registration.package_type) {
+                const rawPkg = (registration.package_type || "").toUpperCase()
+                if (rawPkg.includes("EINSTEIN")) {
+                    userRole = "UTS_EINSTEIN"
+                    packageType = "EINSTEIN"
+                } else if (rawPkg.includes("SENKU")) {
+                    userRole = "UTS_SENKU"
+                    packageType = "SENKU"
+                } else if (rawPkg.includes("FLUX")) {
+                    userRole = "UTS_FLUX"
+                    packageType = "FLUX"
+                } else {
+                    const { data: utsDetail } = await adminClient
+                        .from("uts_package_details")
+                        .select("package_type")
+                        .eq("registration_id", registration.id)
+                        .maybeSingle()
 
-                if (utsDetail) {
-                    switch (utsDetail.package_type) {
-                        case "flux_session":
-                            userRole = "UTS_FLUX"
-                            packageType = "FLUX"
-                            break
-                        case "senku_mode":
-                            userRole = "UTS_SENKU"
-                            packageType = "SENKU"
-                            break
-                        case "einstein_mode":
-                            userRole = "UTS_EINSTEIN"
-                            packageType = "EINSTEIN"
-                            break
+                    if (utsDetail) {
+                        switch (utsDetail.package_type) {
+                            case "flux_session":
+                                userRole = "UTS_FLUX"
+                                packageType = "FLUX"
+                                break
+                            case "senku_mode":
+                                userRole = "UTS_SENKU"
+                                packageType = "SENKU"
+                                break
+                            case "einstein_mode":
+                                userRole = "UTS_EINSTEIN"
+                                packageType = "EINSTEIN"
+                                break
+                        }
                     }
                 }
             } else if (registration.type === "REGULAR") {
@@ -129,49 +134,42 @@ export async function POST(request: NextRequest) {
                 packageType = "REGULER"
             }
 
-            // Update user status to active
-            const { error: userUpdateError } = await adminClient
-                .from("users")
-                .update({
-                    is_active: true,
-                    updated_at: new Date().toISOString(),
-                })
-                .eq("id", existingUser.id)
+            if (existingUser) {
+                // Update user status to active and sync curriculum category & package
+                const { error: userUpdateError } = await adminClient
+                    .from("users")
+                    .update({
+                        is_active: true,
+                        student_category: registration.student_category || undefined,
+                        package_type: packageType,
+                        billing_cycle: registration.billing_cycle || undefined,
+                        updated_at: new Date().toISOString(),
+                    })
+                    .eq("id", existingUser.id)
 
-            if (userUpdateError) {
-                console.error("User activation update error:", userUpdateError)
-                return NextResponse.json(
-                    { error: "Pendaftaran disetujui, tapi gagal mengaktifkan akun. Mohon hubungi admin teknis." },
-                    { status: 500 }
-                )
-            }
+                if (userUpdateError) {
+                    console.error("User activation update error:", userUpdateError)
+                }
 
-            // Provision User Subject Access
-            const subjectMap: Record<string, string> = {
-                "fisika-dasar-2": "FISDAS2",
-                "fisika-matematika": "FISMAT",
-            }
-            
-            const normalizedSubject = (registration.subject || "").toLowerCase().trim()
-            const mappedSubject = subjectMap[normalizedSubject] || "FISDAS2"
+                // Provision User Subject Access
+                const subjectMap: Record<string, string> = {
+                    "fisika-dasar-2": "FISDAS2",
+                    "fisika-matematika": "FISMAT",
+                }
+                
+                const normalizedSubject = (registration.subject || "").toLowerCase().trim()
+                const mappedSubject = subjectMap[normalizedSubject] || "FISDAS2"
 
-            const { error: accessError } = await adminClient
-                .from("user_subject_access")
-                .upsert({
-                    user_id: existingUser.id,
-                    subject: mappedSubject,
-                    role: userRole,
-                    package_type: packageType,
-                    is_active: true,
-                    updated_at: new Date().toISOString(),
-                }, { onConflict: 'user_id,subject' })
-
-            if (accessError) {
-                console.error("Subject access provisioning error:", accessError)
-                return NextResponse.json(
-                    { error: "Pendaftaran disetujui, tapi gagal memberikan akses mata kuliah. Mohon hubungi admin teknis." },
-                    { status: 500 }
-                )
+                await adminClient
+                    .from("user_subject_access")
+                    .upsert({
+                        user_id: existingUser.id,
+                        subject: mappedSubject,
+                        role: userRole,
+                        package_type: packageType,
+                        is_active: true,
+                        updated_at: new Date().toISOString(),
+                    }, { onConflict: 'user_id,subject' })
             }
 
             // Send activation email via Brevo

@@ -7,78 +7,75 @@ export interface PackageFeatures {
     hasVideoExplanation: boolean
 }
 
-export function getPackageFeatures(packageType: PackageType | null | undefined, role?: Role | string, subject?: string | null): PackageFeatures {
-    // Default features for users without a specific package (e.g., ADMIN or basic)
-    const defaultFeatures: PackageFeatures = {
+export function getPackageFeatures(
+  packageType: PackageType | string | null | undefined,
+  role?: Role | string,
+  subject?: string | null
+): PackageFeatures {
+  // Default features for users without a specific package (e.g., ADMIN or basic)
+  const defaultFeatures: PackageFeatures = {
+    canAccessLatihan: false,
+    canAccessTryout: false,
+    tryoutLimit: 0,
+    hasVideoExplanation: false,
+  }
+
+  if (role === "ADMIN") {
+    return {
+      canAccessLatihan: true,
+      canAccessTryout: true,
+      tryoutLimit: 100, // Unlimited for admins
+      hasVideoExplanation: true,
+    }
+  }
+
+  // Normalize package string
+  let normalizedPkg = (packageType || "").toUpperCase()
+
+  if (normalizedPkg.includes("EINSTEIN") || role === "UTS_EINSTEIN") {
+    normalizedPkg = "EINSTEIN"
+  } else if (normalizedPkg.includes("SENKU") || role === "UTS_SENKU") {
+    normalizedPkg = "SENKU"
+  } else if (normalizedPkg.includes("FLUX") || role === "UTS_FLUX") {
+    normalizedPkg = "FLUX"
+  } else if (normalizedPkg.includes("REGULER") || role === "STUDENT_PREMIUM") {
+    normalizedPkg = "REGULER"
+  }
+
+  if (!normalizedPkg) return defaultFeatures
+
+  switch (normalizedPkg) {
+    case "REGULER":
+      return {
         canAccessLatihan: false,
         canAccessTryout: false,
         tryoutLimit: 0,
         hasVideoExplanation: false,
-    }
-
-    // Fallback logic for legacy accounts that have a Role but no PackageType yet
-    let activePackage = packageType
-    
-    if (role === "ADMIN") {
-        return {
-            canAccessLatihan: true,
-            canAccessTryout: true,
-            tryoutLimit: 100, // Unlimited for admins
-            hasVideoExplanation: true,
-        }
-    }
-
-    if (!activePackage && role) {
-        switch (role) {
-            case "UTS_EINSTEIN":
-                activePackage = "EINSTEIN"
-                break
-            case "UTS_SENKU":
-                activePackage = "SENKU"
-                break
-            case "UTS_FLUX":
-                activePackage = "FLUX"
-                break
-            case "STUDENT_PREMIUM":
-                activePackage = "REGULER"
-                break
-        }
-    }
-
-    if (!activePackage) return defaultFeatures
-
-    switch (activePackage) {
-        case "REGULER":
-            return {
-                canAccessLatihan: false, // Explicitly no defined benefits for regular yet as per spec
-                canAccessTryout: false,
-                tryoutLimit: 0,
-                hasVideoExplanation: false,
-            }
-        case "FLUX":
-            return {
-                canAccessLatihan: true,
-                canAccessTryout: false,
-                tryoutLimit: 0,
-                hasVideoExplanation: false,
-            }
-        case "SENKU":
-            return {
-                canAccessLatihan: true,
-                canAccessTryout: true,
-                tryoutLimit: subject === "FISMAT" ? 3 : 1,
-                hasVideoExplanation: false,
-            }
-        case "EINSTEIN":
-            return {
-                canAccessLatihan: true,
-                canAccessTryout: true,
-                tryoutLimit: subject === "FISMAT" ? 10 : 3,
-                hasVideoExplanation: true,
-            }
-        default:
-            return defaultFeatures
-    }
+      }
+    case "FLUX":
+      return {
+        canAccessLatihan: true,
+        canAccessTryout: false,
+        tryoutLimit: 0,
+        hasVideoExplanation: false,
+      }
+    case "SENKU":
+      return {
+        canAccessLatihan: true,
+        canAccessTryout: true,
+        tryoutLimit: subject === "FISMAT" ? 3 : 1,
+        hasVideoExplanation: false,
+      }
+    case "EINSTEIN":
+      return {
+        canAccessLatihan: true,
+        canAccessTryout: true,
+        tryoutLimit: subject === "FISMAT" ? 10 : 3,
+        hasVideoExplanation: true,
+      }
+    default:
+      return defaultFeatures
+  }
 }
 
 export function parsePracticePartFromTitle(title: string | null | undefined): number | null {

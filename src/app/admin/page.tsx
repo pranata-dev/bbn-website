@@ -1,241 +1,456 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Users, CreditCard, FileText, HelpCircle, TrendingUp, Trophy, Loader2, BookOpen } from "lucide-react"
+import Link from "next/link"
+import { toast } from "sonner"
 
 interface DashboardStats {
-    totalUsers: number
-    pendingVerifications: number
-    totalTryouts: number
-    totalPractices: number
-    totalQuestions: number
+  totalUsers: number
+  pendingVerifications: number
+  totalTryouts: number
+  totalPractices: number
+  totalQuestions: number
+  physicsActiveUsers: number
+  nonPhysicsActiveUsers: number
+  activeUsers: number
 }
 
-interface ChartDataPoint {
-    month: string
-    tryout: number
-    latihan: number
-}
-
-interface TopPerformer {
-    rank: number
-    userId: string
-    userName: string
-    avatarUrl: string | null
-    highestScore: number
-    tryoutTitle: string
+interface RegistrationItem {
+  id: string
+  name: string
+  email: string
+  whatsapp?: string
+  phone?: string
+  student_category?: string
+  package_type?: string
+  billing_cycle?: string
+  status: string
+  created_at: string
 }
 
 export default function AdminDashboardPage() {
-    const [stats, setStats] = useState<DashboardStats | null>(null)
-    const [chartData, setChartData] = useState<ChartDataPoint[]>([])
-    const [topPerformers, setTopPerformers] = useState<TopPerformer[]>([])
-    const [loading, setLoading] = useState(true)
-    const [dashLoading, setDashLoading] = useState(true)
+  const [stats, setStats] = useState<DashboardStats>({
+    totalUsers: 0,
+    pendingVerifications: 0,
+    totalTryouts: 0,
+    totalPractices: 0,
+    totalQuestions: 0,
+    physicsActiveUsers: 0,
+    nonPhysicsActiveUsers: 0,
+    activeUsers: 0,
+  })
+  const [recentRegistrations, setRecentRegistrations] = useState<RegistrationItem[]>([])
+  const [loading, setLoading] = useState(true)
 
-    useEffect(() => {
-        const fetchStats = async () => {
-            try {
-                const res = await fetch("/api/admin/stats")
-                if (!res.ok) throw new Error("Failed to fetch stats")
-                const data = await res.json()
-                setStats(data.stats)
-            } catch (error) {
-                console.error("Failed to load dashboard stats:", error)
-            } finally {
-                setLoading(false)
-            }
-        }
+  const fetchData = async () => {
+    try {
+      // 1. Fetch Stats
+      const [statsRes, usersRes, paymentsRes] = await Promise.all([
+        fetch("/api/admin/stats").catch(() => null),
+        fetch("/api/admin/users").catch(() => null),
+        fetch("/api/admin/payments").catch(() => null),
+      ])
 
-        const fetchDashboard = async () => {
-            try {
-                const res = await fetch("/api/admin/dashboard")
-                if (!res.ok) throw new Error("Failed to fetch dashboard")
-                const data = await res.json()
-                setChartData(data.chartData || [])
-                setTopPerformers(data.topPerformers || [])
-            } catch (error) {
-                console.error("Failed to load dashboard data:", error)
-            } finally {
-                setDashLoading(false)
-            }
-        }
+      let usersList: any[] = []
+      if (usersRes && usersRes.ok) {
+        const uData = await usersRes.json()
+        usersList = uData.users || []
+      }
 
-        fetchStats()
-        fetchDashboard()
-    }, [])
+      let paymentsList: any[] = []
+      if (paymentsRes && paymentsRes.ok) {
+        const pData = await paymentsRes.json()
+        paymentsList = pData.payments || []
+        setRecentRegistrations(paymentsList.slice(0, 5))
+      }
 
-    const statCards = [
-        { label: "Total Pengguna", value: stats?.totalUsers ?? "0", icon: Users, color: "bg-[#bed3c6]" },
-        { label: "Pending Verif", value: stats?.pendingVerifications ?? "0", icon: CreditCard, color: "bg-[#e87a5d]" },
-        { label: "Total Tryout", value: stats?.totalTryouts ?? "0", icon: FileText, color: "bg-earthy-gold" },
-        { label: "Total Latihan", value: stats?.totalPractices ?? "0", icon: BookOpen, color: "bg-[#FEFCF3]" },
-        { label: "Total Soal", value: stats?.totalQuestions ?? "0", icon: HelpCircle, color: "bg-[#FEFCF3]" },
-    ]
+      const rawStats = statsRes && statsRes.ok ? (await statsRes.json()).stats : {}
 
-    const chartMax = Math.max(1, ...chartData.map((d) => Math.max(d.tryout, d.latihan)))
+      const physicsActive = usersList.filter(
+        (u) => (u.student_category === "PHYSICS_SEM_3" || !u.student_category) && u.is_active
+      ).length
 
-    return (
-        <div className="space-y-10 selection:bg-[#e87a5d] selection:text-[#FEFCF3]">
-            <div className="bg-[#FEFCF3] border-4 border-[#2b1b11] p-6 shadow-[8px_8px_0px_#2b1b11] inline-block">
-                <h1 className="text-xl md:text-2xl font-extrabold text-[#2b1b11] mb-3" style={{ fontFamily: "var(--font-press-start)", lineHeight: 1.4 }}>
-                    Admin Dashboard
-                </h1>
-                <p className="text-sm font-bold text-[#3c5443] font-mono">
-                    Kelola platform Belajar Bareng Nata.
-                </p>
-            </div>
+      const nonPhysicsActive = usersList.filter(
+        (u) => u.student_category === "NON_PHYSICS" && u.is_active
+      ).length
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-6">
-                {statCards.map((stat, i) => (
-                    <div key={stat.label} className={`border-4 border-[#2b1b11] bg-[#FEFCF3] shadow-[6px_6px_0px_#2b1b11] hover:shadow-[8px_8px_0px_#2b1b11] hover:-translate-y-1 transition-all p-5`}>
-                        <div className="flex flex-col gap-4">
-                            <div className={`w-12 h-12 border-2 border-[#2b1b11] shadow-[2px_2px_0px_#2b1b11] flex items-center justify-center ${stat.color} shrink-0`}>
-                                <stat.icon className={`w-6 h-6 stroke-[2.5] ${stat.color === 'bg-[#e87a5d]' ? 'text-[#FEFCF3]' : 'text-[#2b1b11]'}`} />
-                            </div>
-                            <div>
-                                <p className="text-[11px] uppercase tracking-tighter font-extrabold text-[#3c5443] font-mono mb-1">{stat.label}</p>
-                                <div className="flex items-center gap-2 mt-2">
-                                    {loading ? (
-                                        <Loader2 className="w-5 h-5 animate-spin text-[#2b1b11]" />
-                                    ) : (
-                                        <p className="text-2xl font-extrabold text-[#2b1b11]" style={{ fontFamily: "var(--font-press-start)" }}>{stat.value}</p>
-                                    )}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                ))}
-            </div>
+      const totalActive = usersList.filter((u) => u.is_active).length
+      const pendingCount = paymentsList.filter((p) => p.status === "PENDING").length
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                {/* Statistics Chart */}
-                <div className="bg-[#FEFCF3] border-4 border-[#2b1b11] shadow-[8px_8px_0px_#2b1b11] overflow-hidden flex flex-col">
-                    <div className="p-4 md:p-6 border-b-4 border-[#2b1b11] bg-[#bed3c6]">
-                        <h2 className="text-sm md:text-base font-extrabold flex items-center gap-3 text-[#2b1b11]" style={{ fontFamily: "var(--font-press-start)", lineHeight: 1.4 }}>
-                            <TrendingUp className="w-6 h-6 stroke-[3]" />
-                            Aktivitas 6 Bulan Tersimpan
-                        </h2>
-                        <div className="flex flex-wrap items-center gap-4 mt-4 font-mono font-bold">
-                            <div className="flex items-center gap-2">
-                                <div className="w-4 h-4 border-2 border-[#2b1b11] bg-earthy-gold shadow-[2px_2px_0px_#2b1b11]" />
-                                <span className="text-xs text-[#2b1b11]">Tryout</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <div className="w-4 h-4 border-2 border-[#2b1b11] bg-[#e87a5d] shadow-[2px_2px_0px_#2b1b11]" />
-                                <span className="text-xs text-[#2b1b11]">Latihan</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div className="p-4 md:p-6 font-mono flex-1">
-                        {dashLoading ? (
-                            <div className="flex items-center justify-center py-12 h-full">
-                                <Loader2 className="w-8 h-8 animate-spin text-[#2b1b11]" />
-                            </div>
-                        ) : chartData.length > 0 ? (
-                            <div className="space-y-6">
-                                {chartData.map((point) => (
-                                    <div key={point.month} className="space-y-2">
-                                        <div className="flex items-center justify-between font-bold">
-                                            <span className="text-xs text-[#2b1b11] uppercase tracking-wider">{point.month}</span>
-                                            <div className="flex items-center gap-2 text-xs text-[#2b1b11]">
-                                                <span className="bg-earthy-gold px-1.5 py-0.5 border-2 border-[#2b1b11] shadow-[2px_2px_0px_#2b1b11]">{point.tryout}</span>
-                                                <span className="bg-[#e87a5d] text-white px-1.5 py-0.5 border-2 border-[#2b1b11] shadow-[2px_2px_0px_#2b1b11]">{point.latihan}</span>
-                                            </div>
-                                        </div>
-                                        <div className="flex gap-2 h-6 mt-1">
-                                            <div className="flex-1 border-2 border-[#2b1b11] bg-[#F2EFE4] relative overflow-hidden shadow-[2px_2px_0px_#2b1b11]">
-                                                <div
-                                                    className="absolute top-0 left-0 h-full bg-earthy-gold border-r-2 border-[#2b1b11] transition-all duration-500"
-                                                    style={{ width: `${(point.tryout / chartMax) * 100}%` }}
-                                                />
-                                            </div>
-                                            <div className="flex-1 border-2 border-[#2b1b11] bg-[#F2EFE4] relative overflow-hidden shadow-[2px_2px_0px_#2b1b11]">
-                                                <div
-                                                    className="absolute top-0 left-0 h-full bg-[#e87a5d] border-r-2 border-[#2b1b11] transition-all duration-500"
-                                                    style={{ width: `${(point.latihan / chartMax) * 100}%` }}
-                                                />
-                                            </div>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        ) : (
-                            <div className="flex flex-col items-center justify-center py-16 text-center h-full">
-                                <TrendingUp className="w-10 h-10 text-[#3c5443] mb-4 stroke-[2]" />
-                                <p className="text-sm font-bold text-[#2b1b11]">
-                                    Belum ada data aktivitas
-                                </p>
-                            </div>
-                        )}
-                    </div>
-                </div>
+      setStats({
+        totalUsers: rawStats.totalUsers || usersList.length || 0,
+        pendingVerifications: pendingCount || rawStats.pendingVerifications || 0,
+        totalTryouts: rawStats.totalTryouts || 0,
+        totalPractices: rawStats.totalPractices || 0,
+        totalQuestions: rawStats.totalQuestions || 0,
+        physicsActiveUsers: physicsActive,
+        nonPhysicsActiveUsers: nonPhysicsActive,
+        activeUsers: totalActive || usersList.length || 0,
+      })
+    } catch (error) {
+      console.error("Failed to load dashboard data:", error)
+    } finally {
+      setLoading(false)
+    }
+  }
 
-                {/* Top Performers */}
-                <div className="bg-[#FEFCF3] border-4 border-[#2b1b11] shadow-[8px_8px_0px_#2b1b11] overflow-hidden flex flex-col">
-                    <div className="p-4 md:p-6 border-b-4 border-[#2b1b11] bg-earthy-gold">
-                        <div className="flex flex-col gap-3">
-                            <h2 className="text-sm md:text-base font-extrabold flex items-center gap-3 text-[#2b1b11]" style={{ fontFamily: "var(--font-press-start)", lineHeight: 1.4 }}>
-                                <Trophy className="w-6 h-6 stroke-[3]" />
-                                Top Performers
-                            </h2>
-                            <div className="inline-flex w-fit px-3 py-1 bg-[#FEFCF3] border-2 border-[#2b1b11] shadow-[2px_2px_0px_#2b1b11]">
-                                <span className="text-[10px] uppercase font-bold font-mono text-[#2b1b11]">Tryout Only</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div className="p-4 md:p-6 font-mono flex-1">
-                        {dashLoading ? (
-                            <div className="flex items-center justify-center py-12 h-full">
-                                <Loader2 className="w-8 h-8 animate-spin text-[#2b1b11]" />
-                            </div>
-                        ) : topPerformers.length > 0 ? (
-                            <div className="space-y-4">
-                                {topPerformers.map((performer) => (
-                                    <div
-                                        key={performer.userId}
-                                        className="flex items-center gap-4 p-4 border-2 border-[#2b1b11] bg-[#FEFCF3] hover:bg-[#bed3c6] transition-colors shadow-[4px_4px_0px_#2b1b11]"
-                                    >
-                                        <div className={`w-10 h-10 border-2 border-[#2b1b11] flex items-center justify-center shrink-0 font-extrabold shadow-[2px_2px_0px_#2b1b11] ${
-                                            performer.rank === 1
-                                                ? "bg-[#e87a5d] text-[#FEFCF3]"
-                                                : performer.rank === 2
-                                                    ? "bg-[#bed3c6] text-[#2b1b11]"
-                                                    : performer.rank === 3
-                                                        ? "bg-earthy-gold text-[#2b1b11]"
-                                                        : "bg-[#F2EFE4] text-[#2b1b11]"
-                                        }`} style={{ fontFamily: "var(--font-press-start)" }}>
-                                            <span className="text-[10px]">{performer.rank}</span>
-                                        </div>
-                                        <div className="flex-1 min-w-0 flex flex-col justify-center gap-1">
-                                            <p className="text-sm font-bold text-[#2b1b11] truncate">
-                                                {performer.userName}
-                                            </p>
-                                            <p className="text-[10px] text-[#3c5443] font-bold truncate">
-                                                {performer.tryoutTitle}
-                                            </p>
-                                        </div>
-                                        <div className="text-right shrink-0 flex items-center">
-                                            <p className="text-sm font-extrabold text-[#e87a5d]" style={{ fontFamily: "var(--font-press-start)" }}>
-                                                {Math.round(performer.highestScore)}%
-                                            </p>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        ) : (
-                            <div className="flex flex-col items-center justify-center py-16 text-center h-full">
-                                <Trophy className="w-10 h-10 text-[#3c5443] mb-4 stroke-[2]" />
-                                <p className="text-sm font-bold text-[#2b1b11]">
-                                    Belum ada top performer
-                                </p>
-                            </div>
-                        )}
-                    </div>
-                </div>
-            </div>
+  useEffect(() => {
+    fetchData()
+  }, [])
+
+  const handleQuickApprove = async (id: string) => {
+    try {
+      const res = await fetch("/api/auth/approve", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          registrationId: id,
+          action: "APPROVED",
+          notes: "Disetujui melalui Quick Action Dashboard",
+        }),
+      })
+
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || "Gagal menyetujui pendaftaran")
+
+      toast.success("Pendaftaran berhasil disetujui & diaktivasi!")
+      fetchData()
+    } catch (err: any) {
+      toast.error(err?.message || "Terjadi kesalahan.")
+    }
+  }
+
+  return (
+    <div className="space-y-8 font-sans">
+      {/* Header Banner */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white border-2 border-[#FFEED6] rounded-3xl p-6 sm:p-8 shadow-xs">
+        <div>
+          <div className="flex items-center gap-2 mb-1.5">
+            <div className="w-2.5 h-2.5 rounded-full bg-[#A5AF79]" />
+            <span className="text-xs font-bold uppercase tracking-wider text-[#A5AF79]">
+              Portal Administrator
+            </span>
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-[#827148] tracking-tight">
+            Admin Dashboard
+          </h1>
+          <p className="text-sm text-[#827148]/70 font-medium mt-1">
+            Pantau pendaftaran, verifikasi pembayaran, dan statistik pengguna platform.
+          </p>
         </div>
-    )
+
+        <div className="flex items-center gap-3">
+          <Link
+            href="/admin/users"
+            className="px-5 py-3 rounded-xl font-bold text-xs sm:text-sm bg-[#A5AF79] hover:bg-[#949e6a] text-white transition-all shadow-xs flex items-center gap-2 cursor-pointer"
+          >
+            <div className="w-2 h-2 rounded-full bg-white" />
+            <span>Manajemen Pengguna</span>
+          </Link>
+        </div>
+      </div>
+
+      {/* ======================================================== */}
+      {/* 4 KEY OVERVIEW METRICS (grid-cols-1 md:grid-cols-4)       */}
+      {/* ======================================================== */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {/* Metric 1: Total Pendaftar (Pending Approval) -> Highlight with #E8A07C */}
+        <div className="bg-white border-2 border-[#FFEED6] hover:border-[#E8A07C] rounded-3xl p-6 shadow-xs relative overflow-hidden transition-all group">
+          <div className="absolute top-0 left-0 right-0 h-1.5 bg-[#E8A07C]" />
+          
+          <div className="flex items-center justify-between mb-4">
+            <div className="w-10 h-10 rounded-2xl bg-[#E8A07C]/20 border border-[#E8A07C]/40 flex items-center justify-center">
+              <div className="w-3.5 h-3.5 rounded-xs bg-[#E8A07C]" />
+            </div>
+            <span className="text-[10px] font-bold uppercase tracking-wider text-[#E8A07C] bg-[#E8A07C]/15 px-2.5 py-1 rounded-full border border-[#E8A07C]/30">
+              Perlu Verifikasi
+            </span>
+          </div>
+
+          <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider block">
+            Pendaftar Menunggu
+          </span>
+          <div className="text-3xl sm:text-4xl font-extrabold text-[#827148] mt-1 tracking-tight">
+            {loading ? "..." : stats.pendingVerifications}
+          </div>
+          <p className="text-xs text-[#827148]/60 font-medium mt-2">
+            Pendaftar menunggu konfirmasi pembayaran
+          </p>
+        </div>
+
+        {/* Metric 2: Mahasiswa Fisika Aktif */}
+        <div className="bg-white border-2 border-[#FFEED6] hover:border-[#A5AF79] rounded-3xl p-6 shadow-xs relative overflow-hidden transition-all group">
+          <div className="absolute top-0 left-0 right-0 h-1.5 bg-[#A5AF79]" />
+
+          <div className="flex items-center justify-between mb-4">
+            <div className="w-10 h-10 rounded-2xl bg-[#A5AF79]/20 border border-[#A5AF79]/40 flex items-center justify-center">
+              <div className="w-3.5 h-3.5 rounded-xs bg-[#A5AF79]" />
+            </div>
+            <span className="text-[10px] font-bold uppercase tracking-wider text-[#827148] bg-[#A5AF79]/15 px-2.5 py-1 rounded-full">
+              Dept. Fisika Smt 3
+            </span>
+          </div>
+
+          <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider block">
+            Mahasiswa Fisika
+          </span>
+          <div className="text-3xl sm:text-4xl font-extrabold text-[#827148] mt-1 tracking-tight">
+            {loading ? "..." : stats.physicsActiveUsers}
+          </div>
+          <p className="text-xs text-[#827148]/60 font-medium mt-2">
+            Terdaftar di kurikulum Fisika Smt 3
+          </p>
+        </div>
+
+        {/* Metric 3: Mahasiswa Non-Fisika Aktif */}
+        <div className="bg-white border-2 border-[#FFEED6] hover:border-[#827148] rounded-3xl p-6 shadow-xs relative overflow-hidden transition-all group">
+          <div className="absolute top-0 left-0 right-0 h-1.5 bg-[#827148]/40" />
+
+          <div className="flex items-center justify-between mb-4">
+            <div className="w-10 h-10 rounded-2xl bg-[#827148]/15 border border-[#827148]/30 flex items-center justify-center">
+              <div className="w-3.5 h-3.5 rounded-xs bg-[#827148]" />
+            </div>
+            <span className="text-[10px] font-bold uppercase tracking-wider text-[#827148] bg-[#FFEED6] px-2.5 py-1 rounded-full border border-[#827148]/20">
+              Umum / Non-Fisika
+            </span>
+          </div>
+
+          <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider block">
+            Mahasiswa Non-Fisika
+          </span>
+          <div className="text-3xl sm:text-4xl font-extrabold text-[#827148] mt-1 tracking-tight">
+            {loading ? "..." : stats.nonPhysicsActiveUsers}
+          </div>
+          <p className="text-xs text-[#827148]/60 font-medium mt-2">
+            Terdaftar di kurikulum Umum / Dasar
+          </p>
+        </div>
+
+        {/* Metric 4: Total Akun Aktif */}
+        <div className="bg-white border-2 border-[#FFEED6] hover:border-[#A5AF79] rounded-3xl p-6 shadow-xs relative overflow-hidden transition-all group">
+          <div className="absolute top-0 left-0 right-0 h-1.5 bg-[#A5AF79]" />
+
+          <div className="flex items-center justify-between mb-4">
+            <div className="w-10 h-10 rounded-2xl bg-[#A5AF79]/20 border border-[#A5AF79]/40 flex items-center justify-center">
+              <div className="w-3.5 h-3.5 rounded-xs bg-[#A5AF79]" />
+            </div>
+            <span className="text-[10px] font-bold uppercase tracking-wider text-white bg-[#A5AF79] px-2.5 py-1 rounded-full shadow-2xs">
+              Status: Aktif
+            </span>
+          </div>
+
+          <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider block">
+            Total Akun Aktif
+          </span>
+          <div className="text-3xl sm:text-4xl font-extrabold text-[#827148] mt-1 tracking-tight">
+            {loading ? "..." : stats.activeUsers}
+          </div>
+          <p className="text-xs text-[#827148]/60 font-medium mt-2">
+            Total akun berizin akses aktif
+          </p>
+        </div>
+      </div>
+
+      {/* ======================================================== */}
+      {/* QUICK VERIFICATION TABLE & SHORTCUTS                    */}
+      {/* ======================================================== */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        
+        {/* Left 8 Cols: Quick Verification Queue */}
+        <div className="lg:col-span-8 bg-white border-2 border-[#FFEED6] rounded-3xl p-6 sm:p-8 shadow-xs">
+          <div className="flex items-center justify-between mb-6 pb-4 border-b border-[#FFEED6]">
+            <div>
+              <h2 className="text-lg sm:text-xl font-extrabold text-[#827148]">
+                Antrean Pendaftaran Terbaru
+              </h2>
+              <p className="text-xs text-[#827148]/70 font-medium">
+                Pendaftar yang memerlukan persetujuan dan aktivasi akses
+              </p>
+            </div>
+            <Link
+              href="/admin/users"
+              className="text-xs font-bold text-[#A5AF79] hover:underline"
+            >
+              Lihat Semua &rarr;
+            </Link>
+          </div>
+
+          {loading ? (
+            <div className="p-8 text-center text-xs font-bold text-[#827148]/60 animate-pulse">
+              Memuat antrean pendaftaran...
+            </div>
+          ) : recentRegistrations.length === 0 ? (
+            <div className="p-8 text-center bg-[#FFEED6]/20 rounded-2xl border border-[#FFEED6]">
+              <div className="w-8 h-8 rounded-full bg-[#A5AF79]/20 flex items-center justify-center mx-auto mb-2">
+                <div className="w-2.5 h-2.5 rounded-full bg-[#A5AF79]" />
+              </div>
+              <p className="text-sm font-bold text-[#827148]">
+                Semua pendaftaran telah diproses!
+              </p>
+              <p className="text-xs text-[#827148]/70 mt-1">
+                Tidak ada pembayaran yang sedang menunggu verifikasi saat ini.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {recentRegistrations.map((reg) => (
+                <div
+                  key={reg.id}
+                  className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-2xl border border-[#FFEED6] hover:bg-[#FFEED6]/20 transition-all bg-white"
+                >
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <span className="font-bold text-sm text-[#827148]">
+                        {reg.name}
+                      </span>
+                      {reg.status === "PENDING" ? (
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#E8A07C]/20 border border-[#E8A07C] text-[#E8A07C]">
+                          Menunggu
+                        </span>
+                      ) : reg.status === "APPROVED" ? (
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#A5AF79]/20 border border-[#A5AF79] text-[#827148]">
+                          Disetujui
+                        </span>
+                      ) : (
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-gray-100 text-gray-500">
+                          {reg.status}
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-3 text-xs text-[#827148]/70">
+                      <span>{reg.email}</span>
+                      <span>•</span>
+                      <span className="font-semibold text-[#827148]">
+                        {reg.package_type || "UTS Package"}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2 self-end sm:self-auto">
+                    <Link
+                      href="/admin/users"
+                      className="px-3 py-1.5 rounded-xl border border-[#FFEED6] hover:border-[#827148] text-xs font-bold text-[#827148] bg-white transition-colors"
+                    >
+                      Detail
+                    </Link>
+                    {reg.status === "PENDING" && (
+                      <button
+                        type="button"
+                        onClick={() => handleQuickApprove(reg.id)}
+                        className="px-3 py-1.5 rounded-xl bg-[#A5AF79] hover:bg-[#949e6a] text-white text-xs font-bold transition-colors cursor-pointer shadow-2xs"
+                      >
+                        Setujui
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Right 4 Cols: Quick Administrative Shortcuts */}
+        <div className="lg:col-span-4 space-y-6">
+          {/* Quick Actions Card */}
+          <div className="bg-white border-2 border-[#FFEED6] rounded-3xl p-6 shadow-xs">
+            <h3 className="text-base font-extrabold text-[#827148] mb-4 pb-2 border-b border-[#FFEED6]">
+              Aksi Cepat
+            </h3>
+
+            <div className="space-y-3">
+              <Link
+                href="/admin/users"
+                className="flex items-center justify-between p-3.5 rounded-2xl bg-[#FFEED6]/30 hover:bg-[#FFEED6]/60 border border-[#FFEED6] transition-all group"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-xl bg-[#A5AF79]/20 flex items-center justify-center border border-[#A5AF79]/30">
+                    <div className="w-2.5 h-2.5 rounded-xs bg-[#A5AF79]" />
+                  </div>
+                  <span className="text-xs font-bold text-[#827148]">
+                    Manajemen Pengguna
+                  </span>
+                </div>
+                <span className="text-xs font-bold text-[#A5AF79] group-hover:translate-x-0.5 transition-transform">
+                  &rarr;
+                </span>
+              </Link>
+
+              <Link
+                href="/admin/users"
+                className="flex items-center justify-between p-3.5 rounded-2xl bg-[#FFEED6]/30 hover:bg-[#FFEED6]/60 border border-[#FFEED6] transition-all group"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-xl bg-[#A5AF79]/20 flex items-center justify-center border border-[#A5AF79]/30">
+                    <div className="w-2.5 h-2.5 rounded-xs bg-[#A5AF79]" />
+                  </div>
+                  <span className="text-xs font-bold text-[#827148]">
+                    Manajemen Pengguna
+                  </span>
+                </div>
+                <span className="text-xs font-bold text-[#A5AF79] group-hover:translate-x-0.5 transition-transform">
+                  &rarr;
+                </span>
+              </Link>
+
+              <Link
+                href="/admin/questions"
+                className="flex items-center justify-between p-3.5 rounded-2xl bg-[#FFEED6]/30 hover:bg-[#FFEED6]/60 border border-[#FFEED6] transition-all group"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-xl bg-[#827148]/20 flex items-center justify-center border border-[#827148]/30">
+                    <div className="w-2.5 h-2.5 rounded-xs bg-[#827148]" />
+                  </div>
+                  <span className="text-xs font-bold text-[#827148]">
+                    Kelola Bank Soal
+                  </span>
+                </div>
+                <span className="text-xs font-bold text-[#A5AF79] group-hover:translate-x-0.5 transition-transform">
+                  &rarr;
+                </span>
+              </Link>
+
+              <Link
+                href="/admin/tryouts"
+                className="flex items-center justify-between p-3.5 rounded-2xl bg-[#FFEED6]/30 hover:bg-[#FFEED6]/60 border border-[#FFEED6] transition-all group"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-xl bg-[#E8A07C]/20 flex items-center justify-center border border-[#E8A07C]/30">
+                    <div className="w-2.5 h-2.5 rounded-xs bg-[#E8A07C]" />
+                  </div>
+                  <span className="text-xs font-bold text-[#827148]">
+                    Simulasi Tryout
+                  </span>
+                </div>
+                <span className="text-xs font-bold text-[#A5AF79] group-hover:translate-x-0.5 transition-transform">
+                  &rarr;
+                </span>
+              </Link>
+            </div>
+          </div>
+
+          {/* System Summary Card */}
+          <div className="bg-[#A5AF79]/10 border-2 border-[#A5AF79]/20 rounded-3xl p-6 shadow-2xs">
+            <h3 className="text-sm font-extrabold text-[#827148] mb-3">
+              Status Sistem & Konten
+            </h3>
+            <div className="space-y-2.5 text-xs text-[#827148]/80 font-medium">
+              <div className="flex items-center justify-between">
+                <span>Total Bank Soal:</span>
+                <span className="font-bold text-[#827148]">{stats.totalQuestions} Soal</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span>Tryout Aktif:</span>
+                <span className="font-bold text-[#827148]">{stats.totalTryouts} Paket</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span>Latihan Mandiri:</span>
+                <span className="font-bold text-[#827148]">{stats.totalPractices} Modul</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  )
 }

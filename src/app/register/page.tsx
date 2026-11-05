@@ -1,8 +1,8 @@
 "use client"
 
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect, Suspense } from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { toast } from "sonner"
 import {
   ProductSelector,
@@ -13,6 +13,14 @@ import {
 import type { KelasBesarFormState } from "@/components/register"
 import type { RegistrationType } from "@/lib/validators/registration"
 import { WHATSAPP_REGEX } from "@/constants"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 
 const initialKelasBesarData: KelasBesarFormState = {
   name: "",
@@ -23,12 +31,25 @@ const initialKelasBesarData: KelasBesarFormState = {
   whatsapp: "",
 }
 
-export default function RegisterPage() {
+function RegisterContent() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [currentStep, setCurrentStep] = useState<1 | 2>(1)
   const [isLoading, setIsLoading] = useState(false)
   const isSubmittingRef = useRef(false)
   const [selectedType, setSelectedType] = useState<RegistrationType | null>("UTS")
+
+  // Duplicate Account Modal State
+  const [showDuplicateModal, setShowDuplicateModal] = useState(false)
+  const [duplicateEmail, setDuplicateEmail] = useState("")
+
+  // Auto-switch to step 2 if returning from Google OAuth (?step=details)
+  useEffect(() => {
+    const stepParam = searchParams.get("step")
+    if (stepParam === "details" || stepParam === "2") {
+      setCurrentStep(2)
+    }
+  }, [searchParams])
 
   // Form states
   const [kelasBesarData, setKelasBesarData] = useState<KelasBesarFormState>(initialKelasBesarData)
@@ -100,6 +121,24 @@ export default function RegisterPage() {
       return
     }
 
+    // Check duplicate account
+    try {
+      const checkRes = await fetch("/api/auth/check-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: kelasBesarData.email }),
+      })
+      const checkData = await checkRes.json()
+      if (checkData.exists) {
+        setDuplicateEmail(kelasBesarData.email)
+        setShowDuplicateModal(true)
+        isSubmittingRef.current = false
+        return
+      }
+    } catch (err) {
+      console.warn("Pre-check error:", err)
+    }
+
     setIsLoading(true)
 
     try {
@@ -107,11 +146,13 @@ export default function RegisterPage() {
       formPayload.append("type", "KELAS_BESAR")
       formPayload.append("paymentProof", paymentFile!)
       formPayload.append("name", kelasBesarData.name)
+      formPayload.append("fullName", kelasBesarData.name)
       formPayload.append("email", kelasBesarData.email)
       formPayload.append("password", kelasBesarData.password)
       formPayload.append("nim", kelasBesarData.nim)
       formPayload.append("subject", kelasBesarData.subject)
       formPayload.append("whatsapp", kelasBesarData.whatsapp)
+      formPayload.append("phone", kelasBesarData.whatsapp)
 
       const response = await fetch("/api/register", {
         method: "POST",
@@ -124,8 +165,8 @@ export default function RegisterPage() {
         throw new Error(data.error || "Terjadi kesalahan saat mendaftar.")
       }
 
-      toast.success("Pendaftaran berhasil! Silakan tunggu verifikasi admin.")
-      router.push(`/register/success?type=KELAS_BESAR`)
+      toast.success("Pendaftaran berhasil! Mengalihkan ke halaman verifikasi...")
+      router.push(`/waiting-approval`)
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Terjadi kesalahan.")
     } finally {
@@ -139,9 +180,9 @@ export default function RegisterPage() {
     setIsLoading(true)
     setTimeout(() => {
       setIsLoading(false)
-      toast.success("Pendaftaran Kelas Reguler berhasil! Admin kami akan menghubungi via WhatsApp.")
-      router.push(`/register/success?type=REGULAR`)
-    }, 1200)
+      toast.success("Pendaftaran Kelas Reguler berhasil! Silakan menunggu verifikasi admin.")
+      router.push(`/waiting-approval`)
+    }, 1000)
   }
 
   const handleUTSSubmit = (e: React.FormEvent) => {
@@ -149,9 +190,9 @@ export default function RegisterPage() {
     setIsLoading(true)
     setTimeout(() => {
       setIsLoading(false)
-      toast.success("Pendaftaran E-Learning Mandiri berhasil! Akun Anda akan segera diaktivasi.")
-      router.push(`/register/success?type=UTS`)
-    }, 1200)
+      toast.success("Pendaftaran E-Learning Mandiri berhasil! Silakan menunggu verifikasi admin.")
+      router.push(`/waiting-approval`)
+    }, 1000)
   }
 
   const containerMaxWidth = currentStep === 2 ? "max-w-7xl" : "max-w-5xl"
@@ -333,6 +374,45 @@ export default function RegisterPage() {
           </div>
         )}
       </div>
+
+      {/* ======================================================== */}
+      {/* DUPLICATE ACCOUNT MODAL DIALOG                            */}
+      {/* ======================================================== */}
+      <Dialog
+        open={showDuplicateModal}
+        onOpenChange={(open) => setShowDuplicateModal(open)}
+      >
+        <DialogContent className="max-w-md bg-white border-2 border-[#FFEED6] rounded-3xl p-6 sm:p-8 shadow-lg font-sans">
+          <DialogHeader>
+            <div className="w-12 h-12 rounded-2xl bg-[#E8A07C]/20 border border-[#E8A07C]/40 flex items-center justify-center mx-auto mb-3 shadow-2xs">
+              <div className="w-4 h-4 rounded-xs bg-[#E8A07C]" />
+            </div>
+            <DialogTitle className="text-lg sm:text-xl font-bold text-[#827148] text-center">
+              Akun Sudah Terdaftar
+            </DialogTitle>
+            <DialogDescription className="text-sm text-[#827148]/80 text-center leading-relaxed mt-2">
+              Akun Google/Email <strong>{duplicateEmail}</strong> ini sudah pernah digunakan di Belajar Bareng Nata. Silakan langsung menuju halaman Login.
+            </DialogDescription>
+          </DialogHeader>
+
+          <DialogFooter className="mt-4">
+            <Link
+              href="/login"
+              className="w-full bg-[#A5AF79] hover:bg-[#949e6a] text-white font-bold rounded-xl py-3 px-4 text-center text-sm sm:text-base shadow-2xs transition-colors block cursor-pointer"
+            >
+              Menuju Halaman Login
+            </Link>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
+  )
+}
+
+export default function RegisterPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[#FFEED6]/30 flex items-center justify-center">Memuat...</div>}>
+      <RegisterContent />
+    </Suspense>
   )
 }
