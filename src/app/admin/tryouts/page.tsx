@@ -674,12 +674,12 @@ export default function AdminTryoutsPage() {
 
             {/* Bulk Delete Dialog */}
             <AlertDialog open={showBulkDeleteConfirm} onOpenChange={setShowBulkDeleteConfirm}>
-                <AlertDialogContent className="border-4 border-red-600 shadow-[8px_8px_0px_#dc2626] rounded-none">
+                <AlertDialogContent className="border border-red-200 rounded-2xl shadow-lg bg-white font-sans">
                     <AlertDialogHeader>
-                        <AlertDialogTitle className="text-red-600 font-extrabold flex items-center gap-2" style={{ fontFamily: "var(--font-press-start)" }}>
-                            <Trash2 className="w-6 h-6" /> PERINGATAN HAPUS MASSAL!
+                        <AlertDialogTitle className="text-red-600 font-bold flex items-center gap-2">
+                            <Trash2 className="w-5 h-5" /> Peringatan Hapus Massal
                         </AlertDialogTitle>
-                        <AlertDialogDescription className="font-mono text-[#2b1b11] font-medium mt-2 text-sm leading-relaxed">
+                        <AlertDialogDescription className="text-[#827148]/80 font-medium mt-2 text-sm leading-relaxed">
                             Menghapus <span className="font-bold text-red-600 bg-red-100 px-1">{selectedIds.size} tryout</span> ini akan ikut menghapus SEMUA riwayat nilai dan jawaban siswa terkait (Cascade Delete).
                             <br /><br />
                             Apakah Anda yakin? Tindakan ini <strong className="text-red-600">TIDAK DAPAT DIBATALKAN</strong>.

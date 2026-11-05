@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
         }
 
         if (subject && subject !== "all") {
-            query = query.eq("subject", subject)
+            query = query.eq("subject", subject as "FISDAS2" | "FISMAT")
         }
 
         const { data: tryouts, error } = await query

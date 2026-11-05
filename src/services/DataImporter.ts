@@ -5,13 +5,14 @@ import { questionSchema } from "@/lib/validations/admin"
 
 export interface ParsedQuestion {
     text: string
-    category: QuestionCategory
+    category: QuestionCategory | string
     subject: Subject
+    type?: "MULTIPLE_CHOICE" | "ESSAY"
     option_a: string
     option_b: string
     option_c: string
     option_d: string
-    option_e?: string
+    option_e?: string | null
     correct_answer: string
     explanation?: string | null
     weight: number

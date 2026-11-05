@@ -49,6 +49,13 @@
   --color-sage-green: #A5AF79;
   --color-olive-brown: #827148;
   --color-soft-peach: #E8A07C;
+
+  /* Brand semantic aliases (reconciling legacy Theme C) */
+  --color-cream: #FFEED6;
+  --color-dark-brown: #827148;
+  --color-soft-brown: #949E6A;
+  --color-warm-beige: #FFEED6;
+  --color-warm-gray: #E5D5BC;
 }
 
 :root {

@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { Loader2, PlusCircle, CheckCircle2 } from "lucide-react"
+import { Loader2, CheckCircle2 } from "lucide-react"
 import { toast } from "sonner"
 import {
     ProductSelector,
@@ -61,54 +61,49 @@ export default function UpgradePackagePage() {
             return
         }
 
-        if (selectedType === "REGULAR") {
-            if (!scheduledDate || !scheduledTime) {
-                toast.error("Pilih tanggal dan waktu kelas.")
-                return
-            }
-        }
-
         if (selectedType === "UTS" && !packageType) {
-            toast.error("Pilih paket UTS.")
+            toast.error("Pilih tipe paket UTS.")
             return
         }
 
         if (!paymentFile) {
-            toast.error("Mohon unggah bukti pembayaran.")
+            toast.error("Unggah bukti transfer terlebih dahulu.")
             return
         }
 
         setIsLoading(true)
 
         try {
-            const formPayload = new FormData()
-            formPayload.append("type", selectedType)
-            formPayload.append("subject", subject)
-            formPayload.append("paymentProof", paymentFile)
+            const formData = new FormData()
+            formData.append("type", selectedType)
+            formData.append("subject", subject)
+            formData.append("paymentProof", paymentFile)
 
             if (selectedType === "REGULAR") {
-                formPayload.append("groupSize", groupSize)
-                formPayload.append("sessionCount", sessionCount)
-                formPayload.append("scheduledDate", scheduledDate)
-                formPayload.append("scheduledTime", scheduledTime)
-                formPayload.append("notes", notes)
+                formData.append("groupSize", groupSize)
+                formData.append("sessionCount", sessionCount)
+                formData.append("scheduledDate", scheduledDate)
+                formData.append("scheduledTime", scheduledTime)
+                formData.append("notes", notes)
             } else if (selectedType === "UTS") {
-                formPayload.append("packageType", packageType)
+                formData.append("packageType", packageType)
             }
 
-            const response = await fetch("/api/dashboard/purchase", {
+            const res = await fetch("/api/dashboard/purchase", {
                 method: "POST",
-                body: formPayload,
+                body: formData,
             })
 
-            const data = await response.json()
+            const data = await res.json()
 
-            if (!response.ok) {
-                throw new Error(data.error || "Terjadi kesalahan.")
+            if (!res.ok) {
+                throw new Error(data.error || "Gagal melakukan pembelian paket.")
             }
 
-            toast.success("Berhasil! Silakan tunggu verifikasi admin.")
             setIsSuccess(true)
+            toast.success("Pesanan berhasil dikirim!", {
+                description: "Admin kami akan memverifikasi bukti pembayaran Anda.",
+            })
         } catch (error) {
             toast.error(error instanceof Error ? error.message : "Terjadi kesalahan.")
         } finally {
@@ -116,74 +111,81 @@ export default function UpgradePackagePage() {
         }
     }
 
-    const handleNumberChange = (setter: any, val: string, isSession: boolean = false) => {
-        if (!val) {
-            setter("")
-            return
-        }
-        const numericVal = val.replace(/\D/g, "")
-        let cleaned = numericVal.replace(/^0+/, "")
-        let finalVal = cleaned || (numericVal === "0" ? "0" : "")
-        if (isSession) {
-            const parsed = parseInt(finalVal)
-            if (!isNaN(parsed) && parsed > 7) finalVal = "7"
-        }
-        setter(finalVal)
-    }
-
     if (isSuccess) {
         return (
-            <div className="flex flex-col items-center justify-center min-h-[60vh] text-center max-w-lg mx-auto p-4 animate-fade-up font-mono">
-                <CheckCircle2 className="w-20 h-20 text-[#e87a5d] mb-6 stroke-[1.5]" />
-                <h1 className="text-2xl font-bold text-[#2b1b11] mb-4">Pembelian Berhasil</h1>
-                <p className="text-[#3c5443] mb-8 font-semibold">
-                    Terima kasih! Bukti pembayaranmu sedang diproses oleh admin. Kami akan memberitahumu melalui email/WhatsApp jika sudah disetujui.
-                </p>
-                <Button 
-                    onClick={() => router.push("/dashboard")}
-                    className="w-full bg-[#2b1b11] text-[#FEFCF3] hover:bg-[#3c5443] rounded-none border-2 border-[#2b1b11] shadow-[4px_4px_0px_#2b1b11] h-12"
-                >
-                    Kembali ke Dashboard
-                </Button>
+            <div className="max-w-xl mx-auto py-12 px-4 text-center font-sans">
+                <div className="bg-white border border-[#FFEED6] rounded-3xl p-8 sm:p-10 shadow-sm space-y-5">
+                    <div className="w-16 h-16 rounded-2xl bg-[#A5AF79]/15 text-[#A5AF79] mx-auto flex items-center justify-center">
+                        <CheckCircle2 className="w-9 h-9" />
+                    </div>
+                    <h1 className="text-2xl font-bold text-[#827148]">Pembelian Berhasil Diajukan</h1>
+                    <p className="text-sm text-[#827148]/75 leading-relaxed">
+                        Bukti pembayaran kamu telah diterima dan sedang menunggu verifikasi oleh tim admin.
+                        Akses modul dan tryout kamu akan aktif setelah disetujui.
+                    </p>
+                    <div className="pt-2">
+                        <Button
+                            onClick={() => router.push("/dashboard")}
+                            className="w-full bg-[#827148] hover:bg-[#827148]/90 text-white rounded-xl h-11 font-semibold shadow-xs"
+                        >
+                            Kembali ke Dashboard
+                        </Button>
+                    </div>
+                </div>
             </div>
         )
     }
 
     return (
-        <div className="animate-fade-in font-mono max-w-4xl mx-auto pb-12">
-            <h1 className="text-2xl font-bold text-[#2b1b11] mb-2 flex items-center gap-2">
-                <PlusCircle className="w-6 h-6 stroke-[2.5]" />
-                Beli Paket Baru
-            </h1>
-            <p className="text-sm text-[#3c5443] mb-8 font-bold">Pilih layanan tambahan yang kamu inginkan dan rasakan pengalaman belajar maksimal!</p>
+        <div className="max-w-4xl mx-auto py-8 px-4 font-sans space-y-6">
+            <div>
+                <h1 className="text-2xl sm:text-3xl font-extrabold text-[#827148] tracking-tight">
+                    Upgrade Paket Belajar
+                </h1>
+                <p className="text-sm text-[#827148]/75 mt-1 font-medium">
+                    Tingkatkan akun belajarmu untuk membuka seluruh materi, bank soal, dan simulasi CBT Tryout.
+                </p>
+            </div>
 
-            <form onSubmit={handleSubmit} className="space-y-10">
-                <div className="bg-[#FEFCF3] border-4 border-[#2b1b11] p-6 shadow-[6px_6px_0px_#2b1b11]">
-                    <div className="flex items-center gap-3 mb-6">
-                        <span className="w-8 h-8 bg-[#e87a5d] border-2 border-[#2b1b11] text-[#FEFCF3] text-xs font-bold flex items-center justify-center shadow-[2px_2px_0px_#2b1b11]">1</span>
-                        <h2 className="text-lg font-bold text-[#2b1b11]">Pilih Layanan</h2>
+            <form onSubmit={handleSubmit} className="space-y-6">
+                {/* Step 1: Select Type */}
+                <div className="bg-white border border-[#FFEED6] rounded-3xl p-6 sm:p-8 shadow-xs space-y-4">
+                    <div className="flex items-center gap-3">
+                        <span className="w-7 h-7 rounded-lg bg-[#FFEED6] text-[#827148] font-bold text-xs flex items-center justify-center">
+                            1
+                        </span>
+                        <h2 className="text-base sm:text-lg font-bold text-[#827148]">
+                            Pilih Jenis Layanan
+                        </h2>
                     </div>
+
                     <ProductSelector selected={selectedType} onSelect={setSelectedType} />
                 </div>
 
+                {/* Step 2: Form Details */}
                 {selectedType && (
-                    <div className="bg-[#FEFCF3] border-4 border-[#2b1b11] p-6 shadow-[6px_6px_0px_#2b1b11] animate-fade-up">
-                        <div className="flex items-center gap-3 mb-6">
-                            <span className="w-8 h-8 bg-[#e87a5d] border-2 border-[#2b1b11] text-[#FEFCF3] text-xs font-bold flex items-center justify-center shadow-[2px_2px_0px_#2b1b11]">2</span>
-                            <h2 className="text-lg font-bold text-[#2b1b11]">Detail Pesanan</h2>
+                    <div className="bg-white border border-[#FFEED6] rounded-3xl p-6 sm:p-8 shadow-xs space-y-6 animate-in fade-in-50 duration-200">
+                        <div className="flex items-center gap-3">
+                            <span className="w-7 h-7 rounded-lg bg-[#FFEED6] text-[#827148] font-bold text-xs flex items-center justify-center">
+                                2
+                            </span>
+                            <h2 className="text-base sm:text-lg font-bold text-[#827148]">
+                                Detail Pesanan
+                            </h2>
                         </div>
 
-                        <div className="space-y-6">
-                            {/* Subject is common to all */}
-                            <div className="space-y-2">
-                                <label className="text-sm font-bold text-[#2b1b11]">Mata Kuliah</label>
+                        <div className="space-y-4">
+                            <div>
+                                <label className="text-xs font-bold text-[#827148] mb-1.5 block">
+                                    Mata Kuliah
+                                </label>
                                 <Select value={subject} onValueChange={setSubject}>
-                                    <SelectTrigger className="bg-[#bed3c6]/30 border-2 border-[#2b1b11] rounded-none shadow-[2px_2px_0px_#2b1b11] text-[#2b1b11] h-11">
-                                        <SelectValue placeholder="Pilih mata kuliah" />
+                                    <SelectTrigger className="w-full bg-white border border-[#FFEED6] rounded-xl text-sm text-[#827148] h-11">
+                                        <SelectValue placeholder="Pilih Mata Kuliah" />
                                     </SelectTrigger>
-                                    <SelectContent className="bg-[#FEFCF3] border-2 border-[#2b1b11] rounded-none font-mono text-sm">
+                                    <SelectContent className="bg-white border border-[#FFEED6] rounded-xl text-sm text-[#827148]">
                                         {SUBJECTS.map((s) => (
-                                            <SelectItem key={s.value} value={s.value} className="hover:bg-[#bed3c6] focus:bg-[#bed3c6]">
+                                            <SelectItem key={s.value} value={s.value} className="cursor-pointer">
                                                 {s.label}
                                             </SelectItem>
                                         ))}
@@ -193,53 +195,84 @@ export default function UpgradePackagePage() {
 
                             {selectedType === "REGULAR" && (
                                 <>
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div className="space-y-2">
-                                            <label className="text-sm font-bold text-[#2b1b11]">Jumlah Orang</label>
-                                            <Input 
-                                                type="number" value={groupSize} 
-                                                onChange={(e) => handleNumberChange(setGroupSize, e.target.value)}
-                                                className="bg-[#bed3c6]/30 border-2 border-[#2b1b11] rounded-none shadow-[2px_2px_0px_#2b1b11] h-11"
-                                                required
-                                            />
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="text-xs font-bold text-[#827148] mb-1.5 block">
+                                                Jumlah Orang
+                                            </label>
+                                            <Select value={groupSize} onValueChange={setGroupSize}>
+                                                <SelectTrigger className="w-full bg-white border border-[#FFEED6] rounded-xl text-sm text-[#827148] h-11">
+                                                    <SelectValue />
+                                                </SelectTrigger>
+                                                <SelectContent className="bg-white border border-[#FFEED6] rounded-xl text-sm text-[#827148]">
+                                                    <SelectItem value="1">1 Orang (Privat)</SelectItem>
+                                                    <SelectItem value="2">2 Orang</SelectItem>
+                                                    <SelectItem value="3">3 Orang</SelectItem>
+                                                    <SelectItem value="4">4 Orang</SelectItem>
+                                                    <SelectItem value="5">5 Orang</SelectItem>
+                                                </SelectContent>
+                                            </Select>
                                         </div>
-                                        <div className="space-y-2">
-                                            <label className="text-sm font-bold text-[#2b1b11]">Jumlah Minggu</label>
-                                            <Input 
-                                                type="number" value={sessionCount} 
-                                                onChange={(e) => handleNumberChange(setSessionCount, e.target.value, true)}
-                                                className="bg-[#bed3c6]/30 border-2 border-[#2b1b11] rounded-none shadow-[2px_2px_0px_#2b1b11] h-11"
-                                                required
-                                            />
+                                        <div>
+                                            <label className="text-xs font-bold text-[#827148] mb-1.5 block">
+                                                Jumlah Minggu
+                                            </label>
+                                            <Select value={sessionCount} onValueChange={setSessionCount}>
+                                                <SelectTrigger className="w-full bg-white border border-[#FFEED6] rounded-xl text-sm text-[#827148] h-11">
+                                                    <SelectValue />
+                                                </SelectTrigger>
+                                                <SelectContent className="bg-white border border-[#FFEED6] rounded-xl text-sm text-[#827148]">
+                                                    <SelectItem value="1">1 Minggu</SelectItem>
+                                                    <SelectItem value="2">2 Minggu</SelectItem>
+                                                    <SelectItem value="3">3 Minggu</SelectItem>
+                                                    <SelectItem value="4">4 Minggu</SelectItem>
+                                                </SelectContent>
+                                            </Select>
                                         </div>
                                     </div>
-                                    <PricingBreakdown groupSize={Number(groupSize)} sessionCount={Number(sessionCount)} />
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div className="space-y-2">
-                                            <label className="text-sm font-bold text-[#2b1b11]">Tanggal Kelas</label>
-                                            <Input 
-                                                type="date" value={scheduledDate} min={new Date().toISOString().split("T")[0]} 
+
+                                    <PricingBreakdown
+                                        groupSize={parseInt(groupSize, 10)}
+                                        sessionCount={parseInt(sessionCount, 10)}
+                                    />
+
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="text-xs font-bold text-[#827148] mb-1.5 block">
+                                                Tanggal Kelas
+                                            </label>
+                                            <Input
+                                                type="date"
+                                                value={scheduledDate}
                                                 onChange={(e) => setScheduledDate(e.target.value)}
-                                                className="bg-[#bed3c6]/30 border-2 border-[#2b1b11] rounded-none shadow-[2px_2px_0px_#2b1b11] h-11"
+                                                className="bg-white border border-[#FFEED6] rounded-xl text-sm text-[#827148] h-11"
                                                 required
                                             />
                                         </div>
-                                        <div className="space-y-2">
-                                            <label className="text-sm font-bold text-[#2b1b11]">Waktu Kelas</label>
-                                            <Input 
-                                                type="time" value={scheduledTime} 
+                                        <div>
+                                            <label className="text-xs font-bold text-[#827148] mb-1.5 block">
+                                                Waktu Kelas
+                                            </label>
+                                            <Input
+                                                type="time"
+                                                value={scheduledTime}
                                                 onChange={(e) => setScheduledTime(e.target.value)}
-                                                className="bg-[#bed3c6]/30 border-2 border-[#2b1b11] rounded-none shadow-[2px_2px_0px_#2b1b11] h-11"
+                                                className="bg-white border border-[#FFEED6] rounded-xl text-sm text-[#827148] h-11"
                                                 required
                                             />
                                         </div>
                                     </div>
-                                    <div className="space-y-2">
-                                        <label className="text-sm font-bold text-[#2b1b11]">Catatan</label>
-                                        <Textarea 
-                                            placeholder="Materi yang ingin dibahas" value={notes} 
-                                            onChange={(e) => setNotes(e.target.value)} maxLength={500}
-                                            className="bg-[#bed3c6]/30 border-2 border-[#2b1b11] rounded-none shadow-[2px_2px_0px_#2b1b11] resize-none"
+
+                                    <div>
+                                        <label className="text-xs font-bold text-[#827148] mb-1.5 block">
+                                            Catatan Khusus (Opsional)
+                                        </label>
+                                        <Textarea
+                                            placeholder="Topik spesifik yang ingin difokuskan"
+                                            value={notes}
+                                            onChange={(e) => setNotes(e.target.value)}
+                                            maxLength={500}
+                                            className="bg-white border border-[#FFEED6] rounded-xl text-sm text-[#827148] resize-none"
                                         />
                                     </div>
                                 </>
@@ -252,20 +285,27 @@ export default function UpgradePackagePage() {
                             )}
 
                             {selectedType === "KELAS_BESAR" && (
-                                <div className="p-4 bg-[#e87a5d]/10 border-l-4 border-[#e87a5d] text-[#e87a5d] font-bold text-sm">
-                                    Total Biaya: Rp30.000 (Mendapat link Zoom, Recording, & Bahan Ajaran)
+                                <div className="p-4 bg-[#E8A07C]/15 border border-[#E8A07C] text-[#827148] rounded-2xl text-xs font-semibold leading-relaxed">
+                                    Total Biaya: Rp30.000 (Mendapat akses Zoom Masterclass langsung, Recording, & Bahan Ajaran Lengkap)
                                 </div>
                             )}
 
                             <GoPayInfo />
                             <PaymentUpload file={paymentFile} previewUrl={paymentPreview} onFileChange={handlePaymentChange} />
-                            
+
                             <Button
                                 type="submit"
                                 disabled={isLoading}
-                                className="w-full bg-[#e87a5d] hover:bg-[#d95a4f] text-[#FEFCF3] h-12 rounded-none border-2 border-[#2b1b11] shadow-[4px_4px_0px_#2b1b11] hover:shadow-[6px_6px_0px_#2b1b11] hover:-translate-y-1 transition-all text-base font-bold"
+                                className="w-full bg-[#827148] hover:bg-[#827148]/90 text-white h-12 rounded-xl text-sm font-bold shadow-xs transition-colors cursor-pointer disabled:opacity-50"
                             >
-                                {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Selesaikan Pembelian"}
+                                {isLoading ? (
+                                    <>
+                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                        Mengirim Bukti Pembayaran...
+                                    </>
+                                ) : (
+                                    "Kirim Konfirmasi Pembayaran"
+                                )}
                             </Button>
                         </div>
                     </div>

@@ -154,7 +154,7 @@ export async function POST(request: NextRequest) {
                     .from("user_subject_access")
                     .upsert({
                         user_id: existingUser.id,
-                        subject: mappedSubject,
+                        subject: mappedSubject as "FISDAS2" | "FISMAT",
                         role: userRole,
                         package_type: packageType,
                         is_active: true,

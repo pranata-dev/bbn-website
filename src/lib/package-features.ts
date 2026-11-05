@@ -1,4 +1,4 @@
-import { PackageType, Role } from "@prisma/client"
+import type { PackageType, Role } from "@/types"
 
 export interface PackageFeatures {
     canAccessLatihan: boolean

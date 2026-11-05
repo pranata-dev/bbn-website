@@ -80,7 +80,7 @@ export async function POST(
                 totalPartsInCategory = count ?? undefined
             }
 
-            if (!canAccessPracticePart(access.package_type, access.role, tryout.practice_part ?? null, tryout.title, tryout.subject, totalPartsInCategory)) {
+            if (!canAccessPracticePart(access.package_type as any, access.role, tryout.practice_part ?? null, tryout.title, tryout.subject, totalPartsInCategory)) {
                 return NextResponse.json({ error: "Upgrade paket Anda untuk mengakses bagian ini." }, { status: 403 })
             }
         } else {

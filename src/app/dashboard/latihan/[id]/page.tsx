@@ -30,7 +30,7 @@ export default function LatihanDetailPage() {
 
                 const { data, error } = await supabase
                     .from("tryouts")
-                    .select("*, tryout_questions(count)")
+                    .select("*, tryout_questions(id)")
                     .eq("id", validId)
                     .eq("is_practice", true)
                     .single()
@@ -41,7 +41,7 @@ export default function LatihanDetailPage() {
 
                 setLatihan({
                     ...data,
-                    questionCount: data.tryout_questions?.[0]?.count || 0
+                    questionCount: data.tryout_questions?.length || 0
                 })
 
                 // Fetch user submission history

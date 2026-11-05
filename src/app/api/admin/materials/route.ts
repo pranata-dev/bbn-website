@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
         const { searchParams } = new URL(request.url)
         const subject = searchParams.get("subject")
         if (subject && subject !== "all") {
-            query = query.eq("subject", subject)
+            query = query.eq("subject", subject as "FISDAS2" | "FISMAT")
         }
 
         const { data: materials, error } = await query

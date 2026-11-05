@@ -1,11 +1,16 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
+import { getEntitlements } from "@/lib/entitlements"
 
-// GET /api/tryouts - List active tryouts
+export const dynamic = "force-dynamic"
+
+// GET /api/tryouts - List active tryouts/latihan
 export async function GET(request: NextRequest) {
     try {
         const supabase = await createClient()
-        const { data: { user } } = await supabase.auth.getUser()
+        const {
+            data: { user },
+        } = await supabase.auth.getUser()
 
         if (!user) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
@@ -13,19 +18,19 @@ export async function GET(request: NextRequest) {
 
         const { data: profile } = await supabase
             .from("users")
-            .select("*, subject_access:user_subject_access(*)")
+            .select("id, role, student_category")
             .eq("auth_id", user.id)
-            .single()
+            .maybeSingle()
 
-        if (!profile || !profile.subject_access || profile.subject_access.length === 0) {
+        if (!profile) {
             return NextResponse.json({ tryouts: [] })
         }
 
-        const url = new URL(request.url)
-        const subjectParam = url.searchParams.get("subject")
+        const entitlements = await getEntitlements(profile.id)
 
-        const subjectAccess = profile.subject_access
-        const accessibleSubjects = subjectAccess.map((a: any) => a.subject)
+        const url = new URL(request.url)
+        const subjectParam = url.searchParams.get("subject") || url.searchParams.get("course")
+        const isPracticeParam = url.searchParams.get("isPractice")
 
         let query = supabase
             .from("tryouts")
@@ -33,94 +38,46 @@ export async function GET(request: NextRequest) {
             .eq("status", "ACTIVE")
             .order("created_at", { ascending: false })
 
-        if (subjectParam && accessibleSubjects.includes(subjectParam)) {
-            query = query.eq("subject", subjectParam)
-        } else {
-            query = query.in("subject", accessibleSubjects)
+        if (isPracticeParam !== null) {
+            query = query.eq("is_practice", isPracticeParam === "true")
+        }
+
+        // Resolve course/subject filter
+        if (subjectParam) {
+            const normalized = subjectParam.toLowerCase().trim()
+            const { data: matchedCourse } = await supabase
+                .from("courses")
+                .select("id, code, slug")
+                .or(`slug.ilike.${normalized},code.ilike.${subjectParam.toUpperCase()}`)
+                .maybeSingle()
+
+            if (matchedCourse) {
+                query = query.or(`course_id.eq.${matchedCourse.id},subject.ilike.${matchedCourse.code}`)
+            } else {
+                query = query.ilike("subject", subjectParam.toUpperCase())
+            }
         }
 
         const { data: tryouts, error } = await query
 
         if (error) {
+            console.error("Error fetching tryouts:", error)
             return NextResponse.json({ error: "Failed to fetch tryouts" }, { status: 500 })
         }
 
-        // Apply granular filtering based on specific subject roles
-        const filteredTryouts = tryouts.filter((t: any) => {
-            const access = subjectAccess.find((a: any) => a.subject === t.subject)
-            if (!access) return false // Should be caught by .in("subject") but safety first
-
-            const role = access.role
-            if (role === "STUDENT_BASIC" || role === "STUDENT_PREMIUM") {
-                return false // No tryouts for basic students
-            } else if (role === "UTS_FLUX") {
-                return t.is_practice === true // Flux can only see practice
+        // Apply entitlements (paid tier vs free sample)
+        const filtered = (tryouts || []).map((t: any) => {
+            const canStart = entitlements.canStartTryout(t)
+            const canAccessPractice = t.is_practice ? (entitlements.canAccessPractice || !!t.is_free_sample) : canStart
+            return {
+                ...t,
+                is_locked: !canAccessPractice,
             }
-            return true // Senku, Einstein, and implicit ADMIN access (though ADMIN is handled elsewhere)
         })
 
-        return NextResponse.json({ tryouts: filteredTryouts })
+        return NextResponse.json({ tryouts: filtered })
     } catch (error) {
-        return NextResponse.json({ error: "Internal error" }, { status: 500 })
-    }
-}
-
-// POST /api/tryouts - Create tryout (admin only)
-export async function POST(request: NextRequest) {
-    try {
-        const supabase = await createClient()
-        const { data: { user } } = await supabase.auth.getUser()
-
-        if (!user) {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-        }
-
-        // Check admin role
-        const { data: profile } = await supabase
-            .from("users")
-            .select("role")
-            .eq("auth_id", user.id)
-            .single()
-
-        if (!profile || profile.role !== "ADMIN") {
-            return NextResponse.json({ error: "Forbidden" }, { status: 403 })
-        }
-
-        const body = await request.json()
-        const { title, description, category, duration, maxAttempts, startDate, endDate, questionIds } = body
-
-        const { data: tryout, error } = await supabase
-            .from("tryouts")
-            .insert({
-                title,
-                description,
-                category,
-                duration,
-                max_attempts: maxAttempts || 1,
-                start_date: startDate || null,
-                end_date: endDate || null,
-                status: "DRAFT",
-            })
-            .select()
-            .single()
-
-        if (error) {
-            return NextResponse.json({ error: "Failed to create tryout" }, { status: 500 })
-        }
-
-        // Link questions if provided
-        if (questionIds?.length > 0) {
-            const links = questionIds.map((qId: string, index: number) => ({
-                tryout_id: tryout.id,
-                question_id: qId,
-                order: index,
-            }))
-
-            await supabase.from("tryout_questions").insert(links)
-        }
-
-        return NextResponse.json({ tryout }, { status: 201 })
-    } catch (error) {
+        console.error("Tryouts API error:", error)
         return NextResponse.json({ error: "Internal error" }, { status: 500 })
     }
 }

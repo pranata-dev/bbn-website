@@ -24,12 +24,12 @@ export async function PATCH(
         const text = formData.get("text") as string
         const category = formData.get("category") as string
         const subject = formData.get("subject") as string
-        const optionA = formData.get("optionA") as string
-        const optionB = formData.get("optionB") as string
-        const optionC = formData.get("optionC") as string
-        const optionD = formData.get("optionD") as string
-        const optionE = (formData.get("optionE") as string) || null
-        const correctAnswer = formData.get("correctAnswer") as string
+        const optionA = (formData.get("optionA") ?? formData.get("option_a")) as string
+        const optionB = (formData.get("optionB") ?? formData.get("option_b")) as string
+        const optionC = (formData.get("optionC") ?? formData.get("option_c")) as string
+        const optionD = (formData.get("optionD") ?? formData.get("option_d")) as string
+        const optionE = (formData.get("optionE") ?? formData.get("option_e") ?? null) as string | null
+        const correctAnswer = (formData.get("correctAnswer") ?? formData.get("correct_answer")) as string
         const explanation = (formData.get("explanation") as string) || null
         const weight = parseFloat(formData.get("weight") as string) || 1
         const imageFile = formData.get("image") as File | null
@@ -94,7 +94,7 @@ export async function PATCH(
             .update({
                 text,
                 category,
-                subject,
+                subject: (subject as "FISDAS2" | "FISMAT") || undefined,
                 option_a: optionA,
                 option_b: optionB,
                 option_c: optionC,

@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
         }
 
         if (subject && subject !== "all") {
-            query = query.eq("subject", subject)
+            query = query.eq("subject", subject as "FISDAS2" | "FISMAT")
         }
 
         const { data: questions, error } = await query
@@ -64,6 +64,7 @@ export async function POST(request: NextRequest) {
             text,
             category,
             subject,
+            type,
             option_a,
             option_b,
             option_c,
@@ -116,6 +117,7 @@ export async function POST(request: NextRequest) {
                 text,
                 category,
                 subject,
+                type,
                 option_a,
                 option_b,
                 option_c,
@@ -176,7 +178,7 @@ export async function DELETE(request: NextRequest) {
         }
 
         if (subject && subject !== "all") {
-            query = query.eq("subject", subject)
+            query = query.eq("subject", subject as "FISDAS2" | "FISMAT")
         }
 
         const { error } = await query

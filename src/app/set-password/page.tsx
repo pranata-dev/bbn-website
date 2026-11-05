@@ -42,6 +42,9 @@ export default function SetPasswordPage() {
 
             if (error) throw error
 
+            // Sign out so user logs in cleanly with new credentials
+            await supabase.auth.signOut()
+
             toast.success("Password berhasil diatur! Silakan login.")
             router.push("/login")
         } catch (error) {

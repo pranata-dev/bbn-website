@@ -150,7 +150,7 @@ export default function AdminMaterialsPage() {
         <div className="space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-extrabold text-[#2b1b11] uppercase tracking-tight" style={{ fontFamily: "var(--font-press-start)" }}>Manajemen Materi</h1>
+                    <h1 className="text-2xl font-extrabold text-[#827148] tracking-tight">Manajemen Modul Materi</h1>
                     <p className="text-[#3c5443] font-mono font-medium mt-1">Kelola tautan materi dan podcast pelajaran.</p>
                 </div>
                 <Button 
@@ -264,7 +264,7 @@ export default function AdminMaterialsPage() {
             >
                 <DialogContent className="border-4 border-[#2b1b11] shadow-[12px_12px_0px_#2b1b11] rounded-none sm:max-w-[500px] p-0 overflow-hidden bg-[#FEFCF3]">
                     <DialogHeader className="px-6 py-4 border-b-4 border-[#2b1b11] bg-[#bed3c6]">
-                        <DialogTitle className="font-extrabold uppercase text-[#2b1b11]" style={{ fontFamily: "var(--font-press-start)" }}>
+                        <DialogTitle className="font-bold text-[#827148]">
                             {editingId ? "Edit Materi" : "Tambah Materi"}
                         </DialogTitle>
                     </DialogHeader>
@@ -342,7 +342,7 @@ export default function AdminMaterialsPage() {
             <AlertDialog open={!!deletingId} onOpenChange={() => !submitting && setDeletingId(null)}>
                 <AlertDialogContent className="border-4 border-red-600 shadow-[8px_8px_0px_#dc2626] rounded-none bg-[#FEFCF3]">
                     <AlertDialogHeader>
-                        <AlertDialogTitle className="text-red-600 font-extrabold flex items-center gap-2" style={{ fontFamily: "var(--font-press-start)" }}>
+                        <AlertDialogTitle className="text-red-600 font-bold flex items-center gap-2">
                             <Trash2 className="w-6 h-6" /> Hapus Materi?
                         </AlertDialogTitle>
                         <AlertDialogDescription className="font-mono text-[#2b1b11] font-medium mt-2">

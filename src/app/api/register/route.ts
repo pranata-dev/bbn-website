@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
     const formData = await request.formData()
 
     // Extract common fields (handling both naming conventions)
-    const type = (formData.get("type") as string || "UTS").trim().toUpperCase()
+    const type = ((formData.get("type") as string) || "UTS").trim().toUpperCase() as "REGULAR" | "UTS" | "KELAS_BESAR"
     const name = (
       (formData.get("fullName") as string) ||
       (formData.get("name") as string) ||

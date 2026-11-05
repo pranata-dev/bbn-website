@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
         const formData = await request.formData()
 
         // Extract common fields
-        const type = (formData.get("type") as string || "").trim()
+        const type = ((formData.get("type") as string) || "").trim() as "REGULAR" | "UTS" | "KELAS_BESAR"
         const subject = (formData.get("subject") as string || "").trim()
         const paymentProof = formData.get("paymentProof") as File
 
@@ -113,7 +113,7 @@ export async function POST(request: NextRequest) {
 
         const nim = pastReg?.nim || "-"
         const whatsapp = pastReg?.whatsapp || "-"
-        const name = dbUser.name
+        const name = dbUser.name || user.email.split("@")[0]
 
         // Upload payment proof
         const fileExt = paymentProof.name.split(".").pop()

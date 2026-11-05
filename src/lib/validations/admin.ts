@@ -1,5 +1,4 @@
 import { z } from "zod"
-import { QuestionCategory, Subject } from "@/types"
 
 /**
  * Automatically applies LaTeX formatting fixes to text before ingestion.
@@ -32,21 +31,31 @@ export const latexStringSchema = z
     .transform(transformLatex)
 
 // Base schema for validating incoming Question creation payloads
-export const questionSchema = z.object({
+export const questionSchema = z.preprocess((val: any) => {
+    if (!val || typeof val !== "object") return val
+    return {
+        ...val,
+        option_a: val.option_a ?? val.optionA,
+        option_b: val.option_b ?? val.optionB,
+        option_c: val.option_c ?? val.optionC,
+        option_d: val.option_d ?? val.optionD,
+        option_e: val.option_e ?? val.optionE,
+        correct_answer: val.correct_answer ?? val.correctAnswer,
+        type: val.type ?? "MULTIPLE_CHOICE",
+    }
+}, z.object({
     text: latexStringSchema,
-    category: z.enum([
-        "WEEK_1", "WEEK_2", "WEEK_3", "WEEK_4", 
-        "WEEK_5", "WEEK_6", "WEEK_7"
-    ] as const),
+    category: z.string().min(1, "Category is required"),
     subject: z.enum(["FISDAS2", "FISMAT"] as const).default("FISDAS2"),
+    type: z.enum(["MULTIPLE_CHOICE", "ESSAY"] as const).default("MULTIPLE_CHOICE"),
     option_a: latexStringSchema,
     option_b: latexStringSchema,
     option_c: latexStringSchema,
     option_d: latexStringSchema,
-    option_e: z.string().transform(v => v ? transformLatex(v) : undefined).optional(),
-    correct_answer: z.enum(["A", "B", "C", "D", "E"] as const),
+    option_e: z.string().transform(v => v ? transformLatex(v) : undefined).optional().nullable(),
+    correct_answer: z.string().min(1, "Correct answer is required"),
     explanation: z.string().transform(v => v ? transformLatex(v) : undefined).nullable().optional(),
-    weight: z.number().min(0).default(1),
-})
+    weight: z.coerce.number().min(0).default(1),
+}))
 
 export type QuestionInput = z.infer<typeof questionSchema>

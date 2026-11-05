@@ -161,37 +161,11 @@ export default function DashboardClient({ dbUser }: DashboardClientProps) {
   }
 
   return (
-    <div className="min-h-screen bg-[#FFEED6]/20 font-sans -m-4 sm:-m-6 lg:-m-8">
+    <div className="font-sans space-y-8">
       {/* ======================================================== */}
-      {/* 1. TOP NAVIGATION BAR                                    */}
+      {/* MAIN CONTENT CONTAINER (12-Column Grid)                  */}
       {/* ======================================================== */}
-      <header className="bg-white shadow-xs border-b border-[#FFEED6] px-6 sm:px-8 py-4 flex justify-between items-center sticky top-0 z-30">
-        {/* Left: Logo placeholder */}
-        <Link href="/" className="flex items-center gap-3 group">
-          <div className="w-8 h-8 rounded-lg bg-[#FFEED6] flex items-center justify-center border border-[#827148]/15 group-hover:bg-[#A5AF79]/20 transition-colors">
-            <div className="w-3 h-3 rounded-xs bg-[#A5AF79]" />
-          </div>
-          <span className="text-[#827148] font-bold text-lg sm:text-xl tracking-tight">
-            Belajar Bareng Nata
-          </span>
-        </Link>
-
-        {/* Right: Dynamic User Profile Snippet */}
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-full bg-[#A5AF79] flex items-center justify-center text-white text-xs font-bold shadow-2xs">
-            {user?.name?.charAt(0).toUpperCase() || "P"}
-          </div>
-          <span className="text-sm font-semibold text-[#827148]">
-            {user?.name || "Pelajar"}
-          </span>
-        </div>
-      </header>
-
-      {/* ======================================================== */}
-      {/* 2. MAIN CONTENT CONTAINER (12-Column Grid)               */}
-      {/* ======================================================== */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-8 py-8 sm:py-10">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           
           {/* ======================================================== */}
           {/* LEFT COLUMN / MAIN AREA (lg:col-span-8)                  */}
@@ -374,7 +348,6 @@ export default function DashboardClient({ dbUser }: DashboardClientProps) {
           </aside>
 
         </div>
-      </main>
-    </div>
+      </div>
   )
 }

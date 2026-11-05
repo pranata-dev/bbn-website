@@ -164,7 +164,7 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
               setSubjectAccess(profile.subject_access)
             }
             if (profile.student_category) {
-              setStudentCategory(profile.student_category)
+              setStudentCategory(profile.student_category as "PHYSICS_SEM_3" | "NON_PHYSICS")
             }
           }
         } catch (error) {
