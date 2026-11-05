@@ -1,12 +1,13 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Plus, Loader2, BookOpen, Pencil, Trash2, Link as LinkIcon, Headphones } from "lucide-react"
+import { Plus, Loader2, BookOpen, Pencil, Trash2, Link as LinkIcon, Headphones, Eye, Sparkles, CheckCircle, FileText } from "lucide-react"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
 import {
@@ -32,6 +33,7 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
+import MarkdownLatex from "@/components/ui/markdown-latex"
 
 export default function AdminMaterialsPage() {
     const [materials, setMaterials] = useState<any[]>([])
@@ -41,12 +43,19 @@ export default function AdminMaterialsPage() {
     const [editingId, setEditingId] = useState<string | null>(null)
     const [deletingId, setDeletingId] = useState<string | null>(null)
     const [subjectFilter, setSubjectFilter] = useState<string>("all")
+    const [activeTab, setActiveTab] = useState<"edit" | "preview" | "split">("split")
 
     const INITIAL_FORM_DATA = {
         title: "",
+        slug: "",
+        summary: "",
+        contentMd: "",
         driveUrl: "",
         podcastUrl: "",
-        subject: "", // empty by default
+        moduleNumber: "1",
+        readingTimeMinutes: "15",
+        isFreePreview: false,
+        subject: "FISDAS2",
     }
     const [formData, setFormData] = useState(INITIAL_FORM_DATA)
 
@@ -84,8 +93,14 @@ export default function AdminMaterialsPage() {
     const handleEdit = (material: any) => {
         setFormData({
             title: material.title,
-            driveUrl: material.drive_url,
+            slug: material.slug || "",
+            summary: material.summary || "",
+            contentMd: material.content_md || "",
+            driveUrl: material.drive_url || "",
             podcastUrl: material.podcast_url || "",
+            moduleNumber: String(material.module_number ?? 1),
+            readingTimeMinutes: String(material.reading_time_minutes ?? 15),
+            isFreePreview: Boolean(material.is_free_preview),
             subject: material.subject,
         })
         setEditingId(material.id)
@@ -99,48 +114,66 @@ export default function AdminMaterialsPage() {
             const res = await fetch(`/api/admin/materials/${deletingId}`, {
                 method: "DELETE",
             })
+            const data = await res.json()
             if (!res.ok) {
-                const data = await res.json()
-                throw new Error(data.error || "Gagal menghapus materi")
+                toast.error(data.error || "Gagal menghapus materi.")
+            } else {
+                toast.success("Materi berhasil dihapus.")
+                fetchMaterials()
+                setDeletingId(null)
             }
-            toast.success("Materi berhasil dihapus.")
-            fetchMaterials()
         } catch (error) {
-            toast.error(error instanceof Error ? error.message : "Terjadi kesalahan")
+            console.error("Failed to delete material:", error)
+            toast.error("Terjadi kesalahan sistem.")
         } finally {
             setSubmitting(false)
-            setDeletingId(null)
         }
     }
 
     const handleSubmit = async () => {
-        if (!formData.title || !formData.driveUrl || !formData.subject) {
-            toast.error("Mohon isi judul, link drive, dan mata kuliah.")
+        if (!formData.title || !formData.subject) {
+            toast.error("Judul dan mata kuliah wajib diisi!")
             return
         }
 
         setSubmitting(true)
         try {
+            const payload = {
+                title: formData.title,
+                slug: formData.slug || formData.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, ""),
+                summary: formData.summary,
+                contentMd: formData.contentMd,
+                driveUrl: formData.driveUrl,
+                podcastUrl: formData.podcastUrl,
+                moduleNumber: parseInt(formData.moduleNumber) || 1,
+                readingTimeMinutes: parseInt(formData.readingTimeMinutes) || 15,
+                isFreePreview: formData.isFreePreview,
+                subject: formData.subject,
+            }
+
+            const url = editingId 
+                ? `/api/admin/materials/${editingId}`
+                : `/api/admin/materials`
             const method = editingId ? "PATCH" : "POST"
-            const url = editingId ? `/api/admin/materials/${editingId}` : "/api/admin/materials"
 
             const res = await fetch(url, {
                 method,
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(formData),
+                body: JSON.stringify(payload),
             })
+            const data = await res.json()
 
             if (!res.ok) {
-                const data = await res.json().catch(() => ({}))
-                throw new Error(data.error || `Gagal ${editingId ? "memperbarui" : "membuat"} materi.`)
+                toast.error(data.error || "Gagal menyimpan materi.")
+            } else {
+                toast.success(editingId ? "Materi berhasil diperbarui." : "Materi baru berhasil ditambahkan.")
+                setShowForm(false)
+                resetForm()
+                fetchMaterials()
             }
-
-            toast.success(`Materi berhasil ${editingId ? "diperbarui" : "dibuat"}.`)
-            setShowForm(false)
-            resetForm()
-            fetchMaterials()
         } catch (error) {
-            toast.error(error instanceof Error ? error.message : "Gagal menyimpan materi.")
+            console.error("Failed to save material:", error)
+            toast.error("Terjadi kesalahan sistem.")
         } finally {
             setSubmitting(false)
         }
@@ -148,104 +181,116 @@ export default function AdminMaterialsPage() {
 
     return (
         <div className="space-y-6">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-extrabold text-[#827148] tracking-tight">Manajemen Modul Materi</h1>
-                    <p className="text-[#3c5443] font-mono font-medium mt-1">Kelola tautan materi dan podcast pelajaran.</p>
+                    <h1 className="text-2xl font-bold tracking-tight text-foreground">
+                        Kelola Modul Materi
+                    </h1>
+                    <p className="text-sm text-muted-foreground mt-1">
+                        Buat dan perbarui materi belajar interaktif dengan teks Markdown & formula LaTeX.
+                    </p>
                 </div>
                 <Button 
-                    onClick={() => { resetForm(); setShowForm(true); }}
-                    className="bg-[#e87a5d] hover:bg-[#c96349] text-[#FEFCF3] border-4 border-[#2b1b11] shadow-[4px_4px_0px_#2b1b11] hover:shadow-[6px_6px_0px_#2b1b11] hover:-translate-y-1 transition-all rounded-none font-bold font-mono h-12 px-6"
+                    onClick={() => {
+                        resetForm()
+                        setShowForm(true)
+                    }}
+                    className="bg-olive hover:bg-olive/90 text-white font-semibold"
                 >
-                    <Plus className="w-5 h-5 mr-2 stroke-[3]" />
-                    Tambah Materi
+                    <Plus className="w-4 h-4 mr-2" />
+                    Tambah Modul Materi
                 </Button>
             </div>
 
             {/* Filter */}
-            <Card className="border-4 border-[#2b1b11] shadow-[8px_8px_0px_#2b1b11] rounded-none bg-[#FEFCF3]">
-                <CardContent className="p-4 sm:p-6 flex flex-col sm:flex-row items-end gap-4">
-                    <div className="space-y-2 w-full sm:w-64">
-                        <Label className="font-mono font-bold text-[#2b1b11]">Filter Mata Kuliah</Label>
-                        <Select value={subjectFilter} onValueChange={setSubjectFilter}>
-                            <SelectTrigger className="border-2 border-[#2b1b11] rounded-none shadow-[2px_2px_0px_#2b1b11] bg-white font-mono font-semibold h-10">
-                                <SelectValue placeholder="Pilih Mata Kuliah" />
-                            </SelectTrigger>
-                            <SelectContent className="border-2 border-[#2b1b11] rounded-none font-mono">
-                                <SelectItem value="all">Semua Mata Kuliah</SelectItem>
-                                <SelectItem value="FISDAS2">Fisika Dasar 2</SelectItem>
-                                <SelectItem value="FISMAT">Fisika Matematika</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
-                </CardContent>
-            </Card>
+            <div className="flex items-center gap-3">
+                <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Mata Kuliah:</Label>
+                <Select value={subjectFilter} onValueChange={setSubjectFilter}>
+                    <SelectTrigger className="w-[200px] h-9">
+                        <SelectValue placeholder="Pilih Mata Kuliah" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="all">Semua Mata Kuliah</SelectItem>
+                        <SelectItem value="FISDAS2">Fisika Dasar 2</SelectItem>
+                        <SelectItem value="FISMAT">Fisika Matematika</SelectItem>
+                    </SelectContent>
+                </Select>
+            </div>
 
             {/* Materials List */}
-            <Card className="border-4 border-[#2b1b11] shadow-[8px_8px_0px_#2b1b11] rounded-none bg-[#FEFCF3] overflow-hidden">
-                <CardContent className="p-0">
+            <Card className="border border-border">
+                <CardContent className="p-4 sm:p-6">
                     {loading ? (
-                        <div className="flex items-center justify-center py-20">
-                            <Loader2 className="w-8 h-8 animate-spin text-[#2b1b11]" />
+                        <div className="flex items-center justify-center py-12">
+                            <Loader2 className="w-8 h-8 animate-spin text-olive" />
                         </div>
                     ) : materials.length === 0 ? (
-                        <div className="flex flex-col items-center justify-center py-16 text-center">
-                            <div className="w-16 h-16 bg-[#bed3c6] border-4 border-[#2b1b11] flex items-center justify-center shadow-[4px_4px_0px_#2b1b11] mb-4">
-                                <BookOpen className="w-8 h-8 text-[#2b1b11] stroke-[2]" />
-                            </div>
-                            <p className="font-mono font-bold text-[#2b1b11]">Belum ada data materi.</p>
+                        <div className="text-center py-12 space-y-3">
+                            <BookOpen className="w-10 h-10 text-muted-foreground mx-auto" />
+                            <p className="text-sm font-semibold text-foreground">Belum ada modul materi</p>
+                            <p className="text-xs text-muted-foreground">Klik tombol &quot;Tambah Modul Materi&quot; untuk membuat modul pertama.</p>
                         </div>
                     ) : (
-                        <div className="divide-y-4 divide-[#2b1b11]">
+                        <div className="grid gap-3">
                             {materials.map((m) => (
-                                <div key={m.id} className="p-4 sm:p-6 hover:bg-[#bed3c6]/30 transition-colors">
-                                    <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
-                                        <div className="flex-1 min-w-0">
-                                            <div className="flex items-center gap-3 mb-2">
-                                                <h3 className="font-black text-[#2b1b11] text-lg uppercase tracking-tight">{m.title}</h3>
-                                                <Badge className={`border-2 border-[#2b1b11] rounded-none font-bold font-mono text-[10px] uppercase shadow-[2px_2px_0px_#2b1b11] ${m.subject === "FISDAS2" ? "bg-[#bed3c6] text-[#2b1b11]" : "bg-[#e87a5d] text-[#FEFCF3]"}`}>
-                                                    {m.subject === "FISDAS2" ? "Fisika Dasar 2" : "Fisika Matematika"}
-                                                </Badge>
-                                            </div>
-                                            
-                                            <div className="flex flex-col gap-2 mt-4 font-mono text-sm">
-                                                <a href={m.drive_url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 text-blue-700 hover:text-blue-800 font-bold max-w-fit break-all">
-                                                    <LinkIcon className="w-4 h-4 shrink-0" />
-                                                    Tautan Google Drive
+                                <div
+                                    key={m.id}
+                                    className="border border-border rounded-xl p-4 hover:border-olive/40 transition-colors flex flex-col md:flex-row md:items-center justify-between gap-4"
+                                >
+                                    <div className="space-y-1.5 flex-1 min-w-0">
+                                        <div className="flex items-center gap-2 flex-wrap">
+                                            <span className="text-[11px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded bg-muted text-muted-foreground">
+                                                Modul {m.module_number ?? "-"}
+                                            </span>
+                                            <span className="text-[11px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded bg-olive/15 text-olive">
+                                                {m.subject}
+                                            </span>
+                                            {m.is_free_preview && (
+                                                <span className="inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-400 border border-emerald-300">
+                                                    <CheckCircle className="w-3 h-3" /> Free Preview
+                                                </span>
+                                            )}
+                                        </div>
+                                        <h3 className="font-semibold text-foreground text-base tracking-tight truncate">
+                                            {m.title}
+                                        </h3>
+                                        {m.summary && (
+                                            <p className="text-xs text-muted-foreground line-clamp-1 max-w-2xl">
+                                                {m.summary}
+                                            </p>
+                                        )}
+                                        <div className="flex items-center gap-3 text-xs text-muted-foreground pt-1">
+                                            {m.drive_url && (
+                                                <a href={m.drive_url} target="_blank" rel="noopener noreferrer" className="hover:text-olive flex items-center gap-1">
+                                                    <LinkIcon className="w-3 h-3" /> Drive/PDF
                                                 </a>
-                                                
-                                                {m.podcast_url && (
-                                                    <a href={m.podcast_url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 text-[#e87a5d] hover:text-[#c96349] font-bold max-w-fit break-all mt-1">
-                                                        <Headphones className="w-4 h-4 shrink-0" />
-                                                        Tautan Podcast
-                                                    </a>
-                                                )}
-                                            </div>
-                                            <div className="mt-4 text-xs font-mono font-medium text-[#3c5443]">
-                                                Ditambahkan: {new Date(m.created_at).toLocaleDateString("id-ID")}
-                                            </div>
+                                            )}
+                                            {m.podcast_url && (
+                                                <a href={m.podcast_url} target="_blank" rel="noopener noreferrer" className="hover:text-olive flex items-center gap-1">
+                                                    <Headphones className="w-3 h-3" /> Podcast
+                                                </a>
+                                            )}
                                         </div>
+                                    </div>
 
-                                        <div className="shrink-0 flex items-center gap-2 mt-4 sm:mt-0">
-                                            <Button
-                                                size="sm"
-                                                variant="outline"
-                                                className="h-10 bg-white border-2 border-[#2b1b11] shadow-[2px_2px_0px_#2b1b11] hover:-translate-y-1 hover:shadow-[4px_4px_0px_#2b1b11] rounded-none font-bold font-mono transition-all"
-                                                onClick={() => handleEdit(m)}
-                                            >
-                                                <Pencil className="w-4 h-4 mr-2" />
-                                                Edit
-                                            </Button>
-                                            <Button
-                                                size="sm"
-                                                variant="outline"
-                                                className="h-10 bg-white border-2 border-[#2b1b11] shadow-[2px_2px_0px_#2b1b11] hover:-translate-y-1 hover:shadow-[4px_4px_0px_#2b1b11] hover:bg-red-50 text-red-600 rounded-none font-bold font-mono transition-all"
-                                                onClick={() => setDeletingId(m.id)}
-                                            >
-                                                <Trash2 className="w-4 h-4 mr-2" />
-                                                Hapus
-                                            </Button>
-                                        </div>
+                                    <div className="flex items-center gap-2 self-end md:self-center shrink-0">
+                                        <Button
+                                            size="sm"
+                                            variant="outline"
+                                            onClick={() => handleEdit(m)}
+                                        >
+                                            <Pencil className="w-4 h-4 mr-1.5" />
+                                            Edit
+                                        </Button>
+                                        <Button
+                                            size="sm"
+                                            variant="outline"
+                                            className="text-destructive hover:bg-destructive/10"
+                                            onClick={() => setDeletingId(m.id)}
+                                        >
+                                            <Trash2 className="w-4 h-4 mr-1.5" />
+                                            Hapus
+                                        </Button>
                                     </div>
                                 </div>
                             ))}
@@ -254,7 +299,7 @@ export default function AdminMaterialsPage() {
                 </CardContent>
             </Card>
 
-            {/* Create/Edit Modal Form */}
+            {/* Split-Pane Markdown Editor Dialog */}
             <Dialog 
                 open={showForm} 
                 onOpenChange={(open) => {
@@ -262,107 +307,217 @@ export default function AdminMaterialsPage() {
                     setShowForm(open)
                 }}
             >
-                <DialogContent className="border-4 border-[#2b1b11] shadow-[12px_12px_0px_#2b1b11] rounded-none sm:max-w-[500px] p-0 overflow-hidden bg-[#FEFCF3]">
-                    <DialogHeader className="px-6 py-4 border-b-4 border-[#2b1b11] bg-[#bed3c6]">
-                        <DialogTitle className="font-bold text-[#827148]">
-                            {editingId ? "Edit Materi" : "Tambah Materi"}
+                <DialogContent className="max-w-5xl max-h-[92vh] overflow-y-auto rounded-2xl p-6">
+                    <DialogHeader className="border-b border-border pb-4">
+                        <DialogTitle className="text-lg font-bold text-foreground">
+                            {editingId ? "Edit Modul Materi" : "Tambah Modul Materi Baru"}
                         </DialogTitle>
                     </DialogHeader>
 
-                    <div className="p-6 space-y-6">
-                        <div className="space-y-3">
-                            <Label className="font-bold font-mono text-[#2b1b11]">Judul Materi</Label>
+                    <div className="space-y-4 pt-2">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div className="md:col-span-2 space-y-1.5">
+                                <Label className="text-xs font-semibold">Judul Modul *</Label>
+                                <Input
+                                    value={formData.title}
+                                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                                    placeholder="Contoh: Hukum Coulomb & Medan Listrik"
+                                />
+                            </div>
+                            <div className="space-y-1.5">
+                                <Label className="text-xs font-semibold">Mata Kuliah *</Label>
+                                <Select 
+                                    value={formData.subject} 
+                                    onValueChange={(val) => setFormData({ ...formData, subject: val })}
+                                >
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Pilih Mata Kuliah" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="FISDAS2">Fisika Dasar 2</SelectItem>
+                                        <SelectItem value="FISMAT">Fisika Matematika</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <div className="space-y-1.5">
+                                <Label className="text-xs font-semibold">Slug URL (opsional)</Label>
+                                <Input
+                                    value={formData.slug}
+                                    onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
+                                    placeholder="hukum-coulomb-medan-listrik"
+                                />
+                            </div>
+                            <div className="space-y-1.5">
+                                <Label className="text-xs font-semibold">Nomor Modul</Label>
+                                <Input
+                                    type="number"
+                                    value={formData.moduleNumber}
+                                    onChange={(e) => setFormData({ ...formData, moduleNumber: e.target.value })}
+                                />
+                            </div>
+                            <div className="space-y-1.5">
+                                <Label className="text-xs font-semibold">Estimasi Baca (Menit)</Label>
+                                <Input
+                                    type="number"
+                                    value={formData.readingTimeMinutes}
+                                    onChange={(e) => setFormData({ ...formData, readingTimeMinutes: e.target.value })}
+                                />
+                            </div>
+                        </div>
+
+                        <div className="space-y-1.5">
+                            <Label className="text-xs font-semibold">Ringkasan Singkat</Label>
                             <Input
-                                value={formData.title}
-                                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                                placeholder="Contoh: Modul Optik Geometrik"
-                                className="border-2 border-[#2b1b11] rounded-none shadow-[2px_2px_0px_#2b1b11] focus-visible:ring-0 focus-visible:shadow-[4px_4px_0px_#e87a5d] bg-white font-mono"
+                                value={formData.summary}
+                                onChange={(e) => setFormData({ ...formData, summary: e.target.value })}
+                                placeholder="Penjelasan singkat modul untuk kartu preview materi..."
                             />
                         </div>
 
-                        <div className="space-y-3">
-                            <Label className="font-bold font-mono text-[#2b1b11]">Mata Kuliah</Label>
-                            <Select 
-                                value={formData.subject} 
-                                onValueChange={(val) => setFormData({ ...formData, subject: val })}
-                            >
-                                <SelectTrigger className="border-2 border-[#2b1b11] rounded-none shadow-[2px_2px_0px_#2b1b11] bg-white font-mono font-semibold">
-                                    <SelectValue placeholder="Pilih Mata Kuliah" />
-                                </SelectTrigger>
-                                <SelectContent className="border-2 border-[#2b1b11] rounded-none font-mono">
-                                    <SelectItem value="FISDAS2">Fisika Dasar 2</SelectItem>
-                                    <SelectItem value="FISMAT">Fisika Matematika</SelectItem>
-                                </SelectContent>
-                            </Select>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div className="space-y-1.5">
+                                <Label className="text-xs font-semibold">Tautan Google Drive / PDF Modul</Label>
+                                <Input
+                                    value={formData.driveUrl}
+                                    onChange={(e) => setFormData({ ...formData, driveUrl: e.target.value })}
+                                    placeholder="https://drive.google.com/..."
+                                />
+                            </div>
+                            <div className="space-y-1.5">
+                                <Label className="text-xs font-semibold">Tautan Audio Podcast</Label>
+                                <Input
+                                    value={formData.podcastUrl}
+                                    onChange={(e) => setFormData({ ...formData, podcastUrl: e.target.value })}
+                                    placeholder="https://open.spotify.com/... atau Drive MP3"
+                                />
+                            </div>
                         </div>
 
-                        <div className="space-y-3">
-                            <Label className="font-bold font-mono text-[#2b1b11]">Tautan Google Drive Modul</Label>
-                            <Input
-                                value={formData.driveUrl}
-                                onChange={(e) => setFormData({ ...formData, driveUrl: e.target.value })}
-                                placeholder="https://drive.google.com/..."
-                                className="border-2 border-[#2b1b11] rounded-none shadow-[2px_2px_0px_#2b1b11] focus-visible:ring-0 focus-visible:shadow-[4px_4px_0px_#e87a5d] bg-white font-mono"
+                        <div className="flex items-center gap-3 pt-1 pb-2">
+                            <input
+                                type="checkbox"
+                                id="isFreePreview"
+                                checked={formData.isFreePreview}
+                                onChange={(e) => setFormData({ ...formData, isFreePreview: e.target.checked })}
+                                className="w-4 h-4 rounded text-olive focus:ring-olive border-border cursor-pointer"
                             />
+                            <Label htmlFor="isFreePreview" className="text-xs font-medium cursor-pointer">
+                                Jadikan Modul Free Preview (Dapat diakses gratis oleh pengguna baru)
+                            </Label>
                         </div>
 
-                        <div className="space-y-3">
-                            <Label className="font-bold font-mono text-[#2b1b11]">Tautan Podcast (Spotify/Lainnya) <span className="text-[#e87a5d] text-sm ml-1">*Opsional</span></Label>
-                            <Input
-                                value={formData.podcastUrl}
-                                onChange={(e) => setFormData({ ...formData, podcastUrl: e.target.value })}
-                                placeholder="https://open.spotify.com/..."
-                                className="border-2 border-[#2b1b11] rounded-none shadow-[2px_2px_0px_#2b1b11] focus-visible:ring-0 focus-visible:shadow-[4px_4px_0px_#e87a5d] bg-white font-mono"
-                            />
+                        {/* Split-Pane Markdown Editor Header */}
+                        <div className="border-t border-border pt-4 space-y-2">
+                            <div className="flex items-center justify-between">
+                                <Label className="text-xs font-bold uppercase tracking-wider text-foreground">
+                                    Konten Modul (Markdown & LaTeX Formula)
+                                </Label>
+                                <div className="flex items-center gap-1 bg-muted p-1 rounded-lg">
+                                    <Button
+                                        type="button"
+                                        size="sm"
+                                        variant={activeTab === "edit" ? "default" : "ghost"}
+                                        className={`h-7 text-xs ${activeTab === "edit" ? "bg-card shadow-sm text-foreground" : "text-muted-foreground"}`}
+                                        onClick={() => setActiveTab("edit")}
+                                    >
+                                        Teks Saja
+                                    </Button>
+                                    <Button
+                                        type="button"
+                                        size="sm"
+                                        variant={activeTab === "preview" ? "default" : "ghost"}
+                                        className={`h-7 text-xs ${activeTab === "preview" ? "bg-card shadow-sm text-foreground" : "text-muted-foreground"}`}
+                                        onClick={() => setActiveTab("preview")}
+                                    >
+                                        Preview Saja
+                                    </Button>
+                                    <Button
+                                        type="button"
+                                        size="sm"
+                                        variant={activeTab === "split" ? "default" : "ghost"}
+                                        className={`h-7 text-xs ${activeTab === "split" ? "bg-card shadow-sm text-foreground" : "text-muted-foreground"}`}
+                                        onClick={() => setActiveTab("split")}
+                                    >
+                                        Live Split
+                                    </Button>
+                                </div>
+                            </div>
+
+                            {/* Split-Pane Area */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {(activeTab === "edit" || activeTab === "split") && (
+                                    <div className={activeTab === "edit" ? "md:col-span-2" : ""}>
+                                        <Textarea
+                                            value={formData.contentMd}
+                                            onChange={(e) => setFormData({ ...formData, contentMd: e.target.value })}
+                                            placeholder="# Judul Modul&#10;&#10;Tuliskan penjelasan materi di sini. Gunakan $E = mc^2$ untuk inline LaTeX dan $$...$$ untuk persamaan blok..."
+                                            className="font-mono text-xs min-h-[360px] max-h-[500px] leading-relaxed resize-y p-3.5"
+                                        />
+                                    </div>
+                                )}
+
+                                {(activeTab === "preview" || activeTab === "split") && (
+                                    <div className={`border border-border rounded-xl p-4 bg-muted/20 min-h-[360px] max-h-[500px] overflow-y-auto ${
+                                        activeTab === "preview" ? "md:col-span-2" : ""
+                                    }`}>
+                                        {formData.contentMd ? (
+                                            <MarkdownLatex>
+                                                {formData.contentMd}
+                                            </MarkdownLatex>
+                                        ) : (
+                                            <div className="flex items-center justify-center h-full text-xs text-muted-foreground">
+                                                Preview Markdown & LaTeX akan muncul langsung di sini.
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     </div>
 
-                    <div className="p-6 border-t-4 border-[#2b1b11] bg-white flex justify-end gap-3">
+                    <div className="border-t border-border pt-4 mt-6 flex justify-end gap-2.5">
                         <Button 
                             variant="outline" 
                             onClick={() => setShowForm(false)}
                             disabled={submitting}
-                            className="border-2 border-[#2b1b11] rounded-none font-bold font-mono text-[#2b1b11] shadow-[2px_2px_0px_#2b1b11]"
                         >
                             Batal
                         </Button>
                         <Button 
                             onClick={handleSubmit}
                             disabled={submitting}
-                            className="bg-[#2b1b11] hover:bg-[#3c5443] text-[#FEFCF3] border-2 border-[#2b1b11] shadow-[2px_2px_0px_#e87a5d] hover:shadow-[4px_4px_0px_#e87a5d] hover:-translate-y-1 transition-all rounded-none font-bold font-mono"
+                            className="bg-olive hover:bg-olive/90 text-white font-semibold"
                         >
                             {submitting && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-                            {editingId ? "Simpan Perubahan" : "Simpan Materi"}
+                            {editingId ? "Simpan Perubahan" : "Simpan Modul"}
                         </Button>
                     </div>
                 </DialogContent>
             </Dialog>
 
-            {/* Delete Alert Dialog */}
+            {/* Delete Confirmation */}
             <AlertDialog open={!!deletingId} onOpenChange={() => !submitting && setDeletingId(null)}>
-                <AlertDialogContent className="border-4 border-red-600 shadow-[8px_8px_0px_#dc2626] rounded-none bg-[#FEFCF3]">
+                <AlertDialogContent className="rounded-2xl">
                     <AlertDialogHeader>
-                        <AlertDialogTitle className="text-red-600 font-bold flex items-center gap-2">
-                            <Trash2 className="w-6 h-6" /> Hapus Materi?
-                        </AlertDialogTitle>
-                        <AlertDialogDescription className="font-mono text-[#2b1b11] font-medium mt-2">
-                            Apakah Anda yakin? Materi ini akan dihapus secara permanen dari basis data dan tidak dapat dikembalikan.
+                        <AlertDialogTitle>Hapus Modul Materi?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            Modul ini akan dihapus secara permanen dari platform. Tindakan ini tidak dapat dibatalkan.
                         </AlertDialogDescription>
                     </AlertDialogHeader>
-                    <AlertDialogFooter className="mt-4">
-                        <AlertDialogCancel 
-                            disabled={submitting}
-                            className="border-2 border-[#2b1b11] rounded-none shadow-[2px_2px_0px_#2b1b11] font-mono font-bold hover:bg-[#bed3c6] text-[#2b1b11]"
-                        >
+                    <AlertDialogFooter className="gap-2 sm:gap-0">
+                        <AlertDialogCancel disabled={submitting}>
                             Batal
                         </AlertDialogCancel>
                         <AlertDialogAction 
                             onClick={(e) => { e.preventDefault(); handleDelete(); }}
                             disabled={submitting}
-                            className="bg-red-600 border-2 border-red-800 text-white shadow-[2px_2px_0px_#991b1b] rounded-none font-mono font-bold hover:bg-red-700 hover:-translate-y-1 hover:shadow-[4px_4px_0px_#991b1b] transition-all"
+                            className="bg-destructive hover:bg-destructive/90 text-destructive-foreground font-semibold"
                         >
-                            {submitting ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-                            Ya, Hapus Permanen
+                            {submitting && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                            Hapus Permanen
                         </AlertDialogAction>
                     </AlertDialogFooter>
                 </AlertDialogContent>

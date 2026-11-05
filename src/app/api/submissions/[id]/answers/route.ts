@@ -36,13 +36,30 @@ export async function PATCH(
         // Check if submission belongs to this user and is IN_PROGRESS
         const { data: submission } = await supabase
             .from("submissions")
-            .select("id, status")
+            .select("id, status, started_at, tryouts(duration)")
             .eq("id", submissionId)
             .eq("user_id", userRecord.id)
             .single()
 
         if (!submission || submission.status !== "IN_PROGRESS") {
             return NextResponse.json({ error: "Sesi tidak valid atau sudah selesai" }, { status: 400 })
+        }
+
+        const durationMinutes = (submission.tryouts as any)?.duration || 0
+        const startStr = submission.started_at
+        const utcStartStr = startStr.endsWith("Z") ? startStr : startStr + "Z"
+        const startedAtMs = new Date(utcStartStr).getTime()
+        const gracePeriodMs = 30000
+
+        if (durationMinutes > 0 && Date.now() > startedAtMs + (durationMinutes * 60 * 1000) + gracePeriodMs) {
+            await supabase
+                .from("submissions")
+                .update({ status: "TIMED_OUT" })
+                .eq("id", submissionId)
+            return NextResponse.json(
+                { error: "Waktu pengerjaan tryout telah habis.", status: "TIMED_OUT" },
+                { status: 403 }
+            )
         }
 
         // Check if answer already exists

@@ -10,8 +10,7 @@ export async function GET(request: NextRequest) {
 
     try {
         const supabase = await createAdminClient()
-        
-        let query = supabase.from("materials").select("*").order("created_at", { ascending: false })
+        let query = supabase.from("materials").select("*").order("sort_order", { ascending: true })
 
         const { searchParams } = new URL(request.url)
         const subject = searchParams.get("subject")
@@ -38,21 +37,48 @@ export async function POST(request: NextRequest) {
     try {
         const supabase = await createAdminClient()
         const body = await request.json()
-        const { title, driveUrl, podcastUrl, subject } = body
+        const {
+            title,
+            slug,
+            summary,
+            contentMd,
+            driveUrl,
+            podcastUrl,
+            pdfUrl,
+            moduleNumber,
+            sortOrder,
+            isFreePreview,
+            isPublished,
+            readingTimeMinutes,
+            subject,
+        } = body
 
-        if (!title || !driveUrl || !subject) {
-            return NextResponse.json({ error: "Title, Drive URL, and Subject are required." }, { status: 400 })
+        if (!title || !subject) {
+            return NextResponse.json({ error: "Title and Subject are required." }, { status: 400 })
         }
 
         const now = new Date().toISOString()
+        const generatedSlug = (slug || title)
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, "-")
+            .replace(/(^-|-$)/g, "")
 
         const { data: material, error } = await supabase
             .from("materials")
             .insert({
                 title,
-                drive_url: driveUrl,
+                slug: generatedSlug,
+                summary: summary || null,
+                content_md: contentMd || null,
+                drive_url: driveUrl || null,
                 podcast_url: podcastUrl || null,
-                subject,
+                pdf_url: pdfUrl || null,
+                module_number: moduleNumber ? Number(moduleNumber) : null,
+                sort_order: sortOrder ? Number(sortOrder) : 0,
+                is_free_preview: Boolean(isFreePreview),
+                is_published: isPublished !== false,
+                reading_time_minutes: readingTimeMinutes ? Number(readingTimeMinutes) : null,
+                subject: subject as "FISDAS2" | "FISMAT",
                 created_at: now,
                 updated_at: now,
             })

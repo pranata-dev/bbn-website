@@ -636,8 +636,8 @@ export default function QuestionsPage() {
                                     <SelectValue placeholder="Pilih tipe" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="MULTIPLE_CHOICE">Pilihan Ganda (MCQ)</SelectItem>
-                                    <SelectItem value="ESSAY">Essay / Uraian</SelectItem>
+                                    <SelectItem value="MULTIPLE_CHOICE">Pilihan Ganda (A–E)</SelectItem>
+                                    <SelectItem value="ESSAY" disabled>Essay / Uraian (Nonaktif di v1)</SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>

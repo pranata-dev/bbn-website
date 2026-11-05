@@ -44,11 +44,18 @@ export default function TryoutAttemptPage() {
     const [questions, setQuestions] = useState<Question[]>([])
     const [currentIndex, setCurrentIndex] = useState(0)
     const [answers, setAnswers] = useState<Record<string, AnswerState>>({})
+    const answersRef = useRef<Record<string, AnswerState>>({})
+    const submittingRef = useRef(false)
     const [timeLeft, setTimeLeft] = useState(0)
     const [showSubmitDialog, setShowSubmitDialog] = useState(false)
     const [showWarning, setShowWarning] = useState(false)
     const timerRef = useRef<NodeJS.Timeout | null>(null)
     const endTimeRef = useRef<number>(0)
+
+    // Keep answersRef up-to-date to prevent stale closures in timer callback
+    useEffect(() => {
+        answersRef.current = answers
+    }, [answers])
 
     // Start tryout
     useEffect(() => {
@@ -127,7 +134,11 @@ export default function TryoutAttemptPage() {
             setTimeLeft(remaining)
 
             if (remaining <= 0) {
-                // Auto-submit
+                if (timerRef.current) {
+                    clearInterval(timerRef.current)
+                    timerRef.current = null
+                }
+                // Auto-submit with fresh answers from ref
                 handleSubmit(true)
             }
         }
@@ -201,11 +212,14 @@ export default function TryoutAttemptPage() {
     }
 
     const handleSubmit = async (autoSubmit = false) => {
-        if (submitting || !submissionId) return
+        if (submittingRef.current || !submissionId) return
+        submittingRef.current = true
         setSubmitting(true)
 
         try {
-            const answerPayload = Object.entries(answers).map(([questionId, state]) => ({
+            // Always read from answersRef.current to avoid stale-closure timer bugs
+            const currentAnswers = answersRef.current || answers
+            const answerPayload = Object.entries(currentAnswers).map(([questionId, state]) => ({
                 questionId,
                 answer: state.answer,
             }))
@@ -232,10 +246,11 @@ export default function TryoutAttemptPage() {
 
             toast.success(autoSubmit ? "Waktu habis! Jawaban telah di-submit otomatis." : "Tryout berhasil di-submit!")
 
-            // Redirect to result page
-            router.push(`/dashboard/tryouts/${tryoutId}/result?score=${data.score}&correct=${data.correctCount}&total=${data.totalCount}`)
+            // Redirect to result page with submissionId
+            router.push(`/dashboard/tryouts/${tryoutId}/result?submissionId=${submissionId}&score=${data.score}&correct=${data.correctCount}&total=${data.totalCount}`)
         } catch (error) {
-            toast.error("Gagal submit tryout.")
+            toast.error(error instanceof Error ? error.message : "Gagal submit tryout.")
+            submittingRef.current = false
             setSubmitting(false)
         }
     }

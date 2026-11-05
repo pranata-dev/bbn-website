@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from "uuid"
 import { createServiceClient } from "@/lib/supabase/server"
-import { SubmissionStatus, Subject, UserSubjectAccess, Role, PackageType } from "@/types"
+import { SubmissionStatus, Subject } from "@/types"
 import { getPackageFeatures } from "@/lib/package-features"
 
 interface SubmitTryoutParams {
@@ -46,6 +46,13 @@ interface AnswerResult {
   question_id: string
 }
 
+interface UserSubjectAccessRow {
+  id: string
+  role: string
+  package_type: string | null
+  tryout_attempts_used: number
+}
+
 export async function submitTryout({
   authId,
   tryoutId,
@@ -83,15 +90,15 @@ export async function submitTryout({
     throw new Error("Tryout sudah di-submit.")
   }
 
-  // NEW: Validate Subject Access
+  // Validate Subject Access
   const subject = submission.tryouts.subject
   const { data: access } = await supabase
     .from("user_subject_access")
-    .select("*")
+    .select("id, role, package_type, tryout_attempts_used")
     .eq("user_id", profile.id)
     .eq("subject", subject)
     .eq("is_active", true)
-    .single() as { data: UserSubjectAccess | null }
+    .single() as { data: UserSubjectAccessRow | null }
 
   if (!access) {
     throw new Error(`Anda tidak memiliki akses aktif untuk mata kuliah ${subject}.`)
@@ -108,16 +115,29 @@ export async function submitTryout({
   const timedOut = now > startTime + duration + gracePeriod
   const status: SubmissionStatus = timedOut ? "TIMED_OUT" : "SUBMITTED"
 
-  // 4. Get correct answers
-  const questionIds = answers.map((a) => a.questionId)
-  const { data: correctAnswers } = await supabase
-    .from("questions")
-    .select("id, correct_answer, weight")
-    .in("id", questionIds) as { data: QuestionResult[] | null }
+  // 4. Get all questions for this tryout to compute authoritative totalWeight
+  const { data: tryoutQuestionsData, error: tqError } = await supabase
+    .from("tryout_questions")
+    .select("question_id, questions(id, correct_answer, weight)")
+    .eq("tryout_id", tryoutId)
 
-  // 5. Score the answers
-  let correctCount = 0
+  if (tqError || !tryoutQuestionsData || tryoutQuestionsData.length === 0) {
+    throw new Error("Daftar soal tryout tidak ditemukan.")
+  }
+
+  const allQuestions: QuestionResult[] = tryoutQuestionsData
+    .map((tq: any) => tq.questions)
+    .filter(Boolean)
+
   let totalWeight = 0
+  for (const q of allQuestions) {
+    totalWeight += q.weight || 1
+  }
+
+  // 5. Score the answers against the full question set
+  const answerMap = new Map(answers.map((a) => [a.questionId, a.answer]))
+
+  let correctCount = 0
   let correctWeight = 0
 
   const { data: existingAnswers } = await supabase
@@ -130,32 +150,31 @@ export async function submitTryout({
   const inserts = []
   const updates = []
 
-  for (const a of answers) {
-    const question = correctAnswers?.find((q) => q.id === a.questionId)
-    const isCorrect = question ? a.answer === question.correct_answer : false
-    const weight = question?.weight || 1
+  for (const q of allQuestions) {
+    const studentAnswer = answerMap.get(q.id) ?? null
+    const isCorrect = studentAnswer !== null && studentAnswer === q.correct_answer
+    const weight = q.weight || 1
 
-    totalWeight += weight
     if (isCorrect) {
       correctWeight += weight
       correctCount++
     }
 
-    const existingId = existingMap.get(a.questionId)
+    const existingId = existingMap.get(q.id)
     if (existingId) {
       updates.push({
         id: existingId,
         submission_id: submissionId,
-        question_id: a.questionId,
-        answer: a.answer,
+        question_id: q.id,
+        answer: studentAnswer,
         is_correct: isCorrect,
       })
     } else {
       inserts.push({
         id: uuidv4(),
         submission_id: submissionId,
-        question_id: a.questionId,
-        answer: a.answer,
+        question_id: q.id,
+        answer: studentAnswer,
         is_correct: isCorrect,
         created_at: new Date().toISOString(),
       })
@@ -189,6 +208,7 @@ export async function submitTryout({
       score,
       total_weight: totalWeight,
       correct_count: correctCount,
+      total_count: allQuestions.length,
       submitted_at: new Date().toISOString(),
     })
     .eq("id", submissionId)
@@ -198,34 +218,32 @@ export async function submitTryout({
     throw new Error("Gagal mengupdate status submission.")
   }
 
-  // New: Increment attempts used for real tryouts
+  // 8. Increment attempts used for real tryouts
   if (!submission.tryouts.is_practice) {
-    const features = getPackageFeatures(access.packageType as any, access.role, subject)
+    const features = getPackageFeatures(access.package_type as any, access.role, subject)
     const maxQuota = features.tryoutLimit
 
-    if (access.role !== 'ADMIN' && access.tryoutAttemptsUsed >= maxQuota) {
-        // This is a safety check, normally checked at start
-        throw new Error("Kuota tryout Anda untuk mata kuliah ini sudah habis.")
+    const currentAttempts = access.tryout_attempts_used || 0
+    if (access.role !== 'ADMIN' && currentAttempts >= maxQuota) {
+      throw new Error("Kuota tryout Anda untuk mata kuliah ini sudah habis.")
     }
 
     const { error: quotaError } = await supabase
       .from("user_subject_access")
       .update({
-        tryout_attempts_used: access.tryoutAttemptsUsed + 1
+        tryout_attempts_used: currentAttempts + 1
       })
       .eq("id", access.id)
 
     if (quotaError) {
       console.error("Failed to increment tryout attempts:", quotaError)
-      // We don't throw here to avoid failing the whole submission if just the quota update fails?
-      // Actually, it's better to be consistent. 
     }
   }
 
   return {
     score,
     correctCount,
-    totalCount: answers.length,
+    totalCount: allQuestions.length,
     totalWeight,
     status,
   }

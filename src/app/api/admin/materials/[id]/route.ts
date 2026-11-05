@@ -15,21 +15,48 @@ export async function PATCH(
         const { id } = await context.params
         const supabase = await createAdminClient()
         const body = await request.json()
-        const { title, driveUrl, podcastUrl, subject } = body
+        const {
+            title,
+            slug,
+            summary,
+            contentMd,
+            driveUrl,
+            podcastUrl,
+            pdfUrl,
+            moduleNumber,
+            sortOrder,
+            isFreePreview,
+            isPublished,
+            readingTimeMinutes,
+            subject,
+        } = body
 
-        if (!title || !driveUrl || !subject) {
-            return NextResponse.json({ error: "Title, Drive URL, and Subject are required." }, { status: 400 })
+        if (!title || !subject) {
+            return NextResponse.json({ error: "Title and Subject are required." }, { status: 400 })
         }
 
         const now = new Date().toISOString()
+        const generatedSlug = (slug || title)
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, "-")
+            .replace(/(^-|-$)/g, "")
 
         const { data: material, error } = await supabase
             .from("materials")
             .update({
                 title,
-                drive_url: driveUrl,
-                podcast_url: podcastUrl || null,
-                subject,
+                slug: generatedSlug,
+                summary: summary !== undefined ? summary : undefined,
+                content_md: contentMd !== undefined ? contentMd : undefined,
+                drive_url: driveUrl !== undefined ? driveUrl : undefined,
+                podcast_url: podcastUrl !== undefined ? podcastUrl : undefined,
+                pdf_url: pdfUrl !== undefined ? pdfUrl : undefined,
+                module_number: moduleNumber !== undefined ? Number(moduleNumber) : undefined,
+                sort_order: sortOrder !== undefined ? Number(sortOrder) : undefined,
+                is_free_preview: isFreePreview !== undefined ? Boolean(isFreePreview) : undefined,
+                is_published: isPublished !== undefined ? Boolean(isPublished) : undefined,
+                reading_time_minutes: readingTimeMinutes !== undefined ? Number(readingTimeMinutes) : undefined,
+                subject: subject as "FISDAS2" | "FISMAT",
                 updated_at: now,
             })
             .eq("id", id)

@@ -40,6 +40,8 @@ export default function UsersPage() {
   const [deletingUser, setDeletingUser] = useState<UserItem | null>(null)
   const [viewingProofUser, setViewingProofUser] = useState<UserItem | null>(null)
   const [selectedCategory, setSelectedCategory] = useState<string>("PHYSICS_SEM_3")
+  const [selectedTrack, setSelectedTrack] = useState<string>("PHYSICS_SEM_3")
+  const [selectedPlan, setSelectedPlan] = useState<string>("SEMESTER")
   const [isSaving, setIsSaving] = useState(false)
 
   const onlineUserIds = useOnlineUsers()
@@ -129,11 +131,13 @@ export default function UsersPage() {
         body: JSON.stringify({
           userId: managingUser.id,
           student_category: selectedCategory,
+          track: selectedTrack,
+          plan_code: selectedPlan,
         }),
       })
 
       if (!res.ok) throw new Error("Gagal memperbarui hak akses")
-      toast.success("Hak akses dan kurikulum pengguna berhasil diperbarui.")
+      toast.success("Hak akses dan paket langganan pengguna berhasil diperbarui.")
       setManagingUser(null)
       fetchUsers()
     } catch (error: any) {
@@ -280,17 +284,34 @@ export default function UsersPage() {
                         </div>
                       </td>
 
-                      {/* 2. Kurikulum */}
-                      <td className="py-4 px-5">
-                        {u.student_category === "PHYSICS_SEM_3" || !u.student_category ? (
-                          <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#A5AF79]/15 text-[#827148] border border-[#A5AF79]/30">
-                            Dept. Fisika Smt 3
-                          </span>
-                        ) : (
-                          <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#FFEED6] text-[#827148] border border-[#827148]/20">
-                            Umum / Non-Fisika
-                          </span>
-                        )}
+                      {/* 2. Kurikulum & Paket */}
+                      <td className="py-4 px-5 space-y-1">
+                        <div>
+                          {u.student_category === "PHYSICS_SEM_3" || !u.student_category ? (
+                            <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#A5AF79]/15 text-[#827148] border border-[#A5AF79]/30">
+                              Dept. Fisika Smt 3
+                            </span>
+                          ) : (
+                            <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#FFEED6] text-[#827148] border border-[#827148]/20">
+                              Umum / Non-Fisika
+                            </span>
+                          )}
+                        </div>
+                        <div>
+                          {(u as any).active_subscription?.plan_code === "SEMESTER" ? (
+                            <span className="text-[9px] font-semibold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 border border-emerald-300">
+                              SEMESTER
+                            </span>
+                          ) : (u as any).active_subscription?.plan_code === "MONTHLY" ? (
+                            <span className="text-[9px] font-semibold px-2 py-0.5 rounded bg-blue-100 text-blue-800 border border-blue-300">
+                              BULANAN
+                            </span>
+                          ) : (
+                            <span className="text-[9px] font-semibold px-2 py-0.5 rounded bg-gray-100 text-gray-600 border border-gray-200">
+                              FREE TIER
+                            </span>
+                          )}
+                        </div>
                       </td>
 
                       {/* 3. Status Akses */}
@@ -351,7 +372,10 @@ export default function UsersPage() {
                             type="button"
                             onClick={() => {
                               setManagingUser(u)
-                              setSelectedCategory(u.student_category || "PHYSICS_SEM_3")
+                              const cat = u.student_category || "PHYSICS_SEM_3"
+                              setSelectedCategory(cat)
+                              setSelectedTrack(cat)
+                              setSelectedPlan((u as any).active_subscription?.plan_code || "FREE")
                             }}
                             className="px-3 py-1.5 rounded-xl border border-[#FFEED6] hover:border-[#827148] text-xs font-bold text-[#827148] bg-white transition-colors cursor-pointer"
                           >
@@ -464,11 +488,14 @@ export default function UsersPage() {
           <div className="space-y-4 my-2">
             <div>
               <label className="text-xs font-bold text-[#827148] mb-1.5 block">
-                Kategori Kurikulum Terkunci
+                Jalur Kurikulum (Track)
               </label>
               <select
                 value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value)}
+                onChange={(e) => {
+                  setSelectedCategory(e.target.value)
+                  setSelectedTrack(e.target.value)
+                }}
                 className="w-full bg-white border-2 border-[#FFEED6] focus:border-[#A5AF79] focus:outline-none text-xs font-bold text-[#827148] p-3 rounded-xl shadow-2xs cursor-pointer"
               >
                 <option value="PHYSICS_SEM_3">
@@ -476,6 +503,30 @@ export default function UsersPage() {
                 </option>
                 <option value="NON_PHYSICS">
                   Umum / Non-Fisika (4 General Courses)
+                </option>
+                <option value="ALL">
+                  Semua Jalur (Full Access Bundle)
+                </option>
+              </select>
+            </div>
+
+            <div>
+              <label className="text-xs font-bold text-[#827148] mb-1.5 block">
+                Paket Langganan (Subscriptions)
+              </label>
+              <select
+                value={selectedPlan}
+                onChange={(e) => setSelectedPlan(e.target.value)}
+                className="w-full bg-white border-2 border-[#FFEED6] focus:border-[#A5AF79] focus:outline-none text-xs font-bold text-[#827148] p-3 rounded-xl shadow-2xs cursor-pointer"
+              >
+                <option value="FREE">
+                  Paket Gratis (Free Preview Only)
+                </option>
+                <option value="MONTHLY">
+                  Paket Bulanan (30 Hari Akses Penuh)
+                </option>
+                <option value="SEMESTER">
+                  Paket Semester (180 Hari Akses Penuh)
                 </option>
               </select>
             </div>
