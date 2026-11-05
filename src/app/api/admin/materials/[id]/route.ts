@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
+import { requireAdmin } from "@/lib/admin-auth"
 import { createAdminClient } from "@/lib/supabase/server"
 
 export const dynamic = "force-dynamic"
@@ -7,6 +8,9 @@ export async function PATCH(
     request: NextRequest,
     context: { params: Promise<{ id: string }> }
 ) {
+    const guard = await requireAdmin()
+    if (!guard.ok) return guard.response
+
     try {
         const { id } = await context.params
         const supabase = await createAdminClient()
@@ -48,6 +52,9 @@ export async function DELETE(
     request: NextRequest,
     context: { params: Promise<{ id: string }> }
 ) {
+    const guard = await requireAdmin()
+    if (!guard.ok) return guard.response
+
     try {
         const { id } = await context.params
         const supabase = await createAdminClient()

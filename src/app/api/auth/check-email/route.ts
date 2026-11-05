@@ -1,12 +1,16 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createServiceClient } from "@/lib/supabase/server"
+import { checkRateLimit } from "@/lib/rate-limit"
 
 export const dynamic = "force-dynamic"
 
 export async function POST(request: NextRequest) {
+  const rateLimitResponse = checkRateLimit(request)
+  if (rateLimitResponse) return rateLimitResponse
+
   try {
     const body = await request.json()
-    const email = (body.email as string || "").trim().toLowerCase()
+    const email = ((body.email as string) || "").trim().toLowerCase()
 
     if (!email || !email.includes("@")) {
       return NextResponse.json({ exists: false })
@@ -15,7 +19,7 @@ export async function POST(request: NextRequest) {
     const supabase = createServiceClient()
     const { data: user } = await supabase
       .from("users")
-      .select("id, email, is_active, name")
+      .select("id, is_active, name")
       .ilike("email", email)
       .maybeSingle()
 
@@ -26,6 +30,6 @@ export async function POST(request: NextRequest) {
     })
   } catch (error) {
     console.error("Check email error:", error)
-    return NextResponse.json({ exists: false, error: "Internal error" })
+    return NextResponse.json({ exists: false, error: "Internal error" }, { status: 500 })
   }
 }

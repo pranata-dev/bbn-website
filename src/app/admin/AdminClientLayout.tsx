@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { useState } from "react"
 import { APP_NAME } from "@/constants"
+import { createClient } from "@/lib/supabase/client"
 
 const navItems = [
   { href: "/admin", label: "Dashboard", color: "bg-[#A5AF79]" },
@@ -27,7 +28,8 @@ export default function AdminClientLayout({
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   const handleLogout = async () => {
-    await fetch("/api/admin/auth/logout", { method: "POST" })
+    const supabase = createClient()
+    await supabase.auth.signOut()
     router.push("/admin/login")
     router.refresh()
   }

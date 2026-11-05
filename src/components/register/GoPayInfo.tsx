@@ -2,12 +2,13 @@
 
 import { useState } from "react"
 import { toast } from "sonner"
+import { BUSINESS_CONFIG } from "@/config/business"
 
 export function GoPayInfo() {
   const [copied, setCopied] = useState(false)
 
-  const gopayNumber = process.env.NEXT_PUBLIC_GOPAY_NUMBER || "081234567890"
-  const gopayName = process.env.NEXT_PUBLIC_GOPAY_NAME || "Belajar Bareng Nata"
+  const gopayNumber = BUSINESS_CONFIG.payment.gopayNumber
+  const gopayName = BUSINESS_CONFIG.payment.gopayHolder
 
   const handleCopy = async () => {
     try {

@@ -1,10 +1,14 @@
 import { NextRequest, NextResponse } from "next/server"
+import { requireAdmin } from "@/lib/admin-auth"
 import { createAdminClient } from "@/lib/supabase/server"
 import { checkRateLimit } from "@/lib/rate-limit"
 
 export const dynamic = "force-dynamic"
 
 export async function GET(request: NextRequest) {
+    const guard = await requireAdmin()
+    if (!guard.ok) return guard.response
+
   // Check rate limit
   const rateLimitResponse = checkRateLimit(request)
   if (rateLimitResponse) return rateLimitResponse
@@ -54,6 +58,9 @@ export async function GET(request: NextRequest) {
 
 // PATCH - Update user subject access or status
 export async function PATCH(request: NextRequest) {
+    const guard = await requireAdmin()
+    if (!guard.ok) return guard.response
+
   const rateLimitResponse = checkRateLimit(request)
   if (rateLimitResponse) return rateLimitResponse
 

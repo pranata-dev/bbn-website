@@ -3,11 +3,12 @@
 import { useState } from "react"
 import Link from "next/link"
 import { toast } from "sonner"
+import { createClient } from "@/lib/supabase/client"
 
 export default function AdminLoginPage() {
   const [loading, setLoading] = useState(false)
   const [formData, setFormData] = useState({
-    username: "",
+    email: "",
     password: "",
   })
 
@@ -15,17 +16,23 @@ export default function AdminLoginPage() {
     e.preventDefault()
     setLoading(true)
 
+    const supabase = createClient()
+
     try {
-      const res = await fetch("/api/admin/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: formData.email.trim().toLowerCase(),
+        password: formData.password,
       })
 
-      const data = await res.json()
+      if (signInError) {
+        throw new Error("Email atau password salah.")
+      }
 
+      // Verify ADMIN role server-side (users.role = 'ADMIN')
+      const res = await fetch("/api/admin/auth/me", { cache: "no-store" })
       if (!res.ok) {
-        throw new Error(data.error || "Login gagal")
+        await supabase.auth.signOut()
+        throw new Error("Akun ini tidak memiliki akses administrator.")
       }
 
       toast.success("Login berhasil!", {
@@ -34,8 +41,8 @@ export default function AdminLoginPage() {
 
       // Hard refresh to clear cached layout sessions
       window.location.href = "/admin"
-    } catch (error: any) {
-      toast.error(error.message || "Terjadi kesalahan saat masuk.")
+    } catch (error: unknown) {
+      toast.error(error instanceof Error ? error.message : "Terjadi kesalahan saat masuk.")
       setLoading(false)
     }
   }
@@ -71,18 +78,19 @@ export default function AdminLoginPage() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label
-              htmlFor="admin-username"
+              htmlFor="admin-email"
               className="text-xs font-bold text-[#827148] mb-1.5 block"
             >
-              Username
+              Email
             </label>
             <input
-              id="admin-username"
-              type="text"
-              placeholder="Masukkan username admin"
-              value={formData.username}
+              id="admin-email"
+              type="email"
+              autoComplete="username"
+              placeholder="Masukkan email admin"
+              value={formData.email}
               onChange={(e) =>
-                setFormData({ ...formData, username: e.target.value })
+                setFormData({ ...formData, email: e.target.value })
               }
               required
               className="w-full py-3 px-4 rounded-xl border-2 border-[#FFEED6] bg-white text-sm text-[#827148] placeholder:text-[#827148]/40 focus:outline-none focus:border-[#A5AF79] transition-all shadow-2xs font-medium"
@@ -99,6 +107,7 @@ export default function AdminLoginPage() {
             <input
               id="admin-password"
               type="password"
+              autoComplete="current-password"
               placeholder="Masukkan password admin"
               value={formData.password}
               onChange={(e) =>

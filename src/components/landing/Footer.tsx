@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import { BUSINESS_CONFIG } from "@/config/business"
 
 const PLATFORM_LINKS = [
   { label: "Fitur", href: "#fitur" },
@@ -35,20 +36,20 @@ export function Footer() {
             {/* Contact Items with Small Circular Placeholders (NO external icons) */}
             <div className="flex flex-col gap-3 text-sm">
               <a
-                href="mailto:dzulfikaryudha@gmail.com"
+                href={`mailto:${BUSINESS_CONFIG.contact.emailSenderAddress}`}
                 className="flex items-center gap-3 text-[#FFEED6]/90 hover:text-white transition-colors group"
               >
                 <div className="w-5 h-5 bg-[#A5AF79] rounded-full shrink-0 flex items-center justify-center" />
-                <span className="group-hover:underline">dzulfikaryudha@gmail.com</span>
+                <span className="group-hover:underline">{BUSINESS_CONFIG.contact.emailSenderAddress}</span>
               </a>
               <a
-                href="https://wa.me/6285159922661"
+                href={`https://wa.me/${BUSINESS_CONFIG.contact.adminWhatsapp}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-3 text-[#FFEED6]/90 hover:text-white transition-colors group"
               >
                 <div className="w-5 h-5 bg-[#A5AF79] rounded-full shrink-0 flex items-center justify-center" />
-                <span className="group-hover:underline">+62 851-5992-2661 (WhatsApp)</span>
+                <span className="group-hover:underline">WhatsApp Admin</span>
               </a>
             </div>
           </div>

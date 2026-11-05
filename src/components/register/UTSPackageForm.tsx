@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { MAX_FILE_SIZE, ACCEPTED_IMAGE_TYPES } from "@/constants"
 import { createClient } from "@/lib/supabase/client"
+import { BUSINESS_CONFIG } from "@/config/business"
 import {
   Dialog,
   DialogContent,
@@ -325,11 +326,11 @@ export function UTSPackageForm({
   }
 
   const handleCopySeaBank = async () => {
-    const accountNumber = "901790900641"
+    const accountNumber = BUSINESS_CONFIG.payment.accountNumber
     try {
       await navigator.clipboard.writeText(accountNumber)
       setCopiedBank(true)
-      toast.success("Nomor rekening SeaBank berhasil disalin!")
+      toast.success(`Nomor rekening ${BUSINESS_CONFIG.payment.bankName} berhasil disalin!`)
       setTimeout(() => setCopiedBank(false), 2500)
     } catch {
       toast.error("Gagal menyalin nomor rekening.")
@@ -803,7 +804,7 @@ export function UTSPackageForm({
               <div className="bg-[#FFEED6]/40 border border-[#FFEED6] rounded-2xl p-4 mt-6 space-y-3">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold text-[#827148]">
-                    Transfer Bank (SeaBank)
+                    Transfer Bank ({BUSINESS_CONFIG.payment.bankName})
                   </span>
                   <span className="text-[10px] font-bold uppercase text-[#A5AF79] bg-white px-2 py-0.5 rounded-md border border-[#FFEED6]">
                     Manual
@@ -817,7 +818,7 @@ export function UTSPackageForm({
                         No. Rekening
                       </span>
                       <span className="font-mono font-bold text-xs sm:text-sm text-[#827148]">
-                        901790900641
+                        {BUSINESS_CONFIG.payment.accountNumber}
                       </span>
                     </div>
                     <button
@@ -829,7 +830,7 @@ export function UTSPackageForm({
                     </button>
                   </div>
                   <span className="text-[11px] text-[#827148]/70 mt-1.5 block font-medium">
-                    a.n. Najwa Aaliyah Priyatna
+                    a.n. {BUSINESS_CONFIG.payment.accountHolder}
                   </span>
                 </div>
               </div>

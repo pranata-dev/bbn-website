@@ -10,6 +10,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { PaymentUpload } from "./PaymentUpload"
+import { BUSINESS_CONFIG } from "@/config/business"
 
 export interface RegularClassFormProps {
   paymentFile?: File | null
@@ -152,11 +153,11 @@ export function RegularClassForm({
   const formatRupiah = (val: number) => `Rp ${val.toLocaleString("id-ID")}`
 
   const handleCopySeaBank = async () => {
-    const accountNumber = "901790900641"
+    const accountNumber = BUSINESS_CONFIG.payment.accountNumber
     try {
       await navigator.clipboard.writeText(accountNumber)
       setCopiedBank(true)
-      toast.success("Nomor rekening SeaBank berhasil disalin!")
+      toast.success(`Nomor rekening ${BUSINESS_CONFIG.payment.bankName} berhasil disalin!`)
       setTimeout(() => setCopiedBank(false), 2500)
     } catch {
       toast.error("Gagal menyalin nomor rekening.")
@@ -573,13 +574,13 @@ export function RegularClassForm({
               <div className="bg-white border border-[#FFEED6] rounded-2xl p-4 flex justify-between items-center shadow-2xs">
                 <div>
                   <span className="text-[10px] font-bold text-[#827148]/60 uppercase tracking-wider block mb-0.5">
-                    NOMOR SEABANK
+                    NOMOR {BUSINESS_CONFIG.payment.bankName.toUpperCase()}
                   </span>
                   <span className="text-lg font-extrabold text-[#827148] tracking-wider block">
-                    901790900641
+                    {BUSINESS_CONFIG.payment.accountNumber}
                   </span>
                   <span className="text-xs text-[#827148]/80 font-medium block mt-0.5">
-                    a.n. Najwa Aaliyah Priyatna
+                    a.n. {BUSINESS_CONFIG.payment.accountHolder}
                   </span>
                 </div>
 

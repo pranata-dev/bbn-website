@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
+import { requireAdmin } from "@/lib/admin-auth"
 import { createServiceClient, createAdminClient } from "@/lib/supabase/server"
 import { v4 as uuidv4 } from "uuid"
 import { questionSchema } from "@/lib/validations/admin"
@@ -7,6 +8,9 @@ export const dynamic = "force-dynamic"
 
 // GET /api/admin/questions - List questions for admin (bypasses regular user cookie check)
 export async function GET(request: NextRequest) {
+    const guard = await requireAdmin()
+    if (!guard.ok) return guard.response
+
     try {
         const adminSupabase = await createAdminClient()
         const { searchParams } = new URL(request.url)
@@ -37,6 +41,9 @@ export async function GET(request: NextRequest) {
 
 // POST /api/admin/questions - Create a question with optional image upload
 export async function POST(request: NextRequest) {
+    const guard = await requireAdmin()
+    if (!guard.ok) return guard.response
+
     try {
         const supabase = createServiceClient()
         const formData = await request.formData()
@@ -144,6 +151,9 @@ export async function POST(request: NextRequest) {
 
 // DELETE /api/admin/questions - Bulk delete questions by category and/or subject
 export async function DELETE(request: NextRequest) {
+    const guard = await requireAdmin()
+    if (!guard.ok) return guard.response
+
     try {
         const supabase = await createAdminClient()
         const { searchParams } = new URL(request.url)

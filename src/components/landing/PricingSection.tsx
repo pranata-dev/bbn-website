@@ -2,94 +2,13 @@
 
 import { useState } from "react"
 import Link from "next/link"
+import { SUBSCRIPTION_PLANS, OFFLINE_TUTORING_PLANS, type SubscriptionPlanCode } from "@/config/plans"
+import { BUSINESS_CONFIG } from "@/config/business"
 
-const ELEARNING_PLANS = [
-  {
-    name: "1 Bulan",
-    price: "Rp 49.000",
-    period: "/ bulan",
-    isPopular: false,
-    features: [
-      "Akses penuh ke semua bank soal",
-      "Simulasi tryout dengan timer",
-      "Pembahasan detail setiap soal",
-      "Laporan statistik performa dasar",
-    ],
-    buttonText: "Pilih Paket 1 Bulan",
-  },
-  {
-    name: "3 Bulan",
-    price: "Rp 129.000",
-    period: "/ 3 bulan",
-    isPopular: true,
-    features: [
-      "Semua fitur Paket 1 Bulan",
-      "Akses tryout berkala tanpa batas",
-      "Analisis mendalam kelemahan topik",
-      "Konsultasi grup via komunitas",
-    ],
-    buttonText: "Pilih Paket 3 Bulan",
-  },
-  {
-    name: "1 Semester",
-    price: "Rp 229.000",
-    period: "/ 6 bulan",
-    isPopular: false,
-    features: [
-      "Akses seluruh materi Fisika Dasar",
-      "Bank soal komprehensif UTS & UAS",
-      "Prioritas update bank soal terbaru",
-      "Sertifikat pencapaian tryout",
-    ],
-    buttonText: "Pilih Paket 1 Semester",
-  },
-]
-
-const OFFLINE_PLANS = [
-  {
-    name: "1 Pertemuan",
-    price: "Rp 55.000",
-    period: "/ sesi (1.5 jam)",
-    isPopular: false,
-    features: [
-      "1 sesi bimbingan tatap muka",
-      "Fokus pada 1 bab materi spesifik",
-      "Bedah soal & latihan intensif",
-      "Modul rangkuman materi cetak",
-    ],
-    buttonText: "Pilih 1 Pertemuan",
-  },
-  {
-    name: "4 Pertemuan",
-    price: "Rp 205.000",
-    period: "/ 4 sesi bimbingan",
-    isPopular: true,
-    features: [
-      "4 sesi bimbingan tatap muka",
-      "Pendampingan persiapan UTS/UAS",
-      "Latihan soal berbobot tinggi",
-      "Konsultasi tanya soal via WhatsApp",
-    ],
-    buttonText: "Pilih 4 Pertemuan",
-  },
-  {
-    name: "8 Pertemuan",
-    price: "Rp 380.000",
-    period: "/ paket intensif",
-    isPopular: false,
-    features: [
-      "8 sesi bimbingan tatap muka",
-      "Kurikulum lengkap dari awal bab",
-      "Simulasi ujian privat 1-on-1",
-      "Evaluasi & target nilai personal",
-    ],
-    buttonText: "Pilih 8 Pertemuan",
-  },
-]
+const ELEARNING_CODES: SubscriptionPlanCode[] = ["FREE", "MONTHLY", "SEMESTER"]
 
 export function PricingSection() {
   const [planType, setPlanType] = useState<"elearning" | "offline">("elearning")
-  const currentPlans = planType === "elearning" ? ELEARNING_PLANS : OFFLINE_PLANS
 
   return (
     <section id="harga" className="py-16 md:py-24 px-4 sm:px-6 lg:px-8 w-full bg-[#FFEED6]/40">
@@ -135,69 +54,145 @@ export function PricingSection() {
           </div>
         </div>
 
-        {/* 3-Column Pricing Cards Layout on Desktop, 1-Column on Mobile */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
-          {currentPlans.map((plan, idx) => (
-            <div
-              key={idx}
-              className={`bg-white rounded-2xl p-6 sm:p-8 flex flex-col justify-between transition-all duration-200 shadow-md ${
-                plan.isPopular
-                  ? "border-2 border-[#E8A07C] relative md:-translate-y-2 shadow-lg"
-                  : "border border-[#FFEED6] hover:shadow-lg"
-              }`}
-            >
-              {/* Highlight Badge for Middle/Popular Card */}
-              {plan.isPopular && (
-                <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-[#E8A07C] text-white text-xs font-bold px-4 py-1 rounded-full shadow-xs tracking-wider uppercase">
-                  Populer
+        {/* E-Learning Cards */}
+        {planType === "elearning" && (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
+            {ELEARNING_CODES.map((code) => {
+              const plan = SUBSCRIPTION_PLANS[code]
+              const isPopular = !!plan.isPopular
+              const formattedPrice = plan.price === 0 ? "Gratis" : `Rp ${plan.price.toLocaleString("id-ID")}`
+              const periodLabel = plan.durationDays === 0 ? "/ selamanya" : `/ ${plan.durationDays} hari`
+
+              return (
+                <div
+                  key={plan.code}
+                  className={`bg-white rounded-2xl p-6 sm:p-8 flex flex-col justify-between transition-all duration-200 shadow-md ${
+                    isPopular
+                      ? "border-2 border-[#E8A07C] relative md:-translate-y-2 shadow-lg"
+                      : "border border-[#FFEED6] hover:shadow-lg"
+                  }`}
+                >
+                  {isPopular && (
+                    <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-[#E8A07C] text-white text-xs font-bold px-4 py-1 rounded-full shadow-xs tracking-wider uppercase">
+                      Paling Populer
+                    </div>
+                  )}
+
+                  <div>
+                    <h3 className="text-lg sm:text-xl font-bold text-[#827148] mb-2">
+                      {plan.label}
+                    </h3>
+
+                    {/* Price with optional strikethrough */}
+                    <div className="my-3">
+                      {plan.originalPrice && plan.originalPrice > plan.price && (
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="text-xs text-[#827148]/50 line-through">
+                            Rp {plan.originalPrice.toLocaleString("id-ID")}
+                          </span>
+                          <span className="text-[10px] font-bold bg-[#E8A07C] text-white px-2 py-0.5 rounded-md">
+                            Hemat {Math.round(((plan.originalPrice - plan.price) / plan.originalPrice) * 100)}%
+                          </span>
+                        </div>
+                      )}
+                      <div className="flex items-baseline gap-1">
+                        <span className="text-3xl sm:text-4xl font-extrabold text-[#827148] tracking-tight">
+                          {formattedPrice}
+                        </span>
+                        <span className="text-xs sm:text-sm text-[#827148]/70 font-medium">
+                          {periodLabel}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="h-[1px] w-full bg-[#FFEED6] my-6" />
+
+                    <ul className="space-y-3.5 mb-8">
+                      {plan.features.map((feature, fIdx) => (
+                        <li key={fIdx} className="flex items-center text-xs sm:text-sm text-[#827148]/90">
+                          <span className="w-4 h-4 rounded-full bg-[#A5AF79] shrink-0 inline-block mr-3" />
+                          <span>{feature}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  <Link
+                    href={`/register?plan=${plan.code.toLowerCase()}`}
+                    className={`w-full py-3.5 px-4 rounded-xl font-semibold text-center block shadow-xs transition-colors cursor-pointer ${
+                      isPopular
+                        ? "bg-[#E8A07C] hover:bg-[#d8916e] text-white"
+                        : "bg-[#A5AF79] hover:bg-[#949e6a] text-white"
+                    }`}
+                  >
+                    {plan.price === 0 ? "Mulai Belajar Gratis" : `Pilih ${plan.label}`}
+                  </Link>
                 </div>
-              )}
+              )
+            })}
+          </div>
+        )}
 
-              <div>
-                {/* Package Name */}
-                <h3 className="text-lg sm:text-xl font-bold text-[#827148] mb-2">
-                  {plan.name}
-                </h3>
-
-                {/* Price */}
-                <div className="flex items-baseline gap-1 my-3">
-                  <span className="text-3xl sm:text-4xl font-extrabold text-[#827148] tracking-tight">
-                    {plan.price}
-                  </span>
-                  <span className="text-xs sm:text-sm text-[#827148]/70 font-medium">
-                    {plan.period}
-                  </span>
-                </div>
-
-                {/* Thin Horizontal Divider */}
-                <div className="h-[1px] w-full bg-[#FFEED6] my-6" />
-
-                {/* Features List */}
-                <ul className="space-y-3.5 mb-8">
-                  {plan.features.map((feature, fIdx) => (
-                    <li key={fIdx} className="flex items-center text-xs sm:text-sm text-[#827148]/90">
-                      {/* Empty circular placeholder instead of checkmark icon */}
-                      <span className="w-4 h-4 rounded-full bg-[#A5AF79] shrink-0 inline-block mr-3" />
-                      <span>{feature}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              {/* CTA Button */}
-              <Link
-                href="/register"
-                className={`w-full py-3.5 px-4 rounded-xl font-semibold text-center block shadow-xs transition-colors cursor-pointer ${
+        {/* Offline Tutoring Cards */}
+        {planType === "offline" && (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
+            {OFFLINE_TUTORING_PLANS.map((plan, idx) => (
+              <div
+                key={idx}
+                className={`bg-white rounded-2xl p-6 sm:p-8 flex flex-col justify-between transition-all duration-200 shadow-md ${
                   plan.isPopular
-                    ? "bg-[#E8A07C] hover:bg-[#d8916e] text-white"
-                    : "bg-[#A5AF79] hover:bg-[#949e6a] text-white"
+                    ? "border-2 border-[#E8A07C] relative md:-translate-y-2 shadow-lg"
+                    : "border border-[#FFEED6] hover:shadow-lg"
                 }`}
               >
-                {plan.buttonText}
-              </Link>
-            </div>
-          ))}
-        </div>
+                {plan.isPopular && (
+                  <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-[#E8A07C] text-white text-xs font-bold px-4 py-1 rounded-full shadow-xs tracking-wider uppercase">
+                    Pilihan Favorit
+                  </div>
+                )}
+
+                <div>
+                  <h3 className="text-lg sm:text-xl font-bold text-[#827148] mb-2">
+                    {plan.name}
+                  </h3>
+
+                  <div className="flex items-baseline gap-1 my-3">
+                    <span className="text-3xl sm:text-4xl font-extrabold text-[#827148] tracking-tight">
+                      {plan.price}
+                    </span>
+                    <span className="text-xs sm:text-sm text-[#827148]/70 font-medium">
+                      {plan.period}
+                    </span>
+                  </div>
+
+                  <div className="h-[1px] w-full bg-[#FFEED6] my-6" />
+
+                  <ul className="space-y-3.5 mb-8">
+                    {plan.features.map((feature, fIdx) => (
+                      <li key={fIdx} className="flex items-center text-xs sm:text-sm text-[#827148]/90">
+                        <span className="w-4 h-4 rounded-full bg-[#A5AF79] shrink-0 inline-block mr-3" />
+                        <span>{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                <a
+                  href={`https://wa.me/${BUSINESS_CONFIG.contact.adminWhatsapp}?text=${encodeURIComponent(plan.waMessage)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`w-full py-3.5 px-4 rounded-xl font-semibold text-center block shadow-xs transition-colors cursor-pointer ${
+                    plan.isPopular
+                      ? "bg-[#E8A07C] hover:bg-[#d8916e] text-white"
+                      : "bg-[#A5AF79] hover:bg-[#949e6a] text-white"
+                  }`}
+                >
+                  Konsultasi via WhatsApp
+                </a>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </section>
   )

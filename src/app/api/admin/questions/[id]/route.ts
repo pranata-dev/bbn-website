@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
+import { requireAdmin } from "@/lib/admin-auth"
 import { createServiceClient } from "@/lib/supabase/server"
 
 // PATCH /api/admin/questions/[id] - Update a question with optional image update
@@ -6,6 +7,9 @@ export async function PATCH(
     request: NextRequest,
     context: { params: Promise<{ id: string }> } | { params: { id: string } }
 ) {
+    const guard = await requireAdmin()
+    if (!guard.ok) return guard.response
+
     try {
         const supabase = createServiceClient()
         const { id } = await context.params
@@ -129,6 +133,9 @@ export async function DELETE(
     request: NextRequest,
     context: { params: Promise<{ id: string }> } | { params: { id: string } }
 ) {
+    const guard = await requireAdmin()
+    if (!guard.ok) return guard.response
+
     try {
         const supabase = createServiceClient()
         const { id } = await context.params

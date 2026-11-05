@@ -173,7 +173,7 @@ export async function POST(request: NextRequest) {
                 payment_proof_url: publicUrl,
                 calculated_price: calculatedPrice,
                 pricing_tier: pricingTier,
-                status: type === "REGULAR" ? "APPROVED" : "PENDING",
+                status: "PENDING",
                 updated_at: new Date().toISOString(),
                 user_id: dbUser.id
             })

@@ -1,9 +1,13 @@
 import { NextRequest, NextResponse } from "next/server"
+import { requireAdmin } from "@/lib/admin-auth"
 import { createAdminClient } from "@/lib/supabase/server"
 
 export const dynamic = "force-dynamic"
 
 export async function GET(request: NextRequest) {
+    const guard = await requireAdmin()
+    if (!guard.ok) return guard.response
+
     try {
         const supabase = await createAdminClient()
         
@@ -28,6 +32,9 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+    const guard = await requireAdmin()
+    if (!guard.ok) return guard.response
+
     try {
         const supabase = await createAdminClient()
         const body = await request.json()

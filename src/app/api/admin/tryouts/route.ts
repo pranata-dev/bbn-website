@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
+import { requireAdmin } from "@/lib/admin-auth"
 import { createAdminClient, createServiceClient } from "@/lib/supabase/server"
 import { v4 as uuidv4 } from "uuid"
 
@@ -6,6 +7,9 @@ export const dynamic = "force-dynamic"
 
 // GET /api/admin/tryouts - List all tryouts
 export async function GET(request: NextRequest) {
+    const guard = await requireAdmin()
+    if (!guard.ok) return guard.response
+
     try {
         const adminSupabase = createServiceClient()
 
@@ -41,6 +45,9 @@ export async function GET(request: NextRequest) {
 
 // POST /api/admin/tryouts - Create a Tryout
 export async function POST(request: NextRequest) {
+    const guard = await requireAdmin()
+    if (!guard.ok) return guard.response
+
     try {
         const supabase = createServiceClient()
         const body = await request.json()

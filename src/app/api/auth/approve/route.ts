@@ -1,33 +1,23 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createAdminClient } from "@/lib/supabase/server"
 import { checkRateLimit } from "@/lib/rate-limit"
-import { verifyAdminToken } from "@/lib/admin-auth"
+import { requireAdmin } from "@/lib/admin-auth"
 import { BrevoClient } from "@getbrevo/brevo"
+import { BUSINESS_CONFIG } from "@/config/business"
 
 const brevoClient = new BrevoClient({
     apiKey: process.env.BREVO_API_KEY || ""
 })
 
 export async function POST(request: NextRequest) {
+    const guard = await requireAdmin()
+    if (!guard.ok) return guard.response
+
     // Check rate limit
     const rateLimitResponse = checkRateLimit(request)
     if (rateLimitResponse) return rateLimitResponse
 
     try {
-        const adminSessionCookie = request.cookies.get("admin_session")?.value
-        if (!adminSessionCookie) {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-        }
-
-        try {
-            const payload = await verifyAdminToken(adminSessionCookie)
-            if (payload.role !== "ADMIN") {
-                return NextResponse.json({ error: "Forbidden" }, { status: 403 })
-            }
-        } catch (err) {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-        }
-
         const body = await request.json()
         const { registrationId, action, notes } = body
 
@@ -182,9 +172,10 @@ export async function POST(request: NextRequest) {
 
                 if (isKelasBesar) {
                     emailSubject = "Link Zoom Masterclass Belajar Bareng Nata"
-                    const zoomLink = subject === "FISMAT" 
-                        ? "https://www.google.com/url?q=https://ipb-university.zoom.us/j/94221411163?pwd%3DYhuEGMcjGTjNH37JQ4M6ap3vae43Fm.1&sa=D&source=calendar&ust=1775348655083593&usg=AOvVaw0jOzzPSYljZgXYgeiPvtCA"
-                        : "https://ipb-university.zoom.us/j/92555635040?pwd=HrkdcawyIXV9avQkuDZa2ZFbycA3oq.1"
+                    const zoomLink = BUSINESS_CONFIG.zoom.getLink(subject) ||
+                        (subject === "FISMAT"
+                            ? (process.env.ZOOM_LINK_FISMAT || "")
+                            : (process.env.ZOOM_LINK_FISDAS2 || ""))
                     
                     const schedule = subject === "FISMAT"
                         ? "Minggu, 5 April 2026 pukul 19:00"
@@ -223,7 +214,10 @@ export async function POST(request: NextRequest) {
                 await brevoClient.transactionalEmails.sendTransacEmail({
                     subject: emailSubject,
                     htmlContent: emailHtml,
-                    sender: { name: "Belajar Bareng Nata", email: "dzulfikaryudha@gmail.com" },
+                    sender: {
+                        name: BUSINESS_CONFIG.contact.emailSenderName,
+                        email: BUSINESS_CONFIG.contact.emailSenderAddress,
+                    },
                     to: [{ email: registration.email, name: registration.name }]
                 })
             } catch (emailError) {

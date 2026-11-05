@@ -63,7 +63,7 @@ export function PaymentUpload({ file, previewUrl, onFileChange }: PaymentUploadP
                 <div className="w-3.5 h-3.5 rounded-sm bg-[#A5AF79]" />
               </div>
               <span className="text-xs font-bold text-[#827148]">
-                Klik untuk unggah bukti transfer SeaBank
+                Klik untuk unggah bukti transfer bank / e-wallet
               </span>
               <span className="text-[11px] text-[#827148]/70 font-medium">
                 JPG, PNG, WebP (maks. 5MB)

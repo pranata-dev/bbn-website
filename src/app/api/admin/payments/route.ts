@@ -1,9 +1,13 @@
 import { NextResponse } from "next/server"
+import { requireAdmin } from "@/lib/admin-auth"
 import { createServiceClient } from "@/lib/supabase/server"
 
 export const dynamic = "force-dynamic"
 
 export async function GET() {
+    const guard = await requireAdmin()
+    if (!guard.ok) return guard.response
+
   try {
     const supabase = createServiceClient()
     const { data: payments, error } = await supabase

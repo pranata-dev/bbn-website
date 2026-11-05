@@ -116,7 +116,7 @@ export async function POST(request: NextRequest) {
     // Duplicate Check in Users Table
     const { data: existingUser } = await supabase
       .from("users")
-      .select("id, email, is_active")
+      .select("id, email, is_active, auth_id")
       .ilike("email", email)
       .maybeSingle()
 
@@ -132,16 +132,18 @@ export async function POST(request: NextRequest) {
         upsert: true,
       })
 
-    let publicUrl = ""
-    if (!uploadError) {
-      const { data: urlData } = supabase.storage
-        .from("payment-proofs")
-        .getPublicUrl(fileName)
-      publicUrl = urlData.publicUrl
-    } else {
-      console.warn("Storage upload error (fallback to placeholder URL):", uploadError)
-      publicUrl = `https://storage.placeholder.com/bbn/${Date.now()}`
+    if (uploadError) {
+      console.error("Storage upload error:", uploadError)
+      return NextResponse.json(
+        { error: "Gagal mengunggah bukti pembayaran. Silakan coba lagi." },
+        { status: 500 }
+      )
     }
+
+    const { data: urlData } = supabase.storage
+      .from("payment-proofs")
+      .getPublicUrl(fileName)
+    const publicUrl = urlData.publicUrl
 
     // Price calculation
     let calculatedPrice: number | null = null
@@ -163,7 +165,7 @@ export async function POST(request: NextRequest) {
       pricingTier = "MASTERCLASS"
     }
 
-    // 1. Insert or Upsert into local `users` table with is_active: false
+    // 1. Insert or Upsert into local `users` table without locking out active users
     const localUserId = existingUser?.id || crypto.randomUUID()
     const { error: userUpsertError } = await supabase
       .from("users")
@@ -172,11 +174,11 @@ export async function POST(request: NextRequest) {
           id: localUserId,
           email,
           name,
-          auth_id: authId || undefined,
+          auth_id: authId || existingUser?.auth_id || undefined,
           student_category: studentCategory,
           package_type: packageType,
           billing_cycle: billingCycle,
-          is_active: false, // Default to inactive until admin approves
+          is_active: existingUser ? existingUser.is_active : false, // Preserve active status if already existing
           updated_at: new Date().toISOString(),
         },
         { onConflict: "email" }
