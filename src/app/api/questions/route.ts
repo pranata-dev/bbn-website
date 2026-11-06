@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
         let query = supabase.from("questions").select("*").order("created_at", { ascending: false })
 
         if (category) {
-            query = query.eq("category", category)
+            query = query.eq("category", category as any)
         }
 
         const { data: questions, error } = await query
@@ -71,7 +71,7 @@ export async function POST(request: NextRequest) {
             .from("questions")
             .insert({
                 text,
-                category,
+                category: category as any,
                 option_a: optionA,
                 option_b: optionB,
                 option_c: optionC,

@@ -49,7 +49,6 @@ export async function GET(
                 is_published,
                 drive_url,
                 podcast_url,
-                pdf_url,
                 created_at,
                 courses (
                     id,

@@ -43,14 +43,13 @@ export async function GET(
                 total_count,
                 started_at,
                 submitted_at,
-                finished_at,
                 expires_at,
                 tab_switch_count,
                 tryouts (
                     id,
                     title,
                     duration,
-                    subject,
+                    course_id,
                     is_practice,
                     category
                 )

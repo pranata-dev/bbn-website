@@ -58,7 +58,7 @@ export async function GET(request: NextRequest) {
 
         // --- Recent Activity (most recent 5, finished only) ---
         const recentActivity = allSubmissions
-            .filter(sub => sub.status === "SUBMITTED" || sub.status === "COMPLETED" || sub.status === "TIMED_OUT")
+            .filter(sub => sub.status === "SUBMITTED" || sub.status === "TIMED_OUT")
             .slice(0, 5)
             .map((sub) => {
                 const tryout = sub.tryouts as unknown as { title: string; is_practice: boolean; category: string } | null
@@ -82,7 +82,7 @@ export async function GET(request: NextRequest) {
         })
 
         const tryoutUsed = tryoutSubmissions.length // Includes IN_PROGRESS
-        const tryoutCompleted = tryoutSubmissions.filter(s => s.status === "SUBMITTED" || s.status === "COMPLETED" || s.status === "TIMED_OUT")
+        const tryoutCompleted = tryoutSubmissions.filter(s => s.status === "SUBMITTED" || s.status === "TIMED_OUT")
         
         const tryoutAvgScore = tryoutCompleted.length > 0
             ? Math.round(tryoutCompleted.reduce((sum, s) => sum + (s.score || 0), 0) / tryoutCompleted.length)
@@ -98,7 +98,7 @@ export async function GET(request: NextRequest) {
             return (tryout as any)?.is_practice === true
         })
 
-        const latihanCompleted = latihanSubmissions.filter(s => s.status === "SUBMITTED" || s.status === "COMPLETED" || s.status === "TIMED_OUT")
+        const latihanCompleted = latihanSubmissions.filter(s => s.status === "SUBMITTED" || s.status === "TIMED_OUT")
         const latihanUsed = latihanSubmissions.length
 
         const latihanAvgScore = latihanCompleted.length > 0

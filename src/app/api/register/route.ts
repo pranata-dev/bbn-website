@@ -43,6 +43,11 @@ export async function POST(request: NextRequest) {
       (formData.get("billing_cycle") as string) ||
       "MONTHLY"
     ).trim()
+    const planCode = (
+      (formData.get("plan_code") as string) ||
+      (formData.get("planCode") as string) ||
+      (billingCycle.toUpperCase().includes("MONTH") ? "MONTHLY" : "SEMESTER")
+    ).trim()
     const packageType = (
       (formData.get("selectedPackageId") as string) ||
       (formData.get("selectedPackageName") as string) ||
@@ -174,7 +179,7 @@ export async function POST(request: NextRequest) {
           id: localUserId,
           email,
           name,
-          auth_id: authId || existingUser?.auth_id || undefined,
+          auth_id: authId || existingUser?.auth_id || localUserId,
           is_active: existingUser ? existingUser.is_active : false, // Preserve active status if already existing
           updated_at: new Date().toISOString(),
         },
@@ -187,58 +192,36 @@ export async function POST(request: NextRequest) {
 
     // 2. Insert into `registrations` table with status: 'PENDING'
     const registrationId = crypto.randomUUID()
+    const nowIso = new Date().toISOString()
     const { data: registration, error: regError } = await supabase
       .from("registrations")
       .insert({
         id: registrationId,
+        user_id: localUserId,
         type,
+        plan_code: planCode,
+        track: studentCategory,
         name,
         email,
         nim: nim || "-",
         subject: subject || "Fisika Smt 3",
         whatsapp,
-        phone: whatsapp,
-        student_category: studentCategory,
-        package_type: packageType,
-        billing_cycle: billingCycle,
         payment_proof_url: publicUrl,
         calculated_price: calculatedPrice,
         pricing_tier: pricingTier,
         status: "PENDING",
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
+        created_at: nowIso,
+        updated_at: nowIso,
       })
       .select()
       .maybeSingle()
 
     if (regError) {
       console.error("Registration insert error:", regError)
-      // Retry without optional columns if schema differs
-      const { data: retryReg, error: retryError } = await supabase
-        .from("registrations")
-        .insert({
-          id: registrationId,
-          type,
-          name,
-          email,
-          nim: nim || "-",
-          subject: subject || "Fisika Smt 3",
-          whatsapp,
-          payment_proof_url: publicUrl,
-          calculated_price: calculatedPrice,
-          pricing_tier: pricingTier,
-          status: "PENDING",
-        })
-        .select()
-        .maybeSingle()
-
-      if (retryError) {
-        console.error("Registration retry insert error:", retryError)
-        return NextResponse.json(
-          { error: "Gagal menyimpan data pendaftaran. Silakan coba lagi." },
-          { status: 500 }
-        )
-      }
+      return NextResponse.json(
+        { error: "Gagal menyimpan data pendaftaran. Silakan coba lagi." },
+        { status: 500 }
+      )
     }
 
     // 3. Create detail records safely if applicable (legacy fallback)

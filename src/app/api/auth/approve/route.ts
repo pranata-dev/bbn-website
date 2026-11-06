@@ -80,14 +80,10 @@ export async function POST(request: NextRequest) {
             }
 
             // 2. Provision subscription
-            const rawCycle = (registration.billing_cycle || "").toUpperCase()
-            const rawPkg = (registration.package_type || "").toUpperCase()
             const planCode: "FREE" | "MONTHLY" | "SEMESTER" =
-                registration.plan_code === "MONTHLY" || rawCycle.includes("MONTH") || rawPkg.includes("MONTH")
-                    ? "MONTHLY"
-                    : "SEMESTER"
+                registration.plan_code === "MONTHLY" ? "MONTHLY" : "SEMESTER"
 
-            const rawTrack = (registration.track || registration.student_category || "").toUpperCase()
+            const rawTrack = (registration.track || "").toUpperCase()
             const track: "PHYSICS_SEM_3" | "NON_PHYSICS" | "LEGACY" | "ALL" =
                 rawTrack === "NON_PHYSICS" ? "NON_PHYSICS" : "PHYSICS_SEM_3"
 

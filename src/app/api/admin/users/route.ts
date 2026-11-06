@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
         // 2. Fetch registrations to join payment proofs
         const { data: registrations } = await adminSupabase
             .from("registrations")
-            .select("id, email, name, payment_proof_url, status, package_type, type, created_at")
+            .select("id, email, name, payment_proof_url, status, plan_code, track, type, created_at")
             .order("created_at", { ascending: false })
 
         // 3. Map registrations and active subscription

@@ -12,19 +12,19 @@ export async function GET(request: NextRequest) {
     if (!guard.ok) return guard.response
 
     try {
-        const adminSupabase = await createAdminClient()
+        const supabase = await createAdminClient()
         const { searchParams } = new URL(request.url)
         const category = searchParams.get("category")
         const subject = searchParams.get("subject")
 
-        let query = adminSupabase.from("questions").select("*").order("created_at", { ascending: false })
+        let query = supabase.from("questions").select("*").order("created_at", { ascending: false })
 
         if (category && category !== "all") {
-            query = query.eq("category", category)
+            query = query.eq("category", category as any)
         }
 
         if (subject && subject !== "all") {
-            const { data: c } = await adminSupabase.from("courses").select("id").or(`code.ilike.${subject},slug.ilike.${subject}`).maybeSingle()
+            const { data: c } = await supabase.from("courses").select("id").or(`code.ilike.${subject},slug.ilike.${subject}`).maybeSingle()
             if (c) query = query.eq("course_id", c.id)
         }
 
@@ -122,9 +122,9 @@ export async function POST(request: NextRequest) {
             .insert({
                 id: questionId,
                 text,
-                category,
+                category: category as any,
                 course_id: courseId,
-                type,
+                type: (type || "MULTIPLE_CHOICE") as any,
                 option_a,
                 option_b,
                 option_c,
@@ -164,9 +164,9 @@ export async function DELETE(request: NextRequest) {
     if (!guard.ok) return guard.response
 
     try {
-        const adminSupabase = await createAdminClient()
+        const supabase = await createAdminClient()
         const { searchParams } = new URL(request.url)
-        
+
         const category = searchParams.get("category")
         const subject = searchParams.get("subject")
 
@@ -178,14 +178,14 @@ export async function DELETE(request: NextRequest) {
             )
         }
 
-        let query = adminSupabase.from("questions").delete()
+        let query = supabase.from("questions").delete()
 
         if (category && category !== "all") {
-            query = query.eq("category", category)
+            query = query.eq("category", category as any)
         }
 
         if (subject && subject !== "all") {
-            const { data: c } = await adminSupabase.from("courses").select("id").or(`code.ilike.${subject},slug.ilike.${subject}`).maybeSingle()
+            const { data: c } = await supabase.from("courses").select("id").or(`code.ilike.${subject},slug.ilike.${subject}`).maybeSingle()
             if (c) query = query.eq("course_id", c.id)
         }
 

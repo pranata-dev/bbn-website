@@ -99,7 +99,7 @@ export async function PATCH(
             .from("questions")
             .update({
                 text,
-                category,
+                category: category ? (category as any) : undefined,
                 course_id: courseId || undefined,
                 option_a: optionA,
                 option_b: optionB,
