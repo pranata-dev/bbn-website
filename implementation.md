@@ -107,103 +107,96 @@
 
 ---
 
-## Part 2: Next Phase Implementation Plan
+## Part 2: Remote Sync, Live Verification & Decommissioning Roadmap
 
 ```mermaid
 flowchart TD
-    subgraph Phase 3: Database Cleanup & Decommissioning
-        P3_PRE["3.1 Data Safety Backup & Pre-Flight Audit"]
-        P3_MIG["3.2 Destructive Migration Execution"]
-        P3_TYP["3.3 Regenerate Database Types & Update Codebase"]
-        P3_VER["3.4 Verification: Typecheck & Test Suite"]
-        P3_PRE --> P3_MIG --> P3_TYP --> P3_VER
+    subgraph Step 1: Local Decoupling & Idempotency Audit
+        S1_CODE["1.1 Full Code Grep & Removal of Legacy Queries"]
+        S1_MIG["1.2 Additive Migration Idempotency Hardening"]
+        S1_STG["1.3 Stage Destructive SQL Outside Migrations"]
+        S1_CODE --> S1_MIG --> S1_STG
     end
 
-    subgraph Phase 4: Remote Sync, E2E & Production Launch
-        P4_CLI["4.1 Remote Supabase Project Link & Push"]
-        P4_STG["4.2 Storage Buckets & Policies Configuration"]
-        P4_EML["4.3 Email Automation & Brevo Verification"]
-        P4_CICD["4.4 GitHub Actions CI Workflow Setup"]
-        P4_LCH["4.5 Production Smoke Testing & Deployment"]
-        P3_VER --> P4_CLI --> P4_STG --> P4_EML --> P4_CICD --> P4_LCH
+    subgraph Step 2: Remote Link & Additive Migration Push
+        S2_LNK["2.1 Link Supabase CLI to Remote Project"]
+        S2_REP["2.2 Reconcile / Repair Migration History"]
+        S2_PSH["2.3 Push Additive Migrations Only"]
+        S2_LNK --> S2_REP --> S2_PSH
     end
+
+    subgraph Step 3: Post-Backfill Live Data Audit & Admin Gate
+        S3_BDT["3.1 Audit Backfilled course_id on Content"]
+        S3_SUB["3.2 Verify Backfilled subscriptions Table"]
+        S3_ADM["3.3 Admin Bootstrap & Auth Verification"]
+        S3_PAU["3.4 Pause Gate: User Confirmation for Destructive SQL"]
+        S3_BDT --> S3_SUB --> S3_ADM --> S3_PAU
+    end
+
+    subgraph Step 4: Destructive Migration & Production Hardening
+        S4_DST["4.1 Push Destructive Migration 20260318..."]
+        S4_TYP["4.2 Regenerate TypeScript Database Types"]
+        S4_STG["4.3 Configure Supabase Storage Bucket Policies"]
+        S4_CIC["4.4 GitHub Actions CI Workflow Setup"]
+        S4_VER["4.5 Final Full Verification: Types, Tests & Build"]
+        S4_DST --> S4_TYP --> S4_STG --> S4_CIC --> S4_VER
+    end
+
+    S1_STG --> S2_LNK
+    S2_PSH --> S3_BDT
+    S3_PAU --> S4_DST
 ```
 
 ---
 
-### Phase 3 — Destructive Schema Cleanup & Legacy Decommissioning
-
-> [!CAUTION]
-> **User Approval Gate:** Phase 3 removes legacy tables and deprecated columns. All active access has already been backfilled into `subscriptions` during Phase 0C. This migration drops the old, unused tables to achieve a clean database schema.
-
-#### 3.1 Data Safety Pre-Flight Audit
-1. Verify all students with paid roles in `user_subject_access` have corresponding active records in `subscriptions`.
-2. Consolidate any existing `users.full_name` values into `users.name` before column removal:
-   ```sql
-   update public.users set name = coalesce(name, full_name) where name is null and full_name is not null;
-   ```
-3. Export a snapshot / backup dump of legacy tables (`user_subject_access`, `payments`, `regular_class_details`, `uts_package_details`, `kelas_besar_details`).
-
-#### 3.2 Destructive Migration (`supabase/migrations/20260318000000_decommission_legacy.sql`)
-1. **Drop Deprecated Tables:**
-   - `drop table if exists public.user_subject_access cascade;`
-   - `drop table if exists public.payments cascade;`
-   - `drop table if exists public.regular_class_details cascade;`
-   - `drop table if exists public.uts_package_details cascade;`
-   - `drop table if exists public.kelas_besar_details cascade;`
-2. **Drop Deprecated Columns from Core Tables:**
-   - **`public.users`:**
-     - Drop `full_name`, `student_category`, `package_type`, `billing_cycle`, `session_token`, `access_ends_at`.
-     - Retain: `id`, `auth_id`, `email`, `name`, `nim`, `avatar_url`, `is_active`, `role`, `created_at`, `updated_at`.
-   - **`public.tryouts`:**
-     - Drop redundant `question_ids` text array column (superseded by `tryout_questions` join table).
-     - Drop `subject` enum column (superseded by `course_id uuid references courses(id)`).
-   - **`public.questions`:**
-     - Drop `subject` enum column (superseded by `course_id uuid references courses(id)`).
-   - **`public.materials`:**
-     - Drop `subject` enum column (superseded by `course_id uuid references courses(id)`).
-3. **Drop Deprecated Postgres Enums:**
-   - Drop `Subject` (`FISDAS2`, `FISMAT`), `Role`, `PackageType`, `PaymentStatus`.
-
-#### 3.3 Regenerate Database Types & Update Code References
-1. Update `src/types/database.types.ts`:
-   - Remove deleted tables and dropped columns from `Database["public"]["Tables"]`.
-   - Ensure all join relations on `courses`, `subscriptions`, `tryout_questions`, `submissions`, `answers`, and `materials` remain typed.
-2. Remove any remaining legacy references across the codebase:
-   - Remove `user_subject_access` queries in `src/app/dashboard/layout.tsx` and `src/app/dashboard/page.tsx`.
-   - Remove fallback references to `subject` enum in admin filters (use `course_id` / dynamic courses).
-3. Re-run `npx.cmd tsc --noEmit` and `npm.cmd test` to guarantee zero regressions.
+### Step 1 — Local Decoupling & Additive Idempotency Check (Completed)
+- Verified zero remaining references in `src/` to `user_subject_access`, `tryout_attempts_used`, `student_category` (on `users`), `package_type` (on `users`), `billing_cycle` (on `users`), `session_token`, `access_ends_at`, or `question_ids` on `tryouts`.
+- Updated all additive migrations (`20260316000000`, `20260317000000`, `20260317100000`) to be 100% idempotent with `CREATE TABLE IF NOT EXISTS`, `ALTER TABLE ... ADD COLUMN IF NOT EXISTS`, `DROP POLICY IF EXISTS`, and `DO $$ ... EXCEPTION WHEN duplicate_object THEN NULL; END $$;` blocks.
+- Guaranteed `tryout_questions` backfill checks UUID regex and question existence.
+- Staged `20260318000000_decommission_legacy.sql` safely outside `supabase/migrations/` in `supabase/staged_migrations/`.
 
 ---
 
-### Phase 4 — Remote Sync, E2E Verification & Production Readiness
-
-#### 4.1 Remote Supabase Synchronization
-1. Link project via Supabase CLI (`supabase link --project-ref <project-ref>`).
-2. Run database migration push outside sandbox:
+### Step 2 — Remote Supabase Link & Additive Migration Push
+1. Link remote Supabase project (`bbhyrwouuqypuonckszo`) using Supabase CLI outside the sandbox.
+2. Check migration status via `supabase migration list`.
+3. If migration history drift exists (e.g. `20260315000000_auth_sync_triggers.sql`), repair history:
+   ```powershell
+   supabase migration repair 20260315000000 --status applied
+   ```
+4. Push ONLY the additive and backfill migrations to remote database:
    ```powershell
    supabase db push
    ```
-3. Generate fresh TypeScript definitions directly from the remote database:
+
+---
+
+### Step 3 — Post-Backfill Live Data Audit & Admin Verification (Pause Gate)
+1. **Audit Content Backfill:**
+   - Verify `questions.course_id`, `tryouts.course_id`, and `materials.course_id` are populated.
+   - Verify `tryout_questions` join rows exist for all existing tryouts.
+2. **Audit Subscriptions Backfill:**
+   - Verify all active users in `user_subject_access` have corresponding `ACTIVE` `SEMESTER` (`track = 'LEGACY'`, `expires_at = now() + 180 days`) rows in `subscriptions`.
+   - Verify all existing users have a baseline `FREE` subscription.
+3. **Admin Bootstrap & Protection:**
+   - Verify `dzulfikaryudha@gmail.com` in `public.users` has `role = 'ADMIN'` and `is_active = true`.
+   - Verify `/admin/login` and admin API guards execute cleanly with Supabase Auth session.
+4. **Pause Gate:** Present findings to the user and await explicit approval before Step 4.
+
+---
+
+### Step 4 — Destructive Cleanup & Production Hardening
+1. Move `supabase/staged_migrations/20260318000000_decommission_legacy.sql` to `supabase/migrations/` and apply:
+   ```powershell
+   supabase db push
+   ```
+2. Generate fresh TypeScript definitions from the linked database:
    ```powershell
    supabase gen types typescript --linked > src/types/database.types.ts
    ```
-
-#### 4.2 Storage Buckets & Access Policies
-1. Verify public / authenticated access policies on Supabase Storage buckets:
-   - `question-images`: Public read access; write access restricted to `public.is_admin()`.
-   - `payment-proofs`: Write access for authenticated and anonymous registration uploads; read access restricted to owner (`auth.uid()`) and `public.is_admin()`.
-   - `material-attachments`: Public read for free preview; authenticated read for active subscription holders.
-
-#### 4.3 Email Automation Verification (Brevo)
-1. Verify `BREVO_API_KEY`, `EMAIL_SENDER_ADDRESS`, and `EMAIL_SENDER_NAME` in production environment.
-2. Test transactional email dispatches:
-   - **Registration Received:** Notifies user that payment proof is under review.
-   - **Account Approved:** Dispatches activation confirmation with direct login link.
-   - **Payment Rejected:** Explains rejection reason with instructions to re-upload.
-
-#### 4.4 Automated CI/CD Workflow (`.github/workflows/ci.yml`)
-Configure a GitHub Actions pipeline enforcing quality gates on every Pull Request and push to `main`:
+3. Configure Supabase Storage bucket access policies (`question-images`, `payment-proofs`, `material-attachments`).
+4. Set up `.github/workflows/ci.yml` with type checking, Vitest unit tests, and Next.js build.
+5. Execute full verification: `npx.cmd tsc --noEmit`, `npm.cmd test`, and `npm.cmd run build`.
 ```yaml
 name: CI Quality Gate
 on: [push, pull_request]

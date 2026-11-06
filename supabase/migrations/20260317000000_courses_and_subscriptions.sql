@@ -1,7 +1,7 @@
 -- ============================================================================
 -- Migration: 20260317000000_courses_and_subscriptions.sql
 -- Description: Dynamic courses table, unified subscriptions table,
---              FK additions to content tables, and backfill for legacy users.
+--              FK additions to content tables, and idempotent backfills.
 -- ============================================================================
 
 -- 1. Create courses table
@@ -15,6 +15,45 @@ CREATE TABLE IF NOT EXISTS public.courses (
     sort_order INT NOT NULL DEFAULT 0,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+
+-- Ensure columns exist if table was already created earlier
+ALTER TABLE public.courses ADD COLUMN IF NOT EXISTS slug TEXT;
+ALTER TABLE public.courses ADD COLUMN IF NOT EXISTS code TEXT;
+ALTER TABLE public.courses ADD COLUMN IF NOT EXISTS title TEXT;
+ALTER TABLE public.courses ADD COLUMN IF NOT EXISTS track TEXT;
+ALTER TABLE public.courses ADD COLUMN IF NOT EXISTS is_active BOOLEAN NOT NULL DEFAULT true;
+ALTER TABLE public.courses ADD COLUMN IF NOT EXISTS sort_order INT NOT NULL DEFAULT 0;
+ALTER TABLE public.courses ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ NOT NULL DEFAULT now();
+
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_constraint WHERE conname = 'courses_track_check'
+    ) THEN
+        ALTER TABLE public.courses ADD CONSTRAINT courses_track_check CHECK (track IN ('PHYSICS_SEM_3', 'NON_PHYSICS', 'LEGACY', 'ALL'));
+    END IF;
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_constraint WHERE conname = 'courses_slug_key'
+    ) THEN
+        ALTER TABLE public.courses ADD CONSTRAINT courses_slug_key UNIQUE (slug);
+    END IF;
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_constraint WHERE conname = 'courses_code_key'
+    ) THEN
+        ALTER TABLE public.courses ADD CONSTRAINT courses_code_key UNIQUE (code);
+    END IF;
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
 -- Seed standard and legacy courses
 INSERT INTO public.courses (slug, code, title, track, sort_order) VALUES
@@ -31,6 +70,7 @@ INSERT INTO public.courses (slug, code, title, track, sort_order) VALUES
     ('statistika-dan-analisis-data', 'STATISTIKA', 'Statistika dan Analisis Data', 'NON_PHYSICS', 120),
     ('matematika-1', 'MATEMATIKA1', 'Matematika 1', 'NON_PHYSICS', 130)
 ON CONFLICT (slug) DO UPDATE SET
+    code = EXCLUDED.code,
     title = EXCLUDED.title,
     track = EXCLUDED.track,
     sort_order = EXCLUDED.sort_order;
@@ -42,20 +82,38 @@ ALTER TABLE public.tryouts ADD COLUMN IF NOT EXISTS is_free_sample BOOLEAN NOT N
 ALTER TABLE public.materials ADD COLUMN IF NOT EXISTS course_id UUID REFERENCES public.courses(id) ON DELETE SET NULL;
 
 -- Backfill course_id from legacy subject column where possible
-UPDATE public.questions q
-SET course_id = c.id
-FROM public.courses c
-WHERE q.course_id IS NULL AND c.code = q.subject::text;
+DO $$
+BEGIN
+    IF EXISTS (
+        SELECT 1 FROM information_schema.columns 
+        WHERE table_schema = 'public' AND table_name = 'questions' AND column_name = 'subject'
+    ) THEN
+        UPDATE public.questions q
+        SET course_id = c.id
+        FROM public.courses c
+        WHERE q.course_id IS NULL AND c.code = q.subject::text;
+    END IF;
 
-UPDATE public.tryouts t
-SET course_id = c.id
-FROM public.courses c
-WHERE t.course_id IS NULL AND c.code = t.subject::text;
+    IF EXISTS (
+        SELECT 1 FROM information_schema.columns 
+        WHERE table_schema = 'public' AND table_name = 'tryouts' AND column_name = 'subject'
+    ) THEN
+        UPDATE public.tryouts t
+        SET course_id = c.id
+        FROM public.courses c
+        WHERE t.course_id IS NULL AND c.code = t.subject::text;
+    END IF;
 
-UPDATE public.materials m
-SET course_id = c.id
-FROM public.courses c
-WHERE m.course_id IS NULL AND c.code = m.subject::text;
+    IF EXISTS (
+        SELECT 1 FROM information_schema.columns 
+        WHERE table_schema = 'public' AND table_name = 'materials' AND column_name = 'subject'
+    ) THEN
+        UPDATE public.materials m
+        SET course_id = c.id
+        FROM public.courses c
+        WHERE m.course_id IS NULL AND c.code = m.subject::text;
+    END IF;
+END $$;
 
 -- 3. Create subscriptions table
 CREATE TABLE IF NOT EXISTS public.subscriptions (
@@ -82,37 +140,74 @@ ALTER TABLE public.registrations ADD COLUMN IF NOT EXISTS track TEXT;
 
 -- 4. Backfill subscriptions for existing paid users
 -- Active paid users in user_subject_access receive an ACTIVE subscription with expires_at = now() + 180 days
-INSERT INTO public.subscriptions (user_id, plan_code, track, status, starts_at, expires_at, granted_by, notes)
-SELECT DISTINCT ON (usa.user_id)
-    usa.user_id,
-    'SEMESTER' AS plan_code,
-    'LEGACY' AS track,
-    'ACTIVE' AS status,
-    now() AS starts_at,
-    now() + INTERVAL '180 days' AS expires_at,
-    'SYSTEM_MIGRATION' AS granted_by,
-    'Backfilled from user_subject_access' AS notes
-FROM public.user_subject_access usa
-WHERE usa.is_active = true
-  AND usa.role IN ('STUDENT_BASIC', 'STUDENT_PREMIUM', 'UTS_FLUX', 'UTS_SENKU', 'UTS_EINSTEIN')
-ON CONFLICT DO NOTHING;
+DO $$
+BEGIN
+    IF EXISTS (
+        SELECT 1 FROM information_schema.tables 
+        WHERE table_schema = 'public' AND table_name = 'user_subject_access'
+    ) THEN
+        INSERT INTO public.subscriptions (user_id, plan_code, track, status, starts_at, expires_at, granted_by, notes)
+        SELECT DISTINCT ON (usa.user_id)
+            usa.user_id,
+            'SEMESTER' AS plan_code,
+            'LEGACY' AS track,
+            'ACTIVE' AS status,
+            now() AS starts_at,
+            now() + INTERVAL '180 days' AS expires_at,
+            'SYSTEM_MIGRATION' AS granted_by,
+            'Backfilled from user_subject_access' AS notes
+        FROM public.user_subject_access usa
+        WHERE usa.is_active = true
+          AND usa.role::text IN ('STUDENT_BASIC', 'STUDENT_PREMIUM', 'UTS_FLUX', 'UTS_SENKU', 'UTS_EINSTEIN')
+          AND NOT EXISTS (
+              SELECT 1 FROM public.subscriptions s
+              WHERE s.user_id = usa.user_id AND s.status = 'ACTIVE'
+          );
+    END IF;
+END $$;
 
 -- Ensure all existing users have a FREE tier baseline if they don't have an active subscription
-INSERT INTO public.subscriptions (user_id, plan_code, track, status, starts_at, expires_at, granted_by)
-SELECT 
-    u.id,
-    'FREE',
-    COALESCE(u.student_category, 'ALL'),
-    'ACTIVE',
-    now(),
-    NULL,
-    'SYSTEM_BASELINE'
-FROM public.users u
-WHERE NOT EXISTS (
-    SELECT 1 FROM public.subscriptions s 
-    WHERE s.user_id = u.id AND s.status = 'ACTIVE'
-)
-ON CONFLICT DO NOTHING;
+DO $$
+BEGIN
+    IF EXISTS (
+        SELECT 1 FROM information_schema.columns 
+        WHERE table_schema = 'public' AND table_name = 'users' AND column_name = 'student_category'
+    ) THEN
+        EXECUTE '
+            INSERT INTO public.subscriptions (user_id, plan_code, track, status, starts_at, expires_at, granted_by)
+            SELECT 
+                u.id,
+                ''FREE'',
+                CASE 
+                    WHEN u.student_category IN (''PHYSICS_SEM_3'', ''NON_PHYSICS'', ''LEGACY'') THEN u.student_category 
+                    ELSE ''ALL'' 
+                END,
+                ''ACTIVE'',
+                now(),
+                NULL,
+                ''SYSTEM_BASELINE''
+            FROM public.users u
+            WHERE NOT EXISTS (
+                SELECT 1 FROM public.subscriptions s 
+                WHERE s.user_id = u.id AND s.status = ''ACTIVE''
+            )';
+    ELSE
+        INSERT INTO public.subscriptions (user_id, plan_code, track, status, starts_at, expires_at, granted_by)
+        SELECT 
+            u.id,
+            'FREE',
+            'ALL',
+            'ACTIVE',
+            now(),
+            NULL,
+            'SYSTEM_BASELINE'
+        FROM public.users u
+        WHERE NOT EXISTS (
+            SELECT 1 FROM public.subscriptions s 
+            WHERE s.user_id = u.id AND s.status = 'ACTIVE'
+        );
+    END IF;
+END $$;
 
 -- 5. RLS policies for courses & subscriptions
 ALTER TABLE public.courses ENABLE ROW LEVEL SECURITY;
@@ -138,4 +233,3 @@ DROP POLICY IF EXISTS "Admins can manage subscriptions" ON public.subscriptions;
 CREATE POLICY "Admins can manage subscriptions"
 ON public.subscriptions FOR ALL
 USING (public.is_admin());
-

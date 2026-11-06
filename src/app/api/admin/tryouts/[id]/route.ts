@@ -26,7 +26,7 @@ export async function GET(
             return NextResponse.json({ error: `Failed to fetch tryout: ${error.message}` }, { status: 500 })
         }
 
-        // Extract just the question_ids as a flat array
+        // Extract question IDs from tryout_questions join as a flat array
         const questionIds = tryout.tryout_questions?.map((tq: any) => tq.question_id) || []
         
         // Remove the nested object to simplify the response

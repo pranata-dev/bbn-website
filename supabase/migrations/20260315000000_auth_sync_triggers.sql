@@ -12,8 +12,8 @@ BEGIN
     gen_random_uuid(), -- Generate a new UUID for the public.users primary key
     NEW.id,            -- The Supabase auth connection
     NEW.email,
-    COALESCE(NEW.raw_user_meta_data->>'full_name', split_part(NEW.email, '@', 1)), -- Fallback to email prefix if no name
-    'STUDENT_BASIC',   -- Default role
+    COALESCE(NEW.raw_user_meta_data->>'name', NEW.raw_user_meta_data->>'full_name', split_part(NEW.email, '@', 1)), -- Fallback to email prefix if no name
+    'STUDENT',         -- Default role
     true,              -- Default active status
     now(),
     now()

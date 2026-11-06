@@ -23,9 +23,30 @@ BEGIN
     ) THEN
         ALTER TABLE public.users ADD CONSTRAINT users_role_check CHECK (role IN ('STUDENT', 'ADMIN'));
     END IF;
+EXCEPTION WHEN duplicate_object THEN
+    NULL;
 END $$;
 
--- 2. Extend materials table
+-- 2. Update Auth Synchronization Trigger so new signups receive valid 'STUDENT' role
+CREATE OR REPLACE FUNCTION public.handle_new_user() 
+RETURNS TRIGGER AS $$
+BEGIN
+  INSERT INTO public.users (id, auth_id, email, name, role, is_active, created_at, updated_at)
+  VALUES (
+    gen_random_uuid(),
+    NEW.id,
+    NEW.email,
+    COALESCE(NEW.raw_user_meta_data->>'name', NEW.raw_user_meta_data->>'full_name', split_part(NEW.email, '@', 1)),
+    'STUDENT',
+    true,
+    now(),
+    now()
+  );
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- 3. Extend materials table
 ALTER TABLE public.materials ADD COLUMN IF NOT EXISTS slug TEXT;
 ALTER TABLE public.materials ADD COLUMN IF NOT EXISTS summary TEXT;
 ALTER TABLE public.materials ADD COLUMN IF NOT EXISTS content_md TEXT;
@@ -35,10 +56,10 @@ ALTER TABLE public.materials ADD COLUMN IF NOT EXISTS reading_time_minutes INT;
 ALTER TABLE public.materials ADD COLUMN IF NOT EXISTS is_free_preview BOOLEAN NOT NULL DEFAULT false;
 ALTER TABLE public.materials ADD COLUMN IF NOT EXISTS is_published BOOLEAN NOT NULL DEFAULT true;
 
--- Backfill slugs for existing materials that lack one
+-- Backfill slugs collision-free for existing materials that lack one
 UPDATE public.materials
-SET slug = lower(regexp_replace(title, '[^a-zA-Z0-9]+', '-', 'g'))
-WHERE slug IS NULL;
+SET slug = lower(regexp_replace(coalesce(title, 'materi'), '[^a-zA-Z0-9]+', '-', 'g')) || '-' || substring(id::text from 1 for 8)
+WHERE slug IS NULL OR slug = '';
 
 -- Add unique constraint on slug if not present
 DO $$
@@ -48,21 +69,25 @@ BEGIN
     ) THEN
         ALTER TABLE public.materials ADD CONSTRAINT materials_slug_key UNIQUE (slug);
     END IF;
+EXCEPTION WHEN duplicate_object THEN
+    NULL;
 END $$;
 
--- 3. Extend submissions table
+-- 4. Extend submissions table
 ALTER TABLE public.submissions ADD COLUMN IF NOT EXISTS expires_at TIMESTAMPTZ;
 ALTER TABLE public.submissions ADD COLUMN IF NOT EXISTS tab_switch_count INT NOT NULL DEFAULT 0;
 ALTER TABLE public.submissions ADD COLUMN IF NOT EXISTS max_score NUMERIC DEFAULT 100;
 
--- 4. Extend answers table
+-- 5. Extend answers table
 ALTER TABLE public.answers ADD COLUMN IF NOT EXISTS flagged BOOLEAN NOT NULL DEFAULT false;
 
 -- Clean potential duplicates before adding unique constraint
-DELETE FROM public.answers a USING public.answers b
-WHERE a.id > b.id
-  AND a.submission_id = b.submission_id
-  AND a.question_id = b.question_id;
+DELETE FROM public.answers a
+WHERE a.ctid NOT IN (
+    SELECT min(b.ctid)
+    FROM public.answers b
+    GROUP BY b.submission_id, b.question_id
+);
 
 DO $$
 BEGIN
@@ -72,9 +97,11 @@ BEGIN
         ALTER TABLE public.answers 
         ADD CONSTRAINT answers_submission_question_unique UNIQUE (submission_id, question_id);
     END IF;
+EXCEPTION WHEN duplicate_object THEN
+    NULL;
 END $$;
 
--- 5. Ensure tryout_questions exists & backfill from legacy tryouts.question_ids
+-- 6. Ensure tryout_questions exists & backfill from legacy tryouts.question_ids
 CREATE TABLE IF NOT EXISTS public.tryout_questions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     tryout_id UUID NOT NULL REFERENCES public.tryouts(id) ON DELETE CASCADE,
@@ -100,15 +127,17 @@ BEGIN
         SELECT 
             t.id AS tryout_id,
             q_id::uuid AS question_id,
-            ord - 1 AS "order"
+            (ord - 1)::int AS "order"
         FROM public.tryouts t,
              unnest(t.question_ids) WITH ORDINALITY AS q(q_id, ord)
-        WHERE q_id IS NOT NULL AND q_id != ''
+        WHERE q_id IS NOT NULL 
+          AND q_id ~* '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
+          AND EXISTS (SELECT 1 FROM public.questions qu WHERE qu.id = q_id::uuid)
         ON CONFLICT (tryout_id, question_id) DO NOTHING;
     END IF;
 END $$;
 
--- 6. Configure RLS Policies
+-- 7. Configure RLS Policies
 ALTER TABLE public.tryout_questions ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS "Anyone can read tryout questions" ON public.tryout_questions;
@@ -132,4 +161,3 @@ DROP POLICY IF EXISTS "Admins can manage materials" ON public.materials;
 CREATE POLICY "Admins can manage materials"
 ON public.materials FOR ALL
 USING (public.is_admin());
-
