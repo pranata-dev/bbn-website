@@ -175,9 +175,6 @@ export async function POST(request: NextRequest) {
           email,
           name,
           auth_id: authId || existingUser?.auth_id || undefined,
-          student_category: studentCategory,
-          package_type: packageType,
-          billing_cycle: billingCycle,
           is_active: existingUser ? existingUser.is_active : false, // Preserve active status if already existing
           updated_at: new Date().toISOString(),
         },
@@ -244,10 +241,10 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // 3. Create detail records safely if applicable
+    // 3. Create detail records safely if applicable (legacy fallback)
     try {
       if (type === "UTS") {
-        await supabase
+        await (supabase as any)
           .from("uts_package_details")
           .insert({
             id: crypto.randomUUID(),
@@ -261,7 +258,7 @@ export async function POST(request: NextRequest) {
         const scheduledTime = (formData.get("scheduledTime") as string) || "19:00"
         const notes = (formData.get("notes") as string) || ""
 
-        await supabase
+        await (supabase as any)
           .from("regular_class_details")
           .insert({
             id: crypto.randomUUID(),

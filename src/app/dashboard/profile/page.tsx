@@ -11,15 +11,17 @@ export default async function ProfilePage() {
   if (authUser) {
     const { data } = await supabase
       .from("users")
-      .select("*, subject_access:user_subject_access(*)")
+      .select("*, subscriptions(*)")
       .eq("auth_id", authUser.id)
-      .single()
+      .maybeSingle()
     dbUser = data
   }
 
   const userName = dbUser?.name || "User"
   const userEmail = dbUser?.email || authUser?.email || "-"
-  const subjectAccess = dbUser?.subject_access || []
+  const subscriptions = ((dbUser as any)?.subscriptions || []).filter(
+    (s: any) => s.status === "ACTIVE"
+  )
 
   const joinDate = dbUser?.created_at
     ? format(new Date(dbUser.created_at), "dd MMMM yyyy", { locale: id })
@@ -66,24 +68,29 @@ export default async function ProfilePage() {
           {/* Paket Aktif */}
           <div className="p-4 rounded-xl bg-[#FFEED6]/20 border border-[#FFEED6] sm:col-span-2">
             <p className="text-[11px] font-semibold text-[#827148]/70 uppercase tracking-wider mb-3">
-              Paket Mata Kuliah Aktif
+              Paket Langganan Aktif
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {subjectAccess.length === 0 ? (
+              {subscriptions.length === 0 ? (
                 <p className="text-xs text-[#827148]/60 font-medium">
-                  Belum ada paket aktif.
+                  Paket Gratis (Freemium)
                 </p>
               ) : (
-                subjectAccess.map((acc: any) => (
+                subscriptions.map((sub: any) => (
                   <div
-                    key={acc.id}
+                    key={sub.id}
                     className="flex items-center justify-between bg-white p-3 rounded-xl border border-[#FFEED6]"
                   >
-                    <span className="text-xs font-bold text-[#827148]">
-                      {acc.subject === "FISDAS2" ? "Fisika Dasar 2" : acc.subject}
-                    </span>
+                    <div>
+                      <span className="text-xs font-bold text-[#827148] block">
+                        {sub.plan_code === "SEMESTER" ? "Paket Semester" : sub.plan_code === "MONTHLY" ? "Paket Bulanan" : "Paket Gratis"}
+                      </span>
+                      <span className="text-[10px] text-[#827148]/60">
+                        {sub.track === "NON_PHYSICS" ? "Umum / Non-Fisika" : "Departemen Fisika"}
+                      </span>
+                    </div>
                     <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-[#A5AF79] text-white">
-                      {acc.package_type}
+                      {sub.status}
                     </span>
                   </div>
                 ))

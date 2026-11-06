@@ -24,7 +24,8 @@ export async function GET(request: NextRequest) {
         }
 
         if (subject && subject !== "all") {
-            query = query.eq("subject", subject as "FISDAS2" | "FISMAT")
+            const { data: c } = await adminSupabase.from("courses").select("id").or(`code.ilike.${subject},slug.ilike.${subject}`).maybeSingle()
+            if (c) query = query.eq("course_id", c.id)
         }
 
         const { data: questions, error } = await query
@@ -105,6 +106,12 @@ export async function POST(request: NextRequest) {
             imageUrl = publicUrlData.publicUrl
         }
 
+        let courseId = (formData.get("course_id") as string) || null
+        if (!courseId && subject) {
+            const { data: c } = await supabase.from("courses").select("id").or(`code.ilike.${subject},slug.ilike.${subject}`).maybeSingle()
+            if (c) courseId = c.id
+        }
+
         // Generate UUID manually since Prisma's @default(uuid()) doesn't apply when using Supabase client directly
         const questionId = uuidv4()
         const now = new Date().toISOString()
@@ -116,7 +123,7 @@ export async function POST(request: NextRequest) {
                 id: questionId,
                 text,
                 category,
-                subject,
+                course_id: courseId,
                 type,
                 option_a,
                 option_b,
@@ -157,7 +164,7 @@ export async function DELETE(request: NextRequest) {
     if (!guard.ok) return guard.response
 
     try {
-        const supabase = await createAdminClient()
+        const adminSupabase = await createAdminClient()
         const { searchParams } = new URL(request.url)
         
         const category = searchParams.get("category")
@@ -171,14 +178,15 @@ export async function DELETE(request: NextRequest) {
             )
         }
 
-        let query = supabase.from("questions").delete()
+        let query = adminSupabase.from("questions").delete()
 
         if (category && category !== "all") {
             query = query.eq("category", category)
         }
 
         if (subject && subject !== "all") {
-            query = query.eq("subject", subject as "FISDAS2" | "FISMAT")
+            const { data: c } = await adminSupabase.from("courses").select("id").or(`code.ilike.${subject},slug.ilike.${subject}`).maybeSingle()
+            if (c) query = query.eq("course_id", c.id)
         }
 
         const { error } = await query

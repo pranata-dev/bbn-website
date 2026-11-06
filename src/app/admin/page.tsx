@@ -67,11 +67,11 @@ export default function AdminDashboardPage() {
       const rawStats = statsRes && statsRes.ok ? (await statsRes.json()).stats : {}
 
       const physicsActive = usersList.filter(
-        (u) => (u.student_category === "PHYSICS_SEM_3" || !u.student_category) && u.is_active
+        (u) => (u.active_subscription?.track === "PHYSICS_SEM_3" || !u.active_subscription) && u.is_active
       ).length
 
       const nonPhysicsActive = usersList.filter(
-        (u) => u.student_category === "NON_PHYSICS" && u.is_active
+        (u) => u.active_subscription?.track === "NON_PHYSICS" && u.is_active
       ).length
 
       const totalActive = usersList.filter((u) => u.is_active).length

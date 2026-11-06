@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
             .from("registrations")
             .update({
                 status: action,
-                reviewed_by: "ADMIN_SYSTEM",
+                reviewed_by: guard.user.email || "ADMIN_SYSTEM",
                 reviewed_at: new Date().toISOString(),
             })
             .eq("id", registrationId)
@@ -65,101 +65,58 @@ export async function POST(request: NextRequest) {
             .ilike("email", registration.email)
             .maybeSingle()
 
-        // Sync with payments table if user exists
-        if (existingUser) {
-            await adminClient
-                .from("payments")
+        if (action === "APPROVED" && existingUser) {
+            // 1. Update user status to active
+            const { error: userUpdateError } = await adminClient
+                .from("users")
                 .update({
-                    status: action,
-                    reviewed_by: "ADMIN_SYSTEM",
-                    reviewed_at: new Date().toISOString(),
-                    notes: notes || undefined
+                    is_active: true,
+                    updated_at: new Date().toISOString(),
                 })
-                .eq("user_id", existingUser.id)
-                .eq("status", "PENDING")
-        }
+                .eq("id", existingUser.id)
 
-        if (action === "APPROVED") {
-            // Determine correct role and package_type based on registration type
-            let userRole = "STUDENT_BASIC"
-            let packageType = "REGULER"
-
-            if (registration.type === "UTS" || registration.package_type) {
-                const rawPkg = (registration.package_type || "").toUpperCase()
-                if (rawPkg.includes("EINSTEIN")) {
-                    userRole = "UTS_EINSTEIN"
-                    packageType = "EINSTEIN"
-                } else if (rawPkg.includes("SENKU")) {
-                    userRole = "UTS_SENKU"
-                    packageType = "SENKU"
-                } else if (rawPkg.includes("FLUX")) {
-                    userRole = "UTS_FLUX"
-                    packageType = "FLUX"
-                } else {
-                    const { data: utsDetail } = await adminClient
-                        .from("uts_package_details")
-                        .select("package_type")
-                        .eq("registration_id", registration.id)
-                        .maybeSingle()
-
-                    if (utsDetail) {
-                        switch (utsDetail.package_type) {
-                            case "flux_session":
-                                userRole = "UTS_FLUX"
-                                packageType = "FLUX"
-                                break
-                            case "senku_mode":
-                                userRole = "UTS_SENKU"
-                                packageType = "SENKU"
-                                break
-                            case "einstein_mode":
-                                userRole = "UTS_EINSTEIN"
-                                packageType = "EINSTEIN"
-                                break
-                        }
-                    }
-                }
-            } else if (registration.type === "REGULAR") {
-                userRole = "STUDENT_BASIC"
-                packageType = "REGULER"
+            if (userUpdateError) {
+                console.error("User activation update error:", userUpdateError)
             }
 
-            if (existingUser) {
-                // Update user status to active and sync curriculum category & package
-                const { error: userUpdateError } = await adminClient
-                    .from("users")
-                    .update({
-                        is_active: true,
-                        student_category: registration.student_category || undefined,
-                        package_type: packageType,
-                        billing_cycle: registration.billing_cycle || undefined,
-                        updated_at: new Date().toISOString(),
-                    })
-                    .eq("id", existingUser.id)
+            // 2. Provision subscription
+            const rawCycle = (registration.billing_cycle || "").toUpperCase()
+            const rawPkg = (registration.package_type || "").toUpperCase()
+            const planCode: "FREE" | "MONTHLY" | "SEMESTER" =
+                registration.plan_code === "MONTHLY" || rawCycle.includes("MONTH") || rawPkg.includes("MONTH")
+                    ? "MONTHLY"
+                    : "SEMESTER"
 
-                if (userUpdateError) {
-                    console.error("User activation update error:", userUpdateError)
-                }
+            const rawTrack = (registration.track || registration.student_category || "").toUpperCase()
+            const track: "PHYSICS_SEM_3" | "NON_PHYSICS" | "LEGACY" | "ALL" =
+                rawTrack === "NON_PHYSICS" ? "NON_PHYSICS" : "PHYSICS_SEM_3"
 
-                // Provision User Subject Access
-                const subjectMap: Record<string, string> = {
-                    "fisika-dasar-2": "FISDAS2",
-                    "fisika-matematika": "FISMAT",
-                }
-                
-                const normalizedSubject = (registration.subject || "").toLowerCase().trim()
-                const mappedSubject = subjectMap[normalizedSubject] || "FISDAS2"
+            const durationDays = planCode === "MONTHLY" ? 30 : 180
+            const expiresAt = new Date(Date.now() + durationDays * 86400000).toISOString()
 
-                await adminClient
-                    .from("user_subject_access")
-                    .upsert({
-                        user_id: existingUser.id,
-                        subject: mappedSubject as "FISDAS2" | "FISMAT",
-                        role: userRole,
-                        package_type: packageType,
-                        is_active: true,
-                        updated_at: new Date().toISOString(),
-                    }, { onConflict: 'user_id,subject' })
+            // Supersede previous active subscriptions
+            await adminClient
+                .from("subscriptions")
+                .update({ status: "CANCELLED" })
+                .eq("user_id", existingUser.id)
+                .eq("status", "ACTIVE")
+
+            const { error: subError } = await adminClient
+                .from("subscriptions")
+                .insert({
+                    user_id: existingUser.id,
+                    plan_code: planCode,
+                    track,
+                    status: "ACTIVE",
+                    starts_at: new Date().toISOString(),
+                    expires_at: expiresAt,
+                    registration_id: registration.id,
+                    granted_by: guard.user.email || "ADMIN_APPROVAL",
+                    notes: notes || `Approved registration (${registration.id})`,
+                })
+
+            if (subError) {
+                console.error("Subscription provisioning error:", subError)
             }
 
             // Send activation email via Brevo
@@ -201,10 +158,10 @@ export async function POST(request: NextRequest) {
                     emailHtml = `
                         <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
                             <h2 style="color: #4A3C31;">Halo, ${registration.name}!</h2>
-                            <p>Pembayaran kamu untuk pendaftaran <strong>${registration.type === "REGULAR" ? "Kelas Reguler" : "Persiapan UTS"}</strong> telah berhasil diverifikasi oleh Admin.</p>
+                            <p>Pembayaran kamu untuk paket <strong>${planCode === "MONTHLY" ? "Bulanan" : "Semester"}</strong> telah berhasil diverifikasi oleh Admin.</p>
                             <p>Akun kamu kini sudah <strong>AKTIF</strong> dan kamu dapat langsung masuk ke dashboard belajar.</p>
                             <br/>
-                            <a href="${process.env.NEXT_PUBLIC_APP_URL}/login" style="background-color: #4A3C31; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: bold;">Login ke Dashboard</a>
+                            <a href="${process.env.NEXT_PUBLIC_APP_URL || "https://belajarbarengnata.com"}/login" style="background-color: #4A3C31; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: bold;">Login ke Dashboard</a>
                             <br/><br/>
                             <p>Selamat belajar dan semoga sukses!<br/>Tim Belajar Bareng Nata</p>
                         </div>
@@ -222,13 +179,12 @@ export async function POST(request: NextRequest) {
                 })
             } catch (emailError) {
                 console.error("Failed to send activation email via Brevo:", emailError)
-                // We choose not to fail the whole approval process if just the email fails
             }
         }
 
         return NextResponse.json({
             message: action === "APPROVED"
-                ? "Pendaftaran disetujui. Akun berhasil dibuat dan email aktivasi telah dikirim."
+                ? "Pendaftaran disetujui. Akun berhasil diaktifkan dan langganan telah aktif."
                 : "Pendaftaran ditolak.",
         })
     } catch (error) {

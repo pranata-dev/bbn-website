@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
 import { createServiceClient } from "@/lib/supabase/server"
 import { v4 as uuidv4 } from "uuid"
+import { getEntitlements, getTryoutQuota } from "@/lib/entitlements"
 
 // POST /api/tryouts/[id]/start - Start a tryout attempt
 export async function POST(
@@ -44,69 +45,27 @@ export async function POST(
             return NextResponse.json({ error: "Tryout tidak ditemukan." }, { status: 404 })
         }
 
-        // 4. Get User Subject Access
-        const { data: access } = await supabase
-            .from("user_subject_access")
-            .select("*")
-            .eq("user_id", profile.id)
-            .eq("subject", tryout.subject)
-            .eq("is_active", true)
-            .single()
+        // 4. Entitlements & Permissions check
+        const entitlements = await getEntitlements(profile.id, supabase)
+        const canAccess = tryout.is_practice
+            ? (entitlements.canAccessPractice || !!tryout.is_free_sample)
+            : entitlements.canStartTryout(tryout)
 
-        if (!access) {
-            return NextResponse.json({ 
-                error: `Anda tidak memiliki akses aktif untuk mata kuliah ${tryout.subject}.` 
+        if (!canAccess) {
+            return NextResponse.json({
+                error: "Upgrade paket Anda untuk mengakses tryout/latihan ini.",
+                code: "UPGRADE_REQUIRED",
             }, { status: 403 })
         }
 
-        // 5. Check role-based permissions and quotas
-        const { getPackageFeatures, canAccessPracticePart } = await import("@/lib/package-features")
-        const features = getPackageFeatures(access.package_type, access.role, tryout.subject)
-
-        if (tryout.is_practice) {
-            if (!features.canAccessLatihan) {
-                return NextResponse.json({ error: "Akses latihan tidak diizinkan untuk paket Anda." }, { status: 403 })
-            }
-
-            // For FISMAT, dynamically count total practice parts in this category
-            let totalPartsInCategory: number | undefined
-            if (tryout.subject === "FISMAT" && tryout.category) {
-                const { count } = await supabase
-                    .from("tryouts")
-                    .select("*", { count: "exact", head: true })
-                    .eq("subject", "FISMAT")
-                    .eq("is_practice", true)
-                    .eq("category", tryout.category)
-                totalPartsInCategory = count ?? undefined
-            }
-
-            if (!canAccessPracticePart(access.package_type as any, access.role, tryout.practice_part ?? null, tryout.title, tryout.subject, totalPartsInCategory)) {
-                return NextResponse.json({ error: "Upgrade paket Anda untuk mengakses bagian ini." }, { status: 403 })
-            }
-        } else {
-            if (!features.canAccessTryout && access.role !== "ADMIN") {
-                return NextResponse.json({ error: "Akses tryout tidak diizinkan untuk paket Anda." }, { status: 403 })
-            }
-
-            const usedQuota = access.tryout_attempts_used
-            const maxQuota = features.tryoutLimit
-
-            if (usedQuota >= maxQuota && access.role !== "ADMIN") {
-                return NextResponse.json(
-                    { error: `Batas percobaan Tryout untuk paket Anda telah habis (${maxQuota} kali).` },
-                    { status: 403 }
-                )
-            }
-        }
-
-        // 6. Check active submission
+        // 5. Check if there is already an active session in progress (resume)
         const { data: activeSubmission } = await supabase
             .from("submissions")
             .select("id, status, started_at, question_order")
             .eq("user_id", profile.id)
             .eq("tryout_id", tryoutId)
             .eq("status", "IN_PROGRESS")
-            .single()
+            .maybeSingle()
 
         if (activeSubmission) {
             const { data: activeAnswers } = await supabase
@@ -118,10 +77,10 @@ export async function POST(
                 .from("questions")
                 .select("id, text, category, option_a, option_b, option_c, option_d, option_e, weight, image_url")
                 .in("id", activeSubmission.question_order || [])
-            
+
             const orderedQuestions = (activeSubmission.question_order || []).map((qId: string) => {
                 return questionsData?.find((q: any) => q.id === qId)
-            }).filter((q: any) => q)
+            }).filter(Boolean)
 
             return NextResponse.json({
                 message: "Berhasil memuat sesi yang sedang berjalan",
@@ -136,12 +95,28 @@ export async function POST(
             })
         }
 
+        // 6. Quota check based strictly on submissions table (SUBMITTED / COMPLETED / TIMED_OUT)
+        const quota = await getTryoutQuota(profile.id, tryout, entitlements, supabase)
+        if (!quota.allowed) {
+            return NextResponse.json(
+                {
+                    error: `Batas percobaan Tryout untuk paket Anda telah habis (${quota.limit} kali).`,
+                    code: "QUOTA_EXCEEDED",
+                },
+                { status: 403 }
+            )
+        }
+
         // 7. Start New Attempt
-        const questionIds = tryout.tryout_questions.map((tq: { question_id: string }) => tq.question_id)
+        const questionIds = (tryout.tryout_questions || []).map((tq: { question_id: string }) => tq.question_id)
         const shuffled = [...questionIds].sort(() => Math.random() - 0.5)
 
         const submissionId = uuidv4()
-        const now = new Date().toISOString()
+        const now = new Date()
+        const startedAt = now.toISOString()
+        const durationMs = (tryout.duration || 0) * 60 * 1000
+        const expiresAt = durationMs > 0 ? new Date(now.getTime() + durationMs).toISOString() : null
+
         const { data: submission, error: subError } = await supabase
             .from("submissions")
             .insert({
@@ -149,10 +124,12 @@ export async function POST(
                 user_id: profile.id,
                 tryout_id: tryoutId,
                 status: "IN_PROGRESS",
-                started_at: now,
+                started_at: startedAt,
+                expires_at: expiresAt,
                 question_order: shuffled,
                 total_count: shuffled.length,
-                created_at: now,
+                tab_switch_count: 0,
+                created_at: startedAt,
             })
             .select()
             .single()
@@ -160,18 +137,6 @@ export async function POST(
         if (subError) {
             console.error("Failed to create submission:", subError)
             return NextResponse.json({ error: "Gagal memulai tryout." }, { status: 500 })
-        }
-
-        // Increment usage quota exclusively for real tryouts (practice does not use attempts)
-        if (!tryout.is_practice && access.role !== "ADMIN") {
-            const { error: updateAccessErr } = await supabase
-                .from("user_subject_access")
-                .update({ tryout_attempts_used: access.tryout_attempts_used + 1 })
-                .eq("id", access.id)
-            
-            if (updateAccessErr) {
-                console.error("Failed to increment tryout quota:", updateAccessErr)
-            }
         }
 
         const { data: questions } = await supabase
@@ -196,4 +161,3 @@ export async function POST(
         return NextResponse.json({ error: "Internal error" }, { status: 500 })
     }
 }
-

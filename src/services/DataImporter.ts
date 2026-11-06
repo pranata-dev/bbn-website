@@ -132,6 +132,13 @@ export class DataImporter {
         let skipped = 0
         const questionIds: string[] = []
 
+        const { data: matchedCourse } = await supabase
+            .from("courses")
+            .select("id")
+            .or(`code.ilike.${subject},slug.ilike.${subject}`)
+            .maybeSingle()
+        const courseId = matchedCourse?.id || null
+
         for (const q of questions) {
             const text = q.text.trim()
             const { data: existing, error: checkErr } = await supabase
@@ -158,7 +165,7 @@ export class DataImporter {
                 id: id,
                 text: text,
                 category: category,
-                subject: subject,
+                course_id: courseId,
                 option_a: q.option_a.trim(),
                 option_b: q.option_b.trim(),
                 option_c: q.option_c.trim(),
@@ -195,7 +202,6 @@ export class DataImporter {
                 .select("id")
                 .eq("title", title)
                 .eq("category", category)
-                .eq("subject", subject)
                 .eq("is_practice", isPractice)
                 .limit(1)
 
@@ -211,7 +217,7 @@ export class DataImporter {
                         id: tryoutId,
                         title: title,
                         category: category,
-                        subject: subject,
+                        course_id: courseId,
                         is_practice: isPractice,
                         status: "ACTIVE",
                         duration: options.durationMinutes || 60,

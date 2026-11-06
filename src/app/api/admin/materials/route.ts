@@ -14,8 +14,13 @@ export async function GET(request: NextRequest) {
 
         const { searchParams } = new URL(request.url)
         const subject = searchParams.get("subject")
-        if (subject && subject !== "all") {
-            query = query.eq("subject", subject as "FISDAS2" | "FISMAT")
+        const courseId = searchParams.get("course_id")
+
+        if (courseId) {
+            query = query.eq("course_id", courseId)
+        } else if (subject && subject !== "all") {
+            const { data: c } = await supabase.from("courses").select("id").or(`code.ilike.${subject},slug.ilike.${subject}`).maybeSingle()
+            if (c) query = query.eq("course_id", c.id)
         }
 
         const { data: materials, error } = await query
@@ -51,10 +56,17 @@ export async function POST(request: NextRequest) {
             isPublished,
             readingTimeMinutes,
             subject,
+            course_id,
         } = body
 
-        if (!title || !subject) {
-            return NextResponse.json({ error: "Title and Subject are required." }, { status: 400 })
+        if (!title) {
+            return NextResponse.json({ error: "Title is required." }, { status: 400 })
+        }
+
+        let targetCourseId = course_id || null
+        if (!targetCourseId && subject) {
+            const { data: c } = await supabase.from("courses").select("id").or(`code.ilike.${subject},slug.ilike.${subject}`).maybeSingle()
+            if (c) targetCourseId = c.id
         }
 
         const now = new Date().toISOString()
@@ -68,6 +80,7 @@ export async function POST(request: NextRequest) {
             .insert({
                 title,
                 slug: generatedSlug,
+                course_id: targetCourseId,
                 summary: summary || null,
                 content_md: contentMd || null,
                 drive_url: driveUrl || null,
@@ -78,7 +91,6 @@ export async function POST(request: NextRequest) {
                 is_free_preview: Boolean(isFreePreview),
                 is_published: isPublished !== false,
                 reading_time_minutes: readingTimeMinutes ? Number(readingTimeMinutes) : null,
-                subject: subject as "FISDAS2" | "FISMAT",
                 created_at: now,
                 updated_at: now,
             })

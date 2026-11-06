@@ -1,4 +1,4 @@
-export type Json =
+﻿export type Json =
     | string
     | number
     | boolean
@@ -15,16 +15,10 @@ export interface Database {
                     auth_id: string | null
                     email: string
                     name: string | null
-                    full_name: string | null
                     nim: string | null
                     avatar_url: string | null
                     is_active: boolean
                     role: string | null
-                    student_category: string | null
-                    package_type: string | null
-                    billing_cycle: string | null
-                    session_token: string | null
-                    access_ends_at: string | null
                     last_login_at: string | null
                     created_at: string
                     updated_at: string
@@ -34,16 +28,10 @@ export interface Database {
                     auth_id?: string | null
                     email: string
                     name?: string | null
-                    full_name?: string | null
                     nim?: string | null
                     avatar_url?: string | null
                     is_active?: boolean
                     role?: string | null
-                    student_category?: string | null
-                    package_type?: string | null
-                    billing_cycle?: string | null
-                    session_token?: string | null
-                    access_ends_at?: string | null
                     last_login_at?: string | null
                     created_at?: string
                     updated_at?: string
@@ -53,16 +41,10 @@ export interface Database {
                     auth_id?: string | null
                     email?: string
                     name?: string | null
-                    full_name?: string | null
                     nim?: string | null
                     avatar_url?: string | null
                     is_active?: boolean
                     role?: string | null
-                    student_category?: string | null
-                    package_type?: string | null
-                    billing_cycle?: string | null
-                    session_token?: string | null
-                    access_ends_at?: string | null
                     last_login_at?: string | null
                     created_at?: string
                     updated_at?: string
@@ -175,7 +157,6 @@ export interface Database {
                     weight: number
                     image_url: string | null
                     type: "MULTIPLE_CHOICE" | "ESSAY"
-                    subject: "FISDAS2" | "FISMAT"
                     created_at: string
                     updated_at: string
                 }
@@ -194,7 +175,6 @@ export interface Database {
                     weight?: number
                     image_url?: string | null
                     type?: "MULTIPLE_CHOICE" | "ESSAY"
-                    subject?: "FISDAS2" | "FISMAT"
                     created_at?: string
                     updated_at?: string
                 }
@@ -213,7 +193,6 @@ export interface Database {
                     weight?: number
                     image_url?: string | null
                     type?: "MULTIPLE_CHOICE" | "ESSAY"
-                    subject?: "FISDAS2" | "FISMAT"
                     created_at?: string
                     updated_at?: string
                 }
@@ -241,7 +220,6 @@ export interface Database {
                     practice_part: number | null
                     is_published?: boolean
                     is_free_sample?: boolean
-                    subject: "FISDAS2" | "FISMAT"
                     created_at: string
                     updated_at: string
                 }
@@ -258,7 +236,6 @@ export interface Database {
                     practice_part?: number | null
                     is_published?: boolean
                     is_free_sample?: boolean
-                    subject?: "FISDAS2" | "FISMAT"
                     created_at?: string
                     updated_at?: string
                 }
@@ -275,7 +252,6 @@ export interface Database {
                     practice_part?: number | null
                     is_published?: boolean
                     is_free_sample?: boolean
-                    subject?: "FISDAS2" | "FISMAT"
                     created_at?: string
                     updated_at?: string
                 }
@@ -341,6 +317,7 @@ export interface Database {
                     expires_at: string | null
                     question_order: string[]
                     tab_switch_count: number
+                    max_score: number | null
                     created_at: string
                 }
                 Insert: {
@@ -358,6 +335,7 @@ export interface Database {
                     expires_at?: string | null
                     question_order?: string[]
                     tab_switch_count?: number
+                    max_score?: number | null
                     created_at?: string
                 }
                 Update: {
@@ -375,6 +353,7 @@ export interface Database {
                     expires_at?: string | null
                     question_order?: string[]
                     tab_switch_count?: number
+                    max_score?: number | null
                     created_at?: string
                 }
                 Relationships: [
@@ -455,7 +434,6 @@ export interface Database {
                     is_free_preview: boolean
                     is_published: boolean
                     reading_time_minutes: number | null
-                    subject: "FISDAS2" | "FISMAT"
                     created_at: string
                     updated_at: string
                 }
@@ -474,7 +452,6 @@ export interface Database {
                     is_free_preview?: boolean
                     is_published?: boolean
                     reading_time_minutes?: number | null
-                    subject?: "FISDAS2" | "FISMAT"
                     created_at?: string
                     updated_at?: string
                 }
@@ -493,7 +470,6 @@ export interface Database {
                     is_free_preview?: boolean
                     is_published?: boolean
                     reading_time_minutes?: number | null
-                    subject?: "FISDAS2" | "FISMAT"
                     created_at?: string
                     updated_at?: string
                 }
@@ -583,193 +559,6 @@ export interface Database {
                 Relationships: [
                     {
                         foreignKeyName: "registrations_user_id_fkey"
-                        columns: ["user_id"]
-                        isOneToOne: false
-                        referencedRelation: "users"
-                        referencedColumns: ["id"]
-                    }
-                ]
-            }
-            regular_class_details: {
-                Row: {
-                    id: string
-                    registration_id: string
-                    group_size: number
-                    session_count: number
-                    scheduled_date: string
-                    scheduled_time: string
-                    notes: string | null
-                    created_at: string
-                }
-                Insert: {
-                    id?: string
-                    registration_id: string
-                    group_size: number
-                    session_count: number
-                    scheduled_date: string
-                    scheduled_time: string
-                    notes?: string | null
-                    created_at?: string
-                }
-                Update: {
-                    id?: string
-                    registration_id?: string
-                    group_size?: number
-                    session_count?: number
-                    scheduled_date?: string
-                    scheduled_time?: string
-                    notes?: string | null
-                    created_at?: string
-                }
-                Relationships: [
-                    {
-                        foreignKeyName: "regular_class_details_registration_id_fkey"
-                        columns: ["registration_id"]
-                        isOneToOne: true
-                        referencedRelation: "registrations"
-                        referencedColumns: ["id"]
-                    }
-                ]
-            }
-            uts_package_details: {
-                Row: {
-                    id: string
-                    registration_id: string
-                    package_type: string
-                    created_at: string
-                }
-                Insert: {
-                    id?: string
-                    registration_id: string
-                    package_type: string
-                    created_at?: string
-                }
-                Update: {
-                    id?: string
-                    registration_id?: string
-                    package_type?: string
-                    created_at?: string
-                }
-                Relationships: [
-                    {
-                        foreignKeyName: "uts_package_details_registration_id_fkey"
-                        columns: ["registration_id"]
-                        isOneToOne: true
-                        referencedRelation: "registrations"
-                        referencedColumns: ["id"]
-                    }
-                ]
-            }
-            kelas_besar_details: {
-                Row: {
-                    id: string
-                    registration_id: string
-                    created_at: string
-                }
-                Insert: {
-                    id?: string
-                    registration_id: string
-                    created_at?: string
-                }
-                Update: {
-                    id?: string
-                    registration_id?: string
-                    created_at?: string
-                }
-                Relationships: [
-                    {
-                        foreignKeyName: "kelas_besar_details_registration_id_fkey"
-                        columns: ["registration_id"]
-                        isOneToOne: true
-                        referencedRelation: "registrations"
-                        referencedColumns: ["id"]
-                    }
-                ]
-            }
-            user_subject_access: {
-                Row: {
-                    id: string
-                    user_id: string
-                    subject: "FISDAS2" | "FISMAT"
-                    role: string
-                    package_type: string | null
-                    tryout_attempts_used: number
-                    is_active: boolean
-                    created_at: string
-                    updated_at: string
-                }
-                Insert: {
-                    id?: string
-                    user_id: string
-                    subject: "FISDAS2" | "FISMAT"
-                    role?: string
-                    package_type?: string | null
-                    tryout_attempts_used?: number
-                    is_active?: boolean
-                    created_at?: string
-                    updated_at?: string
-                }
-                Update: {
-                    id?: string
-                    user_id?: string
-                    subject?: "FISDAS2" | "FISMAT"
-                    role?: string
-                    package_type?: string | null
-                    tryout_attempts_used?: number
-                    is_active?: boolean
-                    created_at?: string
-                    updated_at?: string
-                }
-                Relationships: [
-                    {
-                        foreignKeyName: "user_subject_access_user_id_fkey"
-                        columns: ["user_id"]
-                        isOneToOne: false
-                        referencedRelation: "users"
-                        referencedColumns: ["id"]
-                    }
-                ]
-            }
-            payments: {
-                Row: {
-                    id: string
-                    user_id: string
-                    amount: number | null
-                    proof_url: string
-                    status: "PENDING" | "APPROVED" | "REJECTED"
-                    notes: string | null
-                    reviewed_by: string | null
-                    reviewed_at: string | null
-                    created_at: string
-                    updated_at: string
-                }
-                Insert: {
-                    id?: string
-                    user_id: string
-                    amount?: number | null
-                    proof_url: string
-                    status?: "PENDING" | "APPROVED" | "REJECTED"
-                    notes?: string | null
-                    reviewed_by?: string | null
-                    reviewed_at?: string | null
-                    created_at?: string
-                    updated_at?: string
-                }
-                Update: {
-                    id?: string
-                    user_id?: string
-                    amount?: number | null
-                    proof_url?: string
-                    status?: "PENDING" | "APPROVED" | "REJECTED"
-                    notes?: string | null
-                    reviewed_by?: string | null
-                    reviewed_at?: string | null
-                    created_at?: string
-                    updated_at?: string
-                }
-                Relationships: [
-                    {
-                        foreignKeyName: "payments_user_id_fkey"
                         columns: ["user_id"]
                         isOneToOne: false
                         referencedRelation: "users"

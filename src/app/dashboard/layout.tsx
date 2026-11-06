@@ -2,17 +2,13 @@
 
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
 import UserPresenceTracker from "@/components/UserPresenceTracker"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { useState, useEffect } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { APP_NAME } from "@/constants"
-import { getPackageFeatures, PackageFeatures } from "@/lib/package-features"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { SubjectProvider, useSubject } from "@/contexts/SubjectContext"
 import { useTheme } from "@/contexts/ThemeContext"
-import { Subject } from "@/types"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,13 +19,13 @@ import {
 import { PHYSICS_COURSES, GENERAL_COURSES } from "./DashboardClient"
 
 const NAV_ITEMS = [
-  { id: "dashboard", href: "/dashboard", label: "Dashboard", requiredFeature: null },
-  { id: "materi", href: "/dashboard/materi", label: "Materi", requiredFeature: null },
-  { id: "latihan", href: "/dashboard/latihan", label: "Latihan Soal", requiredFeature: "canAccessLatihan" as keyof PackageFeatures },
-  { id: "tryouts", href: "/dashboard/tryouts", label: "Tryout", requiredFeature: "canAccessTryout" as keyof PackageFeatures },
-  { id: "leaderboard", href: "/dashboard/leaderboard", label: "Leaderboard", requiredFeature: null },
-  { id: "history", href: "/dashboard/history", label: "Riwayat", requiredFeature: null },
-  { id: "profile", href: "/dashboard/profile", label: "Profil", requiredFeature: null },
+  { id: "dashboard", href: "/dashboard", label: "Dashboard" },
+  { id: "materi", href: "/dashboard/materi", label: "Materi" },
+  { id: "latihan", href: "/dashboard/latihan", label: "Latihan Soal" },
+  { id: "tryouts", href: "/dashboard/tryouts", label: "Tryout" },
+  { id: "leaderboard", href: "/dashboard/leaderboard", label: "Leaderboard" },
+  { id: "history", href: "/dashboard/history", label: "Riwayat" },
+  { id: "profile", href: "/dashboard/profile", label: "Profil" },
 ]
 
 export default function DashboardLayout({
@@ -47,10 +43,8 @@ export default function DashboardLayout({
 }
 
 function SubjectSwitcher({
-  subjectAccess,
   studentCategory = "PHYSICS_SEM_3",
 }: {
-  subjectAccess: any[]
   studentCategory?: "PHYSICS_SEM_3" | "NON_PHYSICS"
 }) {
   const { selectedSubject, setSelectedSubject } = useSubject()
@@ -138,10 +132,8 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const router = useRouter()
   const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [subjectAccess, setSubjectAccess] = useState<any[]>([])
   const [userProfile, setUserProfile] = useState<any>(null)
   const [studentCategory, setStudentCategory] = useState<"PHYSICS_SEM_3" | "NON_PHYSICS">("PHYSICS_SEM_3")
-  const { selectedSubject } = useSubject()
   const { isDark, toggleTheme } = useTheme()
 
   useEffect(() => {
@@ -154,17 +146,18 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
           const userEmail = (user.email || "").toLowerCase().trim()
           const { data: profile } = await supabase
             .from("users")
-            .select("*, subject_access:user_subject_access(*)")
+            .select("*, subscriptions(*)")
             .or(`auth_id.eq.${user.id},email.ilike.${userEmail}`)
             .maybeSingle()
 
           if (profile) {
             setUserProfile(profile)
-            if (profile.subject_access) {
-              setSubjectAccess(profile.subject_access)
-            }
-            if (profile.student_category) {
-              setStudentCategory(profile.student_category as "PHYSICS_SEM_3" | "NON_PHYSICS")
+            const subs = (profile as any).subscriptions || []
+            const activeSub = subs.find((s: any) => s.status === "ACTIVE" && (!s.expires_at || new Date(s.expires_at) > new Date()))
+            if (activeSub?.track === "NON_PHYSICS") {
+              setStudentCategory("NON_PHYSICS")
+            } else {
+              setStudentCategory("PHYSICS_SEM_3")
             }
           }
         } catch (error) {
@@ -175,12 +168,6 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
 
     fetchUserPackage()
   }, [])
-
-  const activeAccess = subjectAccess.find(a => (a.subject === selectedSubject || a.subject === "ALL") && a.is_active)
-  const effectivePackage = activeAccess?.package_type || userProfile?.package_type || "EINSTEIN"
-  const effectiveRole = activeAccess?.role || userProfile?.role || "STUDENT_BASIC"
-
-  const features = getPackageFeatures(effectivePackage, effectiveRole)
 
   const handleLogout = async () => {
     const supabase = createClient()
@@ -211,71 +198,34 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
       {/* Course Selector */}
       <div className="px-4 py-4 border-b border-[#FFEED6]">
         <SubjectSwitcher
-          subjectAccess={subjectAccess}
           studentCategory={studentCategory}
         />
       </div>
 
       {/* Navigation Menu */}
       <ScrollArea className="flex-1 min-h-0 p-4">
-        <TooltipProvider>
-          <nav className="flex flex-col gap-1.5">
-            {NAV_ITEMS.map((item) => {
-              const isActive = pathname === item.href
-              let isLocked = false
-              if (item.requiredFeature && !features[item.requiredFeature]) {
-                isLocked = true
-              }
+        <nav className="flex flex-col gap-1.5">
+          {NAV_ITEMS.map((item) => {
+            const isActive = pathname === item.href
 
-              const navContent = (
+            return (
+              <Link key={item.id} href={item.href} className="w-full block">
                 <div
                   className={`flex items-center justify-between px-4 py-2.5 text-xs sm:text-sm font-medium transition-all ${
-                    isActive && !isLocked
+                    isActive
                       ? "bg-[#A5AF79] text-white rounded-xl shadow-2xs font-semibold"
-                      : isLocked
-                      ? "text-[#827148]/40 bg-[#FFEED6]/20 rounded-xl cursor-not-allowed"
                       : "text-[#827148] hover:bg-[#FFEED6]/50 rounded-xl"
                   }`}
                 >
                   <div className="flex items-center gap-3">
-                    <div className={`w-2.5 h-2.5 rounded-full ${isActive && !isLocked ? "bg-white" : "bg-[#827148]/30"}`} />
+                    <div className={`w-2.5 h-2.5 rounded-full ${isActive ? "bg-white" : "bg-[#827148]/30"}`} />
                     <span>{item.label}</span>
                   </div>
-                  {isLocked && (
-                    <span className="bg-[#FFEED6] text-[#827148] text-[10px] font-bold px-2 py-0.5 rounded-md">
-                      LOCK
-                    </span>
-                  )}
                 </div>
-              )
-
-              if (isLocked) {
-                let lockdownMessage = "Fitur ini tidak tersedia di paket Anda."
-                if (item.id === "tryouts" && !features.canAccessTryout) {
-                  lockdownMessage = "Upgrade ke Senku/Einstein untuk membuka Tryout"
-                } else if (item.id === "latihan" && !features.canAccessLatihan) {
-                  lockdownMessage = "Upgrade paket Anda untuk membuka Latihan Soal"
-                }
-                return (
-                  <Tooltip key={item.id}>
-                    <TooltipTrigger asChild>
-                      <div className="w-full block">{navContent}</div>
-                    </TooltipTrigger>
-                    <TooltipContent side="right" className="bg-[#827148] text-white border border-[#FFEED6] text-xs">
-                      <p>{lockdownMessage}</p>
-                    </TooltipContent>
-                  </Tooltip>
-                )
-              }
-
-              return (
-                <Link key={item.id} href={item.href} className="w-full block">
-                  {navContent}
-                </Link>
-              )
-            })}
-          </nav>
-        </TooltipProvider>
+              </Link>
+            )
+          })}
+        </nav>
       </ScrollArea>
 
       {/* Footer Menu */}

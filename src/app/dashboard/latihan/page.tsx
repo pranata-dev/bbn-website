@@ -5,8 +5,6 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { CATEGORY_LABELS, QuestionCategory } from "@/types"
-import { createClient } from "@/lib/supabase/client"
-import { canAccessPracticePart } from "@/lib/package-features"
 import { toast } from "sonner"
 import { useSubject } from "@/contexts/SubjectContext"
 import { PageHeader } from "@/components/dashboard/PageHeader"
@@ -20,6 +18,7 @@ interface LatihanItem {
   status: string
   is_practice: boolean
   practice_part: number | null
+  is_locked?: boolean
   created_at: string
   tryout_questions: { count: number }[]
 }
@@ -29,31 +28,10 @@ export default function LatihanPage() {
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState<string>("all")
   const { selectedSubject } = useSubject()
-  const [subjectAccess, setSubjectAccess] = useState<any[]>([])
 
   useEffect(() => {
     fetchLatihan()
-    fetchUserAccess()
   }, [selectedSubject])
-
-  const fetchUserAccess = async () => {
-    try {
-      const supabase = createClient()
-      const { data: { user } } = await supabase.auth.getUser()
-      if (user) {
-        const { data: profile } = await supabase
-          .from("users")
-          .select("*, subject_access:user_subject_access(*)")
-          .eq("auth_id", user.id)
-          .single()
-        if (profile?.subject_access) {
-          setSubjectAccess(profile.subject_access)
-        }
-      }
-    } catch (error) {
-      console.error("Failed to fetch user profile", error)
-    }
-  }
 
   const fetchLatihan = async () => {
     setLoading(true)
@@ -152,11 +130,7 @@ export default function LatihanPage() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           {filteredLatihans.map((latihan) => {
-            const activeAccess = subjectAccess.find(a => a.subject === selectedSubject && a.is_active)
-            const totalPartsInCategory = latihan.category
-              ? latihans.filter(l => l.category === latihan.category).length
-              : latihans.length
-            const isLocked = !canAccessPracticePart(activeAccess?.package_type, activeAccess?.role, latihan.practice_part, latihan.title, selectedSubject, totalPartsInCategory)
+            const isLocked = Boolean(latihan.is_locked)
 
             return (
               <div

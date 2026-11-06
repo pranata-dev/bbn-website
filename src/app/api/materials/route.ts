@@ -45,7 +45,6 @@ export async function GET(request: NextRequest) {
                 reading_time_minutes,
                 is_free_preview,
                 is_published,
-                subject,
                 drive_url,
                 podcast_url,
                 pdf_url,
@@ -57,7 +56,15 @@ export async function GET(request: NextRequest) {
         if (courseId) {
             query = query.eq("course_id", courseId)
         } else if (subject && subject !== "all") {
-            query = query.eq("subject", subject as "FISDAS2" | "FISMAT")
+            const normalized = subject.toLowerCase().trim()
+            const { data: matchedCourse } = await supabase
+                .from("courses")
+                .select("id")
+                .or(`slug.ilike.${normalized},code.ilike.${subject.toUpperCase()}`)
+                .maybeSingle()
+            if (matchedCourse) {
+                query = query.eq("course_id", matchedCourse.id)
+            }
         }
 
         const { data: materials, error } = await query

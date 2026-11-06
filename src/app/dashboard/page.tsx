@@ -19,7 +19,7 @@ export default async function DashboardPage() {
 
   const { data: userData } = await serviceClient
     .from("users")
-    .select("id, name, email, is_active, student_category, package_type, billing_cycle, subject_access:user_subject_access(*)")
+    .select("id, name, email, is_active, subscriptions(*)")
     .or(`auth_id.eq.${authUser.id},email.ilike.${userEmail}`)
     .maybeSingle()
 
@@ -28,12 +28,9 @@ export default async function DashboardPage() {
     redirect("/waiting-approval")
   }
 
-  const subjectAccess = userData?.subject_access || []
-
   return (
     <DashboardClient
       dbUser={userData}
-      subjectAccess={subjectAccess}
     />
   )
 }

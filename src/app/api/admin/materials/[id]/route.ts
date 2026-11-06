@@ -29,10 +29,17 @@ export async function PATCH(
             isPublished,
             readingTimeMinutes,
             subject,
+            course_id,
         } = body
 
-        if (!title || !subject) {
-            return NextResponse.json({ error: "Title and Subject are required." }, { status: 400 })
+        if (!title) {
+            return NextResponse.json({ error: "Title is required." }, { status: 400 })
+        }
+
+        let targetCourseId = course_id || null
+        if (!targetCourseId && subject) {
+            const { data: c } = await supabase.from("courses").select("id").or(`code.ilike.${subject},slug.ilike.${subject}`).maybeSingle()
+            if (c) targetCourseId = c.id
         }
 
         const now = new Date().toISOString()
@@ -46,6 +53,7 @@ export async function PATCH(
             .update({
                 title,
                 slug: generatedSlug,
+                course_id: targetCourseId !== null ? targetCourseId : undefined,
                 summary: summary !== undefined ? summary : undefined,
                 content_md: contentMd !== undefined ? contentMd : undefined,
                 drive_url: driveUrl !== undefined ? driveUrl : undefined,
@@ -56,7 +64,6 @@ export async function PATCH(
                 is_free_preview: isFreePreview !== undefined ? Boolean(isFreePreview) : undefined,
                 is_published: isPublished !== undefined ? Boolean(isPublished) : undefined,
                 reading_time_minutes: readingTimeMinutes !== undefined ? Number(readingTimeMinutes) : undefined,
-                subject: subject as "FISDAS2" | "FISMAT",
                 updated_at: now,
             })
             .eq("id", id)

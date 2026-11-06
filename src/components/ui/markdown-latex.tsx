@@ -1,11 +1,40 @@
 "use client"
 
 import React from "react"
-import ReactMarkdown from "react-markdown"
+import ReactMarkdown, { type Options as ReactMarkdownOptions } from "react-markdown"
 import remarkGfm from "remark-gfm"
 import remarkMath from "remark-math"
 import rehypeKatex from "rehype-katex"
+import rehypeSanitize, { defaultSchema } from "rehype-sanitize"
 import "katex/dist/katex.min.css"
+
+type PluggableList = NonNullable<ReactMarkdownOptions["rehypePlugins"]>
+
+/**
+ * Sanitization schema: GitHub-style defaults, extended so the math nodes that
+ * `remark-math` v6 emits (`<code class="language-math math-inline|math-display">`)
+ * survive until `rehype-katex` renders them.
+ */
+export const markdownSanitizeSchema = {
+    ...defaultSchema,
+    attributes: {
+        ...defaultSchema.attributes,
+        code: [
+            ...(defaultSchema.attributes?.code || []),
+            ["className", /^language-./, "math-inline", "math-display"],
+        ],
+    },
+}
+
+/**
+ * ORDER MATTERS: sanitize runs BEFORE KaTeX, so any raw HTML / script / event-handler
+ * injection is stripped from author content, while KaTeX's own generated markup
+ * (spans, classes, inline styles, MathML) is produced afterwards and left intact.
+ */
+export const markdownRehypePlugins: PluggableList = [
+    [rehypeSanitize, markdownSanitizeSchema],
+    rehypeKatex,
+]
 
 interface MarkdownLatexProps {
     children: string
@@ -39,7 +68,7 @@ export default function MarkdownLatex({ children, className }: MarkdownLatexProp
         <div className={`prose dark:prose-invert max-w-none ${className || ""}`}>
             <ReactMarkdown
                 remarkPlugins={[remarkGfm, remarkMath]}
-                rehypePlugins={[rehypeKatex]}
+                rehypePlugins={markdownRehypePlugins}
                 components={{
                     h1: ({ children, ...props }) => {
                         const id = slugify(getNodeText(children))

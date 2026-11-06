@@ -27,7 +27,8 @@ export async function GET(request: NextRequest) {
         }
 
         if (subject && subject !== "all") {
-            query = query.eq("subject", subject as "FISDAS2" | "FISMAT")
+            const { data: c } = await adminSupabase.from("courses").select("id").or(`code.ilike.${subject},slug.ilike.${subject}`).maybeSingle()
+            if (c) query = query.eq("course_id", c.id)
         }
 
         const { data: tryouts, error } = await query
@@ -51,10 +52,16 @@ export async function POST(request: NextRequest) {
     try {
         const supabase = createServiceClient()
         const body = await request.json()
-        const { title, description, category, duration, isPractice, questionIds, subject } = body
+        const { title, description, category, duration, isPractice, questionIds, subject, course_id } = body
 
         if (!title || typeof duration === 'undefined' || !Array.isArray(questionIds) || questionIds.length === 0) {
             return NextResponse.json({ error: "Missing required fields or no questions attached" }, { status: 400 })
+        }
+
+        let targetCourseId = course_id || null
+        if (!targetCourseId && subject) {
+            const { data: c } = await supabase.from("courses").select("id").or(`code.ilike.${subject},slug.ilike.${subject}`).maybeSingle()
+            if (c) targetCourseId = c.id
         }
 
         const tryoutId = uuidv4()
@@ -68,7 +75,7 @@ export async function POST(request: NextRequest) {
                 title,
                 description: description || null,
                 category: category || null,
-                subject: subject || "FISDAS2",
+                course_id: targetCourseId,
                 duration: parseInt(duration as string, 10),
                 status: "DRAFT", // Default state
                 max_attempts: 1,

@@ -186,11 +186,11 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: "Gagal menyimpan data pendaftaran." }, { status: 500 })
         }
 
-        // Details Record
+        // Optional legacy detail record (silently ignored if table decommissioned)
         try {
             if (type === "REGULAR") {
                 const notes = (formData.get("notes") as string) || ""
-                const { error: detailError } = await adminClient
+                await (adminClient as any)
                     .from("regular_class_details")
                     .insert({
                         id: crypto.randomUUID(),
@@ -201,22 +201,17 @@ export async function POST(request: NextRequest) {
                         scheduled_time: formData.get("scheduledTime") as string,
                         notes,
                     })
-                if (detailError) throw detailError
             } else if (type === "UTS") {
-                const { error: detailError } = await adminClient
+                await (adminClient as any)
                     .from("uts_package_details")
                     .insert({
                         id: crypto.randomUUID(),
                         registration_id: registration.id,
                         package_type: formData.get("packageType") as string,
                     })
-                if (detailError) throw detailError
             }
-        } catch (detailError) {
-            console.error("Detail insert error:", detailError)
-            await adminClient.from("registrations").delete().eq("id", registration.id)
-            await adminClient.storage.from("payment-proofs").remove([fileName])
-            return NextResponse.json({ error: "Gagal menyimpan detail pendaftaran." }, { status: 500 })
+        } catch {
+            // Ignored - legacy detail tables decommissioned
         }
 
         return NextResponse.json(

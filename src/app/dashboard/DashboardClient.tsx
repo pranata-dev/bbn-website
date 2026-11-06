@@ -32,14 +32,13 @@ export const GENERAL_COURSES: CourseItem[] = [
 export interface UserDashboardState {
   name: string
   email?: string
-  student_category: "PHYSICS_SEM_3" | "NON_PHYSICS"
-  package_type: string
-  billing_cycle: string
+  track: "PHYSICS_SEM_3" | "NON_PHYSICS"
+  plan_code: "FREE" | "MONTHLY" | "SEMESTER"
+  is_active: boolean
 }
 
 interface DashboardClientProps {
   dbUser?: any
-  subjectAccess?: any[]
 }
 
 export default function DashboardClient({ dbUser }: DashboardClientProps) {
@@ -65,42 +64,44 @@ export default function DashboardClient({ dbUser }: DashboardClientProps) {
         if (!profile && authUser) {
           const { data } = await supabase
             .from("users")
-            .select("name, full_name, email, student_category, package_type, billing_cycle")
+            .select("id, name, email, is_active, subscriptions(*)")
             .eq("auth_id", authUser.id)
-            .single()
+            .maybeSingle()
           profile = data
         }
 
         const name =
           profile?.name ||
-          profile?.full_name ||
           authUser?.user_metadata?.full_name ||
           authUser?.user_metadata?.name ||
           authUser?.email?.split("@")[0] ||
           "Pelajar"
 
-        const studentCategory =
-          (profile?.student_category as "PHYSICS_SEM_3" | "NON_PHYSICS") ||
-          "PHYSICS_SEM_3"
+        const subs = profile?.subscriptions || []
+        const activeSub = subs.find(
+          (s: any) => s.status === "ACTIVE" && (!s.expires_at || new Date(s.expires_at) > new Date())
+        )
 
-        const packageType = profile?.package_type || "EINSTEIN"
-        const billingCycle = profile?.billing_cycle || "SEMESTER"
+        const track: "PHYSICS_SEM_3" | "NON_PHYSICS" =
+          activeSub?.track === "NON_PHYSICS" ? "NON_PHYSICS" : "PHYSICS_SEM_3"
+
+        const planCode: "FREE" | "MONTHLY" | "SEMESTER" =
+          activeSub?.plan_code || "FREE"
 
         setUser({
           name,
           email: profile?.email || authUser?.email,
-          student_category: studentCategory,
-          package_type: packageType,
-          billing_cycle: billingCycle,
+          track,
+          plan_code: planCode,
+          is_active: profile?.is_active ?? true,
         })
       } catch (error) {
         console.error("Failed to load user profile:", error)
-        // Fallback user state
         setUser({
           name: dbUser?.name || "Pelajar",
-          student_category: "PHYSICS_SEM_3",
-          package_type: "EINSTEIN",
-          billing_cycle: "SEMESTER",
+          track: "PHYSICS_SEM_3",
+          plan_code: "FREE",
+          is_active: true,
         })
       } finally {
         setLoading(false)
@@ -110,41 +111,26 @@ export default function DashboardClient({ dbUser }: DashboardClientProps) {
     fetchUserData()
   }, [dbUser, router])
 
-  // 2. Derived Active Courses list based on student_category
+  // 2. Derived Active Courses list based on track
   const activeCourses =
-    user?.student_category === "PHYSICS_SEM_3"
+    user?.track === "PHYSICS_SEM_3"
       ? PHYSICS_COURSES
       : GENERAL_COURSES
 
   // Package display helper
   const getPackageDisplayName = () => {
-    if (!user) return "Einstein Mode - Semester Pass"
-    const pkgMap: Record<string, string> = {
-      FLUX: "Flux Session",
-      flux_monthly: "Flux Session",
-      SENKU: "Berotak Senku Mode",
-      senku_monthly: "Berotak Senku Mode",
-      senku_semester: "Berotak Senku Semester",
-      EINSTEIN: "Einstein Mode",
-      einstein_monthly: "Einstein Mode",
-      einstein_semester: "Einstein Semester Pass",
+    if (!user) return "Paket Gratis (Freemium)"
+    switch (user.plan_code) {
+      case "SEMESTER":
+        return "Paket Semester (180 Hari)"
+      case "MONTHLY":
+        return "Paket Bulanan (30 Hari)"
+      default:
+        return "Paket Gratis (Freemium)"
     }
-    const cycleMap: Record<string, string> = {
-      MONTHLY: "Bulanan",
-      bulanan: "Bulanan",
-      SEMESTER: "Semester Pass",
-      semester: "Semester Pass",
-    }
-
-    const pkgName = pkgMap[user.package_type] || "Einstein Mode"
-    const cycleName = cycleMap[user.billing_cycle] || "Semester Pass"
-    return `${pkgName} - ${cycleName}`
   }
 
-  const canAccessTryout =
-    !user ||
-    user.package_type.toUpperCase().includes("SENKU") ||
-    user.package_type.toUpperCase().includes("EINSTEIN")
+  const isPaidUser = user?.plan_code === "MONTHLY" || user?.plan_code === "SEMESTER"
 
   // Loading State Skeleton
   if (loading) {
@@ -191,7 +177,7 @@ export default function DashboardClient({ dbUser }: DashboardClientProps) {
                 </span>
               </div>
 
-              {user?.student_category === "PHYSICS_SEM_3" ? (
+              {user?.track === "PHYSICS_SEM_3" ? (
                 <span className="bg-[#A5AF79] text-white text-xs px-3.5 py-1.5 rounded-full font-bold shadow-2xs tracking-wide">
                   Departemen Fisika Semester 3
                 </span>
@@ -241,7 +227,7 @@ export default function DashboardClient({ dbUser }: DashboardClientProps) {
                     {/* Bottom: Dynamic Link with Course Slug */}
                     <div className="pt-4 mt-2 border-t border-[#FFEED6]/60 flex items-center justify-between">
                       <Link
-                        href={`/materi?course=${course.slug}`}
+                        href={`/dashboard/materi?course=${course.slug}`}
                         className="text-xs font-bold text-[#A5AF79] group-hover:underline flex items-center gap-1 cursor-pointer"
                       >
                         <span>Mulai Belajar</span>
@@ -257,26 +243,24 @@ export default function DashboardClient({ dbUser }: DashboardClientProps) {
           </section>
 
           {/* ======================================================== */}
-          {/* RIGHT COLUMN / SIDEBAR (lg:col-span-4)                   */}
+          {/* RIGHT COLUMN / SIDEBAR INFO (lg:col-span-4)               */}
           {/* ======================================================== */}
-          <aside className="lg:col-span-4 space-y-6 lg:sticky lg:top-24">
+          <aside className="lg:col-span-4 space-y-6">
             
-            {/* 1. Active Package Card */}
-            <div className="bg-white border-2 border-[#FFEED6] rounded-3xl p-6 relative shadow-xs overflow-hidden">
-              {/* Highlight Top Accent Bar */}
-              <div className="absolute top-0 left-0 right-0 h-1.5 bg-[#E8A07C]" />
+            {/* 1. Account Summary Card */}
+            <div className="bg-white border-2 border-[#FFEED6] rounded-3xl p-6 shadow-xs relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-24 h-24 bg-[#FFEED6]/50 rounded-bl-full pointer-events-none" />
 
-              <div className="pt-1">
-                <span className="text-sm text-gray-500 font-semibold block">
-                  Paket Aktif
-                </span>
-
-                <h3 className="text-xl font-extrabold text-[#827148] mt-1 leading-tight tracking-tight">
+              <div className="relative z-10">
+                <div className="text-xs font-extrabold text-[#A5AF79] tracking-wider uppercase mb-1">
+                  Langganan Aktif
+                </div>
+                <h3 className="text-xl font-bold text-[#827148] leading-tight">
                   {getPackageDisplayName()}
                 </h3>
 
-                {/* Status Badge with Pseudo-Icon */}
-                <div className="bg-[#A5AF79] text-white text-xs px-2.5 py-1 rounded-full font-bold w-max mt-2 flex items-center gap-1.5 shadow-2xs">
+                {/* Status Indicator */}
+                <div className="mt-3 inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-[#A5AF79] text-white shadow-2xs">
                   <div className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
                   <span>Status: Aktif</span>
                 </div>
@@ -285,23 +269,38 @@ export default function DashboardClient({ dbUser }: DashboardClientProps) {
                 <div className="mt-5 pt-4 border-t border-[#FFEED6] space-y-2 text-xs text-[#827148]/80 font-medium">
                   <div className="flex items-center justify-between">
                     <span>Akses Modul:</span>
-                    <span className="font-bold text-[#827148]">All-Access Penuh</span>
+                    <span className="font-bold text-[#827148]">
+                      {isPaidUser ? "All-Access Penuh" : "Free Preview"}
+                    </span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span>Durasi:</span>
                     <span className="font-bold text-[#827148]">
-                      {user?.billing_cycle?.toUpperCase().includes("SEMESTER")
+                      {user?.plan_code === "SEMESTER"
                         ? "6 Bulan (1 Semester)"
-                        : "30 Hari (1 Bulan)"}
+                        : user?.plan_code === "MONTHLY"
+                        ? "30 Hari (1 Bulan)"
+                        : "Freemium"}
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span>Tipe Akses:</span>
+                    <span>Tipe Paket:</span>
                     <span className="font-bold text-[#A5AF79] uppercase">
-                      {user?.package_type || "EINSTEIN"}
+                      {user?.plan_code || "FREE"}
                     </span>
                   </div>
                 </div>
+
+                {!isPaidUser && (
+                  <div className="mt-4 pt-3 border-t border-[#FFEED6]">
+                    <Link
+                      href="/dashboard/beli-paket"
+                      className="block text-center bg-[#A5AF79] hover:bg-[#949e6a] text-white text-xs font-bold py-2 px-4 rounded-xl transition-colors shadow-2xs"
+                    >
+                      Upgrade ke Paket Penuh &rarr;
+                    </Link>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -318,31 +317,12 @@ export default function DashboardClient({ dbUser }: DashboardClientProps) {
                 Uji pemahamanmu dengan simulasi ujian riil dan pembahasan soal interaktif.
               </p>
 
-              {/* Conditional Action Button based on package_type */}
-              {canAccessTryout ? (
-                <Link
-                  href="/dashboard/tryouts"
-                  className="bg-[#827148] hover:bg-[#827148]/90 active:bg-[#6e5f3c] text-white rounded-xl py-3 w-full font-bold text-sm shadow-sm transition-colors text-center block cursor-pointer"
-                >
-                  Mulai Tryout
-                </Link>
-              ) : (
-                <div className="space-y-2">
-                  <button
-                    type="button"
-                    disabled
-                    className="bg-[#827148]/20 text-[#827148]/60 rounded-xl py-3 w-full font-bold text-xs text-center block cursor-not-allowed"
-                  >
-                    Upgrade ke Senku/Einstein untuk akses Tryout
-                  </button>
-                  <Link
-                    href="/dashboard/beli-paket"
-                    className="text-xs font-bold text-[#E8A07C] hover:underline text-center block"
-                  >
-                    Lihat Pilihan Upgrade &rarr;
-                  </Link>
-                </div>
-              )}
+              <Link
+                href="/dashboard/tryouts"
+                className="bg-[#827148] hover:bg-[#827148]/90 active:bg-[#6e5f3c] text-white rounded-xl py-3 w-full font-bold text-sm shadow-sm transition-colors text-center block cursor-pointer"
+              >
+                Mulai Tryout
+              </Link>
             </div>
 
           </aside>

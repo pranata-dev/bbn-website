@@ -51,7 +51,7 @@ export async function PATCH(
         const { id } = await params
         const supabase = createServiceClient()
         const body = await request.json()
-        const { status, title, description, duration, questionIds, subject } = body
+        const { status, title, description, duration, questionIds, subject, course_id } = body
 
         const updateData: any = {
             updated_at: new Date().toISOString(),
@@ -67,7 +67,12 @@ export async function PATCH(
         if (title) updateData.title = title
         if (typeof description !== "undefined") updateData.description = description
         if (typeof duration !== "undefined") updateData.duration = parseInt(duration as string, 10)
-        if (subject) updateData.subject = subject
+        if (course_id) {
+            updateData.course_id = course_id
+        } else if (subject) {
+            const { data: c } = await supabase.from("courses").select("id").or(`code.ilike.${subject},slug.ilike.${subject}`).maybeSingle()
+            if (c) updateData.course_id = c.id
+        }
 
         // 1. Update Tryout metadata
         const { data: tryout, error } = await supabase

@@ -47,7 +47,6 @@ export async function GET(
                 reading_time_minutes,
                 is_free_preview,
                 is_published,
-                subject,
                 drive_url,
                 podcast_url,
                 pdf_url,
@@ -81,7 +80,6 @@ export async function GET(
                     title: material.title,
                     summary: material.summary,
                     module_number: material.module_number,
-                    subject: material.subject,
                     is_free_preview: false,
                 },
                 entitlements: {

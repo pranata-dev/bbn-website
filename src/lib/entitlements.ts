@@ -1,97 +1,89 @@
 import { createServiceClient } from "@/lib/supabase/server"
-import type { Tables } from "@/types/database.types"
-import type { CourseTrack, SubscriptionPlanCode } from "@/config/plans"
+import type { CourseTrack } from "@/config/plans"
+import {
+    countFinishedAttempts,
+    resolveEntitlements,
+    type GateableTryout,
+    type SubscriptionLike,
+    type UserEntitlements,
+} from "@/lib/entitlements-core"
 
-export interface UserEntitlements {
-    tier: "FREE" | "PAID"
-    planCode: SubscriptionPlanCode
-    track: CourseTrack
-    expiresAt: string | null
-    isExpired: boolean
-    canAccessMaterial: (material: { is_free_preview?: boolean | null; course_id?: string | null }) => boolean
-    canStartTryout: (tryout: { is_practice?: boolean | null; is_free_sample?: boolean | null; course_id?: string | null }) => boolean
-    canAccessPractice: boolean
-}
+export type { UserEntitlements } from "@/lib/entitlements-core"
+export { FINISHED_SUBMISSION_STATUSES, countFinishedAttempts } from "@/lib/entitlements-core"
+
+type ServiceClient = ReturnType<typeof createServiceClient>
 
 /**
  * Server-side entitlement resolver.
- * Evaluates active subscription and handles lazy expiration on read.
+ * Reads ONLY `users.role` (admin bypass) and the `subscriptions` table, and lazily
+ * flips lapsed ACTIVE subscriptions to EXPIRED on read.
  */
-export async function getEntitlements(userId: string): Promise<UserEntitlements> {
-    const supabase = createServiceClient()
+export async function getEntitlements(userId: string, client?: ServiceClient): Promise<UserEntitlements> {
+    const supabase = client ?? createServiceClient()
 
-    // 1. Fetch user role to grant unconditional admin bypass
-    const { data: user } = await supabase
-        .from("users")
-        .select("id, role, student_category")
-        .eq("id", userId)
-        .maybeSingle()
+    const [{ data: user }, { data: subscriptions }, { data: courses }] = await Promise.all([
+        supabase.from("users").select("id, role").eq("id", userId).maybeSingle(),
+        supabase
+            .from("subscriptions")
+            .select("id, plan_code, track, status, starts_at, expires_at, created_at")
+            .eq("user_id", userId),
+        supabase.from("courses").select("id, track"),
+    ])
 
-    if (user?.role === "ADMIN") {
-        return {
-            tier: "PAID",
-            planCode: "SEMESTER",
-            track: "ALL",
-            expiresAt: null,
-            isExpired: false,
-            canAccessMaterial: () => true,
-            canStartTryout: () => true,
-            canAccessPractice: true,
-        }
+    const courseTracks = new Map<string, CourseTrack>(
+        (courses || []).map((c) => [c.id, c.track as CourseTrack])
+    )
+
+    const entitlements = resolveEntitlements({
+        role: user?.role,
+        subscriptions: (subscriptions || []) as SubscriptionLike[],
+        courseTracks,
+    })
+
+    if (entitlements.expiredSubscriptionIds.length > 0) {
+        // Lazy expiry: fire-and-forget, never blocks the request.
+        void supabase
+            .from("subscriptions")
+            .update({ status: "EXPIRED" })
+            .in("id", entitlements.expiredSubscriptionIds)
+            .then(({ error }) => {
+                if (error) console.error("Lazy subscription expiry failed:", error)
+            })
     }
 
-    // 2. Fetch latest active or pending subscription
-    const { data: activeSub } = await supabase
-        .from("subscriptions")
-        .select("*")
+    return entitlements
+}
+
+export interface TryoutQuota {
+    allowed: boolean
+    used: number
+    limit: number
+    remaining: number
+}
+
+/**
+ * Attempt quota for a single tryout, derived purely from the `submissions` table
+ * (finished = SUBMITTED / COMPLETED / TIMED_OUT). Replaces the legacy
+ * `user_subject_access.tryout_attempts_used` counter.
+ */
+export async function getTryoutQuota(
+    userId: string,
+    tryout: GateableTryout & { id: string },
+    entitlements: UserEntitlements,
+    client?: ServiceClient
+): Promise<TryoutQuota> {
+    const supabase = client ?? createServiceClient()
+    const limit = entitlements.tryoutAttemptLimit(tryout)
+
+    // Status filtering happens in JS so this works whether `submissions.status`
+    // is still the legacy enum or the new TEXT column.
+    const { data: rows } = await supabase
+        .from("submissions")
+        .select("status")
         .eq("user_id", userId)
-        .eq("status", "ACTIVE")
-        .order("created_at", { ascending: false })
-        .limit(1)
-        .maybeSingle()
+        .eq("tryout_id", tryout.id)
 
-    const now = new Date()
-
-    // Lazy expiration check
-    if (activeSub && activeSub.expires_at) {
-        const expiry = new Date(activeSub.expires_at)
-        if (now > expiry) {
-            // Lazily mark as EXPIRED in DB in background without blocking
-            void supabase
-                .from("subscriptions")
-                .update({ status: "EXPIRED" })
-                .eq("id", activeSub.id)
-
-            return createFreeEntitlements((user?.student_category as CourseTrack) || "ALL", true)
-        }
-    }
-
-    if (activeSub && activeSub.plan_code !== "FREE") {
-        return {
-            tier: "PAID",
-            planCode: activeSub.plan_code as SubscriptionPlanCode,
-            track: activeSub.track as CourseTrack,
-            expiresAt: activeSub.expires_at,
-            isExpired: false,
-            canAccessMaterial: () => true,
-            canStartTryout: () => true,
-            canAccessPractice: true,
-        }
-    }
-
-    return createFreeEntitlements((user?.student_category as CourseTrack) || "ALL", false)
+    const used = countFinishedAttempts(rows || [])
+    const remaining = limit === Infinity ? Infinity : Math.max(0, limit - used)
+    return { allowed: remaining > 0, used, limit, remaining }
 }
-
-function createFreeEntitlements(track: CourseTrack, wasExpired: boolean): UserEntitlements {
-    return {
-        tier: "FREE",
-        planCode: "FREE",
-        track,
-        expiresAt: null,
-        isExpired: wasExpired,
-        canAccessMaterial: (m) => !!m.is_free_preview,
-        canStartTryout: (t) => !!t.is_free_sample,
-        canAccessPractice: false,
-    }
-}
-

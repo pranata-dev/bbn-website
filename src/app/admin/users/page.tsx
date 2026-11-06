@@ -17,12 +17,11 @@ interface UserItem {
   auth_id: string
   name: string
   email: string
-  student_category?: string
-  package_type?: string
-  billing_cycle?: string
   is_active: boolean
+  role?: string
   created_at: string
-  subject_access?: any[]
+  subscriptions?: any[]
+  active_subscription?: any | null
   registrations?: any[]
   payment_proof_url?: string | null
   registration_status?: string | null
@@ -76,10 +75,10 @@ export default function UsersPage() {
         (statusFilter === "ACTIVE" && u.is_active) ||
         (statusFilter === "INACTIVE" && !u.is_active)
 
+      const userTrack = u.active_subscription?.track || "PHYSICS_SEM_3"
       const matchesCategory =
         categoryFilter === "ALL" ||
-        u.student_category === categoryFilter ||
-        (!u.student_category && categoryFilter === "PHYSICS_SEM_3")
+        userTrack === categoryFilter
 
       return matchesSearch && matchesStatus && matchesCategory
     })
@@ -130,7 +129,6 @@ export default function UsersPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           userId: managingUser.id,
-          student_category: selectedCategory,
           track: selectedTrack,
           plan_code: selectedPlan,
         }),
@@ -287,22 +285,26 @@ export default function UsersPage() {
                       {/* 2. Kurikulum & Paket */}
                       <td className="py-4 px-5 space-y-1">
                         <div>
-                          {u.student_category === "PHYSICS_SEM_3" || !u.student_category ? (
-                            <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#A5AF79]/15 text-[#827148] border border-[#A5AF79]/30">
-                              Dept. Fisika Smt 3
-                            </span>
-                          ) : (
+                          {u.active_subscription?.track === "NON_PHYSICS" ? (
                             <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#FFEED6] text-[#827148] border border-[#827148]/20">
                               Umum / Non-Fisika
+                            </span>
+                          ) : u.active_subscription?.track === "ALL" ? (
+                            <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-purple-100 text-purple-800 border border-purple-300">
+                              Semua Jalur (ALL)
+                            </span>
+                          ) : (
+                            <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#A5AF79]/15 text-[#827148] border border-[#A5AF79]/30">
+                              Dept. Fisika Smt 3
                             </span>
                           )}
                         </div>
                         <div>
-                          {(u as any).active_subscription?.plan_code === "SEMESTER" ? (
+                          {u.active_subscription?.plan_code === "SEMESTER" ? (
                             <span className="text-[9px] font-semibold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 border border-emerald-300">
                               SEMESTER
                             </span>
-                          ) : (u as any).active_subscription?.plan_code === "MONTHLY" ? (
+                          ) : u.active_subscription?.plan_code === "MONTHLY" ? (
                             <span className="text-[9px] font-semibold px-2 py-0.5 rounded bg-blue-100 text-blue-800 border border-blue-300">
                               BULANAN
                             </span>
@@ -372,10 +374,10 @@ export default function UsersPage() {
                             type="button"
                             onClick={() => {
                               setManagingUser(u)
-                              const cat = u.student_category || "PHYSICS_SEM_3"
-                              setSelectedCategory(cat)
-                              setSelectedTrack(cat)
-                              setSelectedPlan((u as any).active_subscription?.plan_code || "FREE")
+                              const track = u.active_subscription?.track || "PHYSICS_SEM_3"
+                              setSelectedCategory(track)
+                              setSelectedTrack(track)
+                              setSelectedPlan(u.active_subscription?.plan_code || "FREE")
                             }}
                             className="px-3 py-1.5 rounded-xl border border-[#FFEED6] hover:border-[#827148] text-xs font-bold text-[#827148] bg-white transition-colors cursor-pointer"
                           >

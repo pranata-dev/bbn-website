@@ -1,7 +1,6 @@
 import { v4 as uuidv4 } from "uuid"
 import { createServiceClient } from "@/lib/supabase/server"
-import { SubmissionStatus, Subject } from "@/types"
-import { getPackageFeatures } from "@/lib/package-features"
+import { SubmissionStatus } from "@/types"
 
 interface SubmitTryoutParams {
   authId: string
@@ -30,7 +29,6 @@ interface SubmissionWithTryout {
   started_at: string
   tryouts: {
     duration: number
-    subject: Subject
     is_practice: boolean
   }
 }
@@ -44,13 +42,6 @@ interface QuestionResult {
 interface AnswerResult {
   id: string
   question_id: string
-}
-
-interface UserSubjectAccessRow {
-  id: string
-  role: string
-  package_type: string | null
-  tryout_attempts_used: number
 }
 
 export async function submitTryout({
@@ -75,7 +66,7 @@ export async function submitTryout({
   // 2. Validate submission exists and belongs to user
   const { data: submission, error: submissionError } = await supabase
     .from("submissions")
-    .select("*, tryouts(*)")
+    .select("id, user_id, tryout_id, status, started_at, tryouts(duration, is_practice)")
     .eq("id", submissionId)
     .eq("user_id", profile.id)
     .eq("tryout_id", tryoutId)
@@ -88,20 +79,6 @@ export async function submitTryout({
 
   if (submission.status !== "IN_PROGRESS") {
     throw new Error("Tryout sudah di-submit.")
-  }
-
-  // Validate Subject Access
-  const subject = submission.tryouts.subject
-  const { data: access } = await supabase
-    .from("user_subject_access")
-    .select("id, role, package_type, tryout_attempts_used")
-    .eq("user_id", profile.id)
-    .eq("subject", subject)
-    .eq("is_active", true)
-    .single() as { data: UserSubjectAccessRow | null }
-
-  if (!access) {
-    throw new Error(`Anda tidak memiliki akses aktif untuk mata kuliah ${subject}.`)
   }
 
   // 3. Server-side time validation
@@ -216,28 +193,6 @@ export async function submitTryout({
   if (updateError) {
     console.error("Failed to update submission:", updateError)
     throw new Error("Gagal mengupdate status submission.")
-  }
-
-  // 8. Increment attempts used for real tryouts
-  if (!submission.tryouts.is_practice) {
-    const features = getPackageFeatures(access.package_type as any, access.role, subject)
-    const maxQuota = features.tryoutLimit
-
-    const currentAttempts = access.tryout_attempts_used || 0
-    if (access.role !== 'ADMIN' && currentAttempts >= maxQuota) {
-      throw new Error("Kuota tryout Anda untuk mata kuliah ini sudah habis.")
-    }
-
-    const { error: quotaError } = await supabase
-      .from("user_subject_access")
-      .update({
-        tryout_attempts_used: currentAttempts + 1
-      })
-      .eq("id", access.id)
-
-    if (quotaError) {
-      console.error("Failed to increment tryout attempts:", quotaError)
-    }
   }
 
   return {

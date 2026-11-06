@@ -88,13 +88,19 @@ export async function PATCH(
 
         const now = new Date().toISOString()
 
+        let courseId = (formData.get("course_id") as string) || null
+        if (!courseId && subject) {
+            const { data: c } = await supabase.from("courses").select("id").or(`code.ilike.${subject},slug.ilike.${subject}`).maybeSingle()
+            if (c) courseId = c.id
+        }
+
         // Update question in the database
         const { data: question, error: updateError } = await supabase
             .from("questions")
             .update({
                 text,
                 category,
-                subject: (subject as "FISDAS2" | "FISMAT") || undefined,
+                course_id: courseId || undefined,
                 option_a: optionA,
                 option_b: optionB,
                 option_c: optionC,

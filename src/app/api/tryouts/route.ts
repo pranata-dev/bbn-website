@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
 
         const { data: profile } = await supabase
             .from("users")
-            .select("id, role, student_category")
+            .select("id, role")
             .eq("auth_id", user.id)
             .maybeSingle()
 
@@ -42,7 +42,7 @@ export async function GET(request: NextRequest) {
             query = query.eq("is_practice", isPracticeParam === "true")
         }
 
-        // Resolve course/subject filter
+        // Resolve course filter
         if (subjectParam) {
             const normalized = subjectParam.toLowerCase().trim()
             const { data: matchedCourse } = await supabase
@@ -52,9 +52,7 @@ export async function GET(request: NextRequest) {
                 .maybeSingle()
 
             if (matchedCourse) {
-                query = query.or(`course_id.eq.${matchedCourse.id},subject.ilike.${matchedCourse.code}`)
-            } else {
-                query = query.ilike("subject", subjectParam.toUpperCase())
+                query = query.eq("course_id", matchedCourse.id)
             }
         }
 
