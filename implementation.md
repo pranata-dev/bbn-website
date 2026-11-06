@@ -1,6 +1,6 @@
 # Implementation & Architecture Roadmap: Belajar Bareng Nata (BBN)
 
-> **Document Status:** Steps 1 through 3 completed, verified on live database, and committed. Step 4 (Destructive Cleanup & Production Hardening) prepared and staged.  
+> **Document Status:** Complete Architecture & Production Migration Finalized (Steps 1 through 4 executed, verified on live database, and production build passed).  
 > **Repository:** `bbn-website` (`c:\Users\p\.gemini\antigravity\scratch\bbn-website`)  
 > **Tech Stack:** Next.js 16.1 (App Router, Turbopack), React 19, TypeScript, Tailwind CSS, Supabase (PostgreSQL, Auth, Storage, RLS), Vitest.  
 > **Remote Database:** Linked to Supabase project `bbhyrwouuqypuonckszo` (Port 5432, IPv6 direct / Pooler).  
@@ -19,8 +19,9 @@
 | `d2f7371` | **Phase 1 & Phase 2 (CBT & Notes Reader)** | Anti-exploit CBT scoring, timer stale-closure fix, database-backed results/history, interactive study notes reader (`/dashboard/materi/[slug]`) with LaTeX display scroll & sticky TOC, freemium barrier, admin split-pane live editor, wired access modal. |
 | `61d22f9` | **Step A (Code Decoupling & Additive Migration)** | Complete code-first decoupling of `user_subject_access` and legacy user columns, submissions-backed tryout quotas (`getTryoutQuota`), `rehype-sanitize` XSS protection, `20260317100000_cbt_and_materials_extension.sql`, role detachment from enum, and 41/41 Vitest tests. |
 | `9e35654` | **Step 1 (Idempotency Hardening & Staging)** | Full code search confirming zero legacy entity references, 100% idempotent SQL with defensive checks, safe slug generation, `tryout_questions` FK validations, and staged `20260318000000_decommission_legacy.sql`. |
-| *Verified Live* | **Step 2 (Remote Supabase Additive Push)** | Unpaused project, connected via port 5432, pushed `20260315...`, `20260316...`, `20260317000000...`, and `20260317100000...`. Resolved type alignment for `auth_id::text`, `user_id TEXT`, and `status::text`. Database reported: `"Remote database is up to date."` |
+| `d53e1e8` | **Step 2 (Remote Supabase Additive Push)** | Unpaused project, connected via port 5432, pushed additive migrations. Resolved type alignment for `auth_id::text`, `user_id TEXT`, and `status::text`. Database reported: `"Remote database is up to date."` Scrubbed all plaintext credentials. |
 | *Verified Live* | **Step 3 (Post-Backfill Live Data Audit)** | Audited live database: verified `dzulfikaryudha@gmail.com` with `role = 'ADMIN'`, 12 courses active, baseline subscriptions created, zero rows in 5 legacy tables. |
+| *Verified Live* | **Step 4 (Destructive Cleanup & Launch)** | Applied `20260318000000_decommission_legacy.sql` & `20260318100000_schema_defaults_and_storage.sql`. Regenerated UTF-8 TypeScript types. Seeded 3 materials, 2 tryouts, 5 physics questions, 10 mappings. Created `.github/workflows/ci.yml`. Verified 41/41 tests and 33/33 Next.js Turbopack routes. |
 
 ---
 
