@@ -16,6 +16,7 @@
 | `6a754cd` | **Phase 0A (Security Lockdown)** | Backdoor deletion, Supabase Auth admin migration, fail-closed proxy, PII centralization, remote storage whitelisting, account lockout prevention. |
 | `7707d95` | **Phase 0B, 0C, 0D (Supabase Layer & UI)** | Total removal of Prisma, non-recursive RLS `public.is_admin()`, dynamic `courses` and unified `subscriptions` table, `src/lib/entitlements.ts`, Soft Cream/Olive token unification. |
 | `d2f7371` | **Phase 1 & Phase 2 (CBT & Notes Reader)** | Anti-exploit CBT scoring, timer stale-closure fix, database-backed results/history, interactive study notes reader (`/dashboard/materi/[slug]`) with LaTeX display scroll & sticky TOC, freemium barrier, admin split-pane live editor, wired access modal. |
+| `61d22f9` | **Step A (Code Decoupling & Additive Migration)** | Complete code-first decoupling of `user_subject_access` and legacy user columns, submissions-backed tryout quotas (`getTryoutQuota`), `rehype-sanitize` XSS protection, `20260317100000_cbt_and_materials_extension.sql`, role detachment from enum, and 41/41 Vitest tests. |
 
 ---
 
@@ -97,10 +98,12 @@
 
 | Verification Check | Tool / Test Command | Result |
 | :--- | :--- | :--- |
-| **Static Type Check** | `npx tsc --noEmit` | **0 errors** across entire codebase |
-| **Unit Test Suite** | `npm test` (`vitest run`) | **3 test files, 28/28 tests passed** (100%) |
+| **Static Type Check** | `npx tsc --noEmit` | **0 errors** across entire codebase (with clean target schema) |
+| **Unit Test Suite** | `npm test` (`vitest run`) | **5 test files, 41/41 tests passed** (100%) |
 | **Scoring Anti-Exploit** | `src/lib/tryout-scoring.test.ts` | **3/3 unit tests passed** |
-| **Production Build** | `npm run build` (Turbopack) | **33 static & dynamic routes compiled** in 16.2s |
+| **Entitlements & RBAC** | `src/lib/entitlements.test.ts` | **10/10 unit tests passed** |
+| **Admin Auth Guard** | `src/lib/admin-auth.test.ts` | **3/3 unit tests passed** |
+| **Production Build** | `npm run build` (Turbopack) | **33 static & dynamic routes compiled** in 17.0s |
 
 ---
 
