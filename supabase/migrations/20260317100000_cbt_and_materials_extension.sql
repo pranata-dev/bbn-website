@@ -103,13 +103,29 @@ END $$;
 
 -- 6. Ensure tryout_questions exists & backfill from legacy tryouts.question_ids
 CREATE TABLE IF NOT EXISTS public.tryout_questions (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    tryout_id UUID NOT NULL REFERENCES public.tryouts(id) ON DELETE CASCADE,
-    question_id UUID NOT NULL REFERENCES public.questions(id) ON DELETE CASCADE,
+    id TEXT PRIMARY KEY DEFAULT gen_random_uuid()::text,
+    tryout_id TEXT NOT NULL REFERENCES public.tryouts(id) ON DELETE CASCADE,
+    question_id TEXT NOT NULL REFERENCES public.questions(id) ON DELETE CASCADE,
     "order" INT NOT NULL DEFAULT 0,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-    CONSTRAINT tryout_questions_tryout_question_unique UNIQUE (tryout_id, question_id)
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+
+-- Ensure defaults and unique constraint on tryout_questions
+ALTER TABLE public.tryout_questions ADD COLUMN IF NOT EXISTS "order" INT NOT NULL DEFAULT 0;
+ALTER TABLE public.tryout_questions ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ NOT NULL DEFAULT now();
+ALTER TABLE public.tryout_questions ALTER COLUMN id SET DEFAULT gen_random_uuid()::text;
+
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_constraint WHERE conname = 'tryout_questions_tryout_question_unique'
+    ) THEN
+        ALTER TABLE public.tryout_questions 
+        ADD CONSTRAINT tryout_questions_tryout_question_unique UNIQUE (tryout_id, question_id);
+    END IF;
+EXCEPTION WHEN duplicate_object THEN
+    NULL;
+END $$;
 
 CREATE INDEX IF NOT EXISTS tryout_questions_tryout_idx ON public.tryout_questions(tryout_id);
 CREATE INDEX IF NOT EXISTS tryout_questions_question_idx ON public.tryout_questions(question_id);
@@ -123,16 +139,16 @@ BEGIN
           AND table_name = 'tryouts' 
           AND column_name = 'question_ids'
     ) THEN
-        INSERT INTO public.tryout_questions (tryout_id, question_id, "order")
+        INSERT INTO public.tryout_questions (id, tryout_id, question_id, "order")
         SELECT 
+            gen_random_uuid()::text AS id,
             t.id AS tryout_id,
-            q_id::uuid AS question_id,
+            q_id AS question_id,
             (ord - 1)::int AS "order"
         FROM public.tryouts t,
              unnest(t.question_ids) WITH ORDINALITY AS q(q_id, ord)
         WHERE q_id IS NOT NULL 
-          AND q_id ~* '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
-          AND EXISTS (SELECT 1 FROM public.questions qu WHERE qu.id = q_id::uuid)
+          AND EXISTS (SELECT 1 FROM public.questions qu WHERE qu.id = q_id)
         ON CONFLICT (tryout_id, question_id) DO NOTHING;
     END IF;
 END $$;

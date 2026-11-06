@@ -118,13 +118,13 @@ END $$;
 -- 3. Create subscriptions table
 CREATE TABLE IF NOT EXISTS public.subscriptions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
+    user_id TEXT NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
     plan_code TEXT NOT NULL CHECK (plan_code IN ('FREE', 'MONTHLY', 'SEMESTER')),
     track TEXT NOT NULL CHECK (track IN ('PHYSICS_SEM_3', 'NON_PHYSICS', 'LEGACY', 'ALL')),
     status TEXT NOT NULL CHECK (status IN ('PENDING', 'ACTIVE', 'EXPIRED', 'CANCELLED')),
     starts_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     expires_at TIMESTAMPTZ, -- NULL for FREE tier
-    registration_id UUID REFERENCES public.registrations(id) ON DELETE SET NULL,
+    registration_id TEXT REFERENCES public.registrations(id) ON DELETE SET NULL,
     granted_by TEXT,
     notes TEXT,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now()
@@ -134,7 +134,7 @@ CREATE INDEX IF NOT EXISTS subscriptions_user_status_expires_idx
 ON public.subscriptions(user_id, status, expires_at);
 
 -- Add helper columns to registrations table
-ALTER TABLE public.registrations ADD COLUMN IF NOT EXISTS user_id UUID REFERENCES public.users(id) ON DELETE SET NULL;
+ALTER TABLE public.registrations ADD COLUMN IF NOT EXISTS user_id TEXT REFERENCES public.users(id) ON DELETE SET NULL;
 ALTER TABLE public.registrations ADD COLUMN IF NOT EXISTS plan_code TEXT;
 ALTER TABLE public.registrations ADD COLUMN IF NOT EXISTS track TEXT;
 
@@ -227,7 +227,7 @@ ALTER TABLE public.subscriptions ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "Users can view own subscriptions" ON public.subscriptions;
 CREATE POLICY "Users can view own subscriptions"
 ON public.subscriptions FOR SELECT
-USING (user_id IN (SELECT id FROM public.users WHERE auth_id = auth.uid()) OR public.is_admin());
+USING (user_id IN (SELECT id FROM public.users WHERE auth_id::text = auth.uid()::text) OR public.is_admin());
 
 DROP POLICY IF EXISTS "Admins can manage subscriptions" ON public.subscriptions;
 CREATE POLICY "Admins can manage subscriptions"

@@ -35,7 +35,7 @@ RETURNS TRIGGER AS $$
 BEGIN
   -- This will cascade delete anything relying on public.users.id
   -- natively if foreign keys with ON DELETE CASCADE are set up.
-  DELETE FROM public.users WHERE auth_id = OLD.id;
+  DELETE FROM public.users WHERE auth_id::text = OLD.id::text;
   RETURN OLD;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
