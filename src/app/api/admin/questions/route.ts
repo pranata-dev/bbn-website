@@ -12,19 +12,19 @@ export async function GET(request: NextRequest) {
     if (!guard.ok) return guard.response
 
     try {
-        const supabase = await createAdminClient()
+        const adminSupabase = await createAdminClient()
         const { searchParams } = new URL(request.url)
         const category = searchParams.get("category")
         const subject = searchParams.get("subject")
 
-        let query = supabase.from("questions").select("*").order("created_at", { ascending: false })
+        let query = adminSupabase.from("questions").select("*").order("created_at", { ascending: false })
 
         if (category && category !== "all") {
             query = query.eq("category", category as any)
         }
 
         if (subject && subject !== "all") {
-            const { data: c } = await supabase.from("courses").select("id").or(`code.ilike.${subject},slug.ilike.${subject}`).maybeSingle()
+            const { data: c } = await adminSupabase.from("courses").select("id").or(`code.ilike.${subject},slug.ilike.${subject}`).maybeSingle()
             if (c) query = query.eq("course_id", c.id)
         }
 
@@ -185,7 +185,7 @@ export async function DELETE(request: NextRequest) {
         }
 
         if (subject && subject !== "all") {
-            const { data: c } = await supabase.from("courses").select("id").or(`code.ilike.${subject},slug.ilike.${subject}`).maybeSingle()
+            const { data: c } = await adminSupabase.from("courses").select("id").or(`code.ilike.${subject},slug.ilike.${subject}`).maybeSingle()
             if (c) query = query.eq("course_id", c.id)
         }
 
