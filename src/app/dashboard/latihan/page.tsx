@@ -51,144 +51,208 @@ export default function LatihanPage() {
     ? latihans
     : latihans.filter((t) => t.category === filter)
 
+  const countW1W4 = latihans.filter(t => t.category && ["WEEK_1", "WEEK_2", "WEEK_3", "WEEK_4"].includes(t.category)).length
+  const countW5W7 = latihans.filter(t => t.category && ["WEEK_5", "WEEK_6", "WEEK_7"].includes(t.category)).length
+
   return (
-    <div className="space-y-6 font-sans">
-      {/* Page Header with Filter */}
+    <div className="space-y-8 font-sans">
+      {/* Page Header with Brutalist Category Filter */}
       <PageHeader
         title="Latihan Soal"
-        subtitle="Kumpulan soal untuk melatih pemahaman konsep Fisikamu secara mandiri."
+        subtitle="Bank soal kurasi topik fisika dan sains lanjutan untuk mengasah ketajaman analisis matematis secara mandiri."
+        breadcrumb="~/bbn-edu/student/latihan-soal/"
         action={
-          <Select value={filter} onValueChange={setFilter}>
-            <SelectTrigger className="w-[180px] sm:w-[200px] bg-white border border-[#FFEED6] rounded-xl text-xs font-semibold text-[#827148] shadow-2xs">
-              <SelectValue placeholder="Filter kategori" />
-            </SelectTrigger>
-            <SelectContent className="bg-white border border-[#FFEED6] rounded-xl shadow-md text-xs font-medium text-[#827148]">
-              <SelectItem value="all">Semua Kategori</SelectItem>
-              {Object.entries(CATEGORY_LABELS).map(([key, label]) => (
-                <SelectItem key={key} value={key}>{label}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <div className="flex items-center gap-2">
+            <span className="font-mono text-xs font-bold text-ink-muted uppercase hidden sm:inline">
+              FILTER:
+            </span>
+            <Select value={filter} onValueChange={setFilter}>
+              <SelectTrigger className="w-[190px] sm:w-[210px] bg-surface-white border-2 border-[#171717] rounded-none font-mono text-xs font-bold text-[#171717] technical-shadow-sm focus:ring-0 focus:border-[#171717] h-10 px-3">
+                <SelectValue placeholder="SEMUA KATEGORI" />
+              </SelectTrigger>
+              <SelectContent className="bg-surface-white border-2 border-[#171717] rounded-none shadow-none font-mono text-xs font-semibold text-[#171717]">
+                <SelectItem value="all" className="rounded-none cursor-pointer hover:bg-accent-canary focus:bg-accent-canary focus:text-[#171717]">
+                  [ALL] SEMUA KATEGORI
+                </SelectItem>
+                {Object.entries(CATEGORY_LABELS).map(([key, label]) => (
+                  <SelectItem key={key} value={key} className="rounded-none cursor-pointer hover:bg-accent-canary focus:bg-accent-canary focus:text-[#171717]">
+                    [{key}] {label.toUpperCase()}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         }
       />
 
-      {/* Mini Stats Summary */}
+      {/* Mini Stats Summary Strip (Bento Metrics) */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
-        <div className="bg-white rounded-2xl p-5 shadow-xs border border-[#FFEED6] flex items-center justify-between">
-          <div>
-            <p className="text-xs text-[#827148]/70 font-semibold uppercase tracking-wider">
-              Total Latihan
-            </p>
-            <h3 className="text-2xl font-extrabold text-[#827148] mt-1">
-              {latihans.length}
-            </h3>
+        {/* Metric 01 */}
+        <div className="bg-surface-white border-2 border-[#171717] technical-shadow p-5 relative tick-corner flex flex-col justify-between">
+          <div className="flex items-center justify-between font-mono text-xs font-bold uppercase tracking-wider text-ink-muted">
+            <span>TOTAL_LATIHAN // REGISTRY</span>
+            <div className="size-3 bg-accent-canary border border-[#171717]" />
           </div>
-          <div className="w-10 h-10 rounded-xl bg-[#FFEED6] flex items-center justify-center">
-            <div className="w-3.5 h-3.5 rounded-md bg-[#A5AF79]" />
+          <div className="mt-4">
+            <p className="font-mono text-3xl font-black text-[#171717]">
+              {String(latihans.length).padStart(2, "0")}
+            </p>
+            <p className="font-mono text-[10px] uppercase tracking-wider text-ink-muted mt-1">
+              STATUS: MODUL TERSEDIA
+            </p>
+          </div>
+          <div className="w-full h-1 bg-border-grid mt-4 overflow-hidden">
+            <div className="h-full bg-accent-canary w-full" />
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl p-5 shadow-xs border border-[#FFEED6] flex items-center justify-between">
-          <div>
-            <p className="text-xs text-[#827148]/70 font-semibold uppercase tracking-wider">
-              Week 1–4
-            </p>
-            <h3 className="text-2xl font-extrabold text-[#827148] mt-1">
-              {latihans.filter(t => t.category && ["WEEK_1", "WEEK_2", "WEEK_3", "WEEK_4"].includes(t.category)).length}
-            </h3>
+        {/* Metric 02 */}
+        <div className="bg-surface-white border-2 border-[#171717] technical-shadow p-5 relative tick-corner flex flex-col justify-between">
+          <div className="flex items-center justify-between font-mono text-xs font-bold uppercase tracking-wider text-ink-muted">
+            <span>FASE_01 // WEEK 1-4</span>
+            <div className="size-3 bg-alert-rust border border-[#171717]" />
           </div>
-          <div className="w-10 h-10 rounded-xl bg-[#FFEED6] flex items-center justify-center">
-            <div className="w-3.5 h-3.5 rounded-md bg-[#E8A07C]" />
+          <div className="mt-4">
+            <p className="font-mono text-3xl font-black text-[#171717]">
+              {String(countW1W4).padStart(2, "0")}
+            </p>
+            <p className="font-mono text-[10px] uppercase tracking-wider text-ink-muted mt-1">
+              MEKANIKA & KALKULUS
+            </p>
+          </div>
+          <div className="w-full h-1 bg-border-grid mt-4 overflow-hidden">
+            <div className="h-full bg-alert-rust w-2/3" />
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl p-5 shadow-xs border border-[#FFEED6] flex items-center justify-between">
-          <div>
-            <p className="text-xs text-[#827148]/70 font-semibold uppercase tracking-wider">
-              Week 5–7
-            </p>
-            <h3 className="text-2xl font-extrabold text-[#827148] mt-1">
-              {latihans.filter(t => t.category && ["WEEK_5", "WEEK_6", "WEEK_7"].includes(t.category)).length}
-            </h3>
+        {/* Metric 03 */}
+        <div className="bg-surface-white border-2 border-[#171717] technical-shadow p-5 relative tick-corner flex flex-col justify-between">
+          <div className="flex items-center justify-between font-mono text-xs font-bold uppercase tracking-wider text-ink-muted">
+            <span>FASE_02 // WEEK 5-7</span>
+            <div className="size-3 bg-[#171717] border border-[#171717]" />
           </div>
-          <div className="w-10 h-10 rounded-xl bg-[#FFEED6] flex items-center justify-center">
-            <div className="w-3.5 h-3.5 rounded-md bg-[#827148]" />
+          <div className="mt-4">
+            <p className="font-mono text-3xl font-black text-[#171717]">
+              {String(countW5W7).padStart(2, "0")}
+            </p>
+            <p className="font-mono text-[10px] uppercase tracking-wider text-ink-muted mt-1">
+              TERMODINAMIKA & GELOMBANG
+            </p>
+          </div>
+          <div className="w-full h-1 bg-border-grid mt-4 overflow-hidden">
+            <div className="h-full bg-[#171717] w-1/3" />
           </div>
         </div>
       </div>
 
-      {loading ? (
-        <div className="py-20 text-center text-xs text-[#827148]/60">
-          Memuat latihan soal...
+      {/* Main Catalog View */}
+      <div className="space-y-4">
+        {/* Catalog Subheader Strip */}
+        <div className="flex items-center justify-between border-b-2 border-[#171717] pb-2 font-mono text-xs">
+          <div className="flex items-center gap-2">
+            <span className="font-bold text-[#171717]">&gt; MODUL_LATIHAN</span>
+            <span className="text-ink-muted hidden sm:inline">// SUBJECT: {selectedSubject.toUpperCase()}</span>
+          </div>
+          <div className="text-ink-muted font-bold">
+            [{filteredLatihans.length} ITEM DITEMUKAN]
+          </div>
         </div>
-      ) : filteredLatihans.length === 0 ? (
-        /* Empty State View */
-        <EmptyState
-          title="Belum Ada Latihan"
-          description="Bank latihan soal sedang disusun oleh tim akademik kami. Cek kembali nanti!"
-        />
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-          {filteredLatihans.map((latihan) => {
-            const isLocked = Boolean(latihan.is_locked)
 
-            return (
-              <div
-                key={latihan.id}
-                className={`bg-white rounded-2xl p-6 shadow-xs border border-[#FFEED6] flex flex-col justify-between transition-all duration-200 ${
-                  isLocked ? "opacity-60" : "hover:shadow-md hover:-translate-y-0.5"
-                }`}
-              >
-                <div>
-                  <div className="flex items-center gap-2 mb-3">
-                    <span className="text-[11px] px-2.5 py-1 font-semibold rounded-md bg-[#FFEED6] text-[#827148]">
-                      {latihan.category ? CATEGORY_LABELS[latihan.category] : "Semua Materi"}
-                    </span>
-                    {isLocked && (
-                      <span className="text-[11px] px-2.5 py-1 font-semibold rounded-md bg-[#E8A07C]/15 text-[#E8A07C]">
-                        Terkunci
-                      </span>
+        {loading ? (
+          <div className="bg-surface-white border-2 border-dashed border-[#171717] bg-grid-blueprint p-16 text-center font-mono text-xs font-bold text-ink-muted relative tick-corner">
+            <div className="animate-pulse">
+              &gt; STATUS: FETCHING_PRACTICE_MODULES... // MENGHUBUNGKAN TELEMETRI
+            </div>
+          </div>
+        ) : filteredLatihans.length === 0 ? (
+          <EmptyState
+            title="Belum Ada Latihan Soal"
+            description="Bank latihan soal untuk kategori ini sedang disusun oleh tim akademik BBN Education. Cek kembali nanti!"
+          />
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {filteredLatihans.map((latihan, idx) => {
+              const isLocked = Boolean(latihan.is_locked)
+              const categoryLabel = latihan.category ? CATEGORY_LABELS[latihan.category] : "Semua Materi"
+
+              return (
+                <div
+                  key={latihan.id}
+                  className={`bg-surface-white border-2 border-[#171717] technical-shadow p-6 flex flex-col justify-between relative tick-corner transition-all duration-150 ${
+                    isLocked ? "opacity-75" : "hover:-translate-x-0.5 hover:-translate-y-0.5"
+                  }`}
+                >
+                  <div>
+                    {/* Top Tag Strip */}
+                    <div className="flex items-center justify-between gap-2 mb-3.5 flex-wrap">
+                      <div className="flex items-center gap-2">
+                        <span className="font-mono text-[10px] font-bold px-2 py-0.5 uppercase bg-canvas-paper border border-[#171717] text-[#171717]">
+                          {categoryLabel}
+                        </span>
+                        <span className="font-mono text-[10px] font-bold text-ink-muted">
+                          PRAC_{String(idx + 1).padStart(2, "0")}
+                        </span>
+                      </div>
+                      {isLocked && (
+                        <span className="font-mono text-[10px] font-black px-2 py-0.5 uppercase bg-alert-rust text-surface-white border border-[#171717]">
+                          LOCKED [PRO]
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Title */}
+                    <h3 className="font-sans text-lg font-black text-[#171717] mb-2 leading-tight tracking-tight">
+                      {latihan.title}
+                    </h3>
+
+                    {/* Description */}
+                    {latihan.description && (
+                      <p className="font-sans text-xs text-ink-muted mb-4 line-clamp-2 leading-relaxed">
+                        {latihan.description}
+                      </p>
+                    )}
+
+                    {/* Specs / Meta Strip */}
+                    <div className="flex items-center gap-2 font-mono text-xs font-bold text-[#171717] mb-6 flex-wrap">
+                      <div className="px-2.5 py-1 bg-canvas-paper border border-[#171717] flex items-center gap-1.5">
+                        <span className="text-alert-rust font-black">#</span>
+                        <span>{latihan.tryout_questions?.[0]?.count || 0} BUTIR SOAL</span>
+                      </div>
+                      <div className="px-2.5 py-1 bg-canvas-paper border border-[#171717] text-ink-muted">
+                        MODE: MANDIRI
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Action Section */}
+                  <div className="pt-2">
+                    {isLocked ? (
+                      <Button
+                        className="w-full bg-canvas-paper text-ink-muted border-2 border-[#171717] rounded-none font-mono text-xs font-bold py-3 uppercase tracking-wider cursor-not-allowed hover:bg-canvas-paper"
+                        size="sm"
+                        onClick={() => toast.error("Upgrade paket Anda untuk mengakses modul latihan ini!")}
+                      >
+                        TERKUNCI // PERLU UPGRADE TIER
+                      </Button>
+                    ) : (
+                      <Button
+                        asChild
+                        className="w-full bg-accent-canary hover:bg-[#FDE047]/90 text-[#171717] border-2 border-[#171717] technical-shadow rounded-none font-mono text-xs font-black py-3 uppercase tracking-wider transition-all"
+                        size="sm"
+                      >
+                        <Link href={`/dashboard/latihan/${latihan.id}`} className="flex items-center justify-center gap-2">
+                          <span>KERJAKAN LATIHAN</span>
+                          <span>&rarr;</span>
+                        </Link>
+                      </Button>
                     )}
                   </div>
-                  <h3 className="text-base font-bold text-[#827148] mb-2 leading-snug">
-                    {latihan.title}
-                  </h3>
-                  {latihan.description && (
-                    <p className="text-xs text-[#827148]/75 mb-4 line-clamp-2 leading-relaxed">
-                      {latihan.description}
-                    </p>
-                  )}
-                  <div className="text-[11px] font-semibold text-[#827148]/70 mb-6">
-                    {latihan.tryout_questions?.[0]?.count || 0} butir soal
-                  </div>
                 </div>
-
-                <div>
-                  {isLocked ? (
-                    <Button
-                      className="w-full bg-[#FFEED6]/50 text-[#827148]/50 rounded-xl font-semibold text-xs py-2.5 h-auto cursor-not-allowed"
-                      size="sm"
-                      onClick={() => toast.error("Upgrade paket Anda untuk mengakses latihan ini!")}
-                    >
-                      Terkunci (Perlu Upgrade)
-                    </Button>
-                  ) : (
-                    <Button
-                      asChild
-                      className="w-full bg-[#A5AF79] hover:bg-[#949e6a] text-white rounded-xl font-semibold text-xs py-2.5 h-auto shadow-2xs transition-colors"
-                      size="sm"
-                    >
-                      <Link href={`/dashboard/latihan/${latihan.id}`}>
-                        Masuk Latihan
-                      </Link>
-                    </Button>
-                  )}
-                </div>
-              </div>
-            )
-          })}
-        </div>
-      )}
+              )
+            })}
+          </div>
+        )}
+      </div>
     </div>
   )
 }

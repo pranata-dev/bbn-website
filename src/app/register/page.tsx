@@ -21,6 +21,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+import { ArrowLeft, ArrowRight, UserPlus, ShieldAlert } from "lucide-react"
 
 const initialKelasBesarData: KelasBesarFormState = {
   name: "",
@@ -198,71 +199,80 @@ function RegisterContent() {
   const containerMaxWidth = currentStep === 2 ? "max-w-7xl" : "max-w-5xl"
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center p-4 sm:p-8 md:p-12 relative bg-gradient-to-b from-[#FFEED6]/60 via-[#FFEED6]/30 to-[#FFEED6]/50 font-sans">
-      {/* 1. TOP NAVIGATION: BACK BUTTON */}
+    <div className="min-h-screen w-full flex items-center justify-center p-4 sm:p-8 md:p-12 relative bg-canvas-paper bg-grid-blueprint font-sans selection:bg-accent-canary selection:text-[#171717]">
+      {/* 1. TOP NAVIGATION: MECHANICAL BREADCRUMB */}
       <div className="absolute top-6 left-6 sm:top-8 sm:left-8 z-20">
         <Link
           href="/"
-          className="inline-flex items-center gap-2 text-xs sm:text-sm font-medium text-[#827148] hover:text-[#A5AF79] transition-colors py-2 px-3 rounded-xl bg-white/80 hover:bg-white border border-[#FFEED6] shadow-2xs backdrop-blur-xs"
+          className="inline-flex items-center gap-2 border border-[#171717] bg-surface-white text-ink-muted hover:text-[#171717] text-[10px] font-mono uppercase tracking-wider px-3 py-1.5 technical-shadow-sm hover:bg-accent-canary transition-all"
         >
-          <span>&larr;</span>
-          <span>Kembali ke beranda</span>
+          <ArrowLeft className="w-3 h-3" />
+          <span>KEMBALI KE BERANDA</span>
         </Link>
       </div>
 
       {/* 2. MAIN REGISTRATION CARD CONTAINER */}
-      <div className={`bg-white ${containerMaxWidth} w-full rounded-3xl shadow-lg border border-[#FFEED6] p-6 sm:p-10 md:p-12 z-10 relative transition-all duration-300`}>
-        {/* Header Area */}
-        <div className="text-center">
-          {/* Top Center Placeholder */}
-          <div
-            className="w-12 h-12 bg-[#FFEED6] rounded-xl mx-auto mb-4 flex items-center justify-center border border-[#827148]/10"
-            aria-label="Logo placeholder"
-          >
-            <div className="w-4 h-4 rounded-md bg-[#A5AF79]" />
+      <div
+        className={`bg-surface-white ${containerMaxWidth} w-full border-2 border-[#171717] technical-shadow p-6 sm:p-10 md:p-12 z-10 relative transition-all duration-300`}
+      >
+        {/* Corner Accents */}
+        <div className="absolute -top-1.5 -left-1.5 w-3 h-3 bg-[#171717]" />
+        <div className="absolute -top-1.5 -right-1.5 w-3 h-3 bg-[#171717]" />
+        <div className="absolute -bottom-1.5 -left-1.5 w-3 h-3 bg-[#171717]" />
+        <div className="absolute -bottom-1.5 -right-1.5 w-3 h-3 bg-[#171717]" />
+
+        {/* Header Prompt Area */}
+        <div className="text-center mb-8 pb-6 border-b-2 border-[#171717]">
+          <div className="flex items-center justify-center gap-2 mb-2">
+            <span className="w-2.5 h-2.5 bg-accent-canary border border-[#171717] inline-block" />
+            <span className="font-mono text-xs font-bold text-alert-rust uppercase tracking-wider">
+              [SYS.REGISTRATION] // USER_ENROLLMENT
+            </span>
           </div>
 
-          {/* Title */}
-          <h1 className="text-3xl font-bold text-[#827148] mb-2 tracking-tight">
-            Daftar Sekarang
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-[#171717] tracking-tight">
+            Registrasi Pengguna
           </h1>
-
-          {/* Subtitle */}
-          <p className="text-sm text-[#827148]/70 mb-10">
+          <p className="font-mono text-xs sm:text-sm text-ink-muted mt-2 max-w-xl mx-auto">
             {currentStep === 1
-              ? "Pilih layanan yang sesuai dengan kebutuhanmu."
-              : "Lengkapi data dan selesaikan pendaftaran paket belajarmu."}
+              ? "Pilih jenis layanan platform belajar yang sesuai dengan kebutuhan akademikmu."
+              : "Lengkapi data diri mahasiswa dan selesaikan verifikasi bukti pembayaran transfer."}
           </p>
         </div>
 
         {/* STEP 1: SERVICE SELECTION */}
         {currentStep === 1 && (
           <div>
-            {/* 3. STEP INDICATOR */}
-            <div className="flex items-center mb-6">
-              <div className="w-8 h-8 rounded-lg bg-[#E8A07C] text-white flex items-center justify-center font-bold mr-3 text-sm shadow-2xs">
-                1
+            {/* Step Indicator */}
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-2">
+                <span className="bg-[#171717] text-accent-canary font-mono text-xs font-bold px-3 py-1 border border-[#171717]">
+                  [STEP 01/02: PILIH LAYANAN]
+                </span>
+                <span className="font-mono text-xs font-bold text-[#171717] hidden sm:inline">
+                  PILIH PAKET BELAJAR
+                </span>
               </div>
-              <h2 className="text-lg font-bold text-[#827148]">
-                Pilih Layanan
-              </h2>
+              <span className="font-mono text-[11px] text-ink-muted">
+                SELEKSI MODUL
+              </span>
             </div>
 
-            {/* 4. SERVICE SELECTION GRID (3 Columns) */}
+            {/* Service Selection Grid */}
             <ProductSelector
               selected={selectedType}
               onSelect={handleProductSelect}
             />
 
-            {/* 5. ACTION AREA */}
-            <div className="mt-10 flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 border-t border-[#FFEED6]">
-              <p className="text-xs sm:text-sm text-[#827148]/80">
-                Sudah punya akun?{" "}
+            {/* Action Area */}
+            <div className="mt-10 flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 border-t-2 border-[#171717]">
+              <p className="font-mono text-xs text-ink-muted">
+                Sudah memiliki akun terdaftar?{" "}
                 <Link
                   href="/login"
-                  className="font-bold text-[#A5AF79] hover:underline"
+                  className="font-bold text-[#171717] underline hover:text-alert-rust"
                 >
-                  Masuk di sini
+                  MASUK DI SINI →
                 </Link>
               </p>
 
@@ -270,10 +280,10 @@ function RegisterContent() {
                 type="button"
                 onClick={handleProceedToStep2}
                 disabled={!selectedType || selectedType === "KELAS_BESAR"}
-                className="w-full sm:w-auto bg-[#E8A07C] hover:bg-[#E8A07C]/90 active:bg-[#d8916e] text-white font-bold py-3 px-8 rounded-xl shadow-xs transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="w-full sm:w-auto bg-accent-canary hover:bg-[#FACC15] text-[#171717] font-mono text-xs font-bold uppercase py-3.5 px-8 border-2 border-[#171717] shadow-[4px_4px_0px_#171717] hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_#171717] active:translate-y-0 active:shadow-[2px_2px_0px_#171717] transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
-                <span>Lanjut Isi Data</span>
-                <span>&rarr;</span>
+                <span>LANJUT KE PENGISIAN DATA</span>
+                <ArrowRight className="w-4 h-4" />
               </button>
             </div>
           </div>
@@ -283,27 +293,27 @@ function RegisterContent() {
         {currentStep === 2 && (
           <div>
             {/* Step 2 Header & Switch Service Button */}
-            <div className="flex items-center justify-between mb-8 pb-4 border-b border-[#FFEED6]">
-              <div className="flex items-center">
-                <div className="w-8 h-8 rounded-lg bg-[#E8A07C] text-white flex items-center justify-center font-bold mr-3 text-sm shadow-2xs">
-                  2
-                </div>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 pb-4 border-b-2 border-[#171717]">
+              <div className="flex items-center gap-3">
+                <span className="bg-[#171717] text-accent-canary font-mono text-xs font-bold px-3 py-1 border border-[#171717]">
+                  [STEP 02/02]
+                </span>
                 <div>
-                  <h2 className="text-lg font-bold text-[#827148]">
+                  <h2 className="text-base sm:text-lg font-extrabold text-[#171717]">
                     {selectedType === "REGULAR"
                       ? "Formulir Pendaftaran & Checkout Kelas Reguler"
                       : selectedType === "UTS"
                       ? "Formulir Pendaftaran E-Learning Mandiri"
                       : "Isi Detail Pendaftaran"}
                   </h2>
-                  <p className="text-xs text-[#827148]/70 font-medium">
-                    Layanan terpilih:{" "}
-                    <span className="font-bold text-[#827148]">
+                  <p className="font-mono text-xs text-ink-muted mt-0.5">
+                    Layanan Terpilih:{" "}
+                    <span className="font-bold text-[#171717]">
                       {selectedType === "REGULAR"
-                        ? "Kelas Reguler"
+                        ? "KELAS REGULER"
                         : selectedType === "UTS"
-                        ? "E-Learning Mandiri"
-                        : "Kelas Tutor Besar"}
+                        ? "E-LEARNING MANDIRI"
+                        : "KELAS TUTOR BESAR"}
                     </span>
                   </p>
                 </div>
@@ -312,15 +322,14 @@ function RegisterContent() {
               <button
                 type="button"
                 onClick={() => setCurrentStep(1)}
-                className="text-xs font-semibold text-[#827148] hover:text-[#A5AF79] px-3.5 py-2 rounded-xl border border-[#FFEED6] bg-[#FFEED6]/20 hover:bg-[#FFEED6]/40 transition-colors cursor-pointer"
+                className="font-mono text-xs font-bold text-[#171717] hover:bg-canvas-paper px-3.5 py-2 border-2 border-[#171717] bg-surface-white shadow-[2px_2px_0px_#171717] hover:translate-x-[1px] hover:translate-y-[1px] transition-all cursor-pointer self-start sm:self-auto"
               >
-                &larr; Ubah Layanan
+                ← UBAH LAYANAN
               </button>
             </div>
 
             {/* DYNAMIC FORM VIEWS */}
             {selectedType === "REGULAR" ? (
-              /* Dedicated 2-column layout for Kelas Reguler */
               <RegularClassForm
                 paymentFile={paymentFile}
                 paymentPreview={paymentPreview}
@@ -329,7 +338,6 @@ function RegisterContent() {
                 isLoading={isLoading}
               />
             ) : selectedType === "UTS" ? (
-              /* Dedicated 2-column layout for E-Learning Mandiri */
               <UTSPackageForm
                 paymentFile={paymentFile}
                 paymentPreview={paymentPreview}
@@ -338,7 +346,6 @@ function RegisterContent() {
                 isLoading={isLoading}
               />
             ) : (
-              /* Standard form for Kelas Besar */
               <form onSubmit={handleKelasBesarSubmit} aria-label="Formulir pendaftaran">
                 <div className="space-y-6 max-w-2xl mx-auto">
                   <KelasBesarForm
@@ -349,22 +356,22 @@ function RegisterContent() {
                     onPaymentChange={handlePaymentChange}
                   />
 
-                  <div className="mt-8 pt-6 border-t border-[#FFEED6] space-y-4">
+                  <div className="mt-8 pt-6 border-t-2 border-[#171717] space-y-4">
                     <button
                       type="submit"
                       disabled={isLoading}
-                      className="w-full bg-[#E8A07C] hover:bg-[#E8A07C]/90 active:bg-[#d8916e] text-white font-bold py-3.5 px-8 rounded-xl shadow-xs transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
+                      className="w-full py-4 bg-accent-canary hover:bg-[#FACC15] text-[#171717] font-bold font-mono text-xs uppercase tracking-wider border-2 border-[#171717] shadow-[4px_4px_0px_#171717] hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_#171717] transition-all cursor-pointer disabled:opacity-50"
                     >
-                      {isLoading ? "Memproses pendaftaran..." : "Daftar Sekarang"}
+                      {isLoading ? "MEMPROSES PENDAFTARAN..." : "DAFTAR SEKARANG →"}
                     </button>
 
-                    <p className="text-center text-xs sm:text-sm text-[#827148]/80">
-                      Sudah punya akun?{" "}
+                    <p className="text-center font-mono text-xs text-ink-muted">
+                      Sudah memiliki akun?{" "}
                       <Link
                         href="/login"
-                        className="font-bold text-[#A5AF79] hover:underline"
+                        className="font-bold text-[#171717] underline hover:text-alert-rust"
                       >
-                        Masuk
+                        MASUK DI SINI
                       </Link>
                     </p>
                   </div>
@@ -375,32 +382,33 @@ function RegisterContent() {
         )}
       </div>
 
-      {/* ======================================================== */}
-      {/* DUPLICATE ACCOUNT MODAL DIALOG                            */}
-      {/* ======================================================== */}
+      {/* Duplicate Account Modal Dialog */}
       <Dialog
         open={showDuplicateModal}
         onOpenChange={(open) => setShowDuplicateModal(open)}
       >
-        <DialogContent className="max-w-md bg-white border-2 border-[#FFEED6] rounded-3xl p-6 sm:p-8 shadow-lg font-sans">
+        <DialogContent className="max-w-md bg-surface-white border-2 border-[#171717] rounded-none p-6 sm:p-8 shadow-[8px_8px_0px_#171717] font-sans relative">
           <DialogHeader>
-            <div className="w-12 h-12 rounded-2xl bg-[#E8A07C]/20 border border-[#E8A07C]/40 flex items-center justify-center mx-auto mb-3 shadow-2xs">
-              <div className="w-4 h-4 rounded-xs bg-[#E8A07C]" />
+            <div className="flex items-center gap-2 mb-1">
+              <span className="w-2.5 h-2.5 bg-alert-rust border border-[#171717] inline-block" />
+              <span className="font-mono text-xs font-bold text-alert-rust uppercase">
+                [ALERT // DUPLICATE_ACCOUNT]
+              </span>
             </div>
-            <DialogTitle className="text-lg sm:text-xl font-bold text-[#827148] text-center">
-              Akun Sudah Terdaftar
+            <DialogTitle className="text-lg sm:text-xl font-extrabold text-[#171717] tracking-tight">
+              Akun Sudah Pernah Terdaftar
             </DialogTitle>
-            <DialogDescription className="text-sm text-[#827148]/80 text-center leading-relaxed mt-2">
-              Akun Google/Email <strong>{duplicateEmail}</strong> ini sudah pernah digunakan di Belajar Bareng Nata. Silakan langsung menuju halaman Login.
+            <DialogDescription className="font-mono text-xs text-ink-muted mt-2 leading-relaxed">
+              Alamat email <strong>{duplicateEmail}</strong> sudah terdaftar di sistem BBN Education. Silakan langsung menuju portal login siswa.
             </DialogDescription>
           </DialogHeader>
 
-          <DialogFooter className="mt-4">
+          <DialogFooter className="mt-4 pt-3 border-t border-[#171717]">
             <Link
               href="/login"
-              className="w-full bg-[#A5AF79] hover:bg-[#949e6a] text-white font-bold rounded-xl py-3 px-4 text-center text-sm sm:text-base shadow-2xs transition-colors block cursor-pointer"
+              className="w-full bg-accent-canary hover:bg-[#FACC15] text-[#171717] font-mono text-xs font-bold uppercase py-3 px-4 text-center border-2 border-[#171717] shadow-[3px_3px_0px_#171717] block transition-all"
             >
-              Menuju Halaman Login
+              MENUJU HALAMAN LOGIN SISWA →
             </Link>
           </DialogFooter>
         </DialogContent>
@@ -411,7 +419,13 @@ function RegisterContent() {
 
 export default function RegisterPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-[#FFEED6]/30 flex items-center justify-center">Memuat...</div>}>
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-canvas-paper bg-grid-blueprint flex items-center justify-center font-mono text-xs text-ink-muted">
+          &gt; MEMUAT MODUL REGISTRASI...
+        </div>
+      }
+    >
       <RegisterContent />
     </Suspense>
   )

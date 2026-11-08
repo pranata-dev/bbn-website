@@ -15,32 +15,39 @@ export function EmptyState({
   actionHref,
 }: EmptyStateProps) {
   return (
-    <div className="bg-white rounded-3xl shadow-xs border border-[#FFEED6] p-12 sm:p-16 flex flex-col items-center justify-center text-center mt-8">
-      {/* Large Icon Placeholder */}
+    <div className="bg-surface-white border-2 border-dashed border-[#171717] bg-grid-blueprint p-8 sm:p-14 flex flex-col items-center justify-center text-center mt-6 relative tick-corner">
+      {/* Blueprint Status Header */}
+      <div className="flex items-center gap-2 font-mono text-[11px] font-bold text-ink-muted uppercase tracking-wider mb-5">
+        <span className="size-2 bg-alert-rust border border-[#171717]" />
+        <span>&gt; STATUS: AWAITING_TELEMETRY // DATA_EMPTY</span>
+      </div>
+
+      {/* Decorative Technical Crosshair */}
       <div 
-        className="w-20 h-20 bg-[#FFEED6] rounded-2xl mb-6 flex items-center justify-center border border-[#827148]/10"
-        aria-label="Placeholder illustration"
+        className="size-16 bg-canvas-paper border-2 border-[#171717] technical-shadow-sm mb-6 flex items-center justify-center"
+        aria-hidden="true"
       >
-        <div className="w-8 h-8 rounded-xl bg-[#A5AF79]/40 border border-[#827148]/20" />
+        <span className="font-mono text-2xl font-black text-ink-muted">Ø</span>
       </div>
 
       {/* Title */}
-      <h2 className="text-2xl font-bold text-[#827148] mb-2 tracking-tight">
+      <h2 className="font-sans text-xl sm:text-2xl font-black text-[#171717] mb-2 tracking-tight">
         {title}
       </h2>
 
       {/* Description */}
-      <p className="text-sm sm:text-base text-[#827148]/70 max-w-md leading-relaxed mb-6">
+      <p className="font-sans text-xs sm:text-sm text-ink-muted max-w-md leading-relaxed mb-6 font-normal">
         {description}
       </p>
 
-      {/* Optional action */}
+      {/* Optional action button */}
       {actionLabel && actionHref && (
         <Link
           href={actionHref}
-          className="bg-[#A5AF79] hover:bg-[#949e6a] text-white font-semibold text-sm px-6 py-2.5 rounded-xl shadow-xs transition-colors"
+          className="bg-accent-canary hover:bg-[#FDE047]/90 text-[#171717] border-2 border-[#171717] technical-shadow font-mono text-xs font-black px-6 py-2.5 uppercase tracking-wider transition-all inline-flex items-center gap-2"
         >
-          {actionLabel}
+          <span>{actionLabel}</span>
+          <span>&rarr;</span>
         </Link>
       )}
     </div>

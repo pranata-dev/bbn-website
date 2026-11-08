@@ -6,7 +6,6 @@ import UserPresenceTracker from "@/components/UserPresenceTracker"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { useState, useEffect } from "react"
 import { createClient } from "@/lib/supabase/client"
-import { APP_NAME } from "@/constants"
 import { SubjectProvider, useSubject } from "@/contexts/SubjectContext"
 import { useTheme } from "@/contexts/ThemeContext"
 import {
@@ -15,17 +14,32 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import {
+  ChevronDown,
+  LayoutDashboard,
+  BookOpen,
+  HelpCircle,
+  FileCheck,
+  Trophy,
+  History,
+  User,
+  Sun,
+  Moon,
+  LogOut,
+  Menu,
+  X,
+} from "lucide-react"
 
 import { PHYSICS_COURSES, GENERAL_COURSES } from "./DashboardClient"
 
 const NAV_ITEMS = [
-  { id: "dashboard", href: "/dashboard", label: "Dashboard" },
-  { id: "materi", href: "/dashboard/materi", label: "Materi" },
-  { id: "latihan", href: "/dashboard/latihan", label: "Latihan Soal" },
-  { id: "tryouts", href: "/dashboard/tryouts", label: "Tryout" },
-  { id: "leaderboard", href: "/dashboard/leaderboard", label: "Leaderboard" },
-  { id: "history", href: "/dashboard/history", label: "Riwayat" },
-  { id: "profile", href: "/dashboard/profile", label: "Profil" },
+  { id: "dashboard", href: "/dashboard", label: "[01] Dashboard", icon: LayoutDashboard },
+  { id: "materi", href: "/dashboard/materi", label: "[02] Materi Modul", icon: BookOpen },
+  { id: "latihan", href: "/dashboard/latihan", label: "[03] Latihan Soal", icon: HelpCircle },
+  { id: "tryouts", href: "/dashboard/tryouts", label: "[04] Tryout Ujian", icon: FileCheck },
+  { id: "leaderboard", href: "/dashboard/leaderboard", label: "[05] Leaderboard", icon: Trophy },
+  { id: "history", href: "/dashboard/history", label: "[06] Riwayat & Skor", icon: History },
+  { id: "profile", href: "/dashboard/profile", label: "[07] Profil Siswa", icon: User },
 ]
 
 export default function DashboardLayout({
@@ -63,28 +77,26 @@ function SubjectSwitcher({
     "Pilih Mata Kuliah"
 
   return (
-    <div className="space-y-1.5">
-      <label className="text-[11px] font-semibold text-[#827148]/70 uppercase tracking-wider block">
-        Mata Kuliah
+    <div className="space-y-1.5 font-mono">
+      <label className="text-[10px] font-bold text-ink-muted uppercase tracking-wider block">
+        REGISTRI // MATA KULIAH
       </label>
       {isMounted ? (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button
               type="button"
-              className="w-full flex items-center justify-between bg-[#FFEED6]/30 hover:bg-[#FFEED6]/60 border border-[#FFEED6] h-10 px-3.5 rounded-xl transition-colors text-left text-xs font-semibold text-[#827148] shadow-2xs cursor-pointer"
+              className="w-full flex items-center justify-between bg-canvas-paper hover:bg-surface-white border border-[#171717] h-9 px-3 text-left text-xs font-semibold text-[#171717] technical-shadow-sm transition-colors cursor-pointer rounded-none"
             >
               <div className="flex items-center gap-2 truncate">
-                <div className="w-2.5 h-2.5 rounded-full bg-[#A5AF79] shrink-0" />
+                <span className="size-2 bg-alert-rust rounded-none shrink-0" />
                 <span className="truncate">{currentCourseName}</span>
               </div>
-              <div className="w-4 h-4 flex items-center justify-center shrink-0">
-                <div className="w-1.5 h-1.5 border-r-2 border-b-2 border-[#827148] rotate-45 mb-0.5" />
-              </div>
+              <ChevronDown className="size-3.5 text-[#171717] shrink-0 ml-1" />
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent
-            className="w-60 bg-white border border-[#FFEED6] rounded-xl shadow-md p-1 max-h-64 overflow-y-auto"
+            className="w-60 bg-surface-white border border-[#171717] rounded-none shadow-[2px_2px_0px_#171717] p-1 max-h-64 overflow-y-auto font-mono text-xs"
             align="start"
           >
             {allowedCourses.map((course) => {
@@ -94,25 +106,25 @@ function SubjectSwitcher({
               return (
                 <DropdownMenuItem
                   key={course.slug}
-                  className={`flex items-center justify-between cursor-pointer font-semibold text-xs px-3 py-2 rounded-lg transition-colors ${
+                  className={`flex items-center justify-between cursor-pointer font-semibold text-xs px-2.5 py-2 rounded-none transition-colors ${
                     isSelected
-                      ? "bg-[#A5AF79]/15 text-[#827148]"
-                      : "text-[#827148] hover:bg-[#FFEED6]/50"
+                      ? "bg-accent-canary text-[#171717]"
+                      : "text-[#171717] hover:bg-canvas-paper"
                   }`}
                   onClick={() => {
                     setSelectedSubject(course.slug as any)
                   }}
                 >
                   <div className="flex items-center gap-2 truncate">
-                    <div
-                      className={`w-2 h-2 rounded-full shrink-0 ${
-                        isSelected ? "bg-[#A5AF79]" : "bg-[#827148]/30"
+                    <span
+                      className={`size-1.5 rounded-none shrink-0 ${
+                        isSelected ? "bg-alert-rust" : "bg-[#171717]/40"
                       }`}
                     />
                     <span className="truncate">{course.name}</span>
                   </div>
                   {isSelected && (
-                    <div className="w-2 h-2 rounded-full bg-[#E8A07C] shrink-0" />
+                    <span className="size-1.5 bg-[#171717] rounded-none shrink-0" />
                   )}
                 </DropdownMenuItem>
               )
@@ -120,7 +132,7 @@ function SubjectSwitcher({
           </DropdownMenuContent>
         </DropdownMenu>
       ) : (
-        <div className="w-full bg-[#FFEED6]/30 border border-[#FFEED6] h-10 px-3.5 rounded-xl flex items-center justify-between text-xs font-semibold text-[#827148]/60">
+        <div className="w-full bg-canvas-paper border border-[#171717] h-9 px-3 flex items-center justify-between text-xs font-semibold text-ink-muted">
           <span>Memuat...</span>
         </div>
       )}
@@ -177,50 +189,51 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
   }
 
   const SidebarContent = () => (
-    <div className="flex flex-col h-full bg-white font-sans">
+    <div className="flex flex-col h-full bg-surface-white font-sans border-r border-[#171717]">
       {/* Brand Area */}
-      <div className="p-6 border-b border-[#FFEED6]">
-        <Link href="/dashboard" className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-[#FFEED6] flex items-center justify-center border border-[#827148]/15 shrink-0">
-            <div className="w-4 h-4 rounded-md bg-[#A5AF79]" />
-          </div>
+      <div className="p-5 border-b border-[#171717] bg-canvas-paper">
+        <Link href="/dashboard" className="flex items-center gap-2.5 group">
+          <span className="size-3 bg-alert-rust shrink-0 rounded-none group-hover:rotate-45 transition-transform" />
           <div>
-            <span className="font-extrabold text-[#827148] text-sm tracking-tight block">
-              {APP_NAME}
+            <span className="font-sans font-extrabold text-base tracking-tight text-[#171717] block leading-none">
+              BBN Education
             </span>
-            <span className="text-[11px] font-semibold text-[#827148]/60 block">
-              Student Portal
+            <span className="font-mono text-[10px] font-semibold text-ink-muted block mt-1 tracking-wider uppercase">
+              STUDENT LMS // V2.4
             </span>
           </div>
         </Link>
       </div>
 
-      {/* Course Selector */}
-      <div className="px-4 py-4 border-b border-[#FFEED6]">
-        <SubjectSwitcher
-          studentCategory={studentCategory}
-        />
+      {/* Course Registry Selector */}
+      <div className="p-4 border-b border-[#171717] bg-surface-white">
+        <SubjectSwitcher studentCategory={studentCategory} />
       </div>
 
-      {/* Navigation Menu */}
-      <ScrollArea className="flex-1 min-h-0 p-4">
-        <nav className="flex flex-col gap-1.5">
+      {/* Navigation Register */}
+      <ScrollArea className="flex-1 min-h-0 p-3">
+        <div className="font-mono text-[10px] text-ink-muted uppercase tracking-wider px-2 pb-2">
+          INDEX DIREKTORI
+        </div>
+        <nav className="flex flex-col gap-1.5 font-mono text-xs">
           {NAV_ITEMS.map((item) => {
             const isActive = pathname === item.href
+            const Icon = item.icon
 
             return (
               <Link key={item.id} href={item.href} className="w-full block">
                 <div
-                  className={`flex items-center justify-between px-4 py-2.5 text-xs sm:text-sm font-medium transition-all ${
+                  className={`flex items-center justify-between px-3 py-2 transition-all border ${
                     isActive
-                      ? "bg-[#A5AF79] text-white rounded-xl shadow-2xs font-semibold"
-                      : "text-[#827148] hover:bg-[#FFEED6]/50 rounded-xl"
+                      ? "bg-accent-canary text-[#171717] border-[#171717] font-bold technical-shadow-sm"
+                      : "border-transparent text-[#171717] hover:bg-canvas-paper hover:border-[#171717] hover:border-r-4 hover:border-r-alert-rust"
                   }`}
                 >
-                  <div className="flex items-center gap-3">
-                    <div className={`w-2.5 h-2.5 rounded-full ${isActive ? "bg-white" : "bg-[#827148]/30"}`} />
-                    <span>{item.label}</span>
+                  <div className="flex items-center gap-2.5 truncate">
+                    <Icon className="size-4 shrink-0 text-[#171717]" />
+                    <span className="truncate">{item.label}</span>
                   </div>
+                  {isActive && <span className="size-1.5 bg-[#171717] shrink-0" />}
                 </div>
               </Link>
             )
@@ -228,61 +241,93 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
         </nav>
       </ScrollArea>
 
-      {/* Footer Menu */}
-      <div className="p-4 border-t border-[#FFEED6] space-y-2">
+      {/* Footer Controls */}
+      <div className="p-3 border-t border-[#171717] space-y-1.5 bg-canvas-paper font-mono text-xs">
         <button
           type="button"
           onClick={toggleTheme}
-          className="w-full py-2.5 px-4 rounded-xl text-left text-xs font-semibold text-[#827148] hover:bg-[#FFEED6]/40 transition-colors flex items-center justify-between"
+          className="w-full py-2 px-3 border border-[#171717] bg-surface-white hover:bg-accent-canary transition-colors flex items-center justify-between cursor-pointer"
         >
-          <span>{isDark ? "Mode Terang" : "Mode Malam"}</span>
-          <div className="w-4 h-4 rounded-full bg-[#FFEED6] flex items-center justify-center border border-[#827148]/20">
-            <div className="w-2 h-2 rounded-full bg-[#A5AF79]" />
-          </div>
+          <span className="flex items-center gap-2">
+            {isDark ? <Moon className="size-3.5" /> : <Sun className="size-3.5" />}
+            <span>{isDark ? "MODE MALAM" : "MODE TERANG"}</span>
+          </span>
+          <span className="size-1.5 bg-[#171717]" />
         </button>
+
         <button
           type="button"
           onClick={handleLogout}
-          className="w-full py-2.5 px-4 rounded-xl text-left text-xs font-semibold text-[#E8A07C] hover:bg-[#E8A07C]/10 transition-colors flex items-center justify-between"
+          className="w-full py-2 px-3 border border-[#171717] bg-surface-white hover:bg-alert-rust hover:text-surface-white transition-colors flex items-center justify-between cursor-pointer group"
         >
-          <span>Keluar</span>
-          <div className="w-2 h-2 rounded-full bg-[#E8A07C]" />
+          <span className="flex items-center gap-2 text-alert-rust group-hover:text-surface-white font-bold">
+            <LogOut className="size-3.5" />
+            <span>KELUAR SESI</span>
+          </span>
+          <span className="size-1.5 bg-alert-rust group-hover:bg-surface-white" />
         </button>
       </div>
     </div>
   )
 
   return (
-    <div className="min-h-screen bg-[#FFEED6]/20 text-[#827148] font-sans">
+    <div className="min-h-screen bg-canvas-paper text-[#171717] font-sans antialiased">
       <UserPresenceTracker />
 
-      {/* Mobile Header */}
-      <div className="lg:hidden flex items-center justify-between p-4 bg-white border-b border-[#FFEED6] sticky top-0 z-40">
-        <Link href="/dashboard" className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-[#FFEED6] flex items-center justify-center border border-[#827148]/20">
-            <div className="w-3.5 h-3.5 rounded-md bg-[#A5AF79]" />
+      {/* 1. TOP TELEMETRY UTILITY BAR (24px Fixed) */}
+      <div className="h-6 w-full bg-[#171717] text-surface-white font-mono text-[10px] sm:text-[11px] px-4 flex items-center justify-between border-b border-[#171717] sticky top-0 z-50 select-none">
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1.5">
+            <span className="size-1.5 bg-accent-canary rounded-none" />
+            <span className="font-semibold tracking-wider">SYS_LMS // BBN_EDUCATION</span>
           </div>
-          <span className="font-extrabold text-sm text-[#827148]">
-            {APP_NAME}
+          <span className="text-surface-white/40">|</span>
+          <span className="text-surface-white/70 hidden sm:inline">LATENCY: 24ms</span>
+          <span className="text-surface-white/40 hidden sm:inline">|</span>
+          <span className="text-emerald-400 font-semibold hidden md:inline">SYS_STATUS: NOMINAL</span>
+        </div>
+
+        <div className="flex items-center gap-3">
+          {userProfile?.email && (
+            <span className="text-surface-white/75 hidden md:inline truncate max-w-xs">
+              USER: {userProfile.email}
+            </span>
+          )}
+          <button
+            type="button"
+            onClick={handleLogout}
+            className="text-surface-white/80 hover:text-accent-canary underline transition-colors cursor-pointer"
+          >
+            [LOGOUT]
+          </button>
+        </div>
+      </div>
+
+      {/* 2. MOBILE HEADER BAR */}
+      <div className="lg:hidden flex items-center justify-between p-3.5 bg-surface-white border-b border-[#171717] sticky top-6 z-40">
+        <Link href="/dashboard" className="flex items-center gap-2">
+          <span className="size-2.5 bg-alert-rust rounded-none" />
+          <span className="font-sans font-extrabold text-sm text-[#171717]">
+            BBN Education
+          </span>
+          <span className="font-mono text-[9px] px-1 bg-canvas-paper border border-[#171717] text-ink-muted">
+            LMS
           </span>
         </Link>
         <button
           type="button"
           onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="p-2 rounded-lg border border-[#FFEED6] bg-[#FFEED6]/30 text-[#827148]"
+          className="p-1.5 border border-[#171717] bg-canvas-paper text-[#171717] technical-shadow-sm cursor-pointer"
           aria-label="Toggle navigation menu"
         >
-          <div className="w-5 h-4 flex flex-col justify-between">
-            <span className="w-full h-0.5 bg-[#827148] rounded-full" />
-            <span className="w-full h-0.5 bg-[#827148] rounded-full" />
-            <span className="w-full h-0.5 bg-[#827148] rounded-full" />
-          </div>
+          {sidebarOpen ? <X className="size-4" /> : <Menu className="size-4" />}
         </button>
       </div>
 
-      <div className="flex">
-        {/* Fixed Desktop Sidebar */}
-        <aside className="hidden lg:block w-64 h-screen sticky top-0 border-r border-[#FFEED6] bg-white z-20">
+      {/* 3. WORKSPACE CONTAINER (SIDEBAR + MAIN CANVAS) */}
+      <div className="flex min-h-[calc(100vh-24px)]">
+        {/* Fixed Desktop Sidebar (260px) */}
+        <aside className="hidden lg:block w-[260px] h-[calc(100vh-24px)] sticky top-6 z-30 shrink-0">
           <SidebarContent />
         </aside>
 
@@ -290,17 +335,17 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
         {sidebarOpen && (
           <div className="lg:hidden fixed inset-0 z-50">
             <div
-              className="absolute inset-0 bg-[#827148]/30 backdrop-blur-xs"
+              className="absolute inset-0 bg-[#171717]/60 backdrop-blur-xs"
               onClick={() => setSidebarOpen(false)}
             />
-            <aside className="relative w-64 h-full bg-white z-10 shadow-xl">
+            <aside className="relative w-64 h-full bg-surface-white z-10 technical-shadow">
               <SidebarContent />
             </aside>
           </div>
         )}
 
-        {/* Scrollable Main Content Area */}
-        <main className="flex-1 min-h-screen p-6 sm:p-8 max-w-7xl mx-auto w-full">
+        {/* Main Content Area */}
+        <main className="flex-1 min-h-[calc(100vh-24px)] bg-canvas-paper p-4 sm:p-6 lg:p-8 max-w-[1440px] mx-auto w-full overflow-y-auto">
           {children}
         </main>
       </div>

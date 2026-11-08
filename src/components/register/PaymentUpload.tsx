@@ -2,6 +2,7 @@
 
 import { MAX_FILE_SIZE, ACCEPTED_IMAGE_TYPES } from "@/constants"
 import { toast } from "sonner"
+import { Upload, X } from "lucide-react"
 
 interface PaymentUploadProps {
   file: File | null
@@ -34,8 +35,8 @@ export function PaymentUpload({ file, previewUrl, onFileChange }: PaymentUploadP
 
   return (
     <div className="space-y-2 font-sans">
-      <label htmlFor="payment-proof" className="text-sm font-semibold text-[#827148] block">
-        Bukti Pembayaran
+      <label htmlFor="payment-proof" className="font-mono text-[10px] sm:text-xs font-bold text-[#171717] uppercase tracking-wider block">
+        [BERKAS] BUKTI PEMBAYARAN TRANSFER *
       </label>
       <div className="relative">
         <input
@@ -47,26 +48,26 @@ export function PaymentUpload({ file, previewUrl, onFileChange }: PaymentUploadP
         />
         <label
           htmlFor="payment-proof"
-          className="flex flex-col items-center justify-center w-full h-36 rounded-2xl border-2 border-dashed border-[#FFEED6] cursor-pointer hover:border-[#A5AF79] transition-colors bg-[#FFEED6]/20 p-4 text-center"
+          className="flex flex-col items-center justify-center w-full min-h-[140px] border-2 border-dashed border-[#171717] hover:border-alert-rust bg-canvas-paper hover:bg-surface-white cursor-pointer transition-colors p-4 text-center"
         >
           {previewUrl ? (
             <div className="relative h-full w-full flex items-center justify-center">
               <img
                 src={previewUrl}
                 alt="Bukti Transfer"
-                className="h-full max-h-28 object-contain rounded-lg"
+                className="max-h-28 object-contain border border-[#171717]"
               />
             </div>
           ) : (
-            <div className="flex flex-col items-center gap-2 text-[#827148]">
-              <div className="w-10 h-10 rounded-xl bg-[#FFEED6] flex items-center justify-center border border-[#827148]/10">
-                <div className="w-3.5 h-3.5 rounded-sm bg-[#A5AF79]" />
+            <div className="flex flex-col items-center gap-1.5 text-[#171717]">
+              <div className="w-8 h-8 bg-surface-white border border-[#171717] flex items-center justify-center shadow-[1px_1px_0px_#171717]">
+                <Upload className="w-4 h-4 text-[#171717]" />
               </div>
-              <span className="text-xs font-bold text-[#827148]">
-                Klik untuk unggah bukti transfer bank / e-wallet
+              <span className="font-mono text-xs font-bold uppercase mt-1">
+                KLIK UNTUK UNGGAH BUKTI TRANSFER
               </span>
-              <span className="text-[11px] text-[#827148]/70 font-medium">
-                JPG, PNG, WebP (maks. 5MB)
+              <span className="font-mono text-[10px] text-ink-muted">
+                JPG, PNG, WebP (Maksimal 5MB)
               </span>
             </div>
           )}
@@ -76,15 +77,16 @@ export function PaymentUpload({ file, previewUrl, onFileChange }: PaymentUploadP
             type="button"
             onClick={handleClear}
             aria-label="Hapus bukti pembayaran"
-            className="absolute top-3 right-3 w-7 h-7 bg-[#E8A07C] hover:bg-[#d8916e] text-white rounded-full flex items-center justify-center font-bold text-xs shadow-sm transition-colors"
+            className="absolute top-2 right-2 px-2 py-1 bg-alert-rust hover:bg-[#993A08] text-white border border-[#171717] font-mono text-[10px] font-bold shadow-[2px_2px_0px_#171717] flex items-center gap-1 cursor-pointer transition-colors"
           >
-            ✕
+            <X className="w-3 h-3" />
+            <span>HAPUS</span>
           </button>
         )}
       </div>
       {file && (
-        <p className="text-xs text-[#827148]/80 font-medium">
-          {file.name} ({(file.size / 1024 / 1024).toFixed(2)} MB)
+        <p className="font-mono text-[10px] text-ink-muted">
+          BERKAS: {file.name} ({(file.size / 1024 / 1024).toFixed(2)} MB)
         </p>
       )}
     </div>

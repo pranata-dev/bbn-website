@@ -15,6 +15,18 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+import {
+  Check,
+  Copy,
+  Upload,
+  AlertTriangle,
+  ArrowRight,
+  ShieldCheck,
+  FileText,
+  User,
+  Sparkles,
+  Lock,
+} from "lucide-react"
 
 export type StudentCategory = "PHYSICS_SEM_3" | "NON_PHYSICS"
 export type BillingCycle = "MONTHLY" | "SEMESTER"
@@ -356,7 +368,7 @@ export function UTSPackageForm({
       return
     }
     if (!activeFile) {
-      toast.error("Mohon unggah bukti pembayaran transfer SeaBank.")
+      toast.error("Mohon unggah bukti pembayaran transfer bank.")
       return
     }
 
@@ -382,7 +394,9 @@ export function UTSPackageForm({
     try {
       // Ensure auth session is resolved if already logged in via Google
       const supabase = createClient()
-      const { data: { session } } = await supabase.auth.getSession()
+      const {
+        data: { session },
+      } = await supabase.auth.getSession()
       const resolvedAuthId = session?.user?.id || currentUser?.id
 
       const formPayload = new FormData()
@@ -436,31 +450,36 @@ export function UTSPackageForm({
   return (
     <div className="w-full font-sans max-w-full">
       <form onSubmit={handleFormSubmit}>
-        {/* 2-Column Grid Layout for Desktop (1-Column on Mobile) */}
+        {/* 2-Column Grid Layout for Desktop */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-start">
-          
           {/* ======================================================== */}
-          {/* LEFT COLUMN (Auth, Form, Curriculum & Packages)          */}
+          {/* LEFT COLUMN: Data Siswa, Kurikulum & Paket Pilihan       */}
           {/* ======================================================== */}
           <div className="lg:col-span-7 space-y-6">
-
             {/* 1. Google Sign-In & Personal Data Container */}
-            <div className="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-[#FFEED6] mb-6">
-              
-              {/* Authenticated State vs Google Sign-In Button */}
+            <div className="bg-surface-white border-2 border-[#171717] p-6 sm:p-8 shadow-[4px_4px_0px_#171717] relative">
+              <div className="flex items-center justify-between border-b-2 border-[#171717] pb-3 mb-6">
+                <span className="font-mono text-[10px] font-bold text-alert-rust uppercase tracking-wider">
+                  [STEP 02.1] // DATA_IDENTITAS_SISWA
+                </span>
+                <span className="font-mono text-[10px] font-bold bg-canvas-paper px-2 py-0.5 border border-[#171717]">
+                  WAJIB DIISI
+                </span>
+              </div>
+
               {currentUser ? (
                 /* Authenticated User Badge */
-                <div className="bg-[#A5AF79]/15 border border-[#A5AF79] rounded-2xl p-4 flex items-center justify-between shadow-2xs mb-6">
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-xl bg-[#A5AF79] text-white flex items-center justify-center font-bold text-sm shadow-2xs">
-                      ✓
+                <div className="bg-accent-canary/15 border-2 border-[#171717] p-3.5 flex items-center justify-between shadow-[2px_2px_0px_#171717] mb-6">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-8 h-8 bg-[#171717] text-accent-canary flex items-center justify-center font-mono font-bold text-xs border border-[#171717]">
+                      <Check className="w-4 h-4 stroke-[3]" />
                     </div>
                     <div>
-                      <p className="text-xs font-bold text-[#827148]">
-                        Masuk sebagai {fullName || currentUser.email}
+                      <p className="font-mono text-xs font-bold text-[#171717]">
+                        {fullName || currentUser.email}
                       </p>
-                      <p className="text-[11px] text-[#827148]/70 font-medium">
-                        {email || currentUser.email} • Akun Google Terhubung
+                      <p className="font-mono text-[10px] text-ink-muted">
+                        {email || currentUser.email} • [GOOGLE_LINKED]
                       </p>
                     </div>
                   </div>
@@ -468,9 +487,9 @@ export function UTSPackageForm({
                   <button
                     type="button"
                     onClick={handleSignOutGoogle}
-                    className="text-xs font-bold text-[#827148] hover:text-[#E8A07C] underline cursor-pointer"
+                    className="font-mono text-[11px] font-bold text-alert-rust underline hover:text-[#171717] cursor-pointer"
                   >
-                    Ganti Akun
+                    [GANTI AKUN]
                   </button>
                 </div>
               ) : (
@@ -480,22 +499,39 @@ export function UTSPackageForm({
                     type="button"
                     onClick={handleGoogleSignIn}
                     disabled={isGoogleLoading}
-                    className="w-full bg-white border-2 border-[#FFEED6] text-[#827148] font-bold rounded-xl py-3.5 px-4 flex justify-center items-center gap-3 transition-colors hover:bg-gray-50 cursor-pointer shadow-2xs disabled:opacity-60 text-sm"
+                    className="w-full bg-canvas-paper border-2 border-[#171717] text-[#171717] hover:bg-surface-white font-mono text-xs font-bold uppercase py-3 px-4 flex justify-center items-center gap-3 transition-all cursor-pointer shadow-[2px_2px_0px_#171717] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_#171717] disabled:opacity-60"
                   >
-                    <div className="w-5 h-5 rounded-md bg-[#FFEED6] flex items-center justify-center p-1 border border-[#827148]/15">
-                      <div className="w-2.5 h-2.5 rounded-full bg-[#A5AF79]" />
-                    </div>
+                    <svg className="w-4 h-4" viewBox="0 0 24 24">
+                      <path
+                        fill="#4285F4"
+                        d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                      />
+                      <path
+                        fill="#34A853"
+                        d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                      />
+                      <path
+                        fill="#FBBC05"
+                        d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
+                      />
+                      <path
+                        fill="#EA4335"
+                        d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
+                      />
+                    </svg>
                     <span>
                       {isGoogleLoading
                         ? "Menghubungkan ke Google..."
-                        : "Daftar Cepat dengan Google"}
+                        : "DAFTAR CEPAT DENGAN GOOGLE"}
                     </span>
                   </button>
 
-                  <div className="flex items-center my-5 gap-3 text-xs text-gray-400 font-semibold uppercase tracking-wider">
-                    <span className="flex-1 border-t border-[#FFEED6]" />
-                    <span>ATAU ISI MANUAL</span>
-                    <span className="flex-1 border-t border-[#FFEED6]" />
+                  <div className="flex items-center my-4 gap-3">
+                    <span className="flex-1 border-t-2 border-[#171717]" />
+                    <span className="font-mono text-[10px] font-bold text-ink-muted uppercase tracking-wider px-1">
+                      ATAU ISI DATA MANUAL
+                    </span>
+                    <span className="flex-1 border-t-2 border-[#171717]" />
                   </div>
                 </div>
               )}
@@ -504,8 +540,8 @@ export function UTSPackageForm({
               <div className="space-y-4">
                 {/* Full Name */}
                 <div>
-                  <label className="text-xs font-bold text-[#827148] mb-1.5 block">
-                    Nama Lengkap <span className="text-[#E8A07C]">*</span>
+                  <label className="font-mono text-[10px] sm:text-xs font-bold text-[#171717] uppercase tracking-wider mb-1 block">
+                    [01] NAMA LENGKAP MAHASISWA *
                   </label>
                   <input
                     type="text"
@@ -513,14 +549,14 @@ export function UTSPackageForm({
                     placeholder="Contoh: Najwa Aaliyah Priyatna"
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
-                    className="w-full bg-white border-2 border-[#FFEED6] focus:border-[#A5AF79] focus:outline-none text-xs font-medium text-[#827148] placeholder:text-[#827148]/40 px-3.5 py-3 rounded-xl shadow-2xs transition-colors"
+                    className="w-full bg-canvas-paper border-2 border-[#171717] rounded-none px-3.5 py-2.5 text-xs font-mono text-[#171717] placeholder:text-ink-muted/50 focus:outline-none focus:ring-0 focus:border-alert-rust focus:bg-surface-white transition-colors"
                   />
                 </div>
 
                 {/* Email Address */}
                 <div>
-                  <label className="text-xs font-bold text-[#827148] mb-1.5 block">
-                    Alamat Email <span className="text-[#E8A07C]">*</span>
+                  <label className="font-mono text-[10px] sm:text-xs font-bold text-[#171717] uppercase tracking-wider mb-1 block">
+                    [02] ALAMAT EMAIL AKTIF *
                   </label>
                   <input
                     type="email"
@@ -528,14 +564,14 @@ export function UTSPackageForm({
                     placeholder="nama@email.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full bg-white border-2 border-[#FFEED6] focus:border-[#A5AF79] focus:outline-none text-xs font-medium text-[#827148] placeholder:text-[#827148]/40 px-3.5 py-3 rounded-xl shadow-2xs transition-colors"
+                    className="w-full bg-canvas-paper border-2 border-[#171717] rounded-none px-3.5 py-2.5 text-xs font-mono text-[#171717] placeholder:text-ink-muted/50 focus:outline-none focus:ring-0 focus:border-alert-rust focus:bg-surface-white transition-colors"
                   />
                 </div>
 
                 {/* WhatsApp Number */}
                 <div>
-                  <label className="text-xs font-bold text-[#827148] mb-1.5 block">
-                    Nomor WhatsApp <span className="text-[#E8A07C]">*</span>
+                  <label className="font-mono text-[10px] sm:text-xs font-bold text-[#171717] uppercase tracking-wider mb-1 block">
+                    [03] NOMOR WHATSAPP AKTIF *
                   </label>
                   <input
                     type="tel"
@@ -543,52 +579,52 @@ export function UTSPackageForm({
                     placeholder="08xxxxxxxxxx"
                     value={whatsapp}
                     onChange={(e) => setWhatsapp(e.target.value)}
-                    className="w-full bg-white border-2 border-[#FFEED6] focus:border-[#A5AF79] focus:outline-none text-xs font-medium text-[#827148] placeholder:text-[#827148]/40 px-3.5 py-3 rounded-xl shadow-2xs transition-colors"
+                    className="w-full bg-canvas-paper border-2 border-[#171717] rounded-none px-3.5 py-2.5 text-xs font-mono text-[#171717] placeholder:text-ink-muted/50 focus:outline-none focus:ring-0 focus:border-alert-rust focus:bg-surface-white transition-colors"
                   />
                 </div>
               </div>
             </div>
 
             {/* 2. Curriculum Category Selection */}
-            <div className="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-[#FFEED6]">
-              <div className="flex items-center gap-2 mb-2">
-                <div className="w-2.5 h-2.5 rounded-full bg-[#A5AF79]" />
-                <h3 className="text-base font-extrabold text-[#827148]">
-                  Pilih Kategori Kurikulum
-                </h3>
+            <div className="bg-surface-white border-2 border-[#171717] p-6 sm:p-8 shadow-[4px_4px_0px_#171717]">
+              <div className="flex items-center justify-between border-b-2 border-[#171717] pb-3 mb-4">
+                <div className="flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 bg-accent-canary border border-[#171717] inline-block" />
+                  <h3 className="font-extrabold text-base text-[#171717]">
+                    Kategori Jalur Kurikulum
+                  </h3>
+                </div>
+                <span className="font-mono text-[10px] font-bold text-ink-muted">
+                  [PARAM_02]
+                </span>
               </div>
-              <p className="text-xs text-[#827148]/70 font-medium mb-4">
-                Pilih jalur kurikulum mata kuliah yang sedang kamu tempuh di semester ini.
+
+              <p className="font-mono text-xs text-ink-muted mb-4">
+                Pilih jalur kurikulum mata kuliah yang sedang kamu tempuh di semester ini:
               </p>
 
               {/* Radio Group / Toggle Cards */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5 font-mono">
                 <button
                   type="button"
                   onClick={() => setStudentCategory("PHYSICS_SEM_3")}
-                  className={`p-4 rounded-2xl border-2 text-left transition-all cursor-pointer shadow-2xs ${
+                  className={`p-4 border-2 text-left transition-all cursor-pointer ${
                     studentCategory === "PHYSICS_SEM_3"
-                      ? "border-[#A5AF79] bg-[#A5AF79]/10"
-                      : "border-[#FFEED6] bg-white hover:border-[#A5AF79]/50"
+                      ? "border-[#171717] bg-accent-canary text-[#171717] shadow-[3px_3px_0px_#171717]"
+                      : "border-[#171717] bg-canvas-paper hover:bg-surface-white text-[#171717]"
                   }`}
                 >
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="font-bold text-xs text-[#827148]">
-                      Dept. Fisika Smt 3
+                  <div className="flex items-center justify-between mb-1.5">
+                    <span className="font-bold text-xs">
+                      [A] DEPT. FISIKA SMT 3
                     </span>
-                    <div
-                      className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
-                        studentCategory === "PHYSICS_SEM_3"
-                          ? "border-[#A5AF79] bg-[#A5AF79]"
-                          : "border-[#827148]/30"
-                      }`}
-                    >
+                    <div className="w-4 h-4 border-2 border-[#171717] flex items-center justify-center bg-surface-white">
                       {studentCategory === "PHYSICS_SEM_3" && (
-                        <div className="w-1.5 h-1.5 rounded-full bg-white" />
+                        <div className="w-2 h-2 bg-[#171717]" />
                       )}
                     </div>
                   </div>
-                  <p className="text-[11px] text-[#827148]/70">
+                  <p className="text-[11px] text-ink-muted">
                     6 Mata Kuliah Lengkap Fisika Murni Semester 3
                   </p>
                 </button>
@@ -596,49 +632,43 @@ export function UTSPackageForm({
                 <button
                   type="button"
                   onClick={() => setStudentCategory("NON_PHYSICS")}
-                  className={`p-4 rounded-2xl border-2 text-left transition-all cursor-pointer shadow-2xs ${
+                  className={`p-4 border-2 text-left transition-all cursor-pointer ${
                     studentCategory === "NON_PHYSICS"
-                      ? "border-[#A5AF79] bg-[#A5AF79]/10"
-                      : "border-[#FFEED6] bg-white hover:border-[#A5AF79]/50"
+                      ? "border-[#171717] bg-accent-canary text-[#171717] shadow-[3px_3px_0px_#171717]"
+                      : "border-[#171717] bg-canvas-paper hover:bg-surface-white text-[#171717]"
                   }`}
                 >
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="font-bold text-xs text-[#827148]">
-                      Umum / Non-Fisika
+                  <div className="flex items-center justify-between mb-1.5">
+                    <span className="font-bold text-xs">
+                      [B] UMUM / NON-FISIKA
                     </span>
-                    <div
-                      className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
-                        studentCategory === "NON_PHYSICS"
-                          ? "border-[#A5AF79] bg-[#A5AF79]"
-                          : "border-[#827148]/30"
-                      }`}
-                    >
+                    <div className="w-4 h-4 border-2 border-[#171717] flex items-center justify-center bg-surface-white">
                       {studentCategory === "NON_PHYSICS" && (
-                        <div className="w-1.5 h-1.5 rounded-full bg-white" />
+                        <div className="w-2 h-2 bg-[#171717]" />
                       )}
                     </div>
                   </div>
-                  <p className="text-[11px] text-[#827148]/70">
-                    4 Mata Kuliah Fisika Dasar, Kalkulus & Statistika
+                  <p className="text-[11px] text-ink-muted">
+                    4 Mata Kuliah Fisika Dasar, Kalkulus &amp; Statistika
                   </p>
                 </button>
               </div>
 
               {/* All-Access Material Pill Badges Container */}
-              <div className="bg-[#FFEED6]/30 border border-[#FFEED6] rounded-2xl p-4">
-                <div className="flex items-center justify-between mb-3">
-                  <span className="text-xs font-bold text-[#827148]">
-                    Akses Materi Termasuk:
+              <div className="bg-canvas-paper border-2 border-[#171717] p-4">
+                <div className="flex items-center justify-between mb-2.5">
+                  <span className="font-mono text-xs font-bold text-[#171717]">
+                    AKSES MODUL MATERI TERMASUK:
                   </span>
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-[#A5AF79] bg-white px-2 py-0.5 rounded-md border border-[#FFEED6]">
-                    All-Access
+                  <span className="font-mono text-[9px] font-bold bg-[#171717] text-accent-canary px-2 py-0.5 border border-[#171717]">
+                    ALL-ACCESS
                   </span>
                 </div>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-1.5">
                   {activeAllAccessCourses.map((c) => (
                     <span
                       key={c}
-                      className="bg-white border border-[#FFEED6] text-[#827148] text-xs font-semibold px-3 py-1.5 rounded-xl shadow-2xs"
+                      className="bg-surface-white border border-[#171717] text-[#171717] font-mono text-[10px] font-bold px-2 py-1 shadow-[1px_1px_0px_#171717]"
                     >
                       {c}
                     </span>
@@ -648,41 +678,41 @@ export function UTSPackageForm({
             </div>
 
             {/* 3. Package Selection Section */}
-            <div className="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-[#FFEED6]">
-              <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
+            <div className="bg-surface-white border-2 border-[#171717] p-6 sm:p-8 shadow-[4px_4px_0px_#171717]">
+              <div className="flex items-center justify-between mb-6 flex-wrap gap-3 border-b-2 border-[#171717] pb-3">
                 <div>
-                  <h3 className="text-base font-extrabold text-[#827148]">
+                  <h3 className="font-extrabold text-base text-[#171717]">
                     Pilih Paket Belajar
                   </h3>
-                  <p className="text-xs text-[#827148]/70 font-medium mt-0.5">
-                    Pilih durasi dan fasilitas belajar yang kamu inginkan.
+                  <p className="font-mono text-xs text-ink-muted mt-0.5">
+                    [PARAM_03] Konfigurasi durasi dan lisensi akun
                   </p>
                 </div>
 
                 {/* Billing Cycle Toggle */}
-                <div className="flex items-center bg-[#FFEED6]/50 p-1 rounded-2xl border border-[#FFEED6]">
+                <div className="flex items-center bg-canvas-paper p-1 border-2 border-[#171717]">
                   <button
                     type="button"
                     onClick={() => setBillingCycle("MONTHLY")}
-                    className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                    className={`px-3 py-1.5 font-mono text-xs font-bold transition-all cursor-pointer ${
                       billingCycle === "MONTHLY"
-                        ? "bg-[#A5AF79] text-white shadow-2xs"
-                        : "text-[#827148] hover:bg-[#FFEED6]"
+                        ? "bg-[#171717] text-accent-canary shadow-[2px_2px_0px_#171717]"
+                        : "text-ink-muted hover:text-[#171717]"
                     }`}
                   >
-                    Bulanan
+                    BULANAN
                   </button>
                   <button
                     type="button"
                     onClick={() => setBillingCycle("SEMESTER")}
-                    className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                    className={`px-3 py-1.5 font-mono text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
                       billingCycle === "SEMESTER"
-                        ? "bg-[#A5AF79] text-white shadow-2xs"
-                        : "text-[#827148] hover:bg-[#FFEED6]"
+                        ? "bg-[#171717] text-accent-canary shadow-[2px_2px_0px_#171717]"
+                        : "text-ink-muted hover:text-[#171717]"
                     }`}
                   >
-                    <span>Semester Pass</span>
-                    <span className="text-[9px] bg-[#E8A07C] text-white font-black px-1.5 py-0.5 rounded-md">
+                    <span>SEMESTER PASS</span>
+                    <span className="text-[9px] bg-alert-rust text-white font-mono px-1">
                       HEMAT
                     </span>
                   </button>
@@ -690,7 +720,7 @@ export function UTSPackageForm({
               </div>
 
               {/* Package Options Cards */}
-              <div className="space-y-4">
+              <div className="space-y-3.5">
                 {activePackageList.map((pkg) => {
                   const isSelected = selectedPackageId === pkg.id
 
@@ -698,39 +728,39 @@ export function UTSPackageForm({
                     <div
                       key={pkg.id}
                       onClick={() => setSelectedPackageId(pkg.id)}
-                      className={`rounded-2xl border-2 p-5 transition-all cursor-pointer relative shadow-2xs ${
+                      className={`border-2 border-[#171717] p-5 transition-all cursor-pointer relative ${
                         isSelected
-                          ? "border-[#A5AF79] bg-[#A5AF79]/10"
-                          : "border-[#FFEED6] bg-white hover:border-[#A5AF79]/40"
+                          ? "bg-accent-canary/15 shadow-[5px_5px_0px_#171717] -translate-x-0.5 -translate-y-0.5"
+                          : "bg-surface-white hover:bg-canvas-paper shadow-[2px_2px_0px_#171717]"
                       }`}
                     >
                       {pkg.isPopular && (
-                        <span className="absolute -top-3 right-4 bg-[#E8A07C] text-white text-[10px] font-black uppercase tracking-wider px-3 py-0.5 rounded-full shadow-2xs">
-                          Paling Populer
+                        <span className="absolute -top-3 right-4 bg-[#171717] text-accent-canary border border-[#171717] font-mono text-[9px] font-bold uppercase tracking-wider px-2 py-0.5">
+                          [PALING POPULER]
                         </span>
                       )}
 
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                         <div>
                           <div className="flex items-center gap-2">
-                            <h4 className="font-extrabold text-sm text-[#827148]">
+                            <h4 className="font-extrabold text-sm text-[#171717]">
                               {pkg.name}
                             </h4>
                             {pkg.discountBadge && (
-                              <span className="text-[10px] font-bold text-[#E8A07C] bg-[#E8A07C]/15 px-2 py-0.5 rounded-md">
+                              <span className="font-mono text-[9px] font-bold text-white bg-alert-rust px-1.5 py-0.5 border border-[#171717]">
                                 {pkg.discountBadge}
                               </span>
                             )}
                           </div>
-                          <p className="text-xs text-[#827148]/70 mt-1">
+                          <p className="font-mono text-xs text-ink-muted mt-1">
                             {pkg.headline}
                           </p>
 
-                          <div className="flex flex-wrap gap-2 mt-3">
+                          <div className="flex flex-wrap gap-1.5 mt-3">
                             {pkg.features.map((feat, i) => (
                               <span
                                 key={i}
-                                className="text-[11px] font-medium text-[#827148]/80 bg-white/80 border border-[#FFEED6] px-2.5 py-0.5 rounded-lg"
+                                className="font-mono text-[10px] text-[#171717] bg-canvas-paper border border-[#171717] px-2 py-0.5"
                               >
                                 ✓ {feat}
                               </span>
@@ -738,13 +768,13 @@ export function UTSPackageForm({
                           </div>
                         </div>
 
-                        <div className="text-left sm:text-right shrink-0 border-t sm:border-t-0 pt-3 sm:pt-0 border-[#FFEED6]">
+                        <div className="text-left sm:text-right shrink-0 border-t sm:border-t-0 pt-3 sm:pt-0 border-[#171717]/20">
                           {pkg.originalPrice && (
-                            <span className="text-xs text-gray-400 line-through block">
+                            <span className="font-mono text-xs text-ink-muted line-through block">
                               {formatRupiah(pkg.originalPrice)}
                             </span>
                           )}
-                          <span className="text-lg font-black text-[#827148]">
+                          <span className="font-mono text-xl font-extrabold text-[#171717]">
                             {formatRupiah(pkg.price)}
                           </span>
                         </div>
@@ -754,180 +784,189 @@ export function UTSPackageForm({
                 })}
               </div>
             </div>
-
           </div>
 
           {/* ======================================================== */}
-          {/* RIGHT COLUMN (Order Summary, Payment, Upload & Checkout) */}
+          {/* RIGHT COLUMN: Invoice Ticket, Bank Readout, Upload & CTA */}
           {/* ======================================================== */}
           <div className="lg:col-span-5 space-y-6 lg:sticky lg:top-24">
-            
-            {/* Order Summary Card */}
-            <div className="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-[#FFEED6]">
-              <h3 className="text-base font-extrabold text-[#827148] mb-4 pb-2 border-b border-[#FFEED6]">
-                Ringkasan Pendaftaran
-              </h3>
+            {/* Purchase Order / Invoice Ticket */}
+            <div className="bg-surface-white border-2 border-[#171717] technical-shadow p-6 relative font-mono">
+              {/* Ticket Top Banner */}
+              <div className="flex items-center justify-between pb-3 mb-4 border-b-2 border-[#171717]">
+                <div className="flex items-center gap-1.5">
+                  <span className="w-2.5 h-2.5 bg-accent-canary border border-[#171717]" />
+                  <span className="font-mono text-xs font-bold text-[#171717]">
+                    INVOICE_TICKET // PO_8829
+                  </span>
+                </div>
+                <span className="text-[10px] bg-[#171717] text-surface-white px-2 py-0.5">
+                  BBN_EDU
+                </span>
+              </div>
 
-              <div className="space-y-3 text-xs text-[#827148]">
+              {/* Itemized Breakdown */}
+              <div className="space-y-2.5 text-xs">
                 <div className="flex items-center justify-between">
-                  <span className="text-[#827148]/70">Paket Terpilih:</span>
-                  <span className="font-bold text-[#827148]">
-                    {selectedPackage.name}
+                  <span className="text-ink-muted">PAKET TERPILIH:</span>
+                  <span className="font-bold text-[#171717]">{selectedPackage.name}</span>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <span className="text-ink-muted">MASA AKTIF:</span>
+                  <span className="font-bold text-[#171717]">
+                    {billingCycle === "SEMESTER" ? "6 BULAN (SEMESTER)" : "30 HARI (BULANAN)"}
                   </span>
                 </div>
 
                 <div className="flex items-center justify-between">
-                  <span className="text-[#827148]/70">Durasi:</span>
-                  <span className="font-bold text-[#827148]">
-                    {billingCycle === "SEMESTER" ? "6 Bulan (1 Semester)" : "30 Hari"}
-                  </span>
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <span className="text-[#827148]/70">Kategori:</span>
-                  <span className="font-bold text-[#827148]">
+                  <span className="text-ink-muted">JALUR KURIKULUM:</span>
+                  <span className="font-bold text-[#171717]">
                     {studentCategory === "PHYSICS_SEM_3"
-                      ? "Fisika Semester 3"
-                      : "Umum / Non-Fisika"}
+                      ? "FISIKA SMT 3"
+                      : "UMUM / NON-FISIKA"}
                   </span>
                 </div>
 
-                <div className="pt-3 border-t border-[#FFEED6] flex items-center justify-between text-sm">
-                  <span className="font-bold text-[#827148]">Total Pembayaran:</span>
-                  <span className="text-xl font-black text-[#827148]">
+                {/* Dashed Price Breakdown Divider */}
+                <div className="pt-3 border-t-2 border-dashed border-[#171717] flex items-center justify-between">
+                  <span className="font-bold text-xs text-[#171717]">TOTAL DITAGIHKAN:</span>
+                  <span className="text-2xl font-black text-[#171717]">
                     {formatRupiah(selectedPackage.price)}
                   </span>
                 </div>
               </div>
 
-              {/* SeaBank Transfer Details */}
-              <div className="bg-[#FFEED6]/40 border border-[#FFEED6] rounded-2xl p-4 mt-6 space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-[#827148]">
-                    Transfer Bank ({BUSINESS_CONFIG.payment.bankName})
+              {/* Transfer Bank Readout Table */}
+              <div className="border-2 border-[#171717] bg-canvas-paper p-4 mt-6 space-y-2 text-xs">
+                <div className="flex items-center justify-between border-b border-[#171717]/20 pb-1.5">
+                  <span className="font-bold text-[#171717]">
+                    TRANSFER BANK ({BUSINESS_CONFIG.payment.bankName})
                   </span>
-                  <span className="text-[10px] font-bold uppercase text-[#A5AF79] bg-white px-2 py-0.5 rounded-md border border-[#FFEED6]">
-                    Manual
+                  <span className="text-[9px] bg-accent-canary text-[#171717] px-1.5 py-0.5 border border-[#171717] font-bold">
+                    MANUAL CONFIRM
                   </span>
                 </div>
 
-                <div>
-                  <div className="flex items-center justify-between bg-white p-2.5 rounded-xl border border-[#FFEED6]">
-                    <div>
-                      <span className="text-[10px] text-gray-400 uppercase font-bold block">
-                        No. Rekening
-                      </span>
-                      <span className="font-mono font-bold text-xs sm:text-sm text-[#827148]">
+                <div className="space-y-1.5 pt-1">
+                  <div className="flex items-center justify-between">
+                    <span className="text-ink-muted text-[11px]">NO. REKENING:</span>
+                    <div className="flex items-center gap-1.5">
+                      <span className="font-extrabold text-[#171717]">
                         {BUSINESS_CONFIG.payment.accountNumber}
                       </span>
+                      <button
+                        type="button"
+                        onClick={handleCopySeaBank}
+                        className="bg-surface-white border border-[#171717] px-2 py-0.5 text-[10px] font-bold hover:bg-accent-canary shadow-[1px_1px_0px_#171717] cursor-pointer"
+                      >
+                        {copiedBank ? "TERSALIN ✓" : "SALIN"}
+                      </button>
                     </div>
-                    <button
-                      type="button"
-                      onClick={handleCopySeaBank}
-                      className="text-xs font-bold px-3 py-1.5 rounded-lg bg-[#FFEED6]/50 hover:bg-[#FFEED6] text-[#827148] transition-colors cursor-pointer"
-                    >
-                      {copiedBank ? "Tersalin ✓" : "Salin"}
-                    </button>
                   </div>
-                  <span className="text-[11px] text-[#827148]/70 mt-1.5 block font-medium">
-                    a.n. {BUSINESS_CONFIG.payment.accountHolder}
-                  </span>
+
+                  <div className="flex items-center justify-between text-[11px]">
+                    <span className="text-ink-muted">ATAS NAMA:</span>
+                    <span className="font-bold text-[#171717]">
+                      {BUSINESS_CONFIG.payment.accountHolder}
+                    </span>
+                  </div>
                 </div>
               </div>
 
               {/* File Upload Box */}
               <div className="mt-6">
-                <label className="text-xs font-bold text-[#827148] mb-2 block">
-                  Unggah Bukti Transfer <span className="text-[#E8A07C]">*</span>
+                <label className="font-mono text-[10px] sm:text-xs font-bold text-[#171717] uppercase tracking-wider mb-2 block">
+                  UNGGAH BUKTI TRANSFER PEMBAYARAN *
                 </label>
 
                 {activePreview ? (
-                  <div className="relative border-2 border-[#A5AF79] rounded-2xl p-3 bg-[#A5AF79]/10 flex items-center justify-between">
-                    <div className="flex items-center gap-3 truncate">
-                      <div className="w-8 h-8 rounded-lg bg-[#A5AF79] text-white flex items-center justify-center font-bold text-xs shrink-0">
+                  <div className="border-2 border-[#171717] p-3 bg-accent-canary/15 flex items-center justify-between">
+                    <div className="flex items-center gap-2 truncate">
+                      <span className="w-5 h-5 bg-[#171717] text-accent-canary flex items-center justify-center font-bold text-xs shrink-0">
                         ✓
-                      </div>
-                      <span className="text-xs font-bold text-[#827148] truncate">
-                        {activeFile?.name || "Bukti Transfer Terunggah"}
+                      </span>
+                      <span className="text-xs font-bold text-[#171717] truncate">
+                        {activeFile?.name || "Bukti Transfer Terlampir"}
                       </span>
                     </div>
                     <button
                       type="button"
                       onClick={handleClearFile}
-                      className="text-xs font-bold text-[#E8A07C] hover:underline shrink-0 ml-2 cursor-pointer"
+                      className="text-xs font-bold text-alert-rust underline hover:text-[#171717] shrink-0 ml-2 cursor-pointer"
                     >
-                      Hapus
+                      [HAPUS]
                     </button>
                   </div>
                 ) : (
-                  <label className="border-2 border-dashed border-[#A5AF79] hover:border-[#827148] bg-[#FFEED6]/20 hover:bg-[#FFEED6]/40 rounded-2xl p-5 flex flex-col items-center justify-center text-center cursor-pointer transition-colors block">
+                  <label className="border-2 border-dashed border-[#171717] hover:border-alert-rust bg-canvas-paper hover:bg-surface-white p-5 flex flex-col items-center justify-center text-center cursor-pointer transition-colors block">
                     <input
                       type="file"
                       accept="image/*"
                       onChange={handleFileChange}
                       className="hidden"
                     />
-                    <div className="w-10 h-10 rounded-2xl bg-[#FFEED6] flex items-center justify-center border border-[#827148]/15 mb-2 shadow-2xs">
-                      <div className="w-3.5 h-3.5 rounded-xs bg-[#A5AF79]" />
-                    </div>
-                    <span className="text-xs font-bold text-[#827148]">
-                      Klik untuk unggah bukti transfer SeaBank
+                    <Upload className="w-6 h-6 text-[#171717] mb-2" />
+                    <span className="text-xs font-bold text-[#171717] uppercase">
+                      Klik untuk Unggah Bukti Transfer
                     </span>
-                    <span className="text-[10px] text-[#827148]/60 mt-1">
+                    <span className="text-[10px] text-ink-muted mt-1">
                       JPG, PNG, atau WebP (Maksimal 5MB)
                     </span>
                   </label>
                 )}
               </div>
 
-              {/* Submit Checkout Button */}
+              {/* Massive High-Contrast Submit Checkout Button */}
               <button
                 type="submit"
                 disabled={isFormBusy}
-                className="w-full bg-[#A5AF79] hover:bg-[#949e6a] active:bg-[#8f9864] text-white font-bold rounded-xl py-4 px-4 mt-6 text-sm sm:text-base shadow-sm transition-all cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
+                className="w-full py-4 bg-accent-canary hover:bg-[#FACC15] text-[#171717] font-bold font-mono text-xs uppercase tracking-wider border-2 border-[#171717] shadow-[4px_4px_0px_#171717] hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_#171717] active:translate-y-0 active:shadow-[2px_2px_0px_#171717] transition-all cursor-pointer disabled:opacity-50 mt-6 flex items-center justify-center gap-2"
               >
                 {isFormBusy ? (
                   <>
-                    <div className="w-2 h-2 rounded-full bg-white animate-ping" />
-                    <span>Memproses Pendaftaran...</span>
+                    <span className="w-3.5 h-3.5 border-2 border-[#171717] border-t-transparent animate-spin inline-block" />
+                    <span>MEMPROSES PENDAFTARAN...</span>
                   </>
                 ) : (
-                  <span>Daftar & Konfirmasi Pembayaran</span>
+                  <>
+                    <span>DAFTAR &amp; SELESAIKAN ORDER</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </>
                 )}
               </button>
             </div>
-
           </div>
-
         </div>
       </form>
 
-      {/* ======================================================== */}
-      {/* TASK 1: DUPLICATE GOOGLE ACCOUNT PREVENTION MODAL         */}
-      {/* ======================================================== */}
+      {/* Duplicate Google Account Prevention Modal */}
       <Dialog
         open={showDuplicateModal}
         onOpenChange={(open) => setShowDuplicateModal(open)}
       >
-        <DialogContent className="max-w-md bg-white border-2 border-[#FFEED6] rounded-3xl p-6 sm:p-8 shadow-lg font-sans">
+        <DialogContent className="max-w-md bg-surface-white border-2 border-[#171717] rounded-none p-6 sm:p-8 shadow-[8px_8px_0px_#171717] font-sans relative">
           <DialogHeader>
-            <div className="w-12 h-12 rounded-2xl bg-[#E8A07C]/20 border border-[#E8A07C]/40 flex items-center justify-center mx-auto mb-3 shadow-2xs">
-              <div className="w-4 h-4 rounded-xs bg-[#E8A07C]" />
+            <div className="flex items-center gap-2 mb-1">
+              <span className="w-2.5 h-2.5 bg-alert-rust border border-[#171717] inline-block" />
+              <span className="font-mono text-xs font-bold text-alert-rust uppercase">
+                [ALERT // DUPLICATE_ACCOUNT]
+              </span>
             </div>
-            <DialogTitle className="text-lg sm:text-xl font-bold text-[#827148] text-center">
-              Akun Sudah Terdaftar
+            <DialogTitle className="text-lg sm:text-xl font-extrabold text-[#171717] tracking-tight">
+              Akun Sudah Pernah Terdaftar
             </DialogTitle>
-            <DialogDescription className="text-sm text-[#827148]/80 text-center leading-relaxed mt-2">
-              Akun Google dengan email <strong>{duplicateEmail}</strong> ini sudah pernah digunakan di Belajar Bareng Nata. Silakan langsung masuk melalui halaman Login.
+            <DialogDescription className="font-mono text-xs text-ink-muted mt-2 leading-relaxed">
+              Alamat email <strong>{duplicateEmail}</strong> telah terdaftar di database BBN Education. Silakan langsung masuk melalui portal login siswa.
             </DialogDescription>
           </DialogHeader>
 
-          <DialogFooter className="mt-4">
+          <DialogFooter className="mt-4 pt-3 border-t border-[#171717]">
             <Link
               href="/login"
-              className="w-full bg-[#A5AF79] hover:bg-[#949e6a] text-white font-bold rounded-xl py-3 px-4 text-center text-sm sm:text-base shadow-2xs transition-colors block cursor-pointer"
+              className="w-full bg-accent-canary hover:bg-[#FACC15] text-[#171717] font-mono text-xs font-bold uppercase py-3 px-4 text-center border-2 border-[#171717] shadow-[3px_3px_0px_#171717] block transition-all"
             >
-              Menuju Halaman Login
+              MENUJU HALAMAN LOGIN SISWA →
             </Link>
           </DialogFooter>
         </DialogContent>

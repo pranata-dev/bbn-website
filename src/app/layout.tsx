@@ -1,24 +1,30 @@
 import type { Metadata } from "next"
-import { Montserrat } from "next/font/google"
+import { Geist, JetBrains_Mono } from "next/font/google"
 import { Toaster } from "@/components/ui/sonner"
 import { ThemeProvider } from "@/contexts/ThemeContext"
 import "./globals.css"
 
-const montserrat = Montserrat({
+const geist = Geist({
   subsets: ["latin"],
-  variable: "--font-montserrat",
+  variable: "--font-geist",
+  display: "swap",
+})
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  variable: "--font-jetbrains-mono",
   display: "swap",
 })
 
 export const metadata: Metadata = {
-  title: "Belajar Bareng Nata — Tutor Fisika Personal & E-Learning",
+  title: "BBN Education — Platform Pembelajaran & Tryout Fisika",
   description:
     "Platform bimbingan belajar dan tryout interaktif untuk persiapan ujian Fisika Dasar. Pilihan program E-Learning mandiri dan Tutoring Offline.",
-  keywords: ["fisika", "tutor", "tryout", "fisika dasar", "belajar fisika", "e-learning", "tutoring offline"],
+  keywords: ["fisika", "tutor", "tryout", "fisika dasar", "belajar fisika", "e-learning", "tutoring offline", "bbn education"],
   openGraph: {
-    title: "Belajar Bareng Nata — Tutor Fisika Personal & E-Learning",
+    title: "BBN Education — Tutor Fisika Personal & E-Learning",
     description:
-      "Belajar Fisika lebih terarah, lebih siap ujian. Platform tryout dan latihan soal Fisika Dasar.",
+      "Belajar Fisika lebih terarah, lebih siap ujian bersama BBN Education. Platform tryout dan latihan soal Fisika Dasar.",
     type: "website",
   },
 }
@@ -29,8 +35,8 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="id" className="scroll-smooth">
-      <body className={`${montserrat.variable} ${montserrat.className} font-sans antialiased text-[#827148]`}>
+    <html lang="id" className={`scroll-smooth ${geist.variable} ${jetbrainsMono.variable}`}>
+      <body className={`${geist.variable} ${jetbrainsMono.variable} font-sans antialiased bg-background text-foreground selection:bg-accent selection:text-foreground`}>
         <ThemeProvider>
           {children}
         </ThemeProvider>

@@ -90,8 +90,35 @@ export async function GET(
             }, { status: 403 })
         }
 
+        // Find previous and next modules in the same course
+        let prevMaterial = null
+        let nextMaterial = null
+
+        if (material.course_id) {
+            const { data: siblings } = await supabase
+                .from("materials")
+                .select("id, slug, title, module_number, sort_order")
+                .eq("course_id", material.course_id)
+                .eq("is_published", true)
+                .order("sort_order", { ascending: true })
+
+            if (siblings && siblings.length > 0) {
+                const currentIndex = siblings.findIndex((s: any) => s.id === material.id || (material.slug && s.slug === material.slug))
+                if (currentIndex > 0) {
+                    prevMaterial = siblings[currentIndex - 1]
+                }
+                if (currentIndex >= 0 && currentIndex < siblings.length - 1) {
+                    nextMaterial = siblings[currentIndex + 1]
+                }
+            }
+        }
+
         return NextResponse.json({
-            material,
+            material: {
+                ...material,
+                prev_material: prevMaterial,
+                next_material: nextMaterial,
+            },
             entitlements: {
                 isFreeTier: entitlements.tier === "FREE",
                 tier: entitlements.tier,
