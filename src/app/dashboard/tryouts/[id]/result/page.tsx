@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { useSearchParams, useParams } from "next/navigation"
 import Link from "next/link"
-import { Trophy, Target, CheckCircle, Home, Clock, AlertCircle, Loader2 } from "lucide-react"
+import { Trophy, Target, CheckCircle, Home, Clock, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 interface SubmissionData {

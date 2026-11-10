@@ -14,6 +14,11 @@ import {
 } from "@/components/ui/dialog"
 import { QuestionCategory } from "@/types"
 
+interface TryoutQuestionItem {
+  id?: string
+  count?: number
+}
+
 interface TryoutDetail {
   id: string
   title: string
@@ -22,8 +27,14 @@ interface TryoutDetail {
   duration: number
   status: string
   max_attempts: number
-  tryout_questions: { id: string }[] | { count: number }[]
+  tryout_questions: TryoutQuestionItem[]
   subject?: string
+}
+
+interface SubmissionSummary {
+  id: string
+  status: string
+  score: number | null
 }
 
 const CATEGORY_LABELS: Record<string, string> = {
@@ -43,7 +54,7 @@ export default function TryoutDetailPage() {
   const { id } = useParams<{ id: string }>()
   const router = useRouter()
   const [tryout, setTryout] = useState<TryoutDetail | null>(null)
-  const [submission, setSubmission] = useState<any>(null)
+  const [submission, setSubmission] = useState<SubmissionSummary | null>(null)
   const [loading, setLoading] = useState(true)
   const [showConfirm, setShowConfirm] = useState(false)
   const [userQuota, setUserQuota] = useState<{ used: number; max: number }>({ used: 0, max: 0 })
@@ -55,7 +66,7 @@ export default function TryoutDetailPage() {
         // Fetch tryout details
         const resTryout = await fetch("/api/tryouts")
         const dataTryout = await resTryout.json()
-        const found = (dataTryout.tryouts || []).find((t: any) => t.id === id)
+        const found = ((dataTryout.tryouts || []) as TryoutDetail[]).find((t) => t.id === id)
 
         if (found) {
           setTryout(found)
@@ -123,7 +134,11 @@ export default function TryoutDetailPage() {
     )
   }
 
-  const questionCount = Array.isArray(tryout.tryout_questions) ? tryout.tryout_questions.length : 0
+  const questionCount = Array.isArray(tryout.tryout_questions)
+    ? tryout.tryout_questions[0]?.count !== undefined
+      ? tryout.tryout_questions[0].count
+      : tryout.tryout_questions.length
+    : 0
   const remainingQuota = Math.max(0, userQuota.max - userQuota.used)
   const isCompleted =
     submission &&

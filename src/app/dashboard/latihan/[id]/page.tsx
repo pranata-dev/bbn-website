@@ -1,16 +1,29 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useParams, useRouter } from "next/navigation"
+import { useParams } from "next/navigation"
 import Link from "next/link"
+
+interface LatihanDetailData {
+  id: string
+  title: string
+  description: string | null
+  category: string | null
+  questionCount: number
+}
+
+interface SubmissionRecord {
+  id: string
+  status: string
+  score: number | null
+}
 
 export default function LatihanDetailPage() {
   const params = useParams()
-  const router = useRouter()
   const validId = typeof params?.id === "string" ? params.id : null
 
-  const [latihan, setLatihan] = useState<any>(null)
-  const [previousSubmission, setPreviousSubmission] = useState<any>(null)
+  const [latihan, setLatihan] = useState<LatihanDetailData | null>(null)
+  const [previousSubmission, setPreviousSubmission] = useState<SubmissionRecord | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -22,19 +35,22 @@ export default function LatihanDetailPage() {
         const { createClient } = await import("@/lib/supabase/client")
         const supabase = createClient()
 
-        const { data, error } = await supabase
+        const { data, error: fetchErr } = await supabase
           .from("tryouts")
           .select("*, tryout_questions(id)")
           .eq("id", validId)
           .eq("is_practice", true)
           .single()
 
-        if (error || !data) {
+        if (fetchErr || !data) {
           throw new Error("Modul latihan tidak ditemukan.")
         }
 
         setLatihan({
-          ...data,
+          id: data.id,
+          title: data.title,
+          description: data.description,
+          category: data.category,
           questionCount: data.tryout_questions?.length || 0,
         })
 
@@ -57,13 +73,14 @@ export default function LatihanDetailPage() {
               .limit(1)
 
             if (submissions && submissions.length > 0) {
-              setPreviousSubmission(submissions[0])
+              setPreviousSubmission(submissions[0] as SubmissionRecord)
             }
           }
         }
-      } catch (err: any) {
+      } catch (err) {
         console.error("Fetch error:", err)
-        setError(err.message || "Gagal memuat detail modul latihan.")
+        const msg = err instanceof Error ? err.message : "Gagal memuat detail modul latihan."
+        setError(msg)
       } finally {
         setLoading(false)
       }

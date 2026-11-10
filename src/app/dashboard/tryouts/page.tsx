@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -28,23 +28,23 @@ export default function TryoutsPage() {
   const [filter, setFilter] = useState<string>("all")
   const { selectedSubject } = useSubject()
 
-  useEffect(() => {
-    fetchTryouts()
-  }, [selectedSubject])
-
-  const fetchTryouts = async () => {
+  const fetchTryouts = useCallback(async () => {
     setLoading(true)
     try {
       const res = await fetch(`/api/tryouts?subject=${selectedSubject}`)
       const data = await res.json()
-      const properTryouts = (data.tryouts || []).filter((t: any) => !t.is_practice)
+      const properTryouts = ((data.tryouts || []) as TryoutItem[]).filter((t) => !t.is_practice)
       setTryouts(properTryouts)
     } catch (error) {
       console.error("Failed to fetch tryouts:", error)
     } finally {
       setLoading(false)
     }
-  }
+  }, [selectedSubject])
+
+  useEffect(() => {
+    fetchTryouts()
+  }, [fetchTryouts])
 
   const filteredTryouts = filter === "all"
     ? tryouts
@@ -150,7 +150,7 @@ export default function TryoutsPage() {
         <div className="flex items-center justify-between border-b-2 border-[#171717] pb-2 font-mono text-xs">
           <div className="flex items-center gap-2">
             <span className="font-bold text-[#171717]">&gt; SIMULASI_UJIAN_CBT</span>
-            <span className="text-ink-muted hidden sm:inline">// SUBJECT: {selectedSubject.toUpperCase()}</span>
+            <span className="text-ink-muted hidden sm:inline">{`// SUBJECT: ${selectedSubject.toUpperCase()}`}</span>
           </div>
           <div className="text-ink-muted font-bold">
             [{filteredTryouts.length} SIMULASI TERSEDIA]

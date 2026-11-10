@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, useCallback } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { ExamTimer } from "@/components/assessment/ExamTimer"
@@ -27,6 +27,12 @@ interface AnswerState {
   isDoubtful: boolean
 }
 
+interface SavedAnswerRow {
+  question_id: string
+  answer: string | null
+  flagged?: boolean | null
+}
+
 export default function TryoutAttemptPage() {
   const { id: tryoutId } = useParams<{ id: string }>()
   const router = useRouter()
@@ -49,6 +55,56 @@ export default function TryoutAttemptPage() {
   useEffect(() => {
     answersRef.current = answers
   }, [answers])
+
+  const handleSubmit = useCallback(
+    async (autoSubmit = false) => {
+      if (submittingRef.current || !submissionId) return
+      submittingRef.current = true
+      setSubmitting(true)
+
+      try {
+        const currentAnswers = answersRef.current
+        const answerPayload = Object.entries(currentAnswers).map(([questionId, state]) => ({
+          questionId,
+          answer: state.answer,
+        }))
+
+        const res = await fetch(`/api/tryouts/${tryoutId}/submit`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            submissionId,
+            answers: answerPayload,
+          }),
+        })
+
+        const data = await res.json()
+
+        if (!res.ok) {
+          throw new Error(data.error)
+        }
+
+        if (timerRef.current) clearInterval(timerRef.current)
+
+        localStorage.removeItem(`tryout_attempt_${tryoutId}`)
+
+        toast.success(
+          autoSubmit
+            ? "Waktu habis! Lembar jawaban di-submit otomatis."
+            : "Tryout berhasil dikumpulkan!"
+        )
+
+        router.push(
+          `/dashboard/tryouts/${tryoutId}/result?submissionId=${submissionId}&score=${data.score}&correct=${data.correctCount}&total=${data.totalCount}`
+        )
+      } catch (error) {
+        toast.error(error instanceof Error ? error.message : "Gagal submit tryout.")
+        submittingRef.current = false
+        setSubmitting(false)
+      }
+    },
+    [submissionId, tryoutId, router]
+  )
 
   // Start tryout
   useEffect(() => {
@@ -79,11 +135,12 @@ export default function TryoutAttemptPage() {
           initialAnswers[q.id] = { answer: null, isDoubtful: false }
         })
 
-        // Overwrite with DB auto-saved answers
+        // Overwrite with DB auto-saved answers & flagged state
         if (data.answers && data.answers.length > 0) {
-          data.answers.forEach((ans: any) => {
+          ;(data.answers as SavedAnswerRow[]).forEach((ans) => {
             if (initialAnswers[ans.question_id]) {
               initialAnswers[ans.question_id].answer = ans.answer
+              initialAnswers[ans.question_id].isDoubtful = Boolean(ans.flagged)
             }
           })
         }
@@ -92,11 +149,12 @@ export default function TryoutAttemptPage() {
         const savedState = localStorage.getItem(`tryout_attempt_${tryoutId}`)
         if (savedState) {
           try {
-            const parsed = JSON.parse(savedState)
+            const parsed = JSON.parse(savedState) as Record<string, AnswerState>
             Object.keys(parsed).forEach((qid) => {
               if (initialAnswers[qid]) {
-                initialAnswers[qid].isDoubtful = parsed[qid]?.isDoubtful || false
-                // Fallback to localStorage answer if DB auto-save failed/lagged
+                if (!initialAnswers[qid].isDoubtful && parsed[qid]?.isDoubtful) {
+                  initialAnswers[qid].isDoubtful = parsed[qid].isDoubtful
+                }
                 if (!initialAnswers[qid].answer && parsed[qid]?.answer) {
                   initialAnswers[qid].answer = parsed[qid].answer
                 }
@@ -109,7 +167,7 @@ export default function TryoutAttemptPage() {
 
         setAnswers(initialAnswers)
         setLoading(false)
-      } catch (error) {
+      } catch {
         toast.error("Gagal memulai tryout.")
         router.push(`/dashboard/tryouts`)
       }
@@ -131,7 +189,6 @@ export default function TryoutAttemptPage() {
           clearInterval(timerRef.current)
           timerRef.current = null
         }
-        // Auto-submit with fresh answers from ref
         handleSubmit(true)
       }
     }
@@ -142,20 +199,27 @@ export default function TryoutAttemptPage() {
     return () => {
       if (timerRef.current) clearInterval(timerRef.current)
     }
-  }, [loading])
+  }, [loading, handleSubmit])
 
-  // Anti-cheating: detect tab switching
+  // Anti-cheating: detect tab switching & persist to DB
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (document.hidden) {
         setShowWarning(true)
         toast.warning("Peringatan: Jangan berpindah tab saat mengerjakan tryout!")
+        if (submissionId) {
+          fetch(`/api/submissions/${submissionId}/answers`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ incrementTabSwitch: true }),
+          }).catch(() => {})
+        }
       }
     }
 
     document.addEventListener("visibilitychange", handleVisibilityChange)
     return () => document.removeEventListener("visibilitychange", handleVisibilityChange)
-  }, [])
+  }, [submissionId])
 
   // Prevent page refresh
   useEffect(() => {
@@ -175,6 +239,7 @@ export default function TryoutAttemptPage() {
   }, [answers, tryoutId, loading])
 
   const handleAnswer = async (questionId: string, answer: string) => {
+    const currentFlagged = answers[questionId]?.isDoubtful || false
     setAnswers((prev) => ({
       ...prev,
       [questionId]: { ...prev[questionId], answer },
@@ -186,7 +251,7 @@ export default function TryoutAttemptPage() {
         await fetch(`/api/submissions/${submissionId}/answers`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ questionId, answer }),
+          body: JSON.stringify({ questionId, answer, flagged: currentFlagged }),
         })
       } catch (error) {
         console.error("Failed to auto-save answer", error)
@@ -194,59 +259,26 @@ export default function TryoutAttemptPage() {
     }
   }
 
-  const toggleDoubtful = (questionId: string) => {
+  const toggleDoubtful = async (questionId: string) => {
+    const nextDoubtful = !answers[questionId]?.isDoubtful
     setAnswers((prev) => ({
       ...prev,
       [questionId]: {
         ...prev[questionId],
-        isDoubtful: !prev[questionId]?.isDoubtful,
+        isDoubtful: nextDoubtful,
       },
     }))
-  }
 
-  const handleSubmit = async (autoSubmit = false) => {
-    if (submittingRef.current || !submissionId) return
-    submittingRef.current = true
-    setSubmitting(true)
-
-    try {
-      // Always read from answersRef.current to avoid stale-closure timer bugs
-      const currentAnswers = answersRef.current || answers
-      const answerPayload = Object.entries(currentAnswers).map(([questionId, state]) => ({
-        questionId,
-        answer: state.answer,
-      }))
-
-      const res = await fetch(`/api/tryouts/${tryoutId}/submit`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          submissionId,
-          answers: answerPayload,
-        }),
-      })
-
-      const data = await res.json()
-
-      if (!res.ok) {
-        throw new Error(data.error)
+    if (submissionId) {
+      try {
+        await fetch(`/api/submissions/${submissionId}/answers`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ questionId, flagged: nextDoubtful }),
+        })
+      } catch (error) {
+        console.error("Failed to persist doubtful flag", error)
       }
-
-      if (timerRef.current) clearInterval(timerRef.current)
-
-      // Clear local storage on successful submit
-      localStorage.removeItem(`tryout_attempt_${tryoutId}`)
-
-      toast.success(autoSubmit ? "Waktu habis! Lembar jawaban di-submit otomatis." : "Tryout berhasil dikumpulkan!")
-
-      // Redirect to result page with submissionId
-      router.push(
-        `/dashboard/tryouts/${tryoutId}/result?submissionId=${submissionId}&score=${data.score}&correct=${data.correctCount}&total=${data.totalCount}`
-      )
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Gagal submit tryout.")
-      submittingRef.current = false
-      setSubmitting(false)
     }
   }
 

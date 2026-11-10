@@ -64,7 +64,7 @@ export async function GET(request: NextRequest) {
         }
 
         // Apply entitlements (paid tier vs free sample)
-        const filtered = (tryouts || []).map((t: any) => {
+        const filtered = (tryouts || []).map((t) => {
             const canStart = entitlements.canStartTryout(t)
             const canAccessPractice = t.is_practice ? (entitlements.canAccessPractice || !!t.is_free_sample) : canStart
             return {

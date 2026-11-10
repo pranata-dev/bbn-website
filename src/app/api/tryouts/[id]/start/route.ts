@@ -70,7 +70,7 @@ export async function POST(
         if (activeSubmission) {
             const { data: activeAnswers } = await supabase
                 .from("answers")
-                .select("question_id, answer")
+                .select("question_id, answer, flagged")
                 .eq("submission_id", activeSubmission.id)
 
             const { data: questionsData } = await supabase
@@ -79,7 +79,7 @@ export async function POST(
                 .in("id", activeSubmission.question_order || [])
 
             const orderedQuestions = (activeSubmission.question_order || []).map((qId: string) => {
-                return questionsData?.find((q: any) => q.id === qId)
+                return questionsData?.find((q) => q.id === qId)
             }).filter(Boolean)
 
             return NextResponse.json({

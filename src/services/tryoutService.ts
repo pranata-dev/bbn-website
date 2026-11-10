@@ -70,7 +70,7 @@ export async function submitTryout({
     .eq("id", submissionId)
     .eq("user_id", profile.id)
     .eq("tryout_id", tryoutId)
-    .single() as { data: SubmissionWithTryout | null, error: any }
+    .single() as { data: SubmissionWithTryout | null; error: unknown }
 
   if (!submission || submissionError) {
     console.error("Submission fetch error:", submissionError)
@@ -89,7 +89,7 @@ export async function submitTryout({
   const now = Date.now()
   const gracePeriod = 30000
 
-  const timedOut = now > startTime + duration + gracePeriod
+  const timedOut = !submission.tryouts?.is_practice && now > startTime + duration + gracePeriod
   const status: SubmissionStatus = timedOut ? "TIMED_OUT" : "SUBMITTED"
 
   // 4. Get all questions for this tryout to compute authoritative totalWeight
@@ -103,8 +103,8 @@ export async function submitTryout({
   }
 
   const allQuestions: QuestionResult[] = tryoutQuestionsData
-    .map((tq: any) => tq.questions)
-    .filter(Boolean)
+    .map((tq) => (tq as { questions?: QuestionResult | null }).questions)
+    .filter((q): q is QuestionResult => Boolean(q))
 
   let totalWeight = 0
   for (const q of allQuestions) {

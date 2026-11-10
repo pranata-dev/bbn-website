@@ -27,6 +27,12 @@ interface AnswerState {
   isDoubtful: boolean
 }
 
+interface SavedAnswerRow {
+  question_id: string
+  answer: string | null
+  flagged?: boolean | null
+}
+
 export default function LatihanPracticePage() {
   const { id: tryoutId } = useParams<{ id: string }>()
   const router = useRouter()
@@ -62,11 +68,12 @@ export default function LatihanPracticePage() {
           initialAnswers[q.id] = { answer: null, isDoubtful: false }
         })
 
-        // Overwrite with DB auto-saved answers
+        // Overwrite with DB auto-saved answers & flagged state
         if (data.answers && data.answers.length > 0) {
-          data.answers.forEach((ans: any) => {
+          ;(data.answers as SavedAnswerRow[]).forEach((ans) => {
             if (initialAnswers[ans.question_id]) {
               initialAnswers[ans.question_id].answer = ans.answer
+              initialAnswers[ans.question_id].isDoubtful = Boolean(ans.flagged)
             }
           })
         }
@@ -75,10 +82,12 @@ export default function LatihanPracticePage() {
         const savedState = localStorage.getItem(`practice_attempt_${tryoutId}`)
         if (savedState) {
           try {
-            const parsed = JSON.parse(savedState)
+            const parsed = JSON.parse(savedState) as Record<string, AnswerState>
             Object.keys(parsed).forEach((qid) => {
               if (initialAnswers[qid]) {
-                initialAnswers[qid].isDoubtful = parsed[qid]?.isDoubtful || false
+                if (!initialAnswers[qid].isDoubtful && parsed[qid]?.isDoubtful) {
+                  initialAnswers[qid].isDoubtful = parsed[qid].isDoubtful
+                }
                 if (!initialAnswers[qid].answer && parsed[qid]?.answer) {
                   initialAnswers[qid].answer = parsed[qid].answer
                 }
@@ -91,7 +100,7 @@ export default function LatihanPracticePage() {
 
         setAnswers(initialAnswers)
         setLoading(false)
-      } catch (error) {
+      } catch {
         toast.error("Gagal memulai latihan.")
         router.push(`/dashboard/latihan`)
       }
@@ -106,12 +115,19 @@ export default function LatihanPracticePage() {
       if (document.hidden) {
         setShowWarning(true)
         toast.warning("Peringatan: Kamu terdeteksi berpindah tab!")
+        if (submissionId) {
+          fetch(`/api/submissions/${submissionId}/answers`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ incrementTabSwitch: true }),
+          }).catch(() => {})
+        }
       }
     }
 
     document.addEventListener("visibilitychange", handleVisibilityChange)
     return () => document.removeEventListener("visibilitychange", handleVisibilityChange)
-  }, [])
+  }, [submissionId])
 
   // Auto-save to localStorage
   useEffect(() => {
@@ -121,6 +137,7 @@ export default function LatihanPracticePage() {
   }, [answers, tryoutId, loading])
 
   const handleAnswer = async (questionId: string, answer: string) => {
+    const currentFlagged = answers[questionId]?.isDoubtful || false
     setAnswers((prev) => ({
       ...prev,
       [questionId]: { ...prev[questionId], answer },
@@ -132,7 +149,7 @@ export default function LatihanPracticePage() {
         await fetch(`/api/submissions/${submissionId}/answers`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ questionId, answer }),
+          body: JSON.stringify({ questionId, answer, flagged: currentFlagged }),
         })
       } catch (error) {
         console.error("Failed to auto-save practice answer", error)
@@ -140,14 +157,27 @@ export default function LatihanPracticePage() {
     }
   }
 
-  const toggleDoubtful = (questionId: string) => {
+  const toggleDoubtful = async (questionId: string) => {
+    const nextDoubtful = !answers[questionId]?.isDoubtful
     setAnswers((prev) => ({
       ...prev,
       [questionId]: {
         ...prev[questionId],
-        isDoubtful: !prev[questionId]?.isDoubtful,
+        isDoubtful: nextDoubtful,
       },
     }))
+
+    if (submissionId) {
+      try {
+        await fetch(`/api/submissions/${submissionId}/answers`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ questionId, flagged: nextDoubtful }),
+        })
+      } catch (error) {
+        console.error("Failed to persist practice doubtful flag", error)
+      }
+    }
   }
 
   const handleSubmit = async () => {
@@ -182,9 +212,9 @@ export default function LatihanPracticePage() {
 
       // Redirect to result page
       router.push(
-        `/dashboard/latihan/${tryoutId}/result?score=${data.score}&correct=${data.correctCount}&total=${data.totalCount}`
+        `/dashboard/latihan/${tryoutId}/result?submissionId=${submissionId}&score=${data.score}&correct=${data.correctCount}&total=${data.totalCount}`
       )
-    } catch (error) {
+    } catch {
       toast.error("Gagal submit latihan.")
       setSubmitting(false)
     }

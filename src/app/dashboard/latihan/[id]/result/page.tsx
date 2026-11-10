@@ -1,17 +1,51 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import { useSearchParams, useParams } from "next/navigation"
 import Link from "next/link"
 import { Trophy, Target, CheckCircle, Home } from "lucide-react"
+
+interface VerifiedSubmission {
+    score: number | null
+    correct_count: number | null
+    total_count: number | null
+}
 
 export default function LatihanResultPage() {
     const searchParams = useSearchParams()
     const params = useParams()
     const id = params.id as string
 
-    const score = parseFloat(searchParams.get("score") || "0")
-    const correct = parseInt(searchParams.get("correct") || "0")
-    const total = parseInt(searchParams.get("total") || "0")
+    const fallbackScore = parseFloat(searchParams.get("score") || "0")
+    const fallbackCorrect = parseInt(searchParams.get("correct") || "0", 10)
+    const fallbackTotal = parseInt(searchParams.get("total") || "0", 10)
+
+    const [verified, setVerified] = useState<VerifiedSubmission | null>(null)
+
+    useEffect(() => {
+        if (!id) return
+        fetch(`/api/tryouts/${id}/submission`)
+            .then((res) => (res.ok ? res.json() : null))
+            .then((data) => {
+                if (data?.submission) {
+                    setVerified(data.submission as VerifiedSubmission)
+                }
+            })
+            .catch(() => {})
+    }, [id])
+
+    const score =
+        verified?.score !== null && verified?.score !== undefined
+            ? verified.score
+            : fallbackScore
+    const correct =
+        verified?.correct_count !== null && verified?.correct_count !== undefined
+            ? verified.correct_count
+            : fallbackCorrect
+    const total =
+        verified?.total_count !== null && verified?.total_count !== undefined
+            ? verified.total_count
+            : fallbackTotal
 
     const getScoreColor = (score: number) => {
         if (score >= 80) return "text-[#3c5443]"

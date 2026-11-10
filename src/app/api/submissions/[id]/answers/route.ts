@@ -2,17 +2,28 @@ import { NextRequest, NextResponse } from "next/server"
 import { createClient, createServiceClient } from "@/lib/supabase/server"
 import { v4 as uuidv4 } from "uuid"
 
-// PATCH /api/submissions/[id]/answers - Auto-save single answer
+interface TryoutMeta {
+    duration?: number | null
+    is_practice?: boolean | null
+}
+
+// PATCH /api/submissions/[id]/answers - Auto-save single answer, flagged state, or tab_switch_count
 export async function PATCH(
     request: NextRequest,
     { params }: { params: Promise<{ id: string }> }
 ) {
     try {
         const { id: submissionId } = await params
-        const { questionId, answer } = await request.json()
+        const body = await request.json()
+        const { questionId, answer, flagged, incrementTabSwitch } = body as {
+            questionId?: string
+            answer?: string | null
+            flagged?: boolean
+            incrementTabSwitch?: boolean
+        }
 
-        if (!questionId) {
-            return NextResponse.json({ error: "questionId required" }, { status: 400 })
+        if (!questionId && !incrementTabSwitch) {
+            return NextResponse.json({ error: "questionId or incrementTabSwitch required" }, { status: 400 })
         }
 
         const authClient = await createClient()
@@ -36,7 +47,7 @@ export async function PATCH(
         // Check if submission belongs to this user and is IN_PROGRESS
         const { data: submission } = await supabase
             .from("submissions")
-            .select("id, status, started_at, tryouts(duration)")
+            .select("id, status, started_at, tab_switch_count, tryouts(duration, is_practice)")
             .eq("id", submissionId)
             .eq("user_id", userRecord.id)
             .single()
@@ -45,13 +56,21 @@ export async function PATCH(
             return NextResponse.json({ error: "Sesi tidak valid atau sudah selesai" }, { status: 400 })
         }
 
-        const durationMinutes = (submission.tryouts as any)?.duration || 0
+        const tryoutRaw = submission.tryouts as unknown as TryoutMeta | TryoutMeta[] | null
+        const tryoutMeta = Array.isArray(tryoutRaw) ? tryoutRaw[0] : tryoutRaw
+        const isPractice = Boolean(tryoutMeta?.is_practice)
+        const durationMinutes = tryoutMeta?.duration || 0
         const startStr = submission.started_at
         const utcStartStr = startStr.endsWith("Z") ? startStr : startStr + "Z"
         const startedAtMs = new Date(utcStartStr).getTime()
         const gracePeriodMs = 30000
 
-        if (durationMinutes > 0 && Date.now() > startedAtMs + (durationMinutes * 60 * 1000) + gracePeriodMs) {
+        // Only enforce timer timeout for non-practice tryout exams
+        if (
+            !isPractice &&
+            durationMinutes > 0 &&
+            Date.now() > startedAtMs + durationMinutes * 60 * 1000 + gracePeriodMs
+        ) {
             await supabase
                 .from("submissions")
                 .update({ status: "TIMED_OUT" })
@@ -62,37 +81,50 @@ export async function PATCH(
             )
         }
 
-        // Check if answer already exists
-        const { data: existing } = await supabase
-            .from("answers")
-            .select("id")
-            .eq("submission_id", submissionId)
-            .eq("question_id", questionId)
-            .single()
+        if (incrementTabSwitch) {
+            await supabase
+                .from("submissions")
+                .update({ tab_switch_count: (submission.tab_switch_count || 0) + 1 })
+                .eq("id", submissionId)
+        }
 
-        if (existing) {
-            const { error: updateError } = await supabase
+        if (questionId) {
+            const { data: existing } = await supabase
                 .from("answers")
-                .update({ answer: answer })
-                .eq("id", existing.id)
+                .select("id, answer, flagged")
+                .eq("submission_id", submissionId)
+                .eq("question_id", questionId)
+                .maybeSingle()
 
-            if (updateError) {
-                console.error("Failed to update answer:", updateError)
-                return NextResponse.json({ error: "Gagal mengupdate jawaban" }, { status: 500 })
-            }
-        } else {
-            const { error: insertError } = await supabase
-                .from("answers")
-                .insert({
-                    id: uuidv4(),
-                    submission_id: submissionId,
-                    question_id: questionId,
-                    answer: answer
-                })
+            if (existing) {
+                const updatePayload: { answer?: string | null; flagged?: boolean } = {}
+                if (answer !== undefined) updatePayload.answer = answer
+                if (flagged !== undefined) updatePayload.flagged = flagged
 
-            if (insertError) {
-                console.error("Failed to insert answer:", insertError)
-                return NextResponse.json({ error: "Gagal menyimpan jawaban" }, { status: 500 })
+                const { error: updateError } = await supabase
+                    .from("answers")
+                    .update(updatePayload)
+                    .eq("id", existing.id)
+
+                if (updateError) {
+                    console.error("Failed to update answer:", updateError)
+                    return NextResponse.json({ error: "Gagal mengupdate jawaban" }, { status: 500 })
+                }
+            } else {
+                const { error: insertError } = await supabase
+                    .from("answers")
+                    .insert({
+                        id: uuidv4(),
+                        submission_id: submissionId,
+                        question_id: questionId,
+                        answer: answer ?? null,
+                        flagged: flagged ?? false,
+                    })
+
+                if (insertError) {
+                    console.error("Failed to insert answer:", insertError)
+                    return NextResponse.json({ error: "Gagal menyimpan jawaban" }, { status: 500 })
+                }
             }
         }
 

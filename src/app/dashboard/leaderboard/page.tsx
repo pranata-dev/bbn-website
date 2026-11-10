@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { CATEGORY_LABELS } from "@/types"
 import { PageHeader } from "@/components/dashboard/PageHeader"
@@ -21,11 +21,7 @@ export default function LeaderboardPage() {
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState<string>("all")
 
-  useEffect(() => {
-    fetchLeaderboard()
-  }, [filter])
-
-  const fetchLeaderboard = async () => {
+  const fetchLeaderboard = useCallback(async () => {
     setLoading(true)
     try {
       const params = new URLSearchParams()
@@ -38,7 +34,11 @@ export default function LeaderboardPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [filter])
+
+  useEffect(() => {
+    fetchLeaderboard()
+  }, [fetchLeaderboard])
 
   const top1 = entries[0]
   const top2 = entries[1]
@@ -184,8 +184,6 @@ export default function LeaderboardPage() {
             {/* Table Rows Container */}
             <div className="border-2 border-[#171717] border-t-0 bg-surface-white technical-shadow divide-y-2 divide-border-grid">
               {entries.map((entry, idx) => {
-                const isTop3 = entry.rank <= 3
-
                 return (
                   <div
                     key={entry.userId || idx}

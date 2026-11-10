@@ -1,27 +1,26 @@
 import { NextRequest, NextResponse } from "next/server"
-import { createClient } from "@/lib/supabase/server"
+import { createClient, createServiceClient } from "@/lib/supabase/server"
 
 // GET /api/leaderboard - Get leaderboard data
 export async function GET(request: NextRequest) {
     try {
-        const supabase = await createClient()
-        const { data: { user } } = await supabase.auth.getUser()
+        const authClient = await createClient()
+        const { data: { user } } = await authClient.auth.getUser()
 
         if (!user) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
         }
 
+        const supabase = createServiceClient()
         const { searchParams } = new URL(request.url)
         const category = searchParams.get("category")
         const limit = parseInt(searchParams.get("limit") || "50")
 
-        // Get all submitted submissions with user info
-        let query = supabase
+        // Get all finished submissions across all users using service client
+        const { data: submissions, error } = await supabase
             .from("submissions")
-            .select("user_id, score, tryouts(category), users(name, avatar_url)")
-            .eq("status", "SUBMITTED")
-
-        const { data: submissions, error } = await query
+            .select("user_id, score, tryouts(category, is_practice), users(name, avatar_url)")
+            .in("status", ["SUBMITTED", "TIMED_OUT"])
 
         if (error) {
             return NextResponse.json({ error: "Failed to fetch leaderboard" }, { status: 500 })
@@ -76,7 +75,7 @@ export async function GET(request: NextRequest) {
             }))
 
         return NextResponse.json({ leaderboard })
-    } catch (error) {
+    } catch {
         return NextResponse.json({ error: "Internal error" }, { status: 500 })
     }
 }

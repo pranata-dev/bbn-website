@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -29,23 +29,23 @@ export default function LatihanPage() {
   const [filter, setFilter] = useState<string>("all")
   const { selectedSubject } = useSubject()
 
-  useEffect(() => {
-    fetchLatihan()
-  }, [selectedSubject])
-
-  const fetchLatihan = async () => {
+  const fetchLatihan = useCallback(async () => {
     setLoading(true)
     try {
       const res = await fetch(`/api/tryouts?subject=${selectedSubject}`)
       const data = await res.json()
-      const practiceItems = (data.tryouts || []).filter((t: any) => t.is_practice)
+      const practiceItems = ((data.tryouts || []) as LatihanItem[]).filter((t) => t.is_practice)
       setLatihans(practiceItems)
     } catch (error) {
       console.error("Failed to fetch latihan:", error)
     } finally {
       setLoading(false)
     }
-  }
+  }, [selectedSubject])
+
+  useEffect(() => {
+    fetchLatihan()
+  }, [fetchLatihan])
 
   const filteredLatihans = filter === "all"
     ? latihans
@@ -151,7 +151,7 @@ export default function LatihanPage() {
         <div className="flex items-center justify-between border-b-2 border-[#171717] pb-2 font-mono text-xs">
           <div className="flex items-center gap-2">
             <span className="font-bold text-[#171717]">&gt; MODUL_LATIHAN</span>
-            <span className="text-ink-muted hidden sm:inline">// SUBJECT: {selectedSubject.toUpperCase()}</span>
+            <span className="text-ink-muted hidden sm:inline">{`// SUBJECT: ${selectedSubject.toUpperCase()}`}</span>
           </div>
           <div className="text-ink-muted font-bold">
             [{filteredLatihans.length} ITEM DITEMUKAN]
@@ -178,9 +178,8 @@ export default function LatihanPage() {
               return (
                 <div
                   key={latihan.id}
-                  className={`bg-surface-white border-2 border-[#171717] technical-shadow p-6 flex flex-col justify-between relative tick-corner transition-all duration-150 ${
-                    isLocked ? "opacity-75" : "hover:-translate-x-0.5 hover:-translate-y-0.5"
-                  }`}
+                  className={`bg-surface-white border-2 border-[#171717] technical-shadow p-6 flex flex-col justify-between relative tick-corner transition-all duration-150 ${isLocked ? "opacity-75" : "hover:-translate-x-0.5 hover:-translate-y-0.5"
+                    }`}
                 >
                   <div>
                     {/* Top Tag Strip */}

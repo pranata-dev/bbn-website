@@ -42,9 +42,14 @@ export async function GET(request: NextRequest) {
                 tryouts (
                     id,
                     title,
-                    subject,
+                    course_id,
                     is_practice,
-                    duration
+                    duration,
+                    courses (
+                        title,
+                        code,
+                        slug
+                    )
                 )
             `)
             .eq("user_id", userRecord.id)
@@ -61,7 +66,30 @@ export async function GET(request: NextRequest) {
             return NextResponse.json({ error: "Failed to fetch submissions" }, { status: 500 })
         }
 
-        return NextResponse.json({ submissions: submissions || [] })
+        const normalizedSubmissions = (submissions || []).map((sub) => {
+            const rawTryout = sub.tryouts as unknown as {
+                id: string
+                title: string
+                course_id: string | null
+                is_practice: boolean
+                duration: number
+                courses?: { title?: string; code?: string; slug?: string } | null
+            } | null
+            return {
+                ...sub,
+                tryouts: rawTryout
+                    ? {
+                          id: rawTryout.id,
+                          title: rawTryout.title,
+                          subject: rawTryout.courses?.code || rawTryout.courses?.title || "FISIKA",
+                          is_practice: rawTryout.is_practice,
+                          duration: rawTryout.duration,
+                      }
+                    : null,
+            }
+        })
+
+        return NextResponse.json({ submissions: normalizedSubmissions })
     } catch (error) {
         console.error("API error:", error)
         return NextResponse.json({ error: "Internal server error" }, { status: 500 })

@@ -143,7 +143,7 @@ export default function HistoryPage() {
         <div className="flex items-center justify-between border-b-2 border-[#171717] pb-2 font-mono text-xs">
           <div className="flex items-center gap-2">
             <span className="font-bold text-[#171717]">&gt; AKTIVITAS_TERAKHIR</span>
-            <span className="text-ink-muted hidden sm:inline">// TELEMETRI KRONOLOGIS</span>
+            <span className="text-ink-muted hidden sm:inline">{"// TELEMETRI KRONOLOGIS"}</span>
           </div>
           <div className="text-ink-muted font-bold">
             [{submissions.length} LOG TERCATAT]
@@ -201,7 +201,7 @@ export default function HistoryPage() {
                       )}
 
                       <span className="font-mono text-[10px] text-ink-muted font-bold hidden sm:inline">
-                        // {formatDate(sub.started_at)}
+                        {`// ${formatDate(sub.started_at)}`}
                       </span>
                     </div>
 

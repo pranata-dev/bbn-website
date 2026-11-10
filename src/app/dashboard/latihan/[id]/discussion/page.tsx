@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server"
+import { createClient, createServiceClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
 import Link from "next/link"
 import MarkdownLatex from "@/components/ui/markdown-latex"
@@ -6,6 +6,25 @@ import { ArrowLeft, CheckCircle2, XCircle, AlertCircle, Info } from "lucide-reac
 import Image from "next/image"
 
 export const dynamic = "force-dynamic"
+
+interface QuestionRecord {
+    id: string
+    text: string
+    option_a: string
+    option_b: string
+    option_c: string
+    option_d: string
+    option_e: string | null
+    correct_answer: string
+    explanation: string | null
+    image_url: string | null
+}
+
+interface AnswerRecord {
+    question_id: string
+    answer: string | null
+    is_correct: boolean | null
+}
 
 export default async function LatihanDiscussionPage({ params }: { params: Promise<{ id: string }> }) {
     const { id: tryoutId } = await params
@@ -16,8 +35,10 @@ export default async function LatihanDiscussionPage({ params }: { params: Promis
         redirect("/login")
     }
 
+    const adminSupabase = createServiceClient()
+
     // Get user profile
-    const { data: profile } = await supabase
+    const { data: profile } = await adminSupabase
         .from("users")
         .select("id")
         .eq("auth_id", user.id)
@@ -28,12 +49,12 @@ export default async function LatihanDiscussionPage({ params }: { params: Promis
     }
 
     // Get the latest completed submission
-    const { data: submission } = await supabase
+    const { data: submission } = await adminSupabase
         .from("submissions")
         .select("*, tryouts(*)")
         .eq("user_id", profile.id)
         .eq("tryout_id", tryoutId)
-        .neq("status", "IN_PROGRESS") // Must be completed (SUBMITTED or TIMED_OUT)
+        .neq("status", "IN_PROGRESS")
         .order("created_at", { ascending: false })
         .limit(1)
         .single()
@@ -43,34 +64,46 @@ export default async function LatihanDiscussionPage({ params }: { params: Promis
     }
 
     // Get answers
-    const { data: answers } = await supabase
+    const { data: answers } = await adminSupabase
         .from("answers")
-        .select("*")
+        .select("question_id, answer, is_correct")
         .eq("submission_id", submission.id)
 
-    // Get questions
-    const questionIds = submission.question_order || []
-    const { data: questionsData } = await supabase
+    // Get questions via service client only after verifying completed submission
+    const questionIds: string[] = submission.question_order || []
+    const { data: questionsData } = await adminSupabase
         .from("questions")
-        .select("*")
+        .select("id, text, option_a, option_b, option_c, option_d, option_e, correct_answer, explanation, image_url")
         .in("id", questionIds)
 
+    const typedQuestions = (questionsData || []) as QuestionRecord[]
+    const typedAnswers = (answers || []) as AnswerRecord[]
+
     // Format and order questions to match the submission's randomized order
-    const orderedQuestions = questionIds.map((qId: string, index: number) => {
-        const question = questionsData?.find((q: any) => q.id === qId)
-        const answer = answers?.find((a: any) => a.question_id === qId)
+    const orderedQuestions = questionIds
+        .map((qId: string, index: number) => {
+            const question = typedQuestions.find((q) => q.id === qId)
+            if (!question) return null
+            const answer = typedAnswers.find((a) => a.question_id === qId)
 
-        return {
-            index: index + 1,
-            ...question,
-            userAnswer: answer?.answer || null,
-            isCorrect: answer?.is_correct || false
+            return {
+                index: index + 1,
+                ...question,
+                userAnswer: answer?.answer || null,
+                isCorrect: answer?.is_correct || false,
+            }
+        })
+        .filter((q): q is NonNullable<typeof q> => q !== null)
+
+    const getOptionText = (question: QuestionRecord, optionKey: string) => {
+        const map: Record<string, string | null> = {
+            A: question.option_a,
+            B: question.option_b,
+            C: question.option_c,
+            D: question.option_d,
+            E: question.option_e,
         }
-    }).filter((q: any) => q.id) // Filter out any missing questions
-
-    const getOptionText = (question: any, optionKey: string) => {
-        const key = `option_${optionKey.toLowerCase()}`
-        return question[key] || ""
+        return map[optionKey] || ""
     }
 
     return (
@@ -78,7 +111,7 @@ export default async function LatihanDiscussionPage({ params }: { params: Promis
             {/* Header */}
             <div className="flex items-center gap-4">
                 <Link
-                    href={`/dashboard/latihan/${tryoutId}/result?score=${submission.score}&correct=${submission.correct_count}&total=${submission.total_count}`}
+                    href={`/dashboard/latihan/${tryoutId}/result?submissionId=${submission.id}&score=${submission.score}&correct=${submission.correct_count}&total=${submission.total_count}`}
                     className="w-10 h-10 bg-[#FEFCF3] border-2 border-[#2b1b11] flex items-center justify-center shadow-[2px_2px_0px_#2b1b11] hover:shadow-[3px_3px_0px_#2b1b11] hover:-translate-y-0.5 transition-all shrink-0"
                 >
                     <ArrowLeft className="w-5 h-5 text-[#2b1b11] stroke-[2]" />
@@ -119,7 +152,7 @@ export default async function LatihanDiscussionPage({ params }: { params: Promis
 
             {/* Questions */}
             <div className="space-y-8">
-                {orderedQuestions.map((q: any) => (
+                {orderedQuestions.map((q) => (
                     <div key={q.id} className="bg-[#FEFCF3] border-4 border-[#2b1b11] shadow-[4px_4px_0px_#2b1b11] overflow-hidden">
                         {/* Question header */}
                         <div className="bg-[#bed3c6] px-4 py-3 border-b-4 border-[#2b1b11] flex justify-between items-center">
