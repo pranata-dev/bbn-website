@@ -21,7 +21,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { ArrowLeft, ArrowRight, UserPlus, ShieldAlert } from "lucide-react"
+import { ArrowLeft, ArrowRight } from "lucide-react"
 
 const initialKelasBesarData: KelasBesarFormState = {
   name: "",
@@ -39,15 +39,20 @@ function RegisterContent() {
   const [isLoading, setIsLoading] = useState(false)
   const isSubmittingRef = useRef(false)
   const [selectedType, setSelectedType] = useState<RegistrationType | null>("UTS")
+  const planParam = searchParams.get("plan")
 
   // Duplicate Account Modal State
   const [showDuplicateModal, setShowDuplicateModal] = useState(false)
   const [duplicateEmail, setDuplicateEmail] = useState("")
 
-  // Auto-switch to step 2 if returning from Google OAuth (?step=details)
+  // Auto-switch to step 2 if returning from Google OAuth (?step=details) or pricing card (?plan=...)
   useEffect(() => {
     const stepParam = searchParams.get("step")
-    if (stepParam === "details" || stepParam === "2") {
+    const plan = searchParams.get("plan")
+    if (stepParam === "details" || stepParam === "2" || plan) {
+      if (plan) {
+        setSelectedType("UTS")
+      }
       setCurrentStep(2)
     }
   }, [searchParams])
@@ -176,24 +181,9 @@ function RegisterContent() {
     }
   }
 
-  const handleRegularSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
-    setTimeout(() => {
-      setIsLoading(false)
-      toast.success("Pendaftaran Kelas Reguler berhasil! Silakan menunggu verifikasi admin.")
-      router.push(`/waiting-approval`)
-    }, 1000)
-  }
-
-  const handleUTSSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
-    setTimeout(() => {
-      setIsLoading(false)
-      toast.success("Pendaftaran E-Learning Mandiri berhasil! Silakan menunggu verifikasi admin.")
-      router.push(`/waiting-approval`)
-    }, 1000)
+  const handleRegularSubmit = () => {
+    toast.success("Pendaftaran Kelas Reguler berhasil! Silakan menunggu verifikasi admin.")
+    router.push(`/waiting-approval`)
   }
 
   const containerMaxWidth = currentStep === 2 ? "max-w-7xl" : "max-w-5xl"
@@ -342,8 +332,8 @@ function RegisterContent() {
                 paymentFile={paymentFile}
                 paymentPreview={paymentPreview}
                 onPaymentChange={handlePaymentChange}
-                onSubmit={handleUTSSubmit}
                 isLoading={isLoading}
+                initialPlan={planParam}
               />
             ) : (
               <form onSubmit={handleKelasBesarSubmit} aria-label="Formulir pendaftaran">

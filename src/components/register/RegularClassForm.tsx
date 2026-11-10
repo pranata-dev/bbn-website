@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo, useEffect } from "react"
+import { useState, useMemo } from "react"
 import { toast } from "sonner"
 import {
   Select,
@@ -78,25 +78,18 @@ export function RegularClassForm({
 }: RegularClassFormProps) {
   // Left Column States
   const [fullName, setFullName] = useState("")
+  const [email, setEmail] = useState("")
   const [whatsapp, setWhatsapp] = useState("")
   const [isPkuStudent, setIsPkuStudent] = useState<"Iya" | "Bukan">("Iya")
   const [selectedCourse, setSelectedCourse] = useState(PKU_COURSES[0])
   const [location, setLocation] = useState<"Offline" | "Online">("Offline")
   const [groupMembers, setGroupMembers] = useState("")
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   // Right Column States (Calculator Steppers)
   const [peopleCount, setPeopleCount] = useState<number>(1)
   const [weekCount, setWeekCount] = useState<number>(1)
   const [copiedBank, setCopiedBank] = useState(false)
-
-  // Sync course dropdown whenever PKU status changes
-  useEffect(() => {
-    if (isPkuStudent === "Iya") {
-      setSelectedCourse(PKU_COURSES[0])
-    } else {
-      setSelectedCourse(NON_PKU_COURSES[0])
-    }
-  }, [isPkuStudent])
 
   // Map peopleCount to Tier key
   const getTierKey = (count: number): string => {
@@ -164,10 +157,14 @@ export function RegularClassForm({
     }
   }
 
-  const handleFormSubmit = (e: React.FormEvent) => {
+  const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!fullName || fullName.length < 3) {
       toast.error("Nama lengkap minimal 3 karakter.")
+      return
+    }
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      toast.error("Masukkan alamat email aktif yang valid.")
       return
     }
     if (!whatsapp) {
@@ -178,10 +175,51 @@ export function RegularClassForm({
       toast.error("Mohon tuliskan nama anggota grup Anda.")
       return
     }
-    if (onSubmit) {
-      onSubmit(e)
-    } else {
-      toast.success("Pendaftaran berhasil diproses!")
+    if (!paymentFile) {
+      toast.error("Mohon unggah bukti pembayaran transfer bank.")
+      return
+    }
+
+    setIsSubmitting(true)
+    try {
+      const formPayload = new FormData()
+      formPayload.append("type", "REGULAR")
+      formPayload.append("fullName", fullName)
+      formPayload.append("name", fullName)
+      formPayload.append("email", email)
+      formPayload.append("whatsapp", whatsapp)
+      formPayload.append("phone", whatsapp)
+      formPayload.append("subject", selectedCourse)
+      formPayload.append("studentCategory", isPkuStudent === "Iya" ? "NON_PHYSICS" : "PHYSICS_SEM_3")
+      formPayload.append("groupSize", String(peopleCount))
+      formPayload.append("sessionCount", String(weekCount))
+      formPayload.append("price", String(pricing.actualTotalGroup))
+      formPayload.append(
+        "notes",
+        `Lokasi: ${location} | Kategori: ${isPkuStudent === "Iya" ? "PKU" : "Non-PKU"}${groupMembers ? ` | Anggota: ${groupMembers}` : ""
+        }`
+      )
+      formPayload.append("paymentProof", paymentFile)
+
+      const res = await fetch("/api/register", {
+        method: "POST",
+        body: formPayload,
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        throw new Error(data.error || "Gagal memproses pendaftaran Kelas Reguler.")
+      }
+
+      if (onSubmit) {
+        onSubmit(e)
+      } else {
+        toast.success("Pendaftaran Kelas Reguler berhasil diajukan!")
+      }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Terjadi kesalahan saat mendaftar."
+      toast.error(msg)
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
@@ -192,7 +230,7 @@ export function RegularClassForm({
       <form onSubmit={handleFormSubmit}>
         {/* 2-Column Grid Layout for Desktop */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-start">
-          
+
           {/* ======================================================== */}
           {/* LEFT COLUMN (Form & Conditional Logic) - col-span-7     */}
           {/* ======================================================== */}
@@ -217,6 +255,22 @@ export function RegularClassForm({
                 placeholder="Masukkan nama lengkap"
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
+                className="w-full py-3 px-4 rounded-xl border border-[#FFEED6] bg-white text-sm text-[#827148] placeholder:text-[#827148]/40 focus:outline-none focus:ring-2 focus:ring-[#A5AF79] focus:border-transparent transition-all shadow-2xs"
+                required
+              />
+            </div>
+
+            {/* 1b. Email Address */}
+            <div>
+              <label htmlFor="reg-email" className="text-sm font-semibold text-[#827148] mb-1.5 block">
+                Alamat Email Aktif
+              </label>
+              <input
+                id="reg-email"
+                type="email"
+                placeholder="nama@email.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 className="w-full py-3 px-4 rounded-xl border border-[#FFEED6] bg-white text-sm text-[#827148] placeholder:text-[#827148]/40 focus:outline-none focus:ring-2 focus:ring-[#A5AF79] focus:border-transparent transition-all shadow-2xs"
                 required
               />
@@ -249,12 +303,14 @@ export function RegularClassForm({
               <div className="grid grid-cols-2 gap-3">
                 <button
                   type="button"
-                  onClick={() => setIsPkuStudent("Iya")}
-                  className={`py-3 px-4 rounded-xl text-sm font-bold border transition-all cursor-pointer flex items-center justify-center gap-2 ${
-                    isPkuStudent === "Iya"
+                  onClick={() => {
+                    setIsPkuStudent("Iya")
+                    setSelectedCourse(PKU_COURSES[0])
+                  }}
+                  className={`py-3 px-4 rounded-xl text-sm font-bold border transition-all cursor-pointer flex items-center justify-center gap-2 ${isPkuStudent === "Iya"
                       ? "bg-[#A5AF79] text-white border-[#A5AF79] shadow-xs"
                       : "bg-white text-[#827148] border-[#FFEED6] hover:border-[#A5AF79] hover:bg-[#FFEED6]/20"
-                  }`}
+                    }`}
                 >
                   <div className={`w-2.5 h-2.5 rounded-full ${isPkuStudent === "Iya" ? "bg-white" : "bg-[#827148]/30"}`} />
                   <span>Iya (Mahasiswa PKU)</span>
@@ -262,12 +318,14 @@ export function RegularClassForm({
 
                 <button
                   type="button"
-                  onClick={() => setIsPkuStudent("Bukan")}
-                  className={`py-3 px-4 rounded-xl text-sm font-bold border transition-all cursor-pointer flex items-center justify-center gap-2 ${
-                    isPkuStudent === "Bukan"
+                  onClick={() => {
+                    setIsPkuStudent("Bukan")
+                    setSelectedCourse(NON_PKU_COURSES[0])
+                  }}
+                  className={`py-3 px-4 rounded-xl text-sm font-bold border transition-all cursor-pointer flex items-center justify-center gap-2 ${isPkuStudent === "Bukan"
                       ? "bg-[#A5AF79] text-white border-[#A5AF79] shadow-xs"
                       : "bg-white text-[#827148] border-[#FFEED6] hover:border-[#A5AF79] hover:bg-[#FFEED6]/20"
-                  }`}
+                    }`}
                 >
                   <div className={`w-2.5 h-2.5 rounded-full ${isPkuStudent === "Bukan" ? "bg-white" : "bg-[#827148]/30"}`} />
                   <span>Bukan PKU</span>
@@ -310,11 +368,10 @@ export function RegularClassForm({
                 <button
                   type="button"
                   onClick={() => setLocation("Offline")}
-                  className={`py-3 px-4 rounded-xl text-sm font-bold border transition-all cursor-pointer flex items-center justify-center gap-2 ${
-                    location === "Offline"
+                  className={`py-3 px-4 rounded-xl text-sm font-bold border transition-all cursor-pointer flex items-center justify-center gap-2 ${location === "Offline"
                       ? "bg-[#A5AF79] text-white border-[#A5AF79] shadow-xs"
                       : "bg-white text-[#827148] border-[#FFEED6] hover:border-[#A5AF79] hover:bg-[#FFEED6]/20"
-                  }`}
+                    }`}
                 >
                   <div className={`w-2.5 h-2.5 rounded-full ${location === "Offline" ? "bg-white" : "bg-[#827148]/30"}`} />
                   <span>Offline (Tatap Muka)</span>
@@ -323,11 +380,10 @@ export function RegularClassForm({
                 <button
                   type="button"
                   onClick={() => setLocation("Online")}
-                  className={`py-3 px-4 rounded-xl text-sm font-bold border transition-all cursor-pointer flex items-center justify-center gap-2 ${
-                    location === "Online"
+                  className={`py-3 px-4 rounded-xl text-sm font-bold border transition-all cursor-pointer flex items-center justify-center gap-2 ${location === "Online"
                       ? "bg-[#A5AF79] text-white border-[#A5AF79] shadow-xs"
                       : "bg-white text-[#827148] border-[#FFEED6] hover:border-[#A5AF79] hover:bg-[#FFEED6]/20"
-                  }`}
+                    }`}
                 >
                   <div className={`w-2.5 h-2.5 rounded-full ${location === "Online" ? "bg-white" : "bg-[#827148]/30"}`} />
                   <span>Online (Zoom / GMeet)</span>
@@ -371,10 +427,10 @@ export function RegularClassForm({
           {/* RIGHT COLUMN (Calculator, Summary & Payment) - col-span-5 */}
           {/* ======================================================== */}
           <div className="lg:col-span-5 flex flex-col space-y-6">
-            
+
             {/* 1. Calculator Inputs (Steppers: [ - ] value [ + ]) */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              
+
               {/* Stepper 1: Jumlah Orang (Min: 1) */}
               <div className="bg-white rounded-2xl border border-[#FFEED6] p-4 shadow-2xs">
                 <div className="flex items-center justify-between mb-2">
@@ -597,10 +653,10 @@ export function RegularClassForm({
             {/* 4. Submit Button */}
             <button
               type="submit"
-              disabled={isLoading}
+              disabled={isLoading || isSubmitting}
               className="w-full bg-[#E8A07C] hover:bg-[#E8A07C]/90 active:bg-[#d8916e] text-white font-bold rounded-xl py-4 transition-colors shadow-sm cursor-pointer text-center text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isLoading ? "Memproses pendaftaran..." : "Saya Sudah Transfer & Daftar"}
+              {isLoading || isSubmitting ? "Memproses pendaftaran..." : "Saya Sudah Transfer & Daftar"}
             </button>
 
           </div>

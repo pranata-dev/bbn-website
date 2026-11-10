@@ -3,8 +3,7 @@
 import { Suspense } from "react"
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
-import { APP_NAME } from "@/constants"
-import { Check, MessageCircle, ArrowRight, ShieldCheck } from "lucide-react"
+import { Check, MessageCircle } from "lucide-react"
 
 function SuccessContent() {
   const searchParams = useSearchParams()

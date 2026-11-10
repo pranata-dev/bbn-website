@@ -1,9 +1,23 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
+import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
+import { BUSINESS_CONFIG } from "@/config/business"
 import { toast } from "sonner"
+
+interface SubscriptionRow {
+  track?: string | null
+  plan_code?: string | null
+}
+
+interface DbUserWithSubs {
+  name?: string | null
+  email?: string | null
+  is_active?: boolean | null
+  subscriptions?: SubscriptionRow[] | null
+}
 
 interface UserProfile {
   name: string
@@ -19,7 +33,7 @@ export default function WaitingApprovalPage() {
   const [loading, setLoading] = useState(true)
   const [checking, setChecking] = useState(false)
 
-  const fetchStatus = async (showToast = false) => {
+  const fetchStatus = useCallback(async (showToast = false) => {
     setChecking(true)
     try {
       const supabase = createClient()
@@ -28,7 +42,17 @@ export default function WaitingApprovalPage() {
       } = await supabase.auth.getUser()
 
       if (!authUser) {
-        router.push("/login")
+        // User registered manually without an active Google OAuth session
+        setProfile({
+          name: "Mahasiswa Terdaftar",
+          email: "Menunggu Verifikasi Email",
+          trackLabel: "Sesuai Formulir Pendaftaran",
+          planLabel: "Paket Belajar BBN",
+          is_active: false,
+        })
+        if (showToast) {
+          toast.info("Silakan masuk ke akun Anda setelah admin memverifikasi pembayaran.")
+        }
         return
       }
 
@@ -42,16 +66,18 @@ export default function WaitingApprovalPage() {
         console.error("Fetch profile error:", error)
       }
 
+      const typedData = data as DbUserWithSubs | null
+
       const name =
-        data?.name ||
+        typedData?.name ||
         authUser.user_metadata?.full_name ||
         authUser.user_metadata?.name ||
         authUser.email?.split("@")[0] ||
         "Pelajar"
 
-      const isActive = data?.is_active ?? false
+      const isActive = typedData?.is_active ?? false
 
-      const subs = (data as any)?.subscriptions || []
+      const subs = typedData?.subscriptions || []
       const latestSub = subs[0]
       const trackLabel =
         latestSub?.track === "NON_PHYSICS" ? "Umum / Non-Fisika" : "Departemen Fisika Semester 3"
@@ -64,7 +90,7 @@ export default function WaitingApprovalPage() {
 
       setProfile({
         name,
-        email: data?.email || authUser.email || "",
+        email: typedData?.email || authUser.email || "",
         trackLabel,
         planLabel,
         is_active: isActive,
@@ -89,7 +115,7 @@ export default function WaitingApprovalPage() {
       setLoading(false)
       setChecking(false)
     }
-  }
+  }, [router])
 
   useEffect(() => {
     fetchStatus(false)
@@ -100,7 +126,7 @@ export default function WaitingApprovalPage() {
     }, 10000)
 
     return () => clearInterval(interval)
-  }, [])
+  }, [fetchStatus])
 
   return (
     <div className="min-h-screen bg-[#FFEED6]/20 flex flex-col justify-center items-center px-4 py-12 font-sans">
@@ -204,13 +230,22 @@ export default function WaitingApprovalPage() {
           </button>
 
           <a
-            href="https://wa.me/6281234567890?text=Halo%20Admin%20BBN,%20saya%20sudah%20mendaftar%20dan%20sedang%20menunggu%20verifikasi%20pembayaran."
+            href={`https://wa.me/${BUSINESS_CONFIG.contact.adminWhatsapp}?text=${encodeURIComponent(
+              "Halo Admin BBN, saya sudah mendaftar dan sedang menunggu verifikasi pembayaran."
+            )}`}
             target="_blank"
             rel="noopener noreferrer"
             className="block text-xs font-bold text-[#827148] hover:underline transition-colors"
           >
             Konfirmasi ke Admin via WhatsApp &rarr;
           </a>
+
+          <Link
+            href="/login"
+            className="block text-[11px] font-semibold text-[#827148]/70 hover:text-[#827148] pt-1"
+          >
+            Kembali ke Halaman Login
+          </Link>
         </div>
       </div>
     </div>

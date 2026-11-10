@@ -10,7 +10,6 @@ import {
     PaymentUpload,
     PricingBreakdown,
     GoPayInfo,
-    UTSPackageSelector
 } from "@/components/register"
 import type { RegistrationType } from "@/lib/validators/registration"
 import { Input } from "@/components/ui/input"
@@ -23,21 +22,25 @@ import {
     SelectValue,
 } from "@/components/ui/select"
 import { SUBJECTS } from "@/constants"
+import { SUBSCRIPTION_PLAN_LIST, type PlanCode } from "@/config/plans"
+
+const PAID_PLANS = SUBSCRIPTION_PLAN_LIST.filter((p) => p.code !== "FREE")
 
 export default function UpgradePackagePage() {
     const router = useRouter()
     const [isLoading, setIsLoading] = useState(false)
-    const [selectedType, setSelectedType] = useState<RegistrationType | null>(null)
+    const [selectedType, setSelectedType] = useState<RegistrationType | null>("UTS")
     const [isSuccess, setIsSuccess] = useState(false)
 
     // Form data
-    const [subject, setSubject] = useState("")
+    const [track, setTrack] = useState<"PHYSICS_SEM_3" | "NON_PHYSICS">("PHYSICS_SEM_3")
+    const [planCode, setPlanCode] = useState<PlanCode>("SEMESTER")
+    const [subject, setSubject] = useState("FISDAS2")
     const [groupSize, setGroupSize] = useState("1")
     const [sessionCount, setSessionCount] = useState("1")
     const [scheduledDate, setScheduledDate] = useState("")
     const [scheduledTime, setScheduledTime] = useState("")
     const [notes, setNotes] = useState("")
-    const [packageType, setPackageType] = useState("")
 
     // File
     const [paymentFile, setPaymentFile] = useState<File | null>(null)
@@ -48,6 +51,8 @@ export default function UpgradePackagePage() {
         setPaymentPreview(preview)
     }
 
+    const selectedPaidPlan = PAID_PLANS.find((p) => p.code === planCode) || PAID_PLANS[1]
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
 
@@ -56,13 +61,8 @@ export default function UpgradePackagePage() {
             return
         }
 
-        if (!subject) {
+        if (selectedType !== "UTS" && !subject) {
             toast.error("Pilih mata kuliah.")
-            return
-        }
-
-        if (selectedType === "UTS" && !packageType) {
-            toast.error("Pilih tipe paket UTS.")
             return
         }
 
@@ -76,7 +76,15 @@ export default function UpgradePackagePage() {
         try {
             const formData = new FormData()
             formData.append("type", selectedType)
-            formData.append("subject", subject)
+            formData.append(
+                "subject",
+                selectedType === "UTS"
+                    ? track === "PHYSICS_SEM_3"
+                        ? "Fisika Smt 3"
+                        : "Umum / Non-Fisika"
+                    : subject
+            )
+            formData.append("track", track)
             formData.append("paymentProof", paymentFile)
 
             if (selectedType === "REGULAR") {
@@ -86,7 +94,9 @@ export default function UpgradePackagePage() {
                 formData.append("scheduledTime", scheduledTime)
                 formData.append("notes", notes)
             } else if (selectedType === "UTS") {
-                formData.append("packageType", packageType)
+                formData.append("plan_code", planCode)
+                formData.append("packageType", planCode.toLowerCase())
+                formData.append("price", String(selectedPaidPlan.price))
             }
 
             const res = await fetch("/api/dashboard/purchase", {
@@ -175,23 +185,107 @@ export default function UpgradePackagePage() {
                         </div>
 
                         <div className="space-y-4">
-                            <div>
-                                <label className="text-xs font-bold text-[#827148] mb-1.5 block">
-                                    Mata Kuliah
-                                </label>
-                                <Select value={subject} onValueChange={setSubject}>
-                                    <SelectTrigger className="w-full bg-white border border-[#FFEED6] rounded-xl text-sm text-[#827148] h-11">
-                                        <SelectValue placeholder="Pilih Mata Kuliah" />
-                                    </SelectTrigger>
-                                    <SelectContent className="bg-white border border-[#FFEED6] rounded-xl text-sm text-[#827148]">
-                                        {SUBJECTS.map((s) => (
-                                            <SelectItem key={s.value} value={s.value} className="cursor-pointer">
-                                                {s.label}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                            </div>
+                            {selectedType === "UTS" ? (
+                                <>
+                                    <div>
+                                        <label className="text-xs font-bold text-[#827148] mb-2 block">
+                                            Jalur Kurikulum Mahasiswa
+                                        </label>
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                            <button
+                                                type="button"
+                                                onClick={() => setTrack("PHYSICS_SEM_3")}
+                                                className={`p-4 rounded-2xl border-2 text-left transition-all cursor-pointer ${
+                                                    track === "PHYSICS_SEM_3"
+                                                        ? "border-[#827148] bg-[#FFEED6]/40 text-[#827148]"
+                                                        : "border-[#FFEED6] bg-white text-[#827148]/80 hover:border-[#A5AF79]"
+                                                }`}
+                                            >
+                                                <div className="font-bold text-sm">Departemen Fisika Smt 3</div>
+                                                <div className="text-xs text-[#827148]/70 mt-1">
+                                                    6 Mata Kuliah Fisika Lanjutan (Mekanika, Fismat, Gelombang, Elektrostatika, Termo, Komputasi)
+                                                </div>
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={() => setTrack("NON_PHYSICS")}
+                                                className={`p-4 rounded-2xl border-2 text-left transition-all cursor-pointer ${
+                                                    track === "NON_PHYSICS"
+                                                        ? "border-[#827148] bg-[#FFEED6]/40 text-[#827148]"
+                                                        : "border-[#FFEED6] bg-white text-[#827148]/80 hover:border-[#A5AF79]"
+                                                }`}
+                                            >
+                                                <div className="font-bold text-sm">Umum / Non-Fisika (PKU)</div>
+                                                <div className="text-xs text-[#827148]/70 mt-1">
+                                                    4 Mata Kuliah Sains Dasar (Fisika Dasar 1 & 2, Statistika, Matematika 1)
+                                                </div>
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label className="text-xs font-bold text-[#827148] mb-2 block">
+                                            Pilih Paket Langganan All-Access
+                                        </label>
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                            {PAID_PLANS.map((plan) => {
+                                                const active = planCode === plan.code
+                                                return (
+                                                    <div
+                                                        key={plan.id}
+                                                        onClick={() => setPlanCode(plan.code)}
+                                                        className={`p-5 rounded-2xl border-2 cursor-pointer transition-all ${
+                                                            active
+                                                                ? "border-[#827148] bg-[#FFEED6]/50 shadow-sm"
+                                                                : "border-[#FFEED6] bg-white hover:border-[#A5AF79]"
+                                                        }`}
+                                                    >
+                                                        <div className="flex items-center justify-between">
+                                                            <span className="font-bold text-base text-[#827148]">
+                                                                {plan.name}
+                                                            </span>
+                                                            <span className="text-[10px] font-bold bg-[#A5AF79] text-white px-2.5 py-0.5 rounded-full">
+                                                                {plan.badge}
+                                                            </span>
+                                                        </div>
+                                                        <div className="mt-2 flex items-baseline gap-2">
+                                                            <span className="text-2xl font-extrabold text-[#827148]">
+                                                                {plan.priceFormatted}
+                                                            </span>
+                                                            {plan.originalPriceFormatted && (
+                                                                <span className="text-xs text-[#827148]/50 line-through">
+                                                                    {plan.originalPriceFormatted}
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                        <div className="text-xs text-[#827148]/70 mt-1">
+                                                            Masa aktif: {plan.durationLabel}
+                                                        </div>
+                                                    </div>
+                                                )
+                                            })}
+                                        </div>
+                                    </div>
+                                </>
+                            ) : (
+                                <div>
+                                    <label className="text-xs font-bold text-[#827148] mb-1.5 block">
+                                        Mata Kuliah
+                                    </label>
+                                    <Select value={subject} onValueChange={setSubject}>
+                                        <SelectTrigger className="w-full bg-white border border-[#FFEED6] rounded-xl text-sm text-[#827148] h-11">
+                                            <SelectValue placeholder="Pilih Mata Kuliah" />
+                                        </SelectTrigger>
+                                        <SelectContent className="bg-white border border-[#FFEED6] rounded-xl text-sm text-[#827148]">
+                                            {SUBJECTS.map((s) => (
+                                                <SelectItem key={s.value} value={s.value} className="cursor-pointer">
+                                                    {s.label}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                            )}
 
                             {selectedType === "REGULAR" && (
                                 <>
@@ -276,12 +370,6 @@ export default function UpgradePackagePage() {
                                         />
                                     </div>
                                 </>
-                            )}
-
-                            {selectedType === "UTS" && (
-                                <div className="space-y-4">
-                                    <UTSPackageSelector selected={packageType} onSelect={setPackageType} />
-                                </div>
                             )}
 
                             {selectedType === "KELAS_BESAR" && (

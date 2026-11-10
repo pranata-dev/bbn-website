@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server"
-import { createClient } from "@/lib/supabase/server"
-import { createServiceClient } from "@/lib/supabase/server"
+import { createClient, createServiceClient } from "@/lib/supabase/server"
 import { UTS_PACKAGES } from "@/constants"
 import { checkRateLimit } from "@/lib/rate-limit"
 import { calculatePrice } from "@/lib/pricing"
+import { getPlanByCode, SUBSCRIPTION_PLANS } from "@/config/plans"
 
 const ACCEPTED_TYPES = ["REGULAR", "UTS", "KELAS_BESAR"] as const
 const ACCEPTED_FILE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"]
@@ -26,11 +26,16 @@ export async function POST(request: NextRequest) {
 
         // Extract common fields
         const type = ((formData.get("type") as string) || "").trim() as "REGULAR" | "UTS" | "KELAS_BESAR"
-        const subject = (formData.get("subject") as string || "").trim()
+        const subject = ((formData.get("subject") as string) || "Fisika Smt 3").trim()
+        const track = ((formData.get("track") as string) || "PHYSICS_SEM_3").trim()
+        const rawPlanCode = ((formData.get("plan_code") as string) || (formData.get("packageType") as string) || "SEMESTER")
+            .trim()
+            .toUpperCase()
+        const planCode = rawPlanCode.includes("MONTH") ? "MONTHLY" : "SEMESTER"
         const paymentProof = formData.get("paymentProof") as File
 
         // Validate type
-        if (!type || !ACCEPTED_TYPES.includes(type as typeof ACCEPTED_TYPES[number])) {
+        if (!type || !ACCEPTED_TYPES.includes(type as (typeof ACCEPTED_TYPES)[number])) {
             return NextResponse.json(
                 { error: "Tipe registrasi tidak valid." },
                 { status: 400 }
@@ -68,8 +73,8 @@ export async function POST(request: NextRequest) {
 
         // Validate type-specific fields
         if (type === "REGULAR") {
-            const groupSize = parseInt(formData.get("groupSize") as string)
-            const sessionCount = parseInt(formData.get("sessionCount") as string)
+            const groupSize = parseInt(formData.get("groupSize") as string, 10)
+            const sessionCount = parseInt(formData.get("sessionCount") as string, 10)
             const scheduledDate = formData.get("scheduledDate") as string
             const scheduledTime = formData.get("scheduledTime") as string
 
@@ -82,11 +87,6 @@ export async function POST(request: NextRequest) {
             if (!scheduledDate || !scheduledTime) {
                 return NextResponse.json({ error: "Pilih tanggal dan waktu kelas." }, { status: 400 })
             }
-        } else if (type === "UTS") {
-            const packageType = formData.get("packageType") as string
-            if (!packageType) {
-                return NextResponse.json({ error: "Pilih tipe paket." }, { status: 400 })
-            }
         }
 
         const adminClient = createServiceClient()
@@ -97,12 +97,12 @@ export async function POST(request: NextRequest) {
             .select("id, name")
             .eq("email", user.email)
             .single()
-            
+
         if (!dbUser) {
             return NextResponse.json({ error: "User record not found." }, { status: 404 })
         }
 
-        // Get past registration to reuse nim and whatsapp (bypassing validation requirements)
+        // Get past registration to reuse nim and whatsapp
         const { data: pastReg } = await adminClient
             .from("registrations")
             .select("nim, whatsapp")
@@ -116,7 +116,7 @@ export async function POST(request: NextRequest) {
         const name = dbUser.name || user.email.split("@")[0]
 
         // Upload payment proof
-        const fileExt = paymentProof.name.split(".").pop()
+        const fileExt = paymentProof.name.split(".").pop() || "jpg"
         const fileName = `dashboard-purchases/${Date.now()}-${dbUser.id}.${fileExt}`
         const { error: uploadError } = await adminClient.storage
             .from("payment-proofs")
@@ -142,17 +142,21 @@ export async function POST(request: NextRequest) {
         let pricingTier: string | null = null
 
         if (type === "REGULAR") {
-            const groupSize = parseInt(formData.get("groupSize") as string)
-            const sessionCount = parseInt(formData.get("sessionCount") as string)
+            const groupSize = parseInt(formData.get("groupSize") as string, 10)
+            const sessionCount = parseInt(formData.get("sessionCount") as string, 10)
             const pricing = calculatePrice(groupSize, sessionCount)
             calculatedPrice = pricing.subtotal
             pricingTier = pricing.tier
         } else if (type === "UTS") {
-            const packageType = formData.get("packageType") as string
-            const pkg = UTS_PACKAGES.find((p: any) => p.value === packageType)
-            if (pkg) {
-                calculatedPrice = pkg.price
-                pricingTier = pkg.value.toUpperCase()
+            const packageType = (formData.get("packageType") as string) || ""
+            const legacyPkg = UTS_PACKAGES.find((p) => p.value === packageType)
+            if (legacyPkg) {
+                calculatedPrice = legacyPkg.price
+                pricingTier = legacyPkg.value.toUpperCase()
+            } else {
+                const unifiedPlan = getPlanByCode(planCode) ?? SUBSCRIPTION_PLANS.MONTHLY
+                calculatedPrice = unifiedPlan.price
+                pricingTier = unifiedPlan.code
             }
         } else if (type === "KELAS_BESAR") {
             calculatedPrice = 30000
@@ -165,6 +169,8 @@ export async function POST(request: NextRequest) {
             .insert({
                 id: registrationId,
                 type,
+                plan_code: planCode,
+                track: track === "NON_PHYSICS" ? "NON_PHYSICS" : "PHYSICS_SEM_3",
                 name,
                 email: user.email,
                 nim,
@@ -175,7 +181,7 @@ export async function POST(request: NextRequest) {
                 pricing_tier: pricingTier,
                 status: "PENDING",
                 updated_at: new Date().toISOString(),
-                user_id: dbUser.id
+                user_id: dbUser.id,
             })
             .select()
             .single()
@@ -184,34 +190,6 @@ export async function POST(request: NextRequest) {
             console.error("Registration insert error:", regError)
             await adminClient.storage.from("payment-proofs").remove([fileName])
             return NextResponse.json({ error: "Gagal menyimpan data pendaftaran." }, { status: 500 })
-        }
-
-        // Optional legacy detail record (silently ignored if table decommissioned)
-        try {
-            if (type === "REGULAR") {
-                const notes = (formData.get("notes") as string) || ""
-                await (adminClient as any)
-                    .from("regular_class_details")
-                    .insert({
-                        id: crypto.randomUUID(),
-                        registration_id: registration.id,
-                        group_size: parseInt(formData.get("groupSize") as string),
-                        session_count: parseInt(formData.get("sessionCount") as string),
-                        scheduled_date: formData.get("scheduledDate") as string,
-                        scheduled_time: formData.get("scheduledTime") as string,
-                        notes,
-                    })
-            } else if (type === "UTS") {
-                await (adminClient as any)
-                    .from("uts_package_details")
-                    .insert({
-                        id: crypto.randomUUID(),
-                        registration_id: registration.id,
-                        package_type: formData.get("packageType") as string,
-                    })
-            }
-        } catch {
-            // Ignored - legacy detail tables decommissioned
         }
 
         return NextResponse.json(

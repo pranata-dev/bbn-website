@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createServiceClient } from "@/lib/supabase/server"
-import { WHATSAPP_REGEX, UTS_PACKAGES } from "@/constants"
 import { checkRateLimit } from "@/lib/rate-limit"
 import { calculatePrice } from "@/lib/pricing"
+import { getPlanByCode } from "@/config/plans"
 
 const ACCEPTED_TYPES = ["REGULAR", "UTS", "KELAS_BESAR"] as const
 const ACCEPTED_FILE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"]
@@ -25,14 +25,13 @@ export async function POST(request: NextRequest) {
       (formData.get("name") as string) ||
       ""
     ).trim()
-    const email = (formData.get("email") as string || "").trim().toLowerCase()
-    const password = (formData.get("password") as string || "").trim()
+    const email = ((formData.get("email") as string) || "").trim().toLowerCase()
     const whatsapp = (
       (formData.get("whatsapp") as string) ||
       (formData.get("phone") as string) ||
       ""
     ).trim()
-    const nim = (formData.get("nim") as string || "MHS-BBN").trim()
+    const nim = ((formData.get("nim") as string) || "MHS-BBN").trim()
     const studentCategory = (
       (formData.get("studentCategory") as string) ||
       (formData.get("student_category") as string) ||
@@ -43,17 +42,23 @@ export async function POST(request: NextRequest) {
       (formData.get("billing_cycle") as string) ||
       "MONTHLY"
     ).trim()
-    const planCode = (
+    const rawPlanCode = (
       (formData.get("plan_code") as string) ||
       (formData.get("planCode") as string) ||
-      (billingCycle.toUpperCase().includes("MONTH") ? "MONTHLY" : "SEMESTER")
-    ).trim()
+      billingCycle
+    ).trim().toUpperCase()
+    const planCode =
+      rawPlanCode === "FREE"
+        ? "FREE"
+        : rawPlanCode.includes("MONTH")
+          ? "MONTHLY"
+          : "SEMESTER"
     const packageType = (
       (formData.get("selectedPackageId") as string) ||
       (formData.get("selectedPackageName") as string) ||
       (formData.get("packageType") as string) ||
       (formData.get("package_type") as string) ||
-      "einstein_monthly"
+      planCode.toLowerCase()
     ).trim()
 
     const subject = (
@@ -62,10 +67,10 @@ export async function POST(request: NextRequest) {
     ).trim()
 
     const paymentProof = formData.get("paymentProof") as File | null
-    const authId = (formData.get("authId") as string || "").trim()
+    const authId = ((formData.get("authId") as string) || "").trim()
 
     // Validate type
-    if (!ACCEPTED_TYPES.includes(type as typeof ACCEPTED_TYPES[number])) {
+    if (!ACCEPTED_TYPES.includes(type as (typeof ACCEPTED_TYPES)[number])) {
       return NextResponse.json(
         { error: "Tipe registrasi tidak valid." },
         { status: 400 }
@@ -94,26 +99,30 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Validate payment proof file
-    if (!paymentProof || !(paymentProof instanceof File)) {
-      return NextResponse.json(
-        { error: "Mohon unggah bukti transfer pembayaran." },
-        { status: 400 }
-      )
-    }
+    const isFreeRegistration = type === "UTS" && planCode === "FREE"
 
-    if (!ACCEPTED_FILE_TYPES.includes(paymentProof.type)) {
-      return NextResponse.json(
-        { error: "Format file tidak didukung. Gunakan JPG, PNG, atau WebP." },
-        { status: 400 }
-      )
-    }
+    // Validate payment proof file for paid registrations
+    if (!isFreeRegistration) {
+      if (!paymentProof || !(paymentProof instanceof File)) {
+        return NextResponse.json(
+          { error: "Mohon unggah bukti transfer pembayaran." },
+          { status: 400 }
+        )
+      }
 
-    if (paymentProof.size > MAX_FILE_SIZE) {
-      return NextResponse.json(
-        { error: "Ukuran file bukti pembayaran maksimal 5MB." },
-        { status: 400 }
-      )
+      if (!ACCEPTED_FILE_TYPES.includes(paymentProof.type)) {
+        return NextResponse.json(
+          { error: "Format file tidak didukung. Gunakan JPG, PNG, atau WebP." },
+          { status: 400 }
+        )
+      }
+
+      if (paymentProof.size > MAX_FILE_SIZE) {
+        return NextResponse.json(
+          { error: "Ukuran file bukti pembayaran maksimal 5MB." },
+          { status: 400 }
+        )
+      }
     }
 
     const supabase = createServiceClient()
@@ -125,14 +134,59 @@ export async function POST(request: NextRequest) {
       .ilike("email", email)
       .maybeSingle()
 
-    // Upload payment proof
-    const fileExt = paymentProof.name.split(".").pop() || "jpg"
+    const localUserId = existingUser?.id || crypto.randomUUID()
+    const nowIso = new Date().toISOString()
+
+    // Handle FREE plan registration immediately without manual payment verification
+    if (isFreeRegistration) {
+      const { error: freeUserErr } = await supabase
+        .from("users")
+        .upsert(
+          {
+            id: localUserId,
+            email,
+            name,
+            auth_id: authId || existingUser?.auth_id || localUserId,
+            is_active: true,
+            updated_at: nowIso,
+          },
+          { onConflict: "email" }
+        )
+
+      if (freeUserErr) {
+        console.error("Free user upsert error:", freeUserErr)
+      }
+
+      await supabase.from("subscriptions").insert({
+        id: crypto.randomUUID(),
+        user_id: localUserId,
+        plan_code: "FREE",
+        track: studentCategory === "NON_PHYSICS" ? "NON_PHYSICS" : "PHYSICS_SEM_3",
+        status: "ACTIVE",
+        starts_at: nowIso,
+        expires_at: null,
+        created_at: nowIso,
+        updated_at: nowIso,
+      })
+
+      return NextResponse.json(
+        {
+          message: "Pendaftaran Paket Gratis berhasil! Akun Anda langsung aktif.",
+          status: "ACTIVE_FREE",
+          user_id: localUserId,
+        },
+        { status: 201 }
+      )
+    }
+
+    // Upload payment proof for paid plans
+    const fileExt = paymentProof!.name.split(".").pop() || "jpg"
     const safeEmailPrefix = email.replace(/[^a-zA-Z0-9]/g, "_")
     const fileName = `registrations/${Date.now()}-${safeEmailPrefix}.${fileExt}`
 
     const { error: uploadError } = await supabase.storage
       .from("payment-proofs")
-      .upload(fileName, paymentProof, {
+      .upload(fileName, paymentProof!, {
         cacheControl: "3600",
         upsert: true,
       })
@@ -155,23 +209,23 @@ export async function POST(request: NextRequest) {
     let pricingTier: string = packageType.toUpperCase()
 
     if (type === "REGULAR") {
-      const groupSize = parseInt(formData.get("groupSize") as string) || 1
-      const sessionCount = parseInt(formData.get("sessionCount") as string) || 1
+      const rawPrice = formData.get("price") as string
+      const groupSize = parseInt(formData.get("groupSize") as string, 10) || 1
+      const sessionCount = parseInt(formData.get("sessionCount") as string, 10) || 1
       const pricing = calculatePrice(groupSize, sessionCount)
-      calculatedPrice = pricing.subtotal
+      calculatedPrice = rawPrice ? parseInt(rawPrice, 10) || pricing.subtotal : pricing.subtotal
       pricingTier = pricing.tier
     } else if (type === "UTS") {
+      const unifiedPlan = getPlanByCode(planCode)
       const rawPrice = formData.get("price") as string
-      if (rawPrice) {
-        calculatedPrice = parseInt(rawPrice) || null
-      }
+      calculatedPrice = rawPrice ? parseInt(rawPrice, 10) || unifiedPlan.price : unifiedPlan.price
+      pricingTier = planCode
     } else if (type === "KELAS_BESAR") {
       calculatedPrice = 30000
       pricingTier = "MASTERCLASS"
     }
 
     // 1. Insert or Upsert into local `users` table without locking out active users
-    const localUserId = existingUser?.id || crypto.randomUUID()
     const { error: userUpsertError } = await supabase
       .from("users")
       .upsert(
@@ -180,8 +234,8 @@ export async function POST(request: NextRequest) {
           email,
           name,
           auth_id: authId || existingUser?.auth_id || localUserId,
-          is_active: existingUser ? existingUser.is_active : false, // Preserve active status if already existing
-          updated_at: new Date().toISOString(),
+          is_active: existingUser ? existingUser.is_active : false,
+          updated_at: nowIso,
         },
         { onConflict: "email" }
       )
@@ -192,8 +246,7 @@ export async function POST(request: NextRequest) {
 
     // 2. Insert into `registrations` table with status: 'PENDING'
     const registrationId = crypto.randomUUID()
-    const nowIso = new Date().toISOString()
-    const { data: registration, error: regError } = await supabase
+    const { error: regError } = await supabase
       .from("registrations")
       .insert({
         id: registrationId,
@@ -213,8 +266,6 @@ export async function POST(request: NextRequest) {
         created_at: nowIso,
         updated_at: nowIso,
       })
-      .select()
-      .maybeSingle()
 
     if (regError) {
       console.error("Registration insert error:", regError)
@@ -222,39 +273,6 @@ export async function POST(request: NextRequest) {
         { error: "Gagal menyimpan data pendaftaran. Silakan coba lagi." },
         { status: 500 }
       )
-    }
-
-    // 3. Create detail records safely if applicable (legacy fallback)
-    try {
-      if (type === "UTS") {
-        await (supabase as any)
-          .from("uts_package_details")
-          .insert({
-            id: crypto.randomUUID(),
-            registration_id: registrationId,
-            package_type: packageType,
-          })
-      } else if (type === "REGULAR") {
-        const groupSize = parseInt(formData.get("groupSize") as string) || 1
-        const sessionCount = parseInt(formData.get("sessionCount") as string) || 1
-        const scheduledDate = (formData.get("scheduledDate") as string) || new Date().toISOString()
-        const scheduledTime = (formData.get("scheduledTime") as string) || "19:00"
-        const notes = (formData.get("notes") as string) || ""
-
-        await (supabase as any)
-          .from("regular_class_details")
-          .insert({
-            id: crypto.randomUUID(),
-            registration_id: registrationId,
-            group_size: groupSize,
-            session_count: sessionCount,
-            scheduled_date: scheduledDate,
-            scheduled_time: scheduledTime,
-            notes,
-          })
-      }
-    } catch (detailErr) {
-      console.warn("Optional detail table insert skipped/warned:", detailErr)
     }
 
     return NextResponse.json(
@@ -265,10 +283,11 @@ export async function POST(request: NextRequest) {
       },
       { status: 201 }
     )
-  } catch (error: any) {
+  } catch (error) {
     console.error("Registration error:", error)
+    const message = error instanceof Error ? error.message : "Terjadi kesalahan internal."
     return NextResponse.json(
-      { error: error?.message || "Terjadi kesalahan internal." },
+      { error: message },
       { status: 500 }
     )
   }

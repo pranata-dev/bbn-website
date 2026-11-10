@@ -7,6 +7,7 @@ import { toast } from "sonner"
 import { MAX_FILE_SIZE, ACCEPTED_IMAGE_TYPES } from "@/constants"
 import { createClient } from "@/lib/supabase/client"
 import { BUSINESS_CONFIG } from "@/config/business"
+import { SUBSCRIPTION_PLAN_LIST, type PlanCode } from "@/config/plans"
 import {
   Dialog,
   DialogContent,
@@ -17,19 +18,12 @@ import {
 } from "@/components/ui/dialog"
 import {
   Check,
-  Copy,
   Upload,
-  AlertTriangle,
   ArrowRight,
-  ShieldCheck,
-  FileText,
-  User,
-  Sparkles,
-  Lock,
 } from "lucide-react"
 
 export type StudentCategory = "PHYSICS_SEM_3" | "NON_PHYSICS"
-export type BillingCycle = "MONTHLY" | "SEMESTER"
+export type BillingCycle = "FREE" | "MONTHLY" | "SEMESTER"
 
 export interface ELearningRegistrationPayload {
   fullName: string
@@ -44,17 +38,6 @@ export interface ELearningRegistrationPayload {
   authId?: string
 }
 
-export interface UTSPackageFormProps {
-  paymentFile?: File | null
-  paymentPreview?: string | null
-  onPaymentChange?: (file: File | null, preview: string | null) => void
-  onSubmit?: (e: React.FormEvent, payload?: ELearningRegistrationPayload) => void
-  isLoading?: boolean
-  // Backwards compatibility props
-  formData?: any
-  onChange?: (data: any) => void
-}
-
 export interface UTSPackageFormState {
   name: string
   email: string
@@ -66,8 +49,20 @@ export interface UTSPackageFormState {
   whatsapp: string
 }
 
+export interface UTSPackageFormProps {
+  paymentFile?: File | null
+  paymentPreview?: string | null
+  onPaymentChange?: (file: File | null, preview: string | null) => void
+  onSubmit?: (e: React.FormEvent, payload?: ELearningRegistrationPayload) => void
+  isLoading?: boolean
+  initialPlan?: string | null
+  formData?: Partial<UTSPackageFormState>
+  onChange?: (data: Partial<UTSPackageFormState>) => void
+}
+
 interface PackageOption {
   id: string
+  planCode: PlanCode
   name: string
   cycle: BillingCycle
   price: number
@@ -78,85 +73,18 @@ interface PackageOption {
   isPopular?: boolean
 }
 
-const BULANAN_PACKAGES: PackageOption[] = [
-  {
-    id: "flux_monthly",
-    name: "Flux Session",
-    cycle: "MONTHLY",
-    price: 35000,
-    headline: "Rangkuman Materi & Latihan Mandiri",
-    features: [
-      "Akses Rangkuman Materi Lengkap",
-      "Bank Soal Latihan Mandiri",
-      "Sistem Auto-Save Jawaban",
-      "Akses Penuh 30 Hari",
-    ],
-    isPopular: false,
-  },
-  {
-    id: "senku_monthly",
-    name: "Berotak Senku Mode",
-    cycle: "MONTHLY",
-    price: 50000,
-    headline: "Materi + 2x Simulasi Tryout Eksklusif",
-    features: [
-      "Semua Fitur Flux Session",
-      "2x Simulasi Tryout Eksklusif",
-      "Pembahasan Soal Interaktif",
-      "Akses Penuh 30 Hari",
-    ],
-    isPopular: false,
-  },
-  {
-    id: "einstein_monthly",
-    name: "Einstein Mode",
-    cycle: "MONTHLY",
-    price: 60000,
-    headline: "Akses Penuh Modul & Unlimited Tryout",
-    features: [
-      "Akses Penuh Semua Modul & Bank Soal",
-      "Unlimited Tryout & Pembahasan Lengkap",
-      "Leaderboard Ranking Nasional",
-      "Akses Grup Diskusi Komunitas",
-    ],
-    isPopular: true,
-  },
-]
-
-const SEMESTER_PACKAGES: PackageOption[] = [
-  {
-    id: "senku_semester",
-    name: "Berotak Senku Semester",
-    cycle: "SEMESTER",
-    price: 149000,
-    originalPrice: 300000,
-    discountBadge: "Hemat Diskon",
-    headline: "Persiapan Lengkap Selama 1 Semester",
-    features: [
-      "Rangkuman Materi 1 Semester Penuh",
-      "Tryout Berkala & Pembahasan Lengkap",
-      "Leaderboard Ranking Semester",
-      "Akses Penuh 6 Bulan",
-    ],
-    isPopular: false,
-  },
-  {
-    id: "einstein_semester",
-    name: "Einstein Semester Pass",
-    cycle: "SEMESTER",
-    price: 199000,
-    originalPrice: 360000,
-    discountBadge: "Hemat Diskon",
-    headline: "All-Access Pass Terbaik untuk IPK 4.0",
-    features: [
-      "All-Access Pass Semua Materi & Soal",
-      "Unlimited Tryout & Pembahasan Intensif",
-      "Ranking Leaderboard Semester",
-      "Akses Grup Komunitas 6 Bulan",
-    ],
-    isPopular: true,
-  },
-]
+const UNIFIED_PACKAGES: PackageOption[] = SUBSCRIPTION_PLAN_LIST.map((plan) => ({
+  id: plan.id,
+  planCode: plan.code,
+  name: plan.name,
+  cycle: plan.code,
+  price: plan.price,
+  originalPrice: plan.originalPrice,
+  discountBadge: plan.badge,
+  headline: `${plan.subtitle} — Masa Aktif ${plan.durationLabel}`,
+  features: plan.features,
+  isPopular: plan.isPopular,
+}))
 
 const PHYSICS_SEM_3_COURSES = [
   "Mekanika Newton",
@@ -174,17 +102,27 @@ const NON_PHYSICS_COURSES = [
   "Matematika 1",
 ]
 
+interface AuthUserSummary {
+  id: string
+  email?: string
+  user_metadata?: {
+    full_name?: string
+    name?: string
+    user_name?: string
+  }
+}
+
 export function UTSPackageForm({
   paymentFile: propPaymentFile,
   paymentPreview: propPaymentPreview,
   onPaymentChange: propOnPaymentChange,
-  onSubmit,
   isLoading: propIsLoading = false,
+  initialPlan,
 }: UTSPackageFormProps) {
   const router = useRouter()
 
   // Auth State
-  const [currentUser, setCurrentUser] = useState<any>(null)
+  const [currentUser, setCurrentUser] = useState<AuthUserSummary | null>(null)
   const [isGoogleLoading, setIsGoogleLoading] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -197,10 +135,19 @@ export function UTSPackageForm({
   const [email, setEmail] = useState("")
   const [whatsapp, setWhatsapp] = useState("")
 
+  // Determine initial plan from query param (`free`, `monthly`, `semester`)
+  const normalizedInitPlan = (initialPlan || "").trim().toUpperCase()
+  const defaultCycle: BillingCycle =
+    normalizedInitPlan === "FREE"
+      ? "FREE"
+      : normalizedInitPlan === "MONTHLY"
+      ? "MONTHLY"
+      : "SEMESTER"
+
   // Curriculum & Package Selection States
   const [studentCategory, setStudentCategory] = useState<StudentCategory>("PHYSICS_SEM_3")
-  const [billingCycle, setBillingCycle] = useState<BillingCycle>("MONTHLY")
-  const [selectedPackageId, setSelectedPackageId] = useState<string>("einstein_monthly")
+  const [billingCycle, setBillingCycle] = useState<BillingCycle>(defaultCycle)
+  const [selectedPackageId, setSelectedPackageId] = useState<string>(defaultCycle.toLowerCase())
 
   // Payment / File Upload State
   const [localPaymentFile, setLocalPaymentFile] = useState<File | null>(null)
@@ -220,7 +167,7 @@ export function UTSPackageForm({
         } = await supabase.auth.getUser()
 
         if (user) {
-          setCurrentUser(user)
+          setCurrentUser(user as AuthUserSummary)
           const metaName =
             user.user_metadata?.full_name ||
             user.user_metadata?.name ||
@@ -254,20 +201,19 @@ export function UTSPackageForm({
 
   // Sync package selection when billing cycle toggle changes
   useEffect(() => {
-    if (billingCycle === "MONTHLY") {
-      setSelectedPackageId("einstein_monthly")
-    } else {
-      setSelectedPackageId("einstein_semester")
-    }
+    setSelectedPackageId(billingCycle.toLowerCase())
   }, [billingCycle])
 
-  const activePackageList =
-    billingCycle === "MONTHLY" ? BULANAN_PACKAGES : SEMESTER_PACKAGES
+  const activePackageList = UNIFIED_PACKAGES
 
   const selectedPackage = useMemo(() => {
-    const all = [...BULANAN_PACKAGES, ...SEMESTER_PACKAGES]
-    return all.find((p) => p.id === selectedPackageId) || BULANAN_PACKAGES[2]
-  }, [selectedPackageId])
+    return (
+      UNIFIED_PACKAGES.find((p) => p.id === selectedPackageId || p.cycle === billingCycle) ||
+      UNIFIED_PACKAGES[2]
+    )
+  }, [selectedPackageId, billingCycle])
+
+  const isFreePlan = selectedPackage.planCode === "FREE"
 
   // Google OAuth Sign-In Handler
   const handleGoogleSignIn = async () => {
@@ -283,9 +229,10 @@ export function UTSPackageForm({
       if (error) {
         throw error
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error("Google sign-in error:", error)
-      toast.error(error?.message || "Gagal masuk dengan Google. Silakan coba lagi.")
+      const message = error instanceof Error ? error.message : "Gagal masuk dengan Google. Silakan coba lagi."
+      toast.error(message)
       setIsGoogleLoading(false)
     }
   }
@@ -367,7 +314,7 @@ export function UTSPackageForm({
       toast.error("Masukkan nomor WhatsApp yang valid.")
       return
     }
-    if (!activeFile) {
+    if (!isFreePlan && !activeFile) {
       toast.error("Mohon unggah bukti pembayaran transfer bank.")
       return
     }
@@ -408,13 +355,16 @@ export function UTSPackageForm({
       formPayload.append("phone", whatsapp)
       formPayload.append("studentCategory", studentCategory)
       formPayload.append("student_category", studentCategory)
-      formPayload.append("billingCycle", billingCycle)
-      formPayload.append("billing_cycle", billingCycle)
+      formPayload.append("billingCycle", selectedPackage.planCode)
+      formPayload.append("billing_cycle", selectedPackage.planCode)
+      formPayload.append("plan_code", selectedPackage.planCode)
       formPayload.append("selectedPackageId", selectedPackage.id)
       formPayload.append("selectedPackageName", selectedPackage.name)
       formPayload.append("packageType", selectedPackage.id)
       formPayload.append("price", String(selectedPackage.price))
-      formPayload.append("paymentProof", activeFile)
+      if (activeFile) {
+        formPayload.append("paymentProof", activeFile)
+      }
       if (resolvedAuthId) {
         formPayload.append("authId", resolvedAuthId)
       }
@@ -430,11 +380,17 @@ export function UTSPackageForm({
         throw new Error(data.error || "Gagal memproses pendaftaran.")
       }
 
-      toast.success("Pendaftaran berhasil! Mengalihkan ke halaman verifikasi...")
-      router.push("/waiting-approval")
-    } catch (error: any) {
+      if (isFreePlan || data.status === "ACTIVE_FREE") {
+        toast.success("Akun Paket Gratis aktif! Mengalihkan...")
+        router.push(resolvedAuthId ? "/dashboard" : "/login")
+      } else {
+        toast.success("Pendaftaran berhasil! Mengalihkan ke halaman verifikasi...")
+        router.push("/waiting-approval")
+      }
+    } catch (error) {
       console.error("Submission error:", error)
-      toast.error(error?.message || "Terjadi kesalahan saat mendaftar.")
+      const message = error instanceof Error ? error.message : "Terjadi kesalahan saat mendaftar."
+      toast.error(message)
     } finally {
       setIsSubmitting(false)
     }
@@ -693,8 +649,25 @@ export function UTSPackageForm({
                 <div className="flex items-center bg-canvas-paper p-1 border-2 border-[#171717]">
                   <button
                     type="button"
-                    onClick={() => setBillingCycle("MONTHLY")}
-                    className={`px-3 py-1.5 font-mono text-xs font-bold transition-all cursor-pointer ${
+                    onClick={() => {
+                      setBillingCycle("FREE")
+                      setSelectedPackageId("free")
+                    }}
+                    className={`px-2.5 py-1.5 font-mono text-xs font-bold transition-all cursor-pointer ${
+                      billingCycle === "FREE"
+                        ? "bg-[#171717] text-accent-canary shadow-[2px_2px_0px_#171717]"
+                        : "text-ink-muted hover:text-[#171717]"
+                    }`}
+                  >
+                    GRATIS
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setBillingCycle("MONTHLY")
+                      setSelectedPackageId("monthly")
+                    }}
+                    className={`px-2.5 py-1.5 font-mono text-xs font-bold transition-all cursor-pointer ${
                       billingCycle === "MONTHLY"
                         ? "bg-[#171717] text-accent-canary shadow-[2px_2px_0px_#171717]"
                         : "text-ink-muted hover:text-[#171717]"
@@ -704,16 +677,19 @@ export function UTSPackageForm({
                   </button>
                   <button
                     type="button"
-                    onClick={() => setBillingCycle("SEMESTER")}
-                    className={`px-3 py-1.5 font-mono text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                    onClick={() => {
+                      setBillingCycle("SEMESTER")
+                      setSelectedPackageId("semester")
+                    }}
+                    className={`px-2.5 py-1.5 font-mono text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
                       billingCycle === "SEMESTER"
                         ? "bg-[#171717] text-accent-canary shadow-[2px_2px_0px_#171717]"
                         : "text-ink-muted hover:text-[#171717]"
                     }`}
                   >
-                    <span>SEMESTER PASS</span>
+                    <span>SEMESTER</span>
                     <span className="text-[9px] bg-alert-rust text-white font-mono px-1">
-                      HEMAT
+                      HEMAT 40%
                     </span>
                   </button>
                 </div>
@@ -722,12 +698,15 @@ export function UTSPackageForm({
               {/* Package Options Cards */}
               <div className="space-y-3.5">
                 {activePackageList.map((pkg) => {
-                  const isSelected = selectedPackageId === pkg.id
+                  const isSelected = selectedPackage.id === pkg.id
 
                   return (
                     <div
                       key={pkg.id}
-                      onClick={() => setSelectedPackageId(pkg.id)}
+                      onClick={() => {
+                        setBillingCycle(pkg.cycle)
+                        setSelectedPackageId(pkg.id)
+                      }}
                       className={`border-2 border-[#171717] p-5 transition-all cursor-pointer relative ${
                         isSelected
                           ? "bg-accent-canary/15 shadow-[5px_5px_0px_#171717] -translate-x-0.5 -translate-y-0.5"
@@ -815,7 +794,11 @@ export function UTSPackageForm({
                 <div className="flex items-center justify-between">
                   <span className="text-ink-muted">MASA AKTIF:</span>
                   <span className="font-bold text-[#171717]">
-                    {billingCycle === "SEMESTER" ? "6 BULAN (SEMESTER)" : "30 HARI (BULANAN)"}
+                    {selectedPackage.planCode === "SEMESTER"
+                      ? "180 HARI (SEMESTER)"
+                      : selectedPackage.planCode === "MONTHLY"
+                      ? "30 HARI (BULANAN)"
+                      : "SELAMANYA (FREEMIUM)"}
                   </span>
                 </div>
 
@@ -837,85 +820,98 @@ export function UTSPackageForm({
                 </div>
               </div>
 
-              {/* Transfer Bank Readout Table */}
-              <div className="border-2 border-[#171717] bg-canvas-paper p-4 mt-6 space-y-2 text-xs">
-                <div className="flex items-center justify-between border-b border-[#171717]/20 pb-1.5">
-                  <span className="font-bold text-[#171717]">
-                    TRANSFER BANK ({BUSINESS_CONFIG.payment.bankName})
-                  </span>
-                  <span className="text-[9px] bg-accent-canary text-[#171717] px-1.5 py-0.5 border border-[#171717] font-bold">
-                    MANUAL CONFIRM
-                  </span>
+              {isFreePlan ? (
+                <div className="border-2 border-[#171717] bg-accent-canary/20 p-4 mt-6 space-y-1.5 text-xs">
+                  <div className="font-bold text-[#171717]">
+                    AKTIVASI INSTAN TANPA PEMBAYARAN
+                  </div>
+                  <p className="text-[11px] text-ink-muted leading-relaxed">
+                    Paket Gratis membuka akses pratinjau Bab 1 pada setiap mata kuliah dan 1x kuota simulasi latihan/tryout.
+                  </p>
                 </div>
-
-                <div className="space-y-1.5 pt-1">
-                  <div className="flex items-center justify-between">
-                    <span className="text-ink-muted text-[11px]">NO. REKENING:</span>
-                    <div className="flex items-center gap-1.5">
-                      <span className="font-extrabold text-[#171717]">
-                        {BUSINESS_CONFIG.payment.accountNumber}
+              ) : (
+                <>
+                  {/* Transfer Bank Readout Table */}
+                  <div className="border-2 border-[#171717] bg-canvas-paper p-4 mt-6 space-y-2 text-xs">
+                    <div className="flex items-center justify-between border-b border-[#171717]/20 pb-1.5">
+                      <span className="font-bold text-[#171717]">
+                        TRANSFER BANK ({BUSINESS_CONFIG.payment.bankName})
                       </span>
-                      <button
-                        type="button"
-                        onClick={handleCopySeaBank}
-                        className="bg-surface-white border border-[#171717] px-2 py-0.5 text-[10px] font-bold hover:bg-accent-canary shadow-[1px_1px_0px_#171717] cursor-pointer"
-                      >
-                        {copiedBank ? "TERSALIN ✓" : "SALIN"}
-                      </button>
+                      <span className="text-[9px] bg-accent-canary text-[#171717] px-1.5 py-0.5 border border-[#171717] font-bold">
+                        MANUAL CONFIRM
+                      </span>
+                    </div>
+
+                    <div className="space-y-1.5 pt-1">
+                      <div className="flex items-center justify-between">
+                        <span className="text-ink-muted text-[11px]">NO. REKENING:</span>
+                        <div className="flex items-center gap-1.5">
+                          <span className="font-extrabold text-[#171717]">
+                            {BUSINESS_CONFIG.payment.accountNumber}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={handleCopySeaBank}
+                            className="bg-surface-white border border-[#171717] px-2 py-0.5 text-[10px] font-bold hover:bg-accent-canary shadow-[1px_1px_0px_#171717] cursor-pointer"
+                          >
+                            {copiedBank ? "TERSALIN ✓" : "SALIN"}
+                          </button>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between text-[11px]">
+                        <span className="text-ink-muted">ATAS NAMA:</span>
+                        <span className="font-bold text-[#171717]">
+                          {BUSINESS_CONFIG.payment.accountHolder}
+                        </span>
+                      </div>
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between text-[11px]">
-                    <span className="text-ink-muted">ATAS NAMA:</span>
-                    <span className="font-bold text-[#171717]">
-                      {BUSINESS_CONFIG.payment.accountHolder}
-                    </span>
-                  </div>
-                </div>
-              </div>
+                  {/* File Upload Box */}
+                  <div className="mt-6">
+                    <label className="font-mono text-[10px] sm:text-xs font-bold text-[#171717] uppercase tracking-wider mb-2 block">
+                      UNGGAH BUKTI TRANSFER PEMBAYARAN *
+                    </label>
 
-              {/* File Upload Box */}
-              <div className="mt-6">
-                <label className="font-mono text-[10px] sm:text-xs font-bold text-[#171717] uppercase tracking-wider mb-2 block">
-                  UNGGAH BUKTI TRANSFER PEMBAYARAN *
-                </label>
-
-                {activePreview ? (
-                  <div className="border-2 border-[#171717] p-3 bg-accent-canary/15 flex items-center justify-between">
-                    <div className="flex items-center gap-2 truncate">
-                      <span className="w-5 h-5 bg-[#171717] text-accent-canary flex items-center justify-center font-bold text-xs shrink-0">
-                        ✓
-                      </span>
-                      <span className="text-xs font-bold text-[#171717] truncate">
-                        {activeFile?.name || "Bukti Transfer Terlampir"}
-                      </span>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={handleClearFile}
-                      className="text-xs font-bold text-alert-rust underline hover:text-[#171717] shrink-0 ml-2 cursor-pointer"
-                    >
-                      [HAPUS]
-                    </button>
+                    {activePreview ? (
+                      <div className="border-2 border-[#171717] p-3 bg-accent-canary/15 flex items-center justify-between">
+                        <div className="flex items-center gap-2 truncate">
+                          <span className="w-5 h-5 bg-[#171717] text-accent-canary flex items-center justify-center font-bold text-xs shrink-0">
+                            ✓
+                          </span>
+                          <span className="text-xs font-bold text-[#171717] truncate">
+                            {activeFile?.name || "Bukti Transfer Terlampir"}
+                          </span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={handleClearFile}
+                          className="text-xs font-bold text-alert-rust underline hover:text-[#171717] shrink-0 ml-2 cursor-pointer"
+                        >
+                          [HAPUS]
+                        </button>
+                      </div>
+                    ) : (
+                      <label className="border-2 border-dashed border-[#171717] hover:border-alert-rust bg-canvas-paper hover:bg-surface-white p-5 flex flex-col items-center justify-center text-center cursor-pointer transition-colors block">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleFileChange}
+                          className="hidden"
+                        />
+                        <Upload className="w-6 h-6 text-[#171717] mb-2" />
+                        <span className="text-xs font-bold text-[#171717] uppercase">
+                          Klik untuk Unggah Bukti Transfer
+                        </span>
+                        <span className="text-[10px] text-ink-muted mt-1">
+                          JPG, PNG, atau WebP (Maksimal 5MB)
+                        </span>
+                      </label>
+                    )}
                   </div>
-                ) : (
-                  <label className="border-2 border-dashed border-[#171717] hover:border-alert-rust bg-canvas-paper hover:bg-surface-white p-5 flex flex-col items-center justify-center text-center cursor-pointer transition-colors block">
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleFileChange}
-                      className="hidden"
-                    />
-                    <Upload className="w-6 h-6 text-[#171717] mb-2" />
-                    <span className="text-xs font-bold text-[#171717] uppercase">
-                      Klik untuk Unggah Bukti Transfer
-                    </span>
-                    <span className="text-[10px] text-ink-muted mt-1">
-                      JPG, PNG, atau WebP (Maksimal 5MB)
-                    </span>
-                  </label>
-                )}
-              </div>
+                </>
+              )}
 
               {/* Massive High-Contrast Submit Checkout Button */}
               <button
