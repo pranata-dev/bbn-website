@@ -14,17 +14,30 @@ import {
 import {
   Search,
   Filter,
-  UserCheck,
-  UserX,
   Trash2,
   Sliders,
   Eye,
   RefreshCw,
   Terminal,
   AlertTriangle,
-  ExternalLink,
-  ShieldAlert,
 } from "lucide-react"
+
+interface UserSubscriptionItem {
+  id?: string
+  status?: string
+  track?: string
+  plan_code?: string
+  expires_at?: string | null
+}
+
+interface UserRegistrationItem {
+  id: string
+  status?: string
+  student_category?: string
+  package_type?: string
+  billing_cycle?: string
+  payment_proof_url?: string | null
+}
 
 interface UserItem {
   id: string
@@ -34,9 +47,9 @@ interface UserItem {
   is_active: boolean
   role?: string
   created_at: string
-  subscriptions?: any[]
-  active_subscription?: any | null
-  registrations?: any[]
+  subscriptions?: UserSubscriptionItem[]
+  active_subscription?: UserSubscriptionItem | null
+  registrations?: UserRegistrationItem[]
   payment_proof_url?: string | null
   registration_status?: string | null
 }
@@ -112,7 +125,7 @@ export default function UsersPage() {
         currentStatus ? "Hak akses pengguna dinonaktifkan." : "Pengguna berhasil diaktifkan!"
       )
       fetchUsers()
-    } catch (error) {
+    } catch {
       toast.error("Gagal mengubah status akses akun.")
     }
   }
@@ -130,8 +143,8 @@ export default function UsersPage() {
       toast.success(`Pengguna ${deletingUser.name} telah dihapus permanen.`)
       setDeletingUser(null)
       fetchUsers()
-    } catch (error: any) {
-      toast.error(error?.message || "Terjadi kesalahan saat menghapus pengguna.")
+    } catch (error: unknown) {
+      toast.error(error instanceof Error ? error.message : "Terjadi kesalahan saat menghapus pengguna.")
     }
   }
 
@@ -153,8 +166,8 @@ export default function UsersPage() {
       toast.success("Hak akses dan paket kurikulum pengguna berhasil disimpan.")
       setManagingUser(null)
       fetchUsers()
-    } catch (error: any) {
-      toast.error(error?.message || "Gagal menyimpan perubahan hak akses.")
+    } catch (error: unknown) {
+      toast.error(error instanceof Error ? error.message : "Gagal menyimpan perubahan hak akses.")
     } finally {
       setIsSaving(false)
     }
@@ -548,7 +561,8 @@ export default function UsersPage() {
               <img
                 src={
                   viewingProofUser.payment_proof_url ||
-                  viewingProofUser.registrations?.[0]?.payment_proof_url
+                  viewingProofUser.registrations?.[0]?.payment_proof_url ||
+                  undefined
                 }
                 alt={`Bukti Transfer ${viewingProofUser.name}`}
                 className="max-w-full h-auto max-h-[60vh] border border-[#171717] object-contain"

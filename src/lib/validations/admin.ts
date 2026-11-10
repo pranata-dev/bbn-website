@@ -31,22 +31,24 @@ export const latexStringSchema = z
     .transform(transformLatex)
 
 // Base schema for validating incoming Question creation payloads
-export const questionSchema = z.preprocess((val: any) => {
+export const questionSchema = z.preprocess((val: unknown) => {
     if (!val || typeof val !== "object") return val
+    const record = val as Record<string, unknown>
     return {
-        ...val,
-        option_a: val.option_a ?? val.optionA,
-        option_b: val.option_b ?? val.optionB,
-        option_c: val.option_c ?? val.optionC,
-        option_d: val.option_d ?? val.optionD,
-        option_e: val.option_e ?? val.optionE,
-        correct_answer: val.correct_answer ?? val.correctAnswer,
-        type: val.type ?? "MULTIPLE_CHOICE",
+        ...record,
+        option_a: record.option_a ?? record.optionA,
+        option_b: record.option_b ?? record.optionB,
+        option_c: record.option_c ?? record.optionC,
+        option_d: record.option_d ?? record.optionD,
+        option_e: record.option_e ?? record.optionE,
+        correct_answer: record.correct_answer ?? record.correctAnswer,
+        type: record.type ?? "MULTIPLE_CHOICE",
     }
 }, z.object({
     text: latexStringSchema,
     category: z.string().min(1, "Category is required"),
-    subject: z.enum(["FISDAS2", "FISMAT"] as const).default("FISDAS2"),
+    subject: z.string().default("FISDAS2"),
+    course_id: z.string().optional().nullable(),
     type: z.enum(["MULTIPLE_CHOICE", "ESSAY"] as const).default("MULTIPLE_CHOICE"),
     option_a: latexStringSchema,
     option_b: latexStringSchema,

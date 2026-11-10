@@ -44,11 +44,14 @@ interface MarkdownLatexProps {
     className?: string
 }
 
-function getNodeText(node: any): string {
+function getNodeText(node: React.ReactNode): string {
     if (!node) return ""
-    if (typeof node === "string") return node
+    if (typeof node === "string" || typeof node === "number") return String(node)
     if (Array.isArray(node)) return node.map(getNodeText).join("")
-    if (node.props && node.props.children) return getNodeText(node.props.children)
+    if (React.isValidElement(node)) {
+        const elementProps = node.props as { children?: React.ReactNode }
+        if (elementProps?.children) return getNodeText(elementProps.children)
+    }
     return ""
 }
 
@@ -135,7 +138,7 @@ function CalloutBox({
             <div className={cn("px-3.5 py-1.5 border-b border-[#171717] flex items-center justify-between text-xs font-mono font-bold uppercase", config.headerClass)}>
                 <div className="flex items-center gap-2">
                     <IconComponent className="size-3.5 shrink-0" />
-                    <span>{config.prefix} // {customTitle || config.title}</span>
+                    <span>{config.prefix} {"//"} {customTitle || config.title}</span>
                 </div>
                 <span className="text-[10px] opacity-75 font-mono">BBN_EDU</span>
             </div>
@@ -175,7 +178,7 @@ function extractCallout(children: React.ReactNode): {
 
     // Case 2: React element (like <p>) first child
     if (React.isValidElement(first)) {
-        const pProps: any = first.props
+        const pProps = first.props as { children?: React.ReactNode }
         const pChildren = React.Children.toArray(pProps?.children)
         if (pChildren.length > 0 && typeof pChildren[0] === "string") {
             const text = pChildren[0]
@@ -358,11 +361,19 @@ export default function MarkdownLatex({ children, className }: MarkdownLatexProp
                             {children}
                         </a>
                     ),
-                    code: ({ inline, className, children, ...props }: any) => {
-                        if (inline) {
+                    code: ({ className, children, ...props }: React.ComponentPropsWithoutRef<"code">) => {
+                        const rawText = String(children ?? "")
+                        const isBlock =
+                            /language-(\w+)/.test(className || "") ||
+                            rawText.includes("\n")
+
+                        if (!isBlock) {
                             return (
                                 <code
-                                    className="bg-canvas-paper px-1.5 py-0.5 font-mono text-xs font-bold text-[#171717] border border-[#171717]"
+                                    className={cn(
+                                        "bg-canvas-paper px-1.5 py-0.5 font-mono text-xs font-bold text-[#171717] border border-[#171717]",
+                                        className
+                                    )}
                                     {...props}
                                 >
                                     {children}
@@ -377,13 +388,13 @@ export default function MarkdownLatex({ children, className }: MarkdownLatexProp
                                         <span className="size-2 bg-accent-canary" />
                                         <span className="size-2 bg-emerald-500" />
                                         <span className="ml-1.5 uppercase font-bold text-white tracking-wider">
-                                            TERMINAL_OUTPUT // BBN_CODE_EXEC
+                                            TERMINAL_OUTPUT {"//"} BBN_CODE_EXEC
                                         </span>
                                     </div>
                                     <span className="text-[10px] text-white/40">READ_ONLY</span>
                                 </div>
                                 <pre className="p-4 overflow-x-auto text-xs font-mono leading-relaxed text-[#F5F4EE]">
-                                    <code {...props}>{children}</code>
+                                    <code className={className} {...props}>{children}</code>
                                 </pre>
                             </div>
                         )

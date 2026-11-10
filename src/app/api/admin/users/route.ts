@@ -2,8 +2,29 @@ import { NextRequest, NextResponse } from "next/server"
 import { requireAdmin } from "@/lib/admin-auth"
 import { createAdminClient } from "@/lib/supabase/server"
 import { checkRateLimit } from "@/lib/rate-limit"
+import { resolvePaymentProofSignedUrl } from "@/lib/storage"
 
 export const dynamic = "force-dynamic"
+
+interface SubscriptionRow {
+    id: string
+    status: string
+    plan_code: string
+    track: string
+    starts_at: string | null
+    expires_at: string | null
+    created_at: string
+}
+
+interface UserWithSubscriptions {
+    id: string
+    email: string
+    name: string
+    role: string
+    is_active: boolean
+    created_at: string
+    subscriptions?: SubscriptionRow[]
+}
 
 export async function GET(request: NextRequest) {
     const guard = await requireAdmin()
@@ -35,29 +56,41 @@ export async function GET(request: NextRequest) {
             .select("id, email, name, payment_proof_url, status, plan_code, track, type, created_at")
             .order("created_at", { ascending: false })
 
-        // 3. Map registrations and active subscription
-        const enrichedUsers = (users || []).map((u: any) => {
-            const userRegs = (registrations || []).filter(
-                (r) =>
-                    (r.email && u.email && r.email.toLowerCase().trim() === u.email.toLowerCase().trim()) ||
-                    (r.name && u.name && r.name.toLowerCase().trim() === u.name.toLowerCase().trim())
-            )
+        // 3. Map registrations, active subscription, and resolve signed URLs for private payment proofs
+        const typedUsers = (users || []) as unknown as UserWithSubscriptions[]
+        const enrichedUsers = await Promise.all(
+            typedUsers.map(async (u) => {
+                const userRegs = (registrations || []).filter(
+                    (r) =>
+                        (r.email && u.email && r.email.toLowerCase().trim() === u.email.toLowerCase().trim()) ||
+                        (r.name && u.name && r.name.toLowerCase().trim() === u.name.toLowerCase().trim())
+                )
 
-            // Find active subscription
-            const subs = u.subscriptions || []
-            const activeSub = subs.find((s: any) => s.status === "ACTIVE" && (!s.expires_at || new Date(s.expires_at) > new Date()))
+                const regsWithSignedUrls = await Promise.all(
+                    userRegs.map(async (r) => ({
+                        ...r,
+                        payment_proof_url: await resolvePaymentProofSignedUrl(adminSupabase, r.payment_proof_url),
+                    }))
+                )
 
-            return {
-                ...u,
-                registrations: userRegs,
-                active_subscription: activeSub || null,
-                payment_proof_url: userRegs[0]?.payment_proof_url || null,
-                registration_status: userRegs[0]?.status || null,
-            }
-        })
+                // Find active subscription
+                const subs = u.subscriptions || []
+                const activeSub = subs.find(
+                    (s) => s.status === "ACTIVE" && (!s.expires_at || new Date(s.expires_at) > new Date())
+                )
+
+                return {
+                    ...u,
+                    registrations: regsWithSignedUrls,
+                    active_subscription: activeSub || null,
+                    payment_proof_url: regsWithSignedUrls[0]?.payment_proof_url || null,
+                    registration_status: regsWithSignedUrls[0]?.status || null,
+                }
+            })
+        )
 
         return NextResponse.json({ users: enrichedUsers })
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error("Internal error in /api/admin/users:", error)
         return NextResponse.json({ error: "Internal error" }, { status: 500 })
     }
@@ -82,7 +115,7 @@ export async function PATCH(request: NextRequest) {
         const adminSupabase = await createAdminClient()
 
         // 1. Update user active status / role if provided
-        const userUpdates: Record<string, any> = {}
+        const userUpdates: { is_active?: boolean; role?: string; updated_at?: string } = {}
         if (typeof isActive === "boolean") userUpdates.is_active = isActive
         if (role && (role === "STUDENT" || role === "ADMIN")) userUpdates.role = role
 
@@ -148,8 +181,9 @@ export async function PATCH(request: NextRequest) {
         }
 
         return NextResponse.json({ message: "User updated successfully" })
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error("PATCH user error:", error)
-        return NextResponse.json({ error: error?.message || "Internal error" }, { status: 500 })
+        const message = error instanceof Error ? error.message : "Internal error"
+        return NextResponse.json({ error: message }, { status: 500 })
     }
 }

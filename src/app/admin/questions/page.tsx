@@ -47,7 +47,7 @@ import {
     Trash2,
 } from "lucide-react"
 import { toast } from "sonner"
-import { CATEGORY_LABELS } from "@/types"
+import { CATEGORY_LABELS, ADMIN_COURSES, COURSE_LABELS } from "@/types"
 import {
     compressQuestionImage,
     formatFileSize,
@@ -281,18 +281,7 @@ export default function QuestionsPage() {
     const [showBulkDeleteConfirm, setShowBulkDeleteConfirm] = useState(false)
     const [isBulkDeleting, setIsBulkDeleting] = useState(false)
 
-    useEffect(() => {
-        fetchQuestions()
-    }, [filter, subjectFilter])
-
-    // Cleanup preview URL on unmount or change
-    useEffect(() => {
-        return () => {
-            if (previewUrl) URL.revokeObjectURL(previewUrl)
-        }
-    }, [previewUrl])
-
-    const fetchQuestions = async () => {
+    const fetchQuestions = useCallback(async () => {
         try {
             setSelectedIds(new Set()) // Reset selection
             const params = new URLSearchParams()
@@ -309,7 +298,18 @@ export default function QuestionsPage() {
         } finally {
             setLoading(false)
         }
-    }
+    }, [filter, subjectFilter])
+
+    useEffect(() => {
+        fetchQuestions()
+    }, [fetchQuestions])
+
+    // Cleanup preview URL on unmount or change
+    useEffect(() => {
+        return () => {
+            if (previewUrl) URL.revokeObjectURL(previewUrl)
+        }
+    }, [previewUrl])
 
     const handleFileSelect = async (file: File) => {
         setIsCompressing(true)
@@ -346,7 +346,7 @@ export default function QuestionsPage() {
 
     const handleEdit = (q: QuestionItem) => {
         setFormData({
-            type: (q.type as any) || "MULTIPLE_CHOICE",
+            type: q.type || "MULTIPLE_CHOICE",
             text: q.text,
             category: q.category,
             optionA: q.option_a,
@@ -357,7 +357,7 @@ export default function QuestionsPage() {
             correctAnswer: q.correct_answer,
             explanation: q.explanation || "",
             weight: q.weight,
-            subject: q.subject,
+            subject: q.subject || "FISDAS2",
         })
         setEditingId(q.id)
         setRemoveImage(false)
@@ -513,13 +513,16 @@ export default function QuestionsPage() {
                         </SelectContent>
                     </Select>
                     <Select value={subjectFilter} onValueChange={setSubjectFilter}>
-                        <SelectTrigger className="w-[180px] bg-white border-warm-gray">
+                        <SelectTrigger className="w-[220px] bg-white border-warm-gray">
                             <SelectValue placeholder="Semua Mata Kuliah" />
                         </SelectTrigger>
                         <SelectContent>
                             <SelectItem value="all">Semua Mata Kuliah</SelectItem>
-                            <SelectItem value="FISDAS2">Fisika Dasar 2</SelectItem>
-                            <SelectItem value="FISMAT">Fisika Matematika</SelectItem>
+                            {ADMIN_COURSES.map((course) => (
+                                <SelectItem key={course.code} value={course.code}>
+                                    {course.label}
+                                </SelectItem>
+                            ))}
                         </SelectContent>
                     </Select>
                     <Button onClick={() => setShowForm(true)} className="bg-dark-brown hover:bg-soft-brown text-cream">
@@ -566,7 +569,7 @@ export default function QuestionsPage() {
                                                     {CATEGORY_LABELS[q.category as keyof typeof CATEGORY_LABELS] || q.category}
                                                 </Badge>
                                                 <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 text-xs">
-                                                    {q.subject === "FISDAS2" ? "Fisika Dasar 2" : "Fisika Matematika"}
+                                                    {COURSE_LABELS[q.subject] || q.subject}
                                                 </Badge>
                                                 <Badge variant="outline" className="text-xs border-warm-gray">
                                                     Bobot: {q.weight}
@@ -631,7 +634,10 @@ export default function QuestionsPage() {
                         {/* Question Type */}
                         <div className="space-y-2">
                             <Label>Tipe Soal *</Label>
-                            <Select value={formData.type} onValueChange={(v: any) => setFormData({ ...formData, type: v })}>
+                            <Select
+                                value={formData.type}
+                                onValueChange={(v) => setFormData({ ...formData, type: v as "MULTIPLE_CHOICE" | "ESSAY" })}
+                            >
                                 <SelectTrigger className="border-warm-gray">
                                     <SelectValue placeholder="Pilih tipe" />
                                 </SelectTrigger>
@@ -701,8 +707,11 @@ export default function QuestionsPage() {
                                     <SelectValue placeholder="Pilih mata kuliah" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="FISDAS2">Fisika Dasar 2</SelectItem>
-                                    <SelectItem value="FISMAT">Fisika Matematika</SelectItem>
+                                    {ADMIN_COURSES.map((course) => (
+                                        <SelectItem key={course.code} value={course.code}>
+                                            {course.label}
+                                        </SelectItem>
+                                    ))}
                                 </SelectContent>
                             </Select>
                         </div>

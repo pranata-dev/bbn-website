@@ -10,7 +10,10 @@ export async function GET(request: NextRequest) {
 
     try {
         const supabase = await createAdminClient()
-        let query = supabase.from("materials").select("*").order("sort_order", { ascending: true })
+        let query = supabase
+            .from("materials")
+            .select("*, courses(id, title, code, slug)")
+            .order("sort_order", { ascending: true })
 
         const { searchParams } = new URL(request.url)
         const subject = searchParams.get("subject")
@@ -23,14 +26,22 @@ export async function GET(request: NextRequest) {
             if (c) query = query.eq("course_id", c.id)
         }
 
-        const { data: materials, error } = await query
+        const { data: rawMaterials, error } = await query
 
         if (error) {
             return NextResponse.json({ error: `Fetch error: ${error.message}` }, { status: 500 })
         }
 
+        const materials = (rawMaterials || []).map((m) => {
+            const courseRel = m.courses as { code?: string; title?: string; slug?: string } | null
+            return {
+                ...m,
+                subject: courseRel?.code || (m as { subject?: string }).subject || "FISDAS2",
+            }
+        })
+
         return NextResponse.json({ materials })
-    } catch (error) {
+    } catch {
         return NextResponse.json({ error: "Internal error" }, { status: 500 })
     }
 }

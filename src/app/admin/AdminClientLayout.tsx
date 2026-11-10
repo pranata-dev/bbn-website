@@ -40,30 +40,16 @@ const navItems: NavItem[] = [
   { index: "08", href: "/admin/statistics", label: "Pengaturan Sistem", icon: Sliders },
 ]
 
-export default function AdminClientLayout({
-  children,
+function AdminSidebarContent({
+  pathname,
+  onCloseMobile,
+  onLogout,
 }: {
-  children: React.ReactNode
+  pathname: string
+  onCloseMobile: () => void
+  onLogout: () => void
 }) {
-  const pathname = usePathname()
-  const router = useRouter()
-  const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [searchQuery, setSearchQuery] = useState("")
-
-  const handleLogout = async () => {
-    const supabase = createClient()
-    await supabase.auth.signOut()
-    router.push("/admin/login")
-    router.refresh()
-  }
-
-  const currentNav = navItems.find((item) =>
-    item.href === "/admin"
-      ? pathname === "/admin"
-      : pathname.startsWith(item.href)
-  ) || navItems[0]
-
-  const SidebarContent = () => (
+  return (
     <div className="flex flex-col h-full bg-canvas-paper font-sans select-none justify-between">
       <div className="flex flex-col">
         {/* Brand & System Status Header */}
@@ -114,7 +100,7 @@ export default function AdminClientLayout({
               <Link
                 key={item.href}
                 href={item.href}
-                onClick={() => setSidebarOpen(false)}
+                onClick={onCloseMobile}
                 className={`w-full text-left font-mono text-xs px-3 py-2.5 flex items-center justify-between border transition-all ${
                   isActive
                     ? "border-[#171717] bg-accent-canary text-[#171717] font-bold shadow-[2px_2px_0px_#171717]"
@@ -162,7 +148,7 @@ export default function AdminClientLayout({
 
           <button
             type="button"
-            onClick={handleLogout}
+            onClick={onLogout}
             className="p-1.5 hover:bg-canvas-paper border border-[#171717] hover:bg-alert-rust/10 hover:text-alert-rust transition-colors cursor-pointer"
             title="Keluar dari Panel Admin"
           >
@@ -171,11 +157,49 @@ export default function AdminClientLayout({
         </div>
 
         <div className="text-center bg-canvas-paper py-1 border border-[#171717]/20 font-mono text-[9px] text-ink-muted">
-          SESSION SECURE // IP 180.252.88.19
+          SESSION SECURE // AUTH VERIFIED
         </div>
       </div>
     </div>
   )
+}
+
+export default function AdminClientLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  const pathname = usePathname()
+  const router = useRouter()
+  const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [searchQuery, setSearchQuery] = useState("")
+
+  const handleLogout = async () => {
+    const supabase = createClient()
+    await supabase.auth.signOut()
+    router.push("/admin/login")
+    router.refresh()
+  }
+
+  const handleQuickSearch = (e: React.FormEvent) => {
+    e.preventDefault()
+    const q = searchQuery.trim().toLowerCase()
+    if (!q) return
+    const matchedNav = navItems.find(
+      (item) => item.label.toLowerCase().includes(q) || item.index === q
+    )
+    if (matchedNav) {
+      router.push(matchedNav.href)
+    } else {
+      router.push(`/admin/users?q=${encodeURIComponent(searchQuery.trim())}`)
+    }
+  }
+
+  const currentNav = navItems.find((item) =>
+    item.href === "/admin"
+      ? pathname === "/admin"
+      : pathname.startsWith(item.href)
+  ) || navItems[0]
 
   return (
     <div className="min-h-screen bg-[#FBFBFA] text-[#171717] antialiased flex flex-col md:flex-row selection:bg-accent-canary selection:text-[#171717]">
@@ -205,7 +229,11 @@ export default function AdminClientLayout({
 
       {/* Desktop Sidebar (Fixed 268px) */}
       <aside className="hidden md:block w-[268px] min-h-screen bg-canvas-paper border-r-2 border-[#171717] shrink-0 sticky top-0 h-screen z-30">
-        <SidebarContent />
+        <AdminSidebarContent
+          pathname={pathname}
+          onCloseMobile={() => setSidebarOpen(false)}
+          onLogout={handleLogout}
+        />
       </aside>
 
       {/* Mobile Sidebar Overlay Drawer */}
@@ -216,7 +244,11 @@ export default function AdminClientLayout({
             onClick={() => setSidebarOpen(false)}
           />
           <aside className="relative w-[280px] max-w-[85%] h-full bg-canvas-paper border-r-2 border-[#171717] shadow-xl">
-            <SidebarContent />
+            <AdminSidebarContent
+              pathname={pathname}
+              onCloseMobile={() => setSidebarOpen(false)}
+              onLogout={handleLogout}
+            />
           </aside>
         </div>
       )}
@@ -243,16 +275,16 @@ export default function AdminClientLayout({
           {/* Right Utility Actions */}
           <div className="flex items-center gap-2">
             {/* Quick Search */}
-            <div className="relative flex items-center">
+            <form onSubmit={handleQuickSearch} className="relative flex items-center">
               <Search className="w-3.5 h-3.5 absolute left-2 text-ink-muted" />
               <input
                 type="text"
-                placeholder="[Cmd+K] Cari Data..."
+                placeholder="Cari menu / siswa..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="bg-surface-white text-[#171717] font-mono text-xs pl-7 pr-3 py-1.5 border border-[#171717] w-36 sm:w-56 focus:outline-none focus:bg-white placeholder:text-ink-muted"
               />
-            </div>
+            </form>
 
             {/* Live Session Counter */}
             <div className="hidden lg:flex items-center gap-1.5 px-2.5 py-1.5 bg-surface-white border border-[#171717] font-mono text-[11px]">

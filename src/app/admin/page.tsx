@@ -5,18 +5,12 @@ import Link from "next/link"
 import { toast } from "sonner"
 import {
   Users,
-  AlertCircle,
-  CheckCircle2,
-  Clock,
   ArrowRight,
   RefreshCw,
-  Plus,
   FileQuestion,
   BookOpen,
   Timer,
-  ShieldCheck,
   Zap,
-  CreditCard,
   Check,
 } from "lucide-react"
 
@@ -44,6 +38,21 @@ interface RegistrationItem {
   created_at: string
 }
 
+interface AdminUserRow {
+  id: string
+  is_active: boolean
+  active_subscription?: {
+    track?: string
+  } | null
+}
+
+interface AuditLogEntry {
+  time: string
+  tag: string
+  message: string
+  timestamp: string
+}
+
 export default function AdminDashboardPage() {
   const [stats, setStats] = useState<DashboardStats>({
     totalUsers: 0,
@@ -56,9 +65,10 @@ export default function AdminDashboardPage() {
     activeUsers: 0,
   })
   const [recentRegistrations, setRecentRegistrations] = useState<RegistrationItem[]>([])
+  const [auditLogs, setAuditLogs] = useState<AuditLogEntry[]>([])
   const [loading, setLoading] = useState(true)
   const [approvingId, setApprovingId] = useState<string | null>(null)
-  const [lastSyncTime, setLastSyncTime] = useState<string>("14:30:00 WIB")
+  const [lastSyncTime, setLastSyncTime] = useState<string>("—")
 
   const fetchData = async () => {
     setLoading(true)
@@ -72,23 +82,24 @@ export default function AdminDashboardPage() {
         }) + " WIB"
       )
 
-      const [statsRes, usersRes, paymentsRes] = await Promise.all([
+      const [statsRes, usersRes, dashRes] = await Promise.all([
         fetch("/api/admin/stats").catch(() => null),
         fetch("/api/admin/users").catch(() => null),
-        fetch("/api/admin/payments").catch(() => null),
+        fetch("/api/admin/dashboard").catch(() => null),
       ])
 
-      let usersList: any[] = []
+      let usersList: AdminUserRow[] = []
+      let registrationsList: RegistrationItem[] = []
       if (usersRes && usersRes.ok) {
         const uData = await usersRes.json()
         usersList = uData.users || []
+        registrationsList = uData.registrations || []
+        setRecentRegistrations(registrationsList.slice(0, 6))
       }
 
-      let paymentsList: any[] = []
-      if (paymentsRes && paymentsRes.ok) {
-        const pData = await paymentsRes.json()
-        paymentsList = pData.payments || []
-        setRecentRegistrations(paymentsList.slice(0, 6))
+      if (dashRes && dashRes.ok) {
+        const dData = await dashRes.json()
+        setAuditLogs(dData.auditLogs || [])
       }
 
       const rawStats = statsRes && statsRes.ok ? (await statsRes.json()).stats : {}
@@ -102,7 +113,7 @@ export default function AdminDashboardPage() {
       ).length
 
       const totalActive = usersList.filter((u) => u.is_active).length
-      const pendingCount = paymentsList.filter((p) => p.status === "PENDING").length
+      const pendingCount = registrationsList.filter((p) => p.status === "PENDING").length
 
       setStats({
         totalUsers: rawStats.totalUsers || usersList.length || 0,
@@ -144,8 +155,8 @@ export default function AdminDashboardPage() {
 
       toast.success("Pendaftaran berhasil disetujui & hak akses diaktifkan!")
       fetchData()
-    } catch (err: any) {
-      toast.error(err?.message || "Terjadi kesalahan saat memproses persetujuan.")
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Terjadi kesalahan saat memproses persetujuan.")
     } finally {
       setApprovingId(null)
     }
@@ -515,37 +526,24 @@ export default function AdminDashboardPage() {
             </div>
 
             <div className="space-y-2.5 font-mono text-[11px]">
-              <div className="p-2 bg-canvas-paper border border-[#171717]/20 flex gap-2 items-start">
-                <span className="text-ink-muted font-bold whitespace-nowrap">14:22</span>
-                <div>
-                  <span className="font-bold text-[#171717]">[ADMIN // MODUL]</span>
-                  <p className="text-ink-muted mt-0.5">Silabus materi Mekanika Klasik diperbarui.</p>
+              {auditLogs.length === 0 ? (
+                <div className="p-4 bg-canvas-paper border border-[#171717]/20 text-center text-ink-muted">
+                  Belum ada aktivitas sistem tercatat.
                 </div>
-              </div>
-
-              <div className="p-2 bg-canvas-paper border border-[#171717]/20 flex gap-2 items-start">
-                <span className="text-ink-muted font-bold whitespace-nowrap">13:05</span>
-                <div>
-                  <span className="font-bold text-alert-rust">[SECURITY // AUTH]</span>
-                  <p className="text-ink-muted mt-0.5">Sesi login administrator terverifikasi aman.</p>
-                </div>
-              </div>
-
-              <div className="p-2 bg-canvas-paper border border-[#171717]/20 flex gap-2 items-start">
-                <span className="text-ink-muted font-bold whitespace-nowrap">12:40</span>
-                <div>
-                  <span className="font-bold text-emerald-800">[PAYMENT // SETTLED]</span>
-                  <p className="text-ink-muted mt-0.5">Verifikasi pembayaran pendaftaran paket berhasil.</p>
-                </div>
-              </div>
-
-              <div className="p-2 bg-canvas-paper border border-[#171717]/20 flex gap-2 items-start">
-                <span className="text-ink-muted font-bold whitespace-nowrap">11:15</span>
-                <div>
-                  <span className="font-bold text-[#171717]">[SYS // BACKUP]</span>
-                  <p className="text-ink-muted mt-0.5">Snapshot data Supabase berkala tersinkronisasi.</p>
-                </div>
-              </div>
+              ) : (
+                auditLogs.map((log, idx) => (
+                  <div
+                    key={`${log.timestamp}-${idx}`}
+                    className="p-2 bg-canvas-paper border border-[#171717]/20 flex gap-2 items-start"
+                  >
+                    <span className="text-ink-muted font-bold whitespace-nowrap">{log.time}</span>
+                    <div>
+                      <span className="font-bold text-[#171717]">[{log.tag}]</span>
+                      <p className="text-ink-muted mt-0.5">{log.message}</p>
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
 
             <Link

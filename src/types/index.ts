@@ -1,5 +1,33 @@
 export type Role = "ADMIN" | "STUDENT_BASIC" | "UTS_FLUX" | "UTS_SENKU" | "UTS_EINSTEIN"
-export type Subject = "FISDAS2" | "FISMAT"
+export type Subject =
+    | "FISDAS1"
+    | "FISDAS2"
+    | "STATISTIKA"
+    | "MATEMATIKA1"
+    | "MEKANIKA"
+    | "FISMAT"
+    | "GELOMBANG"
+    | "ELEKTROSTATIKA"
+    | "TERMODINAMIKA"
+    | "KOMPUTASI"
+
+export const ADMIN_COURSES: { code: Subject; label: string; track: "PHYSICS_SEM_3" | "NON_PHYSICS" }[] = [
+    { code: "FISDAS2", label: "Fisika Dasar 2", track: "NON_PHYSICS" },
+    { code: "FISDAS1", label: "Fisika Dasar 1", track: "NON_PHYSICS" },
+    { code: "STATISTIKA", label: "Statistika Dasar", track: "NON_PHYSICS" },
+    { code: "MATEMATIKA1", label: "Matematika 1 / Kalkulus", track: "NON_PHYSICS" },
+    { code: "MEKANIKA", label: "Mekanika Klasik", track: "PHYSICS_SEM_3" },
+    { code: "FISMAT", label: "Fisika Matematika 1", track: "PHYSICS_SEM_3" },
+    { code: "GELOMBANG", label: "Gelombang & Optik", track: "PHYSICS_SEM_3" },
+    { code: "ELEKTROSTATIKA", label: "Elektromagnetika / Elektrostatika", track: "PHYSICS_SEM_3" },
+    { code: "TERMODINAMIKA", label: "Termodinamika", track: "PHYSICS_SEM_3" },
+    { code: "KOMPUTASI", label: "Fisika Komputasi", track: "PHYSICS_SEM_3" },
+]
+
+export const COURSE_LABELS: Record<string, string> = Object.fromEntries(
+    ADMIN_COURSES.map((c) => [c.code, c.label])
+)
+
 export type PaymentStatus = "PENDING" | "APPROVED" | "REJECTED"
 export type TryoutStatus = "DRAFT" | "ACTIVE" | "ARCHIVED"
 export type SubmissionStatus = "IN_PROGRESS" | "SUBMITTED" | "TIMED_OUT"

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { requireAdmin } from "@/lib/admin-auth"
-import { createAdminClient, createServiceClient } from "@/lib/supabase/server"
+import { createServiceClient } from "@/lib/supabase/server"
 import { v4 as uuidv4 } from "uuid"
 
 export const dynamic = "force-dynamic"
@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
 
         let query = adminSupabase
             .from("tryouts")
-            .select("*")
+            .select("*, courses(id, title, code, slug)")
             .order("created_at", { ascending: false })
 
         if (isPractice !== null) {
@@ -31,15 +31,22 @@ export async function GET(request: NextRequest) {
             if (c) query = query.eq("course_id", c.id)
         }
 
-        const { data: tryouts, error } = await query
+        const { data: rawTryouts, error } = await query
 
         if (error) {
             return NextResponse.json({ error: `Fetch error: ${error.message}` }, { status: 500 })
         }
 
-        // We could also fetch question counts here, but sticking to basic list for now
+        const tryouts = (rawTryouts || []).map((t) => {
+            const courseRel = t.courses as { code?: string; title?: string; slug?: string } | null
+            return {
+                ...t,
+                subject: courseRel?.code || (t as { subject?: string }).subject || "FISDAS2",
+            }
+        })
+
         return NextResponse.json({ tryouts })
-    } catch (error) {
+    } catch {
         return NextResponse.json({ error: "Internal error" }, { status: 500 })
     }
 }

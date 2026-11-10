@@ -18,7 +18,7 @@ export async function GET(
 
         const { data: tryout, error } = await supabase
             .from("tryouts")
-            .select("*, tryout_questions (question_id)")
+            .select("*, courses(id, title, code, slug), tryout_questions (question_id)")
             .eq("id", id)
             .single()
 
@@ -27,12 +27,20 @@ export async function GET(
         }
 
         // Extract question IDs from tryout_questions join as a flat array
-        const questionIds = tryout.tryout_questions?.map((tq: any) => tq.question_id) || []
-        
-        // Remove the nested object to simplify the response
-        const { tryout_questions, ...tryoutData } = tryout
+        const questionIds = (tryout.tryout_questions as { question_id: string }[] | null)?.map((tq) => tq.question_id) || []
+        const courseRel = tryout.courses as { code?: string; title?: string; slug?: string } | null
 
-        return NextResponse.json({ tryout: tryoutData, questionIds })
+        // Remove the nested object to simplify the response
+        const { tryout_questions: _tq, ...tryoutData } = tryout
+        void _tq
+
+        return NextResponse.json({
+            tryout: {
+                ...tryoutData,
+                subject: courseRel?.code || (tryoutData as { subject?: string }).subject || "FISDAS2",
+            },
+            questionIds,
+        })
     } catch (error) {
         console.error("API error:", error)
         return NextResponse.json({ error: "Internal error" }, { status: 500 })
@@ -53,7 +61,7 @@ export async function PATCH(
         const body = await request.json()
         const { status, title, description, duration, questionIds, subject, course_id } = body
 
-        const updateData: any = {
+        const updateData: Record<string, unknown> = {
             updated_at: new Date().toISOString(),
         }
 

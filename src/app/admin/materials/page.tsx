@@ -1,15 +1,15 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { Plus, Loader2, BookOpen, Pencil, Trash2, Link as LinkIcon, Headphones, Eye, Sparkles, CheckCircle, FileText } from "lucide-react"
+import { useState, useEffect, useCallback } from "react"
+import { Plus, Loader2, BookOpen, Pencil, Trash2, Link as LinkIcon, Headphones, CheckCircle } from "lucide-react"
 import { toast } from "sonner"
+import { ADMIN_COURSES, COURSE_LABELS } from "@/types"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
-import { Badge } from "@/components/ui/badge"
 import {
     Select,
     SelectContent,
@@ -35,8 +35,22 @@ import {
 } from "@/components/ui/alert-dialog"
 import MarkdownLatex from "@/components/ui/markdown-latex"
 
+interface AdminMaterialItem {
+    id: string
+    title: string
+    slug: string | null
+    summary: string | null
+    content_md: string | null
+    drive_url: string | null
+    podcast_url: string | null
+    module_number: number | null
+    reading_time_minutes: number | null
+    is_free_preview: boolean
+    subject: string
+}
+
 export default function AdminMaterialsPage() {
-    const [materials, setMaterials] = useState<any[]>([])
+    const [materials, setMaterials] = useState<AdminMaterialItem[]>([])
     const [loading, setLoading] = useState(true)
     const [showForm, setShowForm] = useState(false)
     const [submitting, setSubmitting] = useState(false)
@@ -59,11 +73,7 @@ export default function AdminMaterialsPage() {
     }
     const [formData, setFormData] = useState(INITIAL_FORM_DATA)
 
-    useEffect(() => {
-        fetchMaterials()
-    }, [subjectFilter])
-
-    const fetchMaterials = async () => {
+    const fetchMaterials = useCallback(async () => {
         setLoading(true)
         try {
             const params = new URLSearchParams()
@@ -83,14 +93,18 @@ export default function AdminMaterialsPage() {
         } finally {
             setLoading(false)
         }
-    }
+    }, [subjectFilter])
+
+    useEffect(() => {
+        fetchMaterials()
+    }, [fetchMaterials])
 
     const resetForm = () => {
         setFormData(INITIAL_FORM_DATA)
         setEditingId(null)
     }
 
-    const handleEdit = (material: any) => {
+    const handleEdit = (material: AdminMaterialItem) => {
         setFormData({
             title: material.title,
             slug: material.slug || "",
@@ -101,7 +115,7 @@ export default function AdminMaterialsPage() {
             moduleNumber: String(material.module_number ?? 1),
             readingTimeMinutes: String(material.reading_time_minutes ?? 15),
             isFreePreview: Boolean(material.is_free_preview),
-            subject: material.subject,
+            subject: material.subject || "FISDAS2",
         })
         setEditingId(material.id)
         setShowForm(true)
@@ -206,13 +220,16 @@ export default function AdminMaterialsPage() {
             <div className="flex items-center gap-3">
                 <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Mata Kuliah:</Label>
                 <Select value={subjectFilter} onValueChange={setSubjectFilter}>
-                    <SelectTrigger className="w-[200px] h-9">
+                    <SelectTrigger className="w-[240px] h-9">
                         <SelectValue placeholder="Pilih Mata Kuliah" />
                     </SelectTrigger>
                     <SelectContent>
                         <SelectItem value="all">Semua Mata Kuliah</SelectItem>
-                        <SelectItem value="FISDAS2">Fisika Dasar 2</SelectItem>
-                        <SelectItem value="FISMAT">Fisika Matematika</SelectItem>
+                        {ADMIN_COURSES.map((course) => (
+                            <SelectItem key={course.code} value={course.code}>
+                                {course.label}
+                            </SelectItem>
+                        ))}
                     </SelectContent>
                 </Select>
             </div>
@@ -243,7 +260,7 @@ export default function AdminMaterialsPage() {
                                                 Modul {m.module_number ?? "-"}
                                             </span>
                                             <span className="text-[11px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded bg-olive/15 text-olive">
-                                                {m.subject}
+                                                {COURSE_LABELS[m.subject] || m.subject}
                                             </span>
                                             {m.is_free_preview && (
                                                 <span className="inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-400 border border-emerald-300">
@@ -334,8 +351,11 @@ export default function AdminMaterialsPage() {
                                         <SelectValue placeholder="Pilih Mata Kuliah" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="FISDAS2">Fisika Dasar 2</SelectItem>
-                                        <SelectItem value="FISMAT">Fisika Matematika</SelectItem>
+                                        {ADMIN_COURSES.map((course) => (
+                                            <SelectItem key={course.code} value={course.code}>
+                                                {course.label}
+                                            </SelectItem>
+                                        ))}
                                     </SelectContent>
                                 </Select>
                             </div>

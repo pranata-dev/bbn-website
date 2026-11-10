@@ -35,25 +35,25 @@ export class DataImporter {
     ): ParsedQuestion[] {
         // Splitting by "**Soal X:**"
         const sections = rawText.split(/\*\*Soal\s+\d+:\*\*/i).map(s => s.trim()).filter(s => s.length > 0)
-        
+
         const questions: ParsedQuestion[] = []
-        
+
         for (const section of sections) {
             try {
                 // Split by "---" to separate question part and explanation
                 const parts = section.split("---")
                 if (parts.length < 2) continue
-                
+
                 const soalPart = parts[0].trim()
                 const pembahasanPart = parts.slice(1).join("---").replace(/\*\*Pembahasan:\*\*/i, "").trim()
-                
+
                 // Extract options
                 const optionsRegex = /(?:^|\n)A\.\s([\s\S]*?)\nB\.\s([\s\S]*?)\nC\.\s([\s\S]*?)\nD\.\s([\s\S]*?)(?:\nE\.\s([\s\S]*?))?(?:\n|$)/i
                 const optionsMatch = soalPart.match(optionsRegex)
-                
+
                 let text = soalPart
                 let optA = "", optB = "", optC = "", optD = "", optE = ""
-                
+
                 if (optionsMatch) {
                     text = soalPart.substring(0, optionsMatch.index).trim()
                     optA = optionsMatch[1].trim()
@@ -68,11 +68,11 @@ export class DataImporter {
                 // Extract answer
                 let correctAnswer = ""
                 const ansMatch = pembahasanPart.match(/\*\*Jawaban:\s*([A-E])\.?/i) || pembahasanPart.match(/\*\*Jawaban:\s*([A-E])\*\*/i)
-                
+
                 if (ansMatch) {
                     correctAnswer = ansMatch[1].toUpperCase()
                 }
-                
+
                 if (text && optA && correctAnswer) {
                     // Validate and auto-format using Zod
                     const parsed = questionSchema.safeParse({
@@ -90,12 +90,12 @@ export class DataImporter {
                     })
 
                     if (parsed.success) {
-                        questions.push(parsed.data)
+                        questions.push(parsed.data as ParsedQuestion)
                     } else {
-                        console.error(`Validation failed for question: "${text.substring(0, 30)}..."`, parsed.error.format())
+                        console.error(`Validation failed for question: "${text.substring(0, 30)}..."`, parsed.error.issues)
                     }
                 }
-            } catch(e) {
+            } catch (e) {
                 console.error("Error parsing a section", e)
             }
         }
@@ -127,7 +127,7 @@ export class DataImporter {
         options?: SeedOptions
     ) {
         const supabase = createClient(supabaseUrl, supabaseKey)
-        
+
         let inserted = 0
         let skipped = 0
         const questionIds: string[] = []
@@ -196,8 +196,8 @@ export class DataImporter {
         if (options?.createTryoutTitle) {
             const title = options.createTryoutTitle
             const isPractice = options.isPractice ?? true
-            
-            const { data: tryouts, error: trErr } = await supabase
+
+            const { data: tryouts } = await supabase
                 .from("tryouts")
                 .select("id")
                 .eq("title", title)
@@ -225,7 +225,7 @@ export class DataImporter {
                         created_at: now,
                         updated_at: now
                     })
-                    
+
                 if (trInsertErr) {
                     console.error(`Error creating tryout: ${trInsertErr.message}`)
                 } else {
@@ -237,14 +237,14 @@ export class DataImporter {
             if (tryoutId && questionIds.length > 0) {
                 for (let i = 0; i < questionIds.length; i++) {
                     const qid = questionIds[i]
-                    
+
                     const { data: linkedCheck } = await supabase
                         .from("tryout_questions")
                         .select("id")
                         .eq("tryout_id", tryoutId)
                         .eq("question_id", qid)
                         .limit(1)
-                        
+
                     if (!linkedCheck || linkedCheck.length === 0) {
                         await supabase.from("tryout_questions").insert({
                             id: uuidv4(),

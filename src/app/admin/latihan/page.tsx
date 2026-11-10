@@ -1,8 +1,8 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { Plus, Loader2, FileText, CheckCircle2, Play, Archive, RotateCcw, Pencil, Trash2 } from "lucide-react"
-import { CATEGORY_LABELS } from "@/types"
+import { useState, useEffect, useCallback } from "react"
+import { Plus, Loader2, FileText, Play, Archive, RotateCcw, Pencil, Trash2 } from "lucide-react"
+import { CATEGORY_LABELS, ADMIN_COURSES, COURSE_LABELS } from "@/types"
 import type { QuestionCategory } from "@/types"
 import { toast } from "sonner"
 import MarkdownLatex from "@/components/ui/markdown-latex"
@@ -12,6 +12,13 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select"
 import {
     Dialog,
     DialogContent,
@@ -31,23 +38,44 @@ import {
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 
+interface AdminLatihanItem {
+    id: string
+    title: string
+    description: string | null
+    category: string | null
+    duration: number
+    status: string
+    subject: string
+    created_at: string
+}
+
+interface AdminQuestionOption {
+    id: string
+    text: string
+    category: string
+    weight: number
+    image_url: string | null
+}
+
 const INITIAL_FORM_DATA = {
     title: "",
     description: "",
     duration: 120, // default 2 hours
+    subject: "FISDAS2",
 }
 
 export default function AdminLatihanPage() {
-    const [tryouts, setTryouts] = useState<any[]>([])
+    const [tryouts, setTryouts] = useState<AdminLatihanItem[]>([])
     const [loading, setLoading] = useState(true)
     const [showForm, setShowForm] = useState(false)
     const [submitting, setSubmitting] = useState(false)
     const [editingId, setEditingId] = useState<string | null>(null)
     const [deletingId, setDeletingId] = useState<string | null>(null)
+    const [filter, setFilter] = useState("all")
 
     // Form state
     const [formData, setFormData] = useState(INITIAL_FORM_DATA)
-    const [availableQuestions, setAvailableQuestions] = useState<any[]>([])
+    const [availableQuestions, setAvailableQuestions] = useState<AdminQuestionOption[]>([])
     const [loadingQuestions, setLoadingQuestions] = useState(false)
     const [selectedQuestionIds, setSelectedQuestionIds] = useState<Set<string>>(new Set())
 
@@ -57,9 +85,27 @@ export default function AdminLatihanPage() {
     const [isBulkDeleting, setIsBulkDeleting] = useState(false)
     const [isBulkArchiving, setIsBulkArchiving] = useState(false)
 
+    const fetchTryouts = useCallback(async () => {
+        try {
+            setSelectedIds(new Set()) // Reset selection
+            const params = new URLSearchParams({ isPractice: "true" })
+            if (filter !== "all") params.set("subject", filter)
+            const res = await fetch(`/api/admin/tryouts?${params}`)
+            const data = await res.json()
+            if (!res.ok) {
+                toast.error(data.error || "Gagal mengambil data latihan.")
+            }
+            setTryouts(data.tryouts || [])
+        } catch (error) {
+            console.error("Failed to fetch tryouts:", error)
+        } finally {
+            setLoading(false)
+        }
+    }, [filter])
+
     useEffect(() => {
         fetchTryouts()
-    }, [])
+    }, [fetchTryouts])
 
     // Fetch ALL questions when the dialog opens
     useEffect(() => {
@@ -68,7 +114,7 @@ export default function AdminLatihanPage() {
         const fetchAllQuestions = async () => {
             setLoadingQuestions(true)
             try {
-                const res = await fetch(`/api/admin/questions`)
+                const res = await fetch(`/api/admin/questions?subject=${formData.subject}`)
                 const data = await res.json()
                 if (!res.ok) {
                     toast.error(data.error || "Gagal mengambil soal.")
@@ -82,23 +128,7 @@ export default function AdminLatihanPage() {
         }
 
         fetchAllQuestions()
-    }, [showForm])
-
-    const fetchTryouts = async () => {
-        try {
-            setSelectedIds(new Set()) // Reset selection
-            const res = await fetch("/api/admin/tryouts?isPractice=true")
-            const data = await res.json()
-            if (!res.ok) {
-                toast.error(data.error || "Gagal mengambil data latihan.")
-            }
-            setTryouts(data.tryouts || [])
-        } catch (error) {
-            console.error("Failed to fetch tryouts:", error)
-        } finally {
-            setLoading(false)
-        }
-    }
+    }, [showForm, formData.subject])
 
     const resetForm = () => {
         setFormData(INITIAL_FORM_DATA)
@@ -107,7 +137,7 @@ export default function AdminLatihanPage() {
         setAvailableQuestions([])
     }
 
-    const handleEdit = async (tryout: any) => {
+    const handleEdit = async (tryout: AdminLatihanItem) => {
         try {
             const res = await fetch(`/api/admin/tryouts/${tryout.id}`)
             if (!res.ok) throw new Error("Gagal mengambil detail latihan")
@@ -117,6 +147,7 @@ export default function AdminLatihanPage() {
                 title: data.tryout.title,
                 description: data.tryout.description || "",
                 duration: data.tryout.duration,
+                subject: data.tryout.subject || "FISDAS2",
             })
             setSelectedQuestionIds(new Set(data.questionIds || []))
             setEditingId(tryout.id)
@@ -136,7 +167,7 @@ export default function AdminLatihanPage() {
         setSelectedQuestionIds(newSet)
     }
 
-    const selectAllInCategory = (categoryQuestions: any[]) => {
+    const selectAllInCategory = (categoryQuestions: AdminQuestionOption[]) => {
         const newSet = new Set(selectedQuestionIds)
         const allSelected = categoryQuestions.every(q => newSet.has(q.id))
         if (allSelected) {
@@ -167,6 +198,7 @@ export default function AdminLatihanPage() {
                 duration: formData.duration,
                 isPractice: true,
                 questionIds: Array.from(selectedQuestionIds),
+                subject: formData.subject,
             }
 
             const method = editingId ? "PATCH" : "POST"
@@ -315,7 +347,7 @@ export default function AdminLatihanPage() {
     }
 
     // Group questions by category
-    const questionsByCategory = availableQuestions.reduce<Record<string, any[]>>((acc, q) => {
+    const questionsByCategory = availableQuestions.reduce<Record<string, AdminQuestionOption[]>>((acc, q) => {
         const cat = q.category || "UNCATEGORIZED"
         if (!acc[cat]) acc[cat] = []
         acc[cat].push(q)
@@ -332,10 +364,25 @@ export default function AdminLatihanPage() {
                     <h1 className="text-2xl font-bold text-foreground">Manajemen Latihan Soal</h1>
                     <p className="text-muted-foreground">Buat dan kelola latihan soal.</p>
                 </div>
-                <Button onClick={() => setShowForm(true)} className="bg-dark-brown hover:bg-soft-brown text-cream">
-                    <Plus className="w-4 h-4 mr-2" />
-                    Buat Latihan
-                </Button>
+                <div className="flex items-center gap-3">
+                    <Select value={filter} onValueChange={setFilter}>
+                        <SelectTrigger className="w-[220px] bg-white border-warm-gray">
+                            <SelectValue placeholder="Semua Mata Kuliah" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">Semua Mata Kuliah</SelectItem>
+                            {ADMIN_COURSES.map((course) => (
+                                <SelectItem key={course.code} value={course.code}>
+                                    {course.label}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                    <Button onClick={() => setShowForm(true)} className="bg-dark-brown hover:bg-soft-brown text-cream">
+                        <Plus className="w-4 h-4 mr-2" />
+                        Buat Latihan
+                    </Button>
+                </div>
             </div>
 
             {/* Tryouts List */}
@@ -376,6 +423,9 @@ export default function AdminLatihanPage() {
                                                     {t.category
                                                         ? CATEGORY_LABELS[t.category as keyof typeof CATEGORY_LABELS] || t.category
                                                         : "Semua Materi"}
+                                                </Badge>
+                                                <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 text-xs">
+                                                    {COURSE_LABELS[t.subject] || t.subject}
                                                 </Badge>
                                                 <Badge
                                                     variant="outline"
@@ -499,6 +549,24 @@ export default function AdminLatihanPage() {
                                         rows={2}
                                     />
                                 </div>
+                                <div className="space-y-2 md:col-span-2">
+                                    <Label>Mata Kuliah</Label>
+                                    <Select
+                                        value={formData.subject}
+                                        onValueChange={(v) => setFormData({ ...formData, subject: v })}
+                                    >
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Pilih mata kuliah" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {ADMIN_COURSES.map((course) => (
+                                                <SelectItem key={course.code} value={course.code}>
+                                                    {course.label}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
                             </div>
 
                             <hr className="border-warm-gray/30" />
@@ -524,9 +592,9 @@ export default function AdminLatihanPage() {
                                     <div className="space-y-4">
                                         {orderedCategories.map((cat) => {
                                             const catQuestions = questionsByCategory[cat]
-                                            const allSelected = catQuestions.every((q: any) => selectedQuestionIds.has(q.id))
-                                            const someSelected = catQuestions.some((q: any) => selectedQuestionIds.has(q.id))
-                                            const selectedCount = catQuestions.filter((q: any) => selectedQuestionIds.has(q.id)).length
+                                            const allSelected = catQuestions.every((q) => selectedQuestionIds.has(q.id))
+                                            const someSelected = catQuestions.some((q) => selectedQuestionIds.has(q.id))
+                                            const selectedCount = catQuestions.filter((q) => selectedQuestionIds.has(q.id)).length
 
                                             return (
                                                 <div key={cat} className="border border-warm-gray/40 rounded-lg overflow-hidden">
@@ -552,7 +620,7 @@ export default function AdminLatihanPage() {
 
                                                     {/* Questions in this category */}
                                                     <div className="max-h-[250px] overflow-y-auto divide-y divide-warm-gray/20">
-                                                        {catQuestions.map((q: any) => {
+                                                        {catQuestions.map((q) => {
                                                             const isSelected = selectedQuestionIds.has(q.id)
                                                             return (
                                                                 <div

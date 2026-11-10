@@ -1,8 +1,11 @@
 import { NextRequest, NextResponse } from "next/server"
 import { requireAdmin } from "@/lib/admin-auth"
-import { createServiceClient, createAdminClient } from "@/lib/supabase/server"
+import { createServiceClient } from "@/lib/supabase/server"
 import { v4 as uuidv4 } from "uuid"
 import { questionSchema } from "@/lib/validations/admin"
+import type { Database } from "@/types/database.types"
+
+type DbQuestionCategory = Database["public"]["Enums"]["QuestionCategory"]
 
 export const dynamic = "force-dynamic"
 
@@ -12,30 +15,45 @@ export async function GET(request: NextRequest) {
     if (!guard.ok) return guard.response
 
     try {
-        const adminSupabase = await createAdminClient()
+        const adminSupabase = createServiceClient()
         const { searchParams } = new URL(request.url)
         const category = searchParams.get("category")
         const subject = searchParams.get("subject")
 
-        let query = adminSupabase.from("questions").select("*").order("created_at", { ascending: false })
+        let query = adminSupabase
+            .from("questions")
+            .select("*, courses(id, title, code, slug)")
+            .order("created_at", { ascending: false })
 
         if (category && category !== "all") {
-            query = query.eq("category", category as any)
+            query = query.eq("category", category as DbQuestionCategory)
         }
 
         if (subject && subject !== "all") {
-            const { data: c } = await adminSupabase.from("courses").select("id").or(`code.ilike.${subject},slug.ilike.${subject}`).maybeSingle()
+            const { data: c } = await adminSupabase
+                .from("courses")
+                .select("id")
+                .or(`id.eq.${subject},code.ilike.${subject},slug.ilike.${subject}`)
+                .maybeSingle()
             if (c) query = query.eq("course_id", c.id)
         }
 
-        const { data: questions, error } = await query
+        const { data: rawQuestions, error } = await query
 
         if (error) {
             return NextResponse.json({ error: `Fetch error: ${error.message}` }, { status: 500 })
         }
 
+        const questions = (rawQuestions || []).map((q) => {
+            const courseRel = q.courses as { code?: string; title?: string; slug?: string } | null
+            return {
+                ...q,
+                subject: courseRel?.code || (q as { subject?: string }).subject || "FISDAS2",
+            }
+        })
+
         return NextResponse.json({ questions })
-    } catch (error) {
+    } catch {
         return NextResponse.json({ error: "Internal error" }, { status: 500 })
     }
 }
@@ -54,9 +72,9 @@ export async function POST(request: NextRequest) {
         // Validate using Zod schema
         const parsed = questionSchema.safeParse(Object.fromEntries(formData.entries()))
         if (!parsed.success) {
-            console.error("Validation error:", parsed.error.format())
+            console.error("Validation error:", parsed.error.issues)
             return NextResponse.json(
-                { error: "Validation failed", details: parsed.error.format() },
+                { error: "Validation failed", details: parsed.error.issues },
                 { status: 400 }
             )
         }
@@ -108,7 +126,11 @@ export async function POST(request: NextRequest) {
 
         let courseId = (formData.get("course_id") as string) || null
         if (!courseId && subject) {
-            const { data: c } = await supabase.from("courses").select("id").or(`code.ilike.${subject},slug.ilike.${subject}`).maybeSingle()
+            const { data: c } = await supabase
+                .from("courses")
+                .select("id")
+                .or(`id.eq.${subject},code.ilike.${subject},slug.ilike.${subject}`)
+                .maybeSingle()
             if (c) courseId = c.id
         }
 
@@ -122,9 +144,9 @@ export async function POST(request: NextRequest) {
             .insert({
                 id: questionId,
                 text,
-                category: category as any,
+                category: category as DbQuestionCategory,
                 course_id: courseId,
-                type: (type || "MULTIPLE_CHOICE") as any,
+                type: type || "MULTIPLE_CHOICE",
                 option_a,
                 option_b,
                 option_c,
@@ -164,7 +186,7 @@ export async function DELETE(request: NextRequest) {
     if (!guard.ok) return guard.response
 
     try {
-        const supabase = await createAdminClient()
+        const supabase = createServiceClient()
         const { searchParams } = new URL(request.url)
 
         const category = searchParams.get("category")
@@ -181,11 +203,15 @@ export async function DELETE(request: NextRequest) {
         let query = supabase.from("questions").delete()
 
         if (category && category !== "all") {
-            query = query.eq("category", category as any)
+            query = query.eq("category", category as DbQuestionCategory)
         }
 
         if (subject && subject !== "all") {
-            const { data: c } = await adminSupabase.from("courses").select("id").or(`code.ilike.${subject},slug.ilike.${subject}`).maybeSingle()
+            const { data: c } = await supabase
+                .from("courses")
+                .select("id")
+                .or(`id.eq.${subject},code.ilike.${subject},slug.ilike.${subject}`)
+                .maybeSingle()
             if (c) query = query.eq("course_id", c.id)
         }
 

@@ -33,7 +33,7 @@ export async function GET(
         const entitlements = await getEntitlements(userRecord.id)
 
         // Try lookup by slug, fallback to ID
-        let query = supabase
+        const query = supabase
             .from("materials")
             .select(`
                 id,
@@ -103,7 +103,7 @@ export async function GET(
                 .order("sort_order", { ascending: true })
 
             if (siblings && siblings.length > 0) {
-                const currentIndex = siblings.findIndex((s: any) => s.id === material.id || (material.slug && s.slug === material.slug))
+                const currentIndex = siblings.findIndex((s) => s.id === material.id || (material.slug && s.slug === material.slug))
                 if (currentIndex > 0) {
                     prevMaterial = siblings[currentIndex - 1]
                 }

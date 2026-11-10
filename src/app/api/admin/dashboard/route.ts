@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from "next/server"
+import { NextResponse } from "next/server"
 import { requireAdmin } from "@/lib/admin-auth"
 import { createAdminClient } from "@/lib/supabase/server"
 
-export async function GET(request: NextRequest) {
+export async function GET() {
     const guard = await requireAdmin()
     if (!guard.ok) return guard.response
 
@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
         const { data: submissions } = await adminSupabase
             .from("submissions")
             .select("created_at, tryout_id, tryouts(is_practice)")
-            .eq("status", "SUBMITTED")
+            .in("status", ["SUBMITTED", "TIMED_OUT"])
             .gte("created_at", sixMonthsAgo.toISOString())
             .order("created_at", { ascending: true })
 
@@ -97,7 +97,58 @@ export async function GET(request: NextRequest) {
                 ...entry,
             }))
 
-        return NextResponse.json({ chartData, topPerformers })
+        // --- Recent Activity Logs (Registrations & Submissions) ---
+        const { data: recentRegs } = await adminSupabase
+            .from("registrations")
+            .select("id, name, email, status, plan_code, track, created_at, updated_at")
+            .order("updated_at", { ascending: false })
+            .limit(8)
+
+        const { data: recentSubs } = await adminSupabase
+            .from("submissions")
+            .select("id, status, score, submitted_at, started_at, users(name), tryouts(title, is_practice)")
+            .order("started_at", { ascending: false })
+            .limit(8)
+
+        const auditLogs: Array<{
+            id: string
+            timestamp: string
+            category: string
+            message: string
+            variant: "success" | "warning" | "info"
+        }> = []
+
+        for (const r of recentRegs || []) {
+            const ts = r.updated_at || r.created_at
+            auditLogs.push({
+                id: `reg-${r.id}`,
+                timestamp: ts,
+                category: r.status === "APPROVED" ? "BILLING // APPROVED" : r.status === "REJECTED" ? "BILLING // REJECTED" : "REG // PENDING",
+                message: `${r.name} (${r.email}) — Paket ${r.plan_code || "MONTHLY"} [${r.status}]`,
+                variant: r.status === "APPROVED" ? "success" : r.status === "REJECTED" ? "warning" : "info",
+            })
+        }
+
+        for (const s of recentSubs || []) {
+            const u = s.users as unknown as { name?: string } | null
+            const t = s.tryouts as unknown as { title?: string; is_practice?: boolean } | null
+            const ts = s.submitted_at || s.started_at
+            auditLogs.push({
+                id: `sub-${s.id}`,
+                timestamp: ts,
+                category: t?.is_practice ? "LATIHAN // CBT" : "TRYOUT // CBT",
+                message: `${u?.name || "Siswa"} — ${t?.title || "Simulasi"} (${s.status}${s.score !== null ? `, Skor: ${Math.round(s.score)}` : ""})`,
+                variant: s.status === "SUBMITTED" ? "success" : "info",
+            })
+        }
+
+        auditLogs.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+
+        return NextResponse.json({
+            chartData,
+            topPerformers,
+            auditLogs: auditLogs.slice(0, 10),
+        })
     } catch (error) {
         console.error("Admin dashboard API error:", error)
         return NextResponse.json({ error: "Internal error" }, { status: 500 })

@@ -48,6 +48,9 @@ export async function PATCH(
             .replace(/[^a-z0-9]+/g, "-")
             .replace(/(^-|-$)/g, "")
 
+        const resolvedDriveUrl =
+            driveUrl !== undefined ? driveUrl : pdfUrl !== undefined ? pdfUrl : undefined
+
         const { data: material, error } = await supabase
             .from("materials")
             .update({
@@ -56,9 +59,8 @@ export async function PATCH(
                 course_id: targetCourseId !== null ? targetCourseId : undefined,
                 summary: summary !== undefined ? summary : undefined,
                 content_md: contentMd !== undefined ? contentMd : undefined,
-                drive_url: driveUrl !== undefined ? driveUrl : undefined,
+                drive_url: resolvedDriveUrl,
                 podcast_url: podcastUrl !== undefined ? podcastUrl : undefined,
-                pdf_url: pdfUrl !== undefined ? pdfUrl : undefined,
                 module_number: moduleNumber !== undefined ? Number(moduleNumber) : undefined,
                 sort_order: sortOrder !== undefined ? Number(sortOrder) : undefined,
                 is_free_preview: isFreePreview !== undefined ? Boolean(isFreePreview) : undefined,

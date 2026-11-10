@@ -1,8 +1,8 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { Plus, Loader2, FileText, CheckCircle2, Play, Archive, RotateCcw, Pencil, Trash2 } from "lucide-react"
-import { CATEGORY_LABELS } from "@/types"
+import { useState, useEffect, useCallback } from "react"
+import { Plus, Loader2, FileText, Play, Archive, RotateCcw, Pencil, Trash2 } from "lucide-react"
+import { CATEGORY_LABELS, ADMIN_COURSES, COURSE_LABELS } from "@/types"
 import type { QuestionCategory } from "@/types"
 import { toast } from "sonner"
 import MarkdownLatex from "@/components/ui/markdown-latex"
@@ -38,6 +38,25 @@ import {
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 
+interface AdminTryoutItem {
+    id: string
+    title: string
+    description: string | null
+    category: string | null
+    duration: number
+    status: string
+    subject: string
+    created_at: string
+}
+
+interface AdminQuestionOption {
+    id: string
+    text: string
+    category: string
+    weight: number
+    image_url: string | null
+}
+
 const INITIAL_FORM_DATA = {
     title: "",
     description: "",
@@ -46,7 +65,7 @@ const INITIAL_FORM_DATA = {
 }
 
 export default function AdminTryoutsPage() {
-    const [tryouts, setTryouts] = useState<any[]>([])
+    const [tryouts, setTryouts] = useState<AdminTryoutItem[]>([])
     const [loading, setLoading] = useState(true)
     const [showForm, setShowForm] = useState(false)
     const [submitting, setSubmitting] = useState(false)
@@ -56,7 +75,7 @@ export default function AdminTryoutsPage() {
 
     // Form state
     const [formData, setFormData] = useState(INITIAL_FORM_DATA)
-    const [availableQuestions, setAvailableQuestions] = useState<any[]>([])
+    const [availableQuestions, setAvailableQuestions] = useState<AdminQuestionOption[]>([])
     const [loadingQuestions, setLoadingQuestions] = useState(false)
     const [selectedQuestionIds, setSelectedQuestionIds] = useState<Set<string>>(new Set())
 
@@ -66,9 +85,27 @@ export default function AdminTryoutsPage() {
     const [isBulkDeleting, setIsBulkDeleting] = useState(false)
     const [isBulkArchiving, setIsBulkArchiving] = useState(false)
 
+    const fetchTryouts = useCallback(async () => {
+        try {
+            setSelectedIds(new Set()) // Reset selection
+            const params = new URLSearchParams({ isPractice: "false" })
+            if (filter !== "all") params.set("subject", filter)
+            const res = await fetch(`/api/admin/tryouts?${params}`)
+            const data = await res.json()
+            if (!res.ok) {
+                toast.error(data.error || "Gagal mengambil data tryout.")
+            }
+            setTryouts(data.tryouts || [])
+        } catch (error) {
+            console.error("Failed to fetch tryouts:", error)
+        } finally {
+            setLoading(false)
+        }
+    }, [filter])
+
     useEffect(() => {
         fetchTryouts()
-    }, [filter])
+    }, [fetchTryouts])
 
     // Fetch ALL questions when the dialog opens
     useEffect(() => {
@@ -93,24 +130,6 @@ export default function AdminTryoutsPage() {
         fetchAllQuestions()
     }, [showForm, formData.subject])
 
-    const fetchTryouts = async () => {
-        try {
-            setSelectedIds(new Set()) // Reset selection
-            const params = new URLSearchParams({ isPractice: "false" })
-            if (filter !== "all") params.set("subject", filter)
-            const res = await fetch(`/api/admin/tryouts?${params}`)
-            const data = await res.json()
-            if (!res.ok) {
-                toast.error(data.error || "Gagal mengambil data tryout.")
-            }
-            setTryouts(data.tryouts || [])
-        } catch (error) {
-            console.error("Failed to fetch tryouts:", error)
-        } finally {
-            setLoading(false)
-        }
-    }
-
     const resetForm = () => {
         setFormData(INITIAL_FORM_DATA)
         setSelectedQuestionIds(new Set())
@@ -118,7 +137,7 @@ export default function AdminTryoutsPage() {
         setAvailableQuestions([])
     }
 
-    const handleEdit = async (tryout: any) => {
+    const handleEdit = async (tryout: AdminTryoutItem) => {
         try {
             const res = await fetch(`/api/admin/tryouts/${tryout.id}`)
             if (!res.ok) throw new Error("Gagal mengambil detail tryout")
@@ -128,7 +147,7 @@ export default function AdminTryoutsPage() {
                 title: data.tryout.title,
                 description: data.tryout.description || "",
                 duration: data.tryout.duration,
-                subject: data.tryout.subject,
+                subject: data.tryout.subject || "FISDAS2",
             })
             setSelectedQuestionIds(new Set(data.questionIds || []))
             setEditingId(tryout.id)
@@ -148,7 +167,7 @@ export default function AdminTryoutsPage() {
         setSelectedQuestionIds(newSet)
     }
 
-    const selectAllInCategory = (categoryQuestions: any[]) => {
+    const selectAllInCategory = (categoryQuestions: AdminQuestionOption[]) => {
         const newSet = new Set(selectedQuestionIds)
         const allSelected = categoryQuestions.every(q => newSet.has(q.id))
         if (allSelected) {
@@ -327,7 +346,7 @@ export default function AdminTryoutsPage() {
     }
 
     // Group questions by category
-    const questionsByCategory = availableQuestions.reduce<Record<string, any[]>>((acc, q) => {
+    const questionsByCategory = availableQuestions.reduce<Record<string, AdminQuestionOption[]>>((acc, q) => {
         const cat = q.category || "UNCATEGORIZED"
         if (!acc[cat]) acc[cat] = []
         acc[cat].push(q)
@@ -346,13 +365,16 @@ export default function AdminTryoutsPage() {
                 </div>
                 <div className="flex items-center gap-3">
                     <Select value={filter} onValueChange={setFilter}>
-                        <SelectTrigger className="w-[180px] bg-white border-warm-gray">
+                        <SelectTrigger className="w-[220px] bg-white border-warm-gray">
                             <SelectValue placeholder="Semua Mata Kuliah" />
                         </SelectTrigger>
                         <SelectContent>
                             <SelectItem value="all">Semua Mata Kuliah</SelectItem>
-                            <SelectItem value="FISDAS2">Fisika Dasar 2</SelectItem>
-                            <SelectItem value="FISMAT">Fisika Matematika</SelectItem>
+                            {ADMIN_COURSES.map((course) => (
+                                <SelectItem key={course.code} value={course.code}>
+                                    {course.label}
+                                </SelectItem>
+                            ))}
                         </SelectContent>
                     </Select>
                     <Button onClick={() => setShowForm(true)} className="bg-dark-brown hover:bg-soft-brown text-cream">
@@ -402,7 +424,7 @@ export default function AdminTryoutsPage() {
                                                         : "Semua Materi"}
                                                 </Badge>
                                                 <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 text-xs">
-                                                    {t.subject === "FISDAS2" ? "Fisika Dasar 2" : "Fisika Matematika"}
+                                                    {COURSE_LABELS[t.subject] || t.subject}
                                                 </Badge>
                                                 <Badge
                                                     variant="outline"
@@ -536,8 +558,11 @@ export default function AdminTryoutsPage() {
                                             <SelectValue placeholder="Pilih mata kuliah" />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem value="FISDAS2">Fisika Dasar 2</SelectItem>
-                                            <SelectItem value="FISMAT">Fisika Matematika</SelectItem>
+                                            {ADMIN_COURSES.map((course) => (
+                                                <SelectItem key={course.code} value={course.code}>
+                                                    {course.label}
+                                                </SelectItem>
+                                            ))}
                                         </SelectContent>
                                     </Select>
                                 </div>
@@ -566,9 +591,9 @@ export default function AdminTryoutsPage() {
                                     <div className="space-y-4">
                                         {orderedCategories.map((cat) => {
                                             const catQuestions = questionsByCategory[cat]
-                                            const allSelected = catQuestions.every((q: any) => selectedQuestionIds.has(q.id))
-                                            const someSelected = catQuestions.some((q: any) => selectedQuestionIds.has(q.id))
-                                            const selectedCount = catQuestions.filter((q: any) => selectedQuestionIds.has(q.id)).length
+                                            const allSelected = catQuestions.every((q) => selectedQuestionIds.has(q.id))
+                                            const someSelected = catQuestions.some((q) => selectedQuestionIds.has(q.id))
+                                            const selectedCount = catQuestions.filter((q) => selectedQuestionIds.has(q.id)).length
 
                                             return (
                                                 <div key={cat} className="border border-warm-gray/40 rounded-lg overflow-hidden">
@@ -594,7 +619,7 @@ export default function AdminTryoutsPage() {
 
                                                     {/* Questions in this category */}
                                                     <div className="max-h-[250px] overflow-y-auto divide-y divide-warm-gray/20">
-                                                        {catQuestions.map((q: any) => {
+                                                        {catQuestions.map((q) => {
                                                             const isSelected = selectedQuestionIds.has(q.id)
                                                             return (
                                                                 <div
