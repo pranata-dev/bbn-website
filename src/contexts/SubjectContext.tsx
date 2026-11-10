@@ -1,6 +1,6 @@
 "use client"
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from "react"
+import React, { createContext, useContext, useState, ReactNode } from "react"
 
 export interface Course {
     id?: string
@@ -20,18 +20,15 @@ interface CourseContextType {
 const CourseContext = createContext<CourseContextType | undefined>(undefined)
 
 export function SubjectProvider({ children }: { children: ReactNode }) {
-    const [selectedCourse, setSelectedCourseState] = useState<string>("fisdas2")
-
-    useEffect(() => {
+    const [selectedCourse, setSelectedCourseState] = useState<string>(() => {
+        if (typeof window === "undefined") return "fisdas2"
         try {
             const saved = localStorage.getItem("bbn_selected_course") || localStorage.getItem("bbn_selected_subject")
-            if (saved) {
-                setSelectedCourseState(saved.toLowerCase())
-            }
+            return saved ? saved.toLowerCase() : "fisdas2"
         } catch {
-            // ignore localStorage error
+            return "fisdas2"
         }
-    }, [])
+    })
 
     const setSelectedCourse = (slug: string) => {
         const normalized = slug.toLowerCase()

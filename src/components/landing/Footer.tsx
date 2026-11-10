@@ -12,9 +12,9 @@ const PLATFORM_LINKS = [
 ]
 
 const LEGAL_LINKS = [
-  { label: "Kebijakan Privasi", href: "#" },
-  { label: "Syarat & Ketentuan", href: "#" },
-  { label: "Pedoman Lisensi Kurikulum", href: "#" },
+  { label: "Kebijakan Privasi", href: "#faq" },
+  { label: "Syarat & Ketentuan", href: "#faq" },
+  { label: "Pedoman Lisensi Kurikulum", href: "#program" },
 ]
 
 export function Footer() {
@@ -63,7 +63,7 @@ export function Footer() {
           {/* Column 2: Platform Links (3 cols) */}
           <div className="lg:col-span-3 flex flex-col space-y-3">
             <div className="font-mono text-xs uppercase tracking-widest text-surface-white font-bold pb-1 flex items-center gap-2 border-b border-surface-white/15">
-              <span>// PLATFORM_INDEX</span>
+              <span>{"// PLATFORM_INDEX"}</span>
             </div>
             <ul className="space-y-2 font-mono text-xs">
               {PLATFORM_LINKS.map((link) => (
@@ -82,7 +82,7 @@ export function Footer() {
           {/* Column 3: Legal & Standards (2 cols) */}
           <div className="lg:col-span-2 flex flex-col space-y-3">
             <div className="font-mono text-xs uppercase tracking-widest text-surface-white font-bold pb-1 flex items-center gap-2 border-b border-surface-white/15">
-              <span>// COMPLIANCE</span>
+              <span>{"// COMPLIANCE"}</span>
             </div>
             <ul className="space-y-2 font-mono text-xs">
               {LEGAL_LINKS.map((link) => (
@@ -101,7 +101,7 @@ export function Footer() {
           {/* Column 4: System Architecture Snapshot (2 cols) */}
           <div className="lg:col-span-2 flex flex-col space-y-3 font-mono text-[11px] text-canvas-paper/60">
             <div className="font-mono text-xs uppercase tracking-widest text-surface-white font-bold pb-1 flex items-center gap-2 border-b border-surface-white/15">
-              <span>// REGISTRY</span>
+              <span>{"// REGISTRY"}</span>
             </div>
             <div className="space-y-1">
               <div>ENV: PRODUCTION</div>

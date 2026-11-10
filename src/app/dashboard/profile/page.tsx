@@ -4,6 +4,13 @@ import { id } from "date-fns/locale"
 import Link from "next/link"
 import { PageHeader } from "@/components/dashboard/PageHeader"
 
+interface ProfileSubscriptionRow {
+  id: string
+  status: string
+  plan_code: string
+  track: string
+}
+
 export default async function ProfilePage() {
   const supabase = await createClient()
   const { data: { user: authUser } } = await supabase.auth.getUser()
@@ -20,9 +27,8 @@ export default async function ProfilePage() {
 
   const userName = dbUser?.name || "User"
   const userEmail = dbUser?.email || authUser?.email || "-"
-  const subscriptions = ((dbUser as any)?.subscriptions || []).filter(
-    (s: any) => s.status === "ACTIVE"
-  )
+  const rawSubs = (dbUser as { subscriptions?: ProfileSubscriptionRow[] } | null)?.subscriptions || []
+  const subscriptions = rawSubs.filter((s) => s.status === "ACTIVE")
 
   const joinDate = dbUser?.created_at
     ? format(new Date(dbUser.created_at), "dd MMMM yyyy", { locale: id })
@@ -44,7 +50,7 @@ export default async function ProfilePage() {
         <div className="flex items-center justify-between border-b border-border-grid pb-3 mb-6 font-mono text-xs">
           <div className="flex items-center gap-2">
             <span className="font-bold text-[#171717]">[SYS.USER_IDENTITY]</span>
-            <span className="text-ink-muted hidden sm:inline">// ID_MATRIX_ACTIVE</span>
+            <span className="text-ink-muted hidden sm:inline">{"// ID_MATRIX_ACTIVE"}</span>
           </div>
           <div className="flex items-center gap-2">
             <span className="size-2 bg-accent-canary border border-[#171717]" />
@@ -115,7 +121,7 @@ export default async function ProfilePage() {
         <div className="flex items-center justify-between border-b-2 border-[#171717] pb-3 font-mono text-xs">
           <div className="flex items-center gap-2">
             <span className="font-bold text-[#171717]">[SYS.SUBSCRIPTION]</span>
-            <span className="text-ink-muted hidden sm:inline">// LISENSI & PAKET BELAJAR</span>
+            <span className="text-ink-muted hidden sm:inline">{"// LISENSI & PAKET BELAJAR"}</span>
           </div>
           <div className="font-mono text-xs font-black text-alert-rust">
             STATUS: {subscriptions.length > 0 ? "PRO_ACTIVE" : "FREEMIUM_TIER"}
@@ -142,7 +148,7 @@ export default async function ProfilePage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
-            {subscriptions.map((sub: any) => (
+            {subscriptions.map((sub) => (
               <div
                 key={sub.id}
                 className="bg-canvas-paper border-2 border-[#171717] p-4 flex items-center justify-between technical-shadow-sm"

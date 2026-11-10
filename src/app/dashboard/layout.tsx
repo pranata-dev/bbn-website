@@ -4,10 +4,10 @@ import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import UserPresenceTracker from "@/components/UserPresenceTracker"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useSyncExternalStore } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { SubjectProvider, useSubject } from "@/contexts/SubjectContext"
-import { useTheme } from "@/contexts/ThemeContext"
+import type { Subject } from "@/types"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -42,6 +42,8 @@ const NAV_ITEMS = [
   { id: "profile", href: "/dashboard/profile", label: "[07] Profil Siswa", icon: User },
 ]
 
+const emptySubscribe = () => () => {}
+
 export default function DashboardLayout({
   children,
 }: {
@@ -62,11 +64,7 @@ function SubjectSwitcher({
   studentCategory?: "PHYSICS_SEM_3" | "NON_PHYSICS"
 }) {
   const { selectedSubject, setSelectedSubject } = useSubject()
-  const [isMounted, setIsMounted] = useState(false)
-
-  useEffect(() => {
-    setIsMounted(true)
-  }, [])
+  const isMounted = useSyncExternalStore(emptySubscribe, () => true, () => false)
 
   const allowedCourses =
     studentCategory === "PHYSICS_SEM_3" ? PHYSICS_COURSES : GENERAL_COURSES
@@ -112,7 +110,7 @@ function SubjectSwitcher({
                       : "text-[#171717] hover:bg-canvas-paper"
                   }`}
                   onClick={() => {
-                    setSelectedSubject(course.slug as any)
+                    setSelectedSubject(course.slug as Subject)
                   }}
                 >
                   <div className="flex items-center gap-2 truncate">
@@ -140,55 +138,22 @@ function SubjectSwitcher({
   )
 }
 
-function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
-  const pathname = usePathname()
-  const router = useRouter()
-  const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [userProfile, setUserProfile] = useState<any>(null)
-  const [studentCategory, setStudentCategory] = useState<"PHYSICS_SEM_3" | "NON_PHYSICS">("PHYSICS_SEM_3")
-  const { isDark, toggleTheme } = useTheme()
+interface DashboardSidebarProps {
+  pathname: string
+  studentCategory: "PHYSICS_SEM_3" | "NON_PHYSICS"
+  isDark: boolean
+  onToggleTheme: () => void
+  onLogout: () => void
+}
 
-  useEffect(() => {
-    const fetchUserPackage = async () => {
-      const supabase = createClient()
-      const { data: { user } } = await supabase.auth.getUser()
-
-      if (user) {
-        try {
-          const userEmail = (user.email || "").toLowerCase().trim()
-          const { data: profile } = await supabase
-            .from("users")
-            .select("*, subscriptions(*)")
-            .or(`auth_id.eq.${user.id},email.ilike.${userEmail}`)
-            .maybeSingle()
-
-          if (profile) {
-            setUserProfile(profile)
-            const subs = (profile as any).subscriptions || []
-            const activeSub = subs.find((s: any) => s.status === "ACTIVE" && (!s.expires_at || new Date(s.expires_at) > new Date()))
-            if (activeSub?.track === "NON_PHYSICS") {
-              setStudentCategory("NON_PHYSICS")
-            } else {
-              setStudentCategory("PHYSICS_SEM_3")
-            }
-          }
-        } catch (error) {
-          console.error("Failed to fetch user profile", error)
-        }
-      }
-    }
-
-    fetchUserPackage()
-  }, [])
-
-  const handleLogout = async () => {
-    const supabase = createClient()
-    await supabase.auth.signOut()
-    router.push("/login")
-    router.refresh()
-  }
-
-  const SidebarContent = () => (
+function DashboardSidebarContent({
+  pathname,
+  studentCategory,
+  isDark,
+  onToggleTheme,
+  onLogout,
+}: DashboardSidebarProps) {
+  return (
     <div className="flex flex-col h-full bg-surface-white font-sans border-r border-[#171717]">
       {/* Brand Area */}
       <div className="p-5 border-b border-[#171717] bg-canvas-paper">
@@ -245,7 +210,7 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
       <div className="p-3 border-t border-[#171717] space-y-1.5 bg-canvas-paper font-mono text-xs">
         <button
           type="button"
-          onClick={toggleTheme}
+          onClick={onToggleTheme}
           className="w-full py-2 px-3 border border-[#171717] bg-surface-white hover:bg-accent-canary transition-colors flex items-center justify-between cursor-pointer"
         >
           <span className="flex items-center gap-2">
@@ -257,7 +222,7 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
 
         <button
           type="button"
-          onClick={handleLogout}
+          onClick={onLogout}
           className="w-full py-2 px-3 border border-[#171717] bg-surface-white hover:bg-alert-rust hover:text-surface-white transition-colors flex items-center justify-between cursor-pointer group"
         >
           <span className="flex items-center gap-2 text-alert-rust group-hover:text-surface-white font-bold">
@@ -269,6 +234,77 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
       </div>
     </div>
   )
+}
+
+interface UserProfileRow {
+  email?: string
+  subscriptions?: {
+    status: string
+    track?: string
+    expires_at?: string | null
+  }[]
+}
+
+function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname()
+  const router = useRouter()
+  const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [userProfile, setUserProfile] = useState<UserProfileRow | null>(null)
+  const [studentCategory, setStudentCategory] = useState<"PHYSICS_SEM_3" | "NON_PHYSICS">("PHYSICS_SEM_3")
+  const [isDark, setIsDark] = useState(false)
+
+  const toggleTheme = () => {
+    setIsDark((prev) => {
+      const next = !prev
+      if (typeof document !== "undefined") {
+        document.documentElement.classList.toggle("dark", next)
+      }
+      return next
+    })
+  }
+
+  useEffect(() => {
+    const fetchUserPackage = async () => {
+      const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+
+      if (user) {
+        try {
+          const userEmail = (user.email || "").toLowerCase().trim()
+          const { data: profile } = await supabase
+            .from("users")
+            .select("*, subscriptions(*)")
+            .or(`auth_id.eq.${user.id},email.ilike.${userEmail}`)
+            .maybeSingle()
+
+          if (profile) {
+            const typedProfile = profile as UserProfileRow
+            setUserProfile(typedProfile)
+            const subs = typedProfile.subscriptions || []
+            const activeSub = subs.find(
+              (s) => s.status === "ACTIVE" && (!s.expires_at || new Date(s.expires_at) > new Date())
+            )
+            if (activeSub?.track === "NON_PHYSICS") {
+              setStudentCategory("NON_PHYSICS")
+            } else {
+              setStudentCategory("PHYSICS_SEM_3")
+            }
+          }
+        } catch (error) {
+          console.error("Failed to fetch user profile", error)
+        }
+      }
+    }
+
+    fetchUserPackage()
+  }, [])
+
+  const handleLogout = async () => {
+    const supabase = createClient()
+    await supabase.auth.signOut()
+    router.push("/login")
+    router.refresh()
+  }
 
   return (
     <div className="min-h-screen bg-canvas-paper text-[#171717] font-sans antialiased">
@@ -328,7 +364,13 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
       <div className="flex min-h-[calc(100vh-24px)]">
         {/* Fixed Desktop Sidebar (260px) */}
         <aside className="hidden lg:block w-[260px] h-[calc(100vh-24px)] sticky top-6 z-30 shrink-0">
-          <SidebarContent />
+          <DashboardSidebarContent
+            pathname={pathname}
+            studentCategory={studentCategory}
+            isDark={isDark}
+            onToggleTheme={toggleTheme}
+            onLogout={handleLogout}
+          />
         </aside>
 
         {/* Mobile Sidebar Overlay */}
@@ -339,7 +381,13 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
               onClick={() => setSidebarOpen(false)}
             />
             <aside className="relative w-64 h-full bg-surface-white z-10 technical-shadow">
-              <SidebarContent />
+              <DashboardSidebarContent
+                pathname={pathname}
+                studentCategory={studentCategory}
+                isDark={isDark}
+                onToggleTheme={toggleTheme}
+                onLogout={handleLogout}
+              />
             </aside>
           </div>
         )}

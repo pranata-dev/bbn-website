@@ -25,7 +25,7 @@ interface MaterialItem {
   subject: string
 }
 
-const FALLBACK_SEEDS: Record<string, any[]> = {
+const FALLBACK_SEEDS: Record<string, MaterialItem[]> = {
   FISDAS2: [
     {
       id: "seed-fisdas-1",
@@ -52,8 +52,8 @@ const FALLBACK_SEEDS: Record<string, any[]> = {
       is_free_preview: false,
       can_access: false,
       is_locked: true,
-      drive_url: "https://drive.google.com/uc?export=download&id=1UYV9xYq9BNRpVThSkN1sr57F9s8xq9mh",
-      podcast_url: "https://drive.google.com/uc?export=download&id=1LDj-L3h9s6ZJTBTJnTZnB-QrPg2tT9Ik",
+      drive_url: null,
+      podcast_url: null,
       pdf_url: null,
       subject: "FISDAS2"
     },
@@ -67,8 +67,8 @@ const FALLBACK_SEEDS: Record<string, any[]> = {
       is_free_preview: false,
       can_access: false,
       is_locked: true,
-      drive_url: "https://drive.google.com/uc?export=download&id=1ows4NXU-_xrMrQeL9ap4oOm-Ihf5RVhO",
-      podcast_url: "https://drive.google.com/uc?export=download&id=1C_wSu7OcJexlLp0EHE2xa2uqy7RiCIck",
+      drive_url: null,
+      podcast_url: null,
       pdf_url: null,
       subject: "FISDAS2"
     },
@@ -82,8 +82,8 @@ const FALLBACK_SEEDS: Record<string, any[]> = {
       is_free_preview: false,
       can_access: false,
       is_locked: true,
-      drive_url: "https://drive.google.com/uc?export=download&id=1Rpid7KYmMce3p9wt62ZXMsLs6K1yB1fU",
-      podcast_url: "https://drive.google.com/uc?export=download&id=1L_H2JT5QRm7ngpd7vfokNF_ZDVC_PzXv",
+      drive_url: null,
+      podcast_url: null,
       pdf_url: null,
       subject: "FISDAS2"
     },
@@ -97,8 +97,8 @@ const FALLBACK_SEEDS: Record<string, any[]> = {
       is_free_preview: false,
       can_access: false,
       is_locked: true,
-      drive_url: "https://drive.google.com/uc?export=download&id=1vYSiKUZhJZRU2w1C5RXrNkvEjsGroBoG",
-      podcast_url: "https://drive.google.com/uc?export=download&id=1joT4j5rSuiPgihQmDI5RLKs7s3OIyAZj",
+      drive_url: null,
+      podcast_url: null,
       pdf_url: null,
       subject: "FISDAS2"
     },
@@ -112,8 +112,8 @@ const FALLBACK_SEEDS: Record<string, any[]> = {
       is_free_preview: false,
       can_access: false,
       is_locked: true,
-      drive_url: "https://drive.google.com/uc?export=download&id=1hA8yDh1OMG-Zmhe8P435BFWuTruIaTjF",
-      podcast_url: "https://drive.google.com/uc?export=download&id=1dw8EuYSaM8lsOUhWX-9ngoFyLQLeG11K",
+      drive_url: null,
+      podcast_url: null,
       pdf_url: null,
       subject: "FISDAS2"
     },
@@ -127,8 +127,8 @@ const FALLBACK_SEEDS: Record<string, any[]> = {
       is_free_preview: false,
       can_access: false,
       is_locked: true,
-      drive_url: "https://drive.google.com/uc?export=download&id=17d5CVzPSePU-MBnFtNljPHzDh5lhbE0T",
-      podcast_url: "https://drive.google.com/uc?export=download&id=1hj0oJCJBEA5TE-MZrQ5On6XPfmpNv0Rb",
+      drive_url: null,
+      podcast_url: null,
       pdf_url: null,
       subject: "FISDAS2"
     }
@@ -159,8 +159,8 @@ const FALLBACK_SEEDS: Record<string, any[]> = {
       is_free_preview: false,
       can_access: false,
       is_locked: true,
-      drive_url: "https://drive.google.com/uc?export=download&id=1IiC84g0ryUq13MrYnyHW0VvIJ9Zh5eCN",
-      podcast_url: "https://drive.google.com/uc?export=download&id=1MVtoBGhjiHn8kFzKM2utzOYoG3b0wOgo",
+      drive_url: null,
+      podcast_url: null,
       pdf_url: null,
       subject: "FISMAT"
     },
@@ -174,8 +174,8 @@ const FALLBACK_SEEDS: Record<string, any[]> = {
       is_free_preview: false,
       can_access: false,
       is_locked: true,
-      drive_url: "https://drive.google.com/uc?export=download&id=1bkj9HAmLtR6IqmfM1dHoPeSa89s_uMZQ",
-      podcast_url: "https://drive.google.com/uc?export=download&id=1Y7nlDQrwng2tqsh9afchZjy0JI7DaUSz",
+      drive_url: null,
+      podcast_url: null,
       pdf_url: null,
       subject: "FISMAT"
     }
@@ -244,7 +244,7 @@ function MateriContent() {
               Buka Akses Seluruh Modul & Tryout CBT
             </h3>
             <p className="text-xs text-muted-foreground max-w-xl">
-              Upgrade ke Paket Semester (Rp 129.000) untuk mengakses seluruh materi lengkap, bank soal, dan rekaman kelas tanpa batas.
+              Upgrade ke Paket Bulanan (Rp 35.000) atau Paket Semester (Rp 90.000) untuk mengakses seluruh materi lengkap, bank soal, dan simulasi tryout tanpa batas.
             </p>
           </div>
           <Button asChild className="bg-olive hover:bg-olive/90 text-white font-semibold shrink-0">
@@ -335,24 +335,26 @@ function MateriContent() {
                     </Button>
                   )}
 
-                  <div className="flex gap-2">
-                    {materi.drive_url && (
-                      <Button asChild variant="outline" size="sm" className="flex-1 text-[11px] h-8">
-                        <a href={materi.drive_url} target="_blank" rel="noopener noreferrer">
-                          <FileDown className="w-3.5 h-3.5 mr-1" />
-                          PDF
-                        </a>
-                      </Button>
-                    )}
-                    {materi.podcast_url && (
-                      <Button asChild variant="outline" size="sm" className="flex-1 text-[11px] h-8">
-                        <a href={materi.podcast_url} target="_blank" rel="noopener noreferrer">
-                          <Headphones className="w-3.5 h-3.5 mr-1" />
-                          Podcast
-                        </a>
-                      </Button>
-                    )}
-                  </div>
+                  {isUnlocked && (materi.drive_url || materi.podcast_url) && (
+                    <div className="flex gap-2">
+                      {materi.drive_url && (
+                        <Button asChild variant="outline" size="sm" className="flex-1 text-[11px] h-8">
+                          <a href={materi.drive_url} target="_blank" rel="noopener noreferrer">
+                            <FileDown className="w-3.5 h-3.5 mr-1" />
+                            PDF
+                          </a>
+                        </Button>
+                      )}
+                      {materi.podcast_url && (
+                        <Button asChild variant="outline" size="sm" className="flex-1 text-[11px] h-8">
+                          <a href={materi.podcast_url} target="_blank" rel="noopener noreferrer">
+                            <Headphones className="w-3.5 h-3.5 mr-1" />
+                            Podcast
+                          </a>
+                        </Button>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
             )

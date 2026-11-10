@@ -59,13 +59,17 @@ export function Navbar() {
         {/* Right: Search Keycap Shortcut & Primary CTA (Desktop) */}
         <div className="hidden md:flex items-center gap-3">
           {/* Search Keycap Badge */}
-          <div className="flex items-center gap-2 px-2.5 py-1 bg-canvas-paper border border-[#171717] font-mono text-xs text-ink-muted shadow-[1px_1px_0px_#171717]">
+          <a
+            href="#program"
+            onClick={() => setActiveLink("Program")}
+            className="flex items-center gap-2 px-2.5 py-1 bg-canvas-paper hover:bg-accent-canary border border-[#171717] font-mono text-xs text-ink-muted hover:text-[#171717] shadow-[1px_1px_0px_#171717] transition-colors"
+          >
             <Search className="size-3.5 text-[#171717]" />
             <span className="text-[11px]">Cari Silabus</span>
             <kbd className="px-1 py-0.2 bg-surface-white border border-[#D4D2C9] text-[10px] text-[#171717] font-semibold">
               ⌘K
             </kbd>
-          </div>
+          </a>
 
           {/* Primary CTA Button */}
           <Button 

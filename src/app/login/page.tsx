@@ -5,7 +5,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { createClient } from "@/lib/supabase/client"
-import { ArrowLeft, Lock, Mail, KeyRound, Sparkles } from "lucide-react"
+import { ArrowLeft, Lock, Mail, KeyRound } from "lucide-react"
 
 function LoginCard() {
   const router = useRouter()
@@ -26,9 +26,9 @@ function LoginCard() {
         },
       })
       if (error) throw error
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Google sign-in error:", error)
-      toast.error(error?.message || "Gagal masuk dengan Google. Silakan coba lagi.")
+      toast.error(error instanceof Error ? error.message : "Gagal masuk dengan Google. Silakan coba lagi.")
       setIsGoogleLoading(false)
     }
   }
@@ -60,8 +60,8 @@ function LoginCard() {
       toast.success("Login berhasil! Mengalihkan ke dashboard...")
       router.push("/dashboard")
       router.refresh()
-    } catch (error: any) {
-      toast.error(error?.message || "Terjadi kesalahan saat masuk.")
+    } catch (error: unknown) {
+      toast.error(error instanceof Error ? error.message : "Terjadi kesalahan saat masuk.")
     } finally {
       setIsLoading(false)
     }

@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState, useMemo } from "react"
-import { useParams, useRouter } from "next/navigation"
+import { useParams } from "next/navigation"
 import Link from "next/link"
 import MarkdownLatex from "@/components/ui/markdown-latex"
 import TableOfContents, { extractToc } from "@/components/dashboard/TableOfContents"
@@ -19,7 +19,6 @@ import {
     Loader2,
     ArrowRight,
     Terminal,
-    Search,
     Download,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -60,7 +59,21 @@ interface MaterialDetail {
     } | null
 }
 
-const FALLBACK_SEEDS: Record<string, any[]> = {
+interface SeedMaterialItem {
+    id: string
+    slug: string
+    title: string
+    summary: string
+    module_number: number
+    reading_time_minutes: number
+    is_free_preview: boolean
+    subject: string
+    drive_url: string | null
+    podcast_url: string | null
+    pdf_url: string | null
+}
+
+const FALLBACK_SEEDS: Record<string, SeedMaterialItem[]> = {
     FISDAS2: [
         {
             id: "seed-fisdas-1",
@@ -84,8 +97,8 @@ const FALLBACK_SEEDS: Record<string, any[]> = {
             reading_time_minutes: 18,
             is_free_preview: false,
             subject: "FISDAS2",
-            drive_url: "https://drive.google.com/uc?export=download&id=1UYV9xYq9BNRpVThSkN1sr57F9s8xq9mh",
-            podcast_url: "https://drive.google.com/uc?export=download&id=1LDj-L3h9s6ZJTBTJnTZnB-QrPg2tT9Ik",
+            drive_url: null,
+            podcast_url: null,
             pdf_url: null,
         },
         {
@@ -97,8 +110,8 @@ const FALLBACK_SEEDS: Record<string, any[]> = {
             reading_time_minutes: 20,
             is_free_preview: false,
             subject: "FISDAS2",
-            drive_url: "https://drive.google.com/uc?export=download&id=1ows4NXU-_xrMrQeL9ap4oOm-Ihf5RVhO",
-            podcast_url: "https://drive.google.com/uc?export=download&id=1C_wSu7OcJexlLp0EHE2xa2uqy7RiCIck",
+            drive_url: null,
+            podcast_url: null,
             pdf_url: null,
         },
         {
@@ -110,8 +123,8 @@ const FALLBACK_SEEDS: Record<string, any[]> = {
             reading_time_minutes: 22,
             is_free_preview: false,
             subject: "FISDAS2",
-            drive_url: "https://drive.google.com/uc?export=download&id=1Rpid7KYmMce3p9wt62ZXMsLs6K1yB1fU",
-            podcast_url: "https://drive.google.com/uc?export=download&id=1L_H2JT5QRm7ngpd7vfokNF_ZDVC_PzXv",
+            drive_url: null,
+            podcast_url: null,
             pdf_url: null,
         },
         {
@@ -123,8 +136,8 @@ const FALLBACK_SEEDS: Record<string, any[]> = {
             reading_time_minutes: 25,
             is_free_preview: false,
             subject: "FISDAS2",
-            drive_url: "https://drive.google.com/uc?export=download&id=1vYSiKUZhJZRU2w1C5RXrNkvEjsGroBoG",
-            podcast_url: "https://drive.google.com/uc?export=download&id=1joT4j5rSuiPgihQmDI5RLKs7s3OIyAZj",
+            drive_url: null,
+            podcast_url: null,
             pdf_url: null,
         },
         {
@@ -136,8 +149,8 @@ const FALLBACK_SEEDS: Record<string, any[]> = {
             reading_time_minutes: 18,
             is_free_preview: false,
             subject: "FISDAS2",
-            drive_url: "https://drive.google.com/uc?export=download&id=1hA8yDh1OMG-Zmhe8P435BFWuTruIaTjF",
-            podcast_url: "https://drive.google.com/uc?export=download&id=1dw8EuYSaM8lsOUhWX-9ngoFyLQLeG11K",
+            drive_url: null,
+            podcast_url: null,
             pdf_url: null,
         },
         {
@@ -149,8 +162,8 @@ const FALLBACK_SEEDS: Record<string, any[]> = {
             reading_time_minutes: 20,
             is_free_preview: false,
             subject: "FISDAS2",
-            drive_url: "https://drive.google.com/uc?export=download&id=17d5CVzPSePU-MBnFtNljPHzDh5lhbE0T",
-            podcast_url: "https://drive.google.com/uc?export=download&id=1hj0oJCJBEA5TE-MZrQ5On6XPfmpNv0Rb",
+            drive_url: null,
+            podcast_url: null,
             pdf_url: null,
         }
     ],
@@ -177,8 +190,8 @@ const FALLBACK_SEEDS: Record<string, any[]> = {
             reading_time_minutes: 20,
             is_free_preview: false,
             subject: "FISMAT",
-            drive_url: "https://drive.google.com/uc?export=download&id=1IiC84g0ryUq13MrYnyHW0VvIJ9Zh5eCN",
-            podcast_url: "https://drive.google.com/uc?export=download&id=1MVtoBGhjiHn8kFzKM2utzOYoG3b0wOgo",
+            drive_url: null,
+            podcast_url: null,
             pdf_url: null,
         },
         {
@@ -190,8 +203,8 @@ const FALLBACK_SEEDS: Record<string, any[]> = {
             reading_time_minutes: 22,
             is_free_preview: false,
             subject: "FISMAT",
-            drive_url: "https://drive.google.com/uc?export=download&id=1bkj9HAmLtR6IqmfM1dHoPeSa89s_uMZQ",
-            podcast_url: "https://drive.google.com/uc?export=download&id=1Y7nlDQrwng2tqsh9afchZjy0JI7DaUSz",
+            drive_url: null,
+            podcast_url: null,
             pdf_url: null,
         }
     ]
@@ -312,13 +325,12 @@ function getSubjectDisplayName(code: string | undefined): string {
 
 export default function MaterialReaderPage() {
     const params = useParams()
-    const router = useRouter()
     const slug = params.slug as string
 
     const [material, setMaterial] = useState<MaterialDetail | null>(null)
     const [loading, setLoading] = useState(true)
     const [upgradeRequired, setUpgradeRequired] = useState(false)
-    const [lockedInfo, setLockedInfo] = useState<any>(null)
+    const [lockedInfo, setLockedInfo] = useState<{ title?: string; summary?: string } | null>(null)
     const [mobileTocOpen, setMobileTocOpen] = useState(false)
     const [searchQuery, setSearchQuery] = useState("")
 
@@ -349,7 +361,7 @@ export default function MaterialReaderPage() {
                 )
                 const fallbackItem = matchedIndex >= 0 ? seedList[matchedIndex] : null
 
-                if (fallbackItem) {
+                if (fallbackItem && fallbackItem.is_free_preview) {
                     const prevItem = matchedIndex > 0 ? seedList[matchedIndex - 1] : null
                     const nextItem =
                         matchedIndex < seedList.length - 1
@@ -409,8 +421,21 @@ export default function MaterialReaderPage() {
 
     const toc = useMemo(() => {
         if (!material?.content_md) return []
-        return extractToc(material.content_md)
-    }, [material?.content_md])
+        const raw = extractToc(material.content_md)
+        if (!searchQuery.trim()) return raw
+        const q = searchQuery.toLowerCase().trim()
+        return raw.filter((item) => item.text.toLowerCase().includes(q))
+    }, [material?.content_md, searchQuery])
+
+    const handleSearchJump = () => {
+        if (toc.length > 0) {
+            const firstMatch = document.getElementById(toc[0].id)
+            if (firstMatch) {
+                const y = firstMatch.getBoundingClientRect().top + window.scrollY - 96
+                window.scrollTo({ top: y, behavior: "smooth" })
+            }
+        }
+    }
 
     if (loading) {
         return (
@@ -546,11 +571,18 @@ export default function MaterialReaderPage() {
                             type="text"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            placeholder="Cari Modul atau Teorema..."
+                            onKeyDown={(e) => {
+                                if (e.key === "Enter") handleSearchJump()
+                            }}
+                            placeholder="Cari Seksi atau Teorema..."
                             className="px-3 py-1.5 bg-canvas-paper text-xs font-mono border border-[#171717] focus:outline-none focus:ring-1 focus:ring-[#171717] placeholder:text-ink-muted w-48 sm:w-60 rounded-none"
                         />
                     </div>
-                    <button className="px-3 py-1.5 bg-accent-canary border border-[#171717] text-xs font-mono font-bold hover:bg-yellow-400 rounded-none cursor-pointer">
+                    <button
+                        type="button"
+                        onClick={handleSearchJump}
+                        className="px-3 py-1.5 bg-accent-canary border border-[#171717] text-xs font-mono font-bold hover:bg-yellow-400 rounded-none cursor-pointer"
+                    >
                         FILTER
                     </button>
                 </div>
@@ -801,10 +833,26 @@ export default function MaterialReaderPage() {
                             </div>
                         </div>
 
-                        <button className="w-full py-2 bg-canvas-paper text-[#171717] border border-[#171717] font-mono text-xs font-bold hover:bg-accent-canary transition-colors flex items-center justify-center space-x-1.5 cursor-pointer">
-                            <Download className="size-3.5" />
-                            <span>UNDUH CHEATSHEET PDF (2.4 MB)</span>
-                        </button>
+                        {material.drive_url || material.pdf_url ? (
+                            <a
+                                href={material.drive_url || material.pdf_url || "#"}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="w-full py-2 bg-canvas-paper text-[#171717] border border-[#171717] font-mono text-xs font-bold hover:bg-accent-canary transition-colors flex items-center justify-center space-x-1.5 cursor-pointer"
+                            >
+                                <Download className="size-3.5" />
+                                <span>UNDUH CHEATSHEET PDF</span>
+                            </a>
+                        ) : (
+                            <button
+                                type="button"
+                                disabled
+                                className="w-full py-2 bg-canvas-paper text-ink-muted border border-[#D4D2C9] font-mono text-xs font-bold flex items-center justify-center space-x-1.5 cursor-not-allowed opacity-60"
+                            >
+                                <Download className="size-3.5" />
+                                <span>PDF BELUM TERSEDIA</span>
+                            </button>
+                        )}
                     </div>
 
                     {/* 3. Archival Metadata Box */}

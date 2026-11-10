@@ -4,22 +4,16 @@ import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
-import { 
-  BookOpen, 
-  ArrowRight, 
-  Activity, 
-  Award, 
-  TrendingUp, 
-  Calendar, 
-  PlayCircle, 
-  Lock, 
-  CheckCircle2, 
-  History, 
-  ExternalLink,
+import {
+  BookOpen,
+  ArrowRight,
+  Activity,
+  Award,
+  TrendingUp,
+  Calendar,
+  History,
   Cpu,
-  Layers,
-  Sparkles,
-  ShieldCheck
+  ShieldCheck,
 } from "lucide-react"
 
 export interface CourseItem {
@@ -54,16 +48,71 @@ export interface UserDashboardState {
   is_active: boolean
 }
 
+interface SubscriptionRow {
+  status: string
+  expires_at?: string | null
+  track?: string | null
+  plan_code?: string | null
+}
+
+interface DbUserProfile {
+  id?: string
+  name?: string | null
+  email?: string | null
+  is_active?: boolean | null
+  subscriptions?: SubscriptionRow[] | null
+}
+
+interface DashboardStatsResponse {
+  recentActivity: Array<{
+    id: string
+    tryoutId: string
+    title: string
+    type: "Latihan" | "Tryout"
+    score: number
+    correctCount: number
+    totalCount: number
+    createdAt: string
+  }>
+  tryoutStats: {
+    completed: number
+    avgScore: number
+    highestScore: number
+    maxQuota: number
+    latestScore: number | null
+    latestTitle: string | null
+  }
+  latihanStats: {
+    completed: number
+    avgScore: number
+    highestScore: number
+  }
+  materialsStats: {
+    completedCount: number
+    totalCount: number
+    nextMaterial: {
+      title: string
+      slug: string
+      moduleNumber: number
+    } | null
+  }
+  leaderboardStats: {
+    rank: number | null
+    totalParticipants: number
+  }
+}
+
 interface DashboardClientProps {
-  dbUser?: any
+  dbUser?: DbUserProfile | null
 }
 
 export default function DashboardClient({ dbUser }: DashboardClientProps) {
   const router = useRouter()
   const [user, setUser] = useState<UserDashboardState | null>(null)
+  const [stats, setStats] = useState<DashboardStatsResponse | null>(null)
   const [loading, setLoading] = useState(true)
 
-  // 1. Supabase Session & User Profile Fetching
+  // 1. Supabase Session, User Profile & Dashboard Stats Fetching
   useEffect(() => {
     const fetchUserData = async () => {
       try {
@@ -77,14 +126,14 @@ export default function DashboardClient({ dbUser }: DashboardClientProps) {
           return
         }
 
-        let profile = dbUser
+        let profile: DbUserProfile | null = dbUser || null
         if (!profile && authUser) {
           const { data } = await supabase
             .from("users")
             .select("id, name, email, is_active, subscriptions(*)")
             .eq("auth_id", authUser.id)
             .maybeSingle()
-          profile = data
+          profile = data as DbUserProfile | null
         }
 
         const name =
@@ -92,18 +141,22 @@ export default function DashboardClient({ dbUser }: DashboardClientProps) {
           authUser?.user_metadata?.full_name ||
           authUser?.user_metadata?.name ||
           authUser?.email?.split("@")[0] ||
-          "Rian Daniswara"
+          "Mahasiswa BBN"
 
         const subs = profile?.subscriptions || []
         const activeSub = subs.find(
-          (s: any) => s.status === "ACTIVE" && (!s.expires_at || new Date(s.expires_at) > new Date())
+          (s) => s.status === "ACTIVE" && (!s.expires_at || new Date(s.expires_at) > new Date())
         )
 
         const track: "PHYSICS_SEM_3" | "NON_PHYSICS" =
           activeSub?.track === "NON_PHYSICS" ? "NON_PHYSICS" : "PHYSICS_SEM_3"
 
         const planCode: "FREE" | "MONTHLY" | "SEMESTER" =
-          activeSub?.plan_code || "FREE"
+          activeSub?.plan_code === "SEMESTER"
+            ? "SEMESTER"
+            : activeSub?.plan_code === "MONTHLY"
+            ? "MONTHLY"
+            : "FREE"
 
         setUser({
           name,
@@ -112,10 +165,17 @@ export default function DashboardClient({ dbUser }: DashboardClientProps) {
           plan_code: planCode,
           is_active: profile?.is_active ?? true,
         })
+
+        // Fetch live telemetry & diagnostic metrics from API
+        const statsRes = await fetch("/api/dashboard/stats?subject=all")
+        if (statsRes.ok) {
+          const statsData = (await statsRes.json()) as DashboardStatsResponse
+          setStats(statsData)
+        }
       } catch (error) {
         console.error("Failed to load user profile:", error)
         setUser({
-          name: dbUser?.name || "Rian Daniswara",
+          name: dbUser?.name || "Mahasiswa BBN",
           track: "PHYSICS_SEM_3",
           plan_code: "FREE",
           is_active: true,
@@ -148,6 +208,17 @@ export default function DashboardClient({ dbUser }: DashboardClientProps) {
   }
 
   const isPaidUser = user?.plan_code === "MONTHLY" || user?.plan_code === "SEMESTER"
+
+  const completedMaterials = stats?.materialsStats.completedCount ?? 0
+  const totalMaterials = stats?.materialsStats.totalCount || 18
+  const materialsPercent = totalMaterials > 0 ? Math.min(100, Math.round((completedMaterials / totalMaterials) * 100)) : 0
+
+  const practiceAccuracy = stats?.latihanStats.avgScore ?? 0
+  const leaderboardRank = stats?.leaderboardStats.rank
+  const totalParticipants = stats?.leaderboardStats.totalParticipants ?? 0
+  const latestTryoutScore = stats?.tryoutStats.latestScore
+  const nextMaterial = stats?.materialsStats.nextMaterial
+  const recentActivity = stats?.recentActivity || []
 
   // Loading State Skeleton
   if (loading) {
@@ -183,10 +254,10 @@ export default function DashboardClient({ dbUser }: DashboardClientProps) {
           <div className="space-y-2">
             <div className="flex flex-wrap items-center gap-2">
               <span className="bg-alert-rust text-white font-mono text-[10px] sm:text-xs px-2 py-0.5 font-bold uppercase tracking-wider">
-                TARGET HARIAN // BLOK_04
+                TARGET HARIAN // {user?.track === "NON_PHYSICS" ? "TPB_UMUM" : "FISIKA_SEM_3"}
               </span>
               <span className="font-mono text-xs text-ink-muted">
-                EXPIRATION: 23:59 WIB
+                SYNC: REALTIME
               </span>
               <span className="font-mono text-xs text-ink-muted hidden sm:inline">
                 |
@@ -196,31 +267,37 @@ export default function DashboardClient({ dbUser }: DashboardClientProps) {
               </span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-extrabold text-[#171717] tracking-tight">
-              Halo, {user?.name || "Rian Daniswara"}
+              Halo, {user?.name || "Mahasiswa BBN"}
             </h1>
             <p className="text-sm text-ink-muted max-w-2xl leading-relaxed">
-              Target hari ini: 3 modul evaluasi selesai sebelum tengah malam. Progres modul mingguan Anda saat ini berada pada <strong className="text-[#171717]">66.7%</strong> kapasitas nominal.
+              Progres kurikulum Anda saat ini berada pada <strong className="text-[#171717]">{materialsPercent}%</strong> ({completedMaterials} dari {totalMaterials} modul tersedia) dengan total <strong className="text-[#171717]">{(stats?.tryoutStats.completed ?? 0) + (stats?.latihanStats.completed ?? 0)} evaluasi</strong> tercatat.
             </p>
           </div>
 
           {/* CTA Quick Action & Progress Strip */}
           <div className="shrink-0 flex flex-col space-y-2.5 min-w-[320px]">
             <Link
-              href="/dashboard/materi/hukum-coulomb-medan-listrik"
+              href={nextMaterial ? `/dashboard/materi/${nextMaterial.slug}` : "/dashboard/materi"}
               className="px-4 py-3 bg-accent-canary text-[#171717] border border-[#171717] font-mono text-xs sm:text-sm font-bold flex items-center justify-center space-x-2 hover:-translate-x-0.5 hover:-translate-y-0.5 technical-shadow transition-transform"
             >
-              <span>Lanjutkan: Dinamika Rotasi (Modul 04)</span>
+              <span className="truncate max-w-[260px]">
+                {nextMaterial
+                  ? `Lanjutkan: ${nextMaterial.title} (Modul ${String(nextMaterial.moduleNumber).padStart(2, "0")})`
+                  : "Buka Katalog Materi Kuliah"}
+              </span>
               <ArrowRight className="size-4 shrink-0" />
             </Link>
             <div className="space-y-1">
               <div className="flex justify-between font-mono text-[10px] text-ink-muted font-bold">
-                <span>PROGRES HARIAN</span>
-                <span className="text-alert-rust">2 / 3 SELESAI (66.7%)</span>
+                <span>PROGRES KURIKULUM</span>
+                <span className="text-alert-rust">
+                  {completedMaterials} / {totalMaterials} MODUL ({materialsPercent}%)
+                </span>
               </div>
               <div className="w-full bg-canvas-paper h-2 border border-[#171717] p-0.5">
-                <div 
-                  className="bg-alert-rust h-full transition-all duration-300" 
-                  style={{ width: "66.7%" }} 
+                <div
+                  className="bg-alert-rust h-full transition-all duration-300"
+                  style={{ width: `${materialsPercent}%` }}
                 />
               </div>
             </div>
@@ -242,17 +319,20 @@ export default function DashboardClient({ dbUser }: DashboardClientProps) {
           </div>
           <div className="my-2">
             <div className="font-mono text-xs text-ink-muted font-bold uppercase mb-1">
-              Materi Selesai
+              Akses & Progres Modul
             </div>
             <div className="text-3xl sm:text-4xl font-extrabold text-[#171717] tracking-tight">
-              18 <span className="text-xl sm:text-2xl font-normal text-ink-muted">/ 24</span>
+              {completedMaterials}{" "}
+              <span className="text-xl sm:text-2xl font-normal text-ink-muted">
+                / {totalMaterials}
+              </span>
             </div>
             <div className="font-mono text-[11px] text-ink-muted mt-1">
-              75% kurikulum tuntas
+              {materialsPercent}% kurikulum terbuka/tuntas
             </div>
           </div>
           <div className="w-full bg-canvas-paper h-1.5 border border-[#171717] mt-2">
-            <div className="bg-[#171717] h-full" style={{ width: "75%" }} />
+            <div className="bg-[#171717] h-full" style={{ width: `${materialsPercent}%` }} />
           </div>
         </div>
 
@@ -269,14 +349,14 @@ export default function DashboardClient({ dbUser }: DashboardClientProps) {
               Akurasi Latihan
             </div>
             <div className="text-3xl sm:text-4xl font-extrabold text-[#171717] tracking-tight">
-              84.5%
+              {practiceAccuracy}%
             </div>
             <div className="font-mono text-[11px] text-green-700 font-bold mt-1">
-              +2.4% dari bulan lalu
+              {stats?.latihanStats.completed ?? 0} sesi latihan diselesaikan
             </div>
           </div>
           <div className="w-full bg-canvas-paper h-1.5 border border-[#171717] mt-2">
-            <div className="bg-green-700 h-full" style={{ width: "84.5%" }} />
+            <div className="bg-green-700 h-full" style={{ width: `${Math.min(100, practiceAccuracy)}%` }} />
           </div>
         </div>
 
@@ -293,14 +373,27 @@ export default function DashboardClient({ dbUser }: DashboardClientProps) {
               Peringkat Kelas
             </div>
             <div className="text-3xl sm:text-4xl font-extrabold text-alert-rust tracking-tight">
-              #04 <span className="text-xl sm:text-2xl font-normal text-ink-muted">/ 148</span>
+              {leaderboardRank ? `#${String(leaderboardRank).padStart(2, "0")}` : "—"}{" "}
+              <span className="text-xl sm:text-2xl font-normal text-ink-muted">
+                / {totalParticipants || 1}
+              </span>
             </div>
             <div className="font-mono text-[11px] text-ink-muted mt-1">
-              Top 3% Divisi Gold
+              {leaderboardRank
+                ? `Skor Tertinggi: ${stats?.tryoutStats.highestScore ?? 0} PTS`
+                : "Selesaikan tryout untuk peringkat"}
             </div>
           </div>
           <div className="w-full bg-canvas-paper h-1.5 border border-[#171717] mt-2">
-            <div className="bg-accent-canary h-full" style={{ width: "96%" }} />
+            <div
+              className="bg-accent-canary h-full"
+              style={{
+                width:
+                  leaderboardRank && totalParticipants > 0
+                    ? `${Math.max(10, Math.round(((totalParticipants - leaderboardRank + 1) / totalParticipants) * 100))}%`
+                    : "0%",
+              }}
+            />
           </div>
         </div>
 
@@ -317,14 +410,20 @@ export default function DashboardClient({ dbUser }: DashboardClientProps) {
               Tryout Terakhir
             </div>
             <div className="text-3xl sm:text-4xl font-extrabold text-[#171717] tracking-tight">
-              780 <span className="text-sm font-normal text-ink-muted font-mono">/ 1000</span>
+              {latestTryoutScore !== null && latestTryoutScore !== undefined ? latestTryoutScore : "—"}{" "}
+              <span className="text-sm font-normal text-ink-muted font-mono">/ 100</span>
             </div>
-            <div className="font-mono text-[11px] text-[#171717] font-bold mt-1">
-              Prediksi PTN: 94% Lolos Tinggi
+            <div className="font-mono text-[11px] text-[#171717] font-bold mt-1 truncate">
+              {stats?.tryoutStats.latestTitle
+                ? stats.tryoutStats.latestTitle
+                : `Rata-rata Tryout: ${stats?.tryoutStats.avgScore ?? 0}/100`}
             </div>
           </div>
           <div className="w-full bg-canvas-paper h-1.5 border border-[#171717] mt-2">
-            <div className="bg-alert-rust h-full" style={{ width: "78%" }} />
+            <div
+              className="bg-alert-rust h-full"
+              style={{ width: `${Math.min(100, latestTryoutScore ?? 0)}%` }}
+            />
           </div>
         </div>
       </section>
@@ -333,12 +432,10 @@ export default function DashboardClient({ dbUser }: DashboardClientProps) {
       {/* 3. BENTO GRID (7-Col / 5-Col Split)                      */}
       {/* ======================================================== */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        
         {/* ======================================================== */}
         {/* LEFT COLUMN (7 COLS): Agenda Box & Roadmap               */}
         {/* ======================================================== */}
         <div className="lg:col-span-7 space-y-6">
-          
           {/* 1. Agenda Box: Jadwal & Evaluasi Mendatang */}
           <div className="bg-surface-white border border-[#171717] p-5 technical-shadow space-y-4">
             <div className="flex justify-between items-center pb-3 border-b border-[#171717]">
@@ -358,14 +455,14 @@ export default function DashboardClient({ dbUser }: DashboardClientProps) {
               <div className="p-3.5 border border-[#171717] bg-canvas-paper flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div className="flex items-start space-x-3">
                   <span className="px-2 py-0.5 bg-alert-rust text-white font-mono text-[10px] font-bold mt-0.5 shrink-0">
-                    DEADLINE
+                    EVALUASI
                   </span>
                   <div>
                     <h3 className="font-mono text-xs sm:text-sm font-bold text-[#171717]">
-                      Kuis Modul 05: Teorema Sumbu Sejajar & Perpendikular
+                      Simulasi Tryout UTS & UAS Terpadu
                     </h3>
                     <p className="text-xs text-ink-muted mt-0.5">
-                      Batas waktu pengerjaan: Hari ini, 23:59 WIB — 15 Butir Analitis
+                      Uji kesiapan akademik dengan timer real-time dan pembahasan langkah demi langkah.
                     </p>
                   </div>
                 </div>
@@ -377,38 +474,41 @@ export default function DashboardClient({ dbUser }: DashboardClientProps) {
                 </Link>
               </div>
 
-              {/* Task 2: LIVE LAB */}
+              {/* Task 2: LATIHAN */}
               <div className="p-3.5 border border-[#D4D2C9] bg-surface-white flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div className="flex items-start space-x-3">
                   <span className="px-2 py-0.5 bg-canvas-paper border border-[#D4D2C9] font-mono text-[10px] font-bold text-[#171717] mt-0.5 shrink-0">
-                    LIVE LAB
+                    DRILL SOAL
                   </span>
                   <div>
                     <h3 className="font-mono text-xs sm:text-sm font-bold text-[#171717]">
-                      Bedah Soal Live: Dinamika Lagrange & Osilasi Terkopel
+                      Latihan Mandiri Tanpa Batas Waktu
                     </h3>
                     <p className="text-xs text-ink-muted mt-0.5">
-                      Besok, 16:00 WIB via Tele-Portal // Instruktur: Tim Akademik BBN
+                      Asah ketajaman analisis per bab bersama fitur cek jawaban instan.
                     </p>
                   </div>
                 </div>
-                <span className="font-mono text-[11px] font-bold text-ink-muted bg-canvas-paper px-2 py-1 border border-[#D4D2C9] self-start sm:self-center shrink-0">
-                  TERDAFTAR
-                </span>
+                <Link
+                  href="/dashboard/latihan"
+                  className="px-3 py-1 bg-surface-white hover:bg-canvas-paper text-[#171717] border border-[#171717] font-mono text-xs font-bold text-center self-start sm:self-center shrink-0"
+                >
+                  LATIHAN
+                </Link>
               </div>
 
-              {/* Task 3: SIMULASI */}
+              {/* Task 3: SILABUS */}
               <div className="p-3.5 border border-[#D4D2C9] bg-surface-white flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div className="flex items-start space-x-3">
                   <span className="px-2 py-0.5 bg-canvas-paper border border-[#D4D2C9] font-mono text-[10px] font-bold text-[#171717] mt-0.5 shrink-0">
-                    SIMULASI
+                    MODUL
                   </span>
                   <div>
                     <h3 className="font-mono text-xs sm:text-sm font-bold text-[#171717]">
-                      Eksperimen Digital: Bandul Foucault & Efek Coriolis
+                      Eksplorasi Diktat & Penurunan Rumus LaTeX
                     </h3>
                     <p className="text-xs text-ink-muted mt-0.5">
-                      Modul Interaktif 2D Laboratorium Komputasi Sains
+                      Dilengkapi modul ringkasan, PDF cheatsheet, dan audio diskusi.
                     </p>
                   </div>
                 </div>
@@ -430,7 +530,7 @@ export default function DashboardClient({ dbUser }: DashboardClientProps) {
                   BBN_EDU // SYLLABUS_ROADMAP
                 </span>
                 <h2 className="font-bold text-lg text-[#171717] tracking-tight mt-0.5">
-                  Roadmap Kurikulum Fisika Lanjutan
+                  Roadmap Kurikulum {user?.track === "NON_PHYSICS" ? "Sains Dasar TPB" : "Fisika Lanjutan"}
                 </h2>
               </div>
               <span className="font-mono text-xs font-bold bg-accent-canary px-2.5 py-0.5 border border-[#171717] self-start sm:self-auto">
@@ -440,74 +540,70 @@ export default function DashboardClient({ dbUser }: DashboardClientProps) {
 
             {/* 4-Column Internal Grid for Phase 01 to 04 */}
             <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 text-center">
-              {/* Phase 01: Complete */}
               <div className="border border-[#171717] p-3 bg-canvas-paper flex flex-col justify-between">
                 <div>
                   <span className="font-mono text-xs font-bold text-green-700 block mb-1">
                     FASE 01 ✓
                   </span>
                   <div className="font-mono text-xs font-bold text-[#171717]">
-                    Kinematika & Vektor
+                    Fondasi Konsep & Vektor
                   </div>
                 </div>
                 <div className="font-mono text-[10px] text-ink-muted mt-3 pt-2 border-t border-[#D4D2C9]">
-                  4 Modul • 100%
+                  Modul 01 • Terbuka
                 </div>
               </div>
 
-              {/* Phase 02: Complete */}
-              <div className="border border-[#171717] p-3 bg-canvas-paper flex flex-col justify-between">
-                <div>
-                  <span className="font-mono text-xs font-bold text-green-700 block mb-1">
-                    FASE 02 ✓
-                  </span>
-                  <div className="font-mono text-xs font-bold text-[#171717]">
-                    Hukum Newton & Usaha
-                  </div>
-                </div>
-                <div className="font-mono text-[10px] text-ink-muted mt-3 pt-2 border-t border-[#D4D2C9]">
-                  6 Modul • 100%
-                </div>
-              </div>
-
-              {/* Phase 03: Active Inverted Canary Yellow */}
               <div className="border-2 border-[#171717] p-3 bg-accent-canary shadow-[2px_2px_0px_#171717] flex flex-col justify-between">
                 <div>
                   <span className="font-mono text-xs font-bold text-alert-rust block mb-1">
-                    FASE 03 (AKTIF)
+                    FASE 02 (AKTIF)
                   </span>
                   <div className="font-mono text-xs font-black text-[#171717]">
-                    Dinamika Rotasi
+                    Analisis & Penurunan
                   </div>
                 </div>
                 <div className="font-mono text-[10px] text-[#171717] font-bold mt-3 pt-2 border-t border-[#171717]">
-                  6 Modul • 68%
+                  {completedMaterials}/{totalMaterials} Modul
                 </div>
               </div>
 
-              {/* Phase 04: Locked */}
-              <div className="border border-[#D4D2C9] p-3 bg-surface-white opacity-60 flex flex-col justify-between">
+              <div className="border border-[#171717] p-3 bg-canvas-paper flex flex-col justify-between">
                 <div>
-                  <span className="font-mono text-xs font-bold text-ink-muted block mb-1">
-                    FASE 04 🔒
+                  <span className="font-mono text-xs font-bold text-[#171717] block mb-1">
+                    FASE 03
                   </span>
-                  <div className="font-mono text-xs font-bold text-ink-muted">
-                    Termodinamika & Gas
+                  <div className="font-mono text-xs font-bold text-[#171717]">
+                    Drill Latihan Soal
                   </div>
                 </div>
                 <div className="font-mono text-[10px] text-ink-muted mt-3 pt-2 border-t border-[#D4D2C9]">
-                  8 Modul • Terkunci
+                  {stats?.latihanStats.completed ?? 0} Sesi Selesai
+                </div>
+              </div>
+
+              <div className="border border-[#171717] p-3 bg-surface-white flex flex-col justify-between">
+                <div>
+                  <span className="font-mono text-xs font-bold text-ink-muted block mb-1">
+                    FASE 04 {isPaidUser ? "✓" : "🔒"}
+                  </span>
+                  <div className="font-mono text-xs font-bold text-[#171717]">
+                    Simulasi Ujian Akhir
+                  </div>
+                </div>
+                <div className="font-mono text-[10px] text-ink-muted mt-3 pt-2 border-t border-[#D4D2C9]">
+                  {stats?.tryoutStats.completed ?? 0} Tryout Диkerjakan
                 </div>
               </div>
             </div>
 
             <div className="pt-3 border-t border-[#D4D2C9] flex flex-wrap items-center justify-between text-ink-muted font-mono text-xs gap-2">
               <div className="flex items-center gap-3">
-                <span>TOTAL: 24 MODUL</span>
+                <span>TOTAL: {totalMaterials} MODUL</span>
                 <span>•</span>
-                <span>SELESAI: 18</span>
+                <span>TERBUKA: {completedMaterials}</span>
                 <span>•</span>
-                <span>EVALUASI: 12/16</span>
+                <span>EVALUASI: {(stats?.tryoutStats.completed ?? 0) + (stats?.latihanStats.completed ?? 0)}</span>
               </div>
               <Link
                 href="/dashboard/materi"
@@ -564,14 +660,12 @@ export default function DashboardClient({ dbUser }: DashboardClientProps) {
               ))}
             </div>
           </div>
-
         </div>
 
         {/* ======================================================== */}
         {/* RIGHT COLUMN (5 COLS): Daily Challenge & Telemetry       */}
         {/* ======================================================== */}
         <div className="lg:col-span-5 space-y-6">
-          
           {/* 1. Daily Challenge: Tantangan Harian (+50 XP) */}
           <div className="bg-surface-white border border-[#171717] p-5 technical-shadow relative space-y-3">
             <div className="flex justify-between items-start">
@@ -621,42 +715,32 @@ export default function DashboardClient({ dbUser }: DashboardClientProps) {
             </div>
 
             <div className="space-y-2.5 font-mono text-xs">
-              <div className="flex justify-between items-center py-1.5 border-b border-canvas-paper">
-                <span className="text-ink-muted">14:22 WIB</span>
-                <span className="text-[#171717] font-medium text-left flex-1 px-2.5 truncate">
-                  Selesai: Kuis Rotasi #02
-                </span>
-                <span className="text-green-700 font-bold shrink-0">
-                  +40 XP
-                </span>
-              </div>
-              <div className="flex justify-between items-center py-1.5 border-b border-canvas-paper">
-                <span className="text-ink-muted">11:05 WIB</span>
-                <span className="text-[#171717] font-medium text-left flex-1 px-2.5 truncate">
-                  Unduh: Diktat Momen Inersia
-                </span>
-                <span className="text-ink-muted font-bold shrink-0">
-                  PDF
-                </span>
-              </div>
-              <div className="flex justify-between items-center py-1.5 border-b border-canvas-paper">
-                <span className="text-ink-muted">Kemarin</span>
-                <span className="text-[#171717] font-medium text-left flex-1 px-2.5 truncate">
-                  Simulasi Lab: Osilasi Pegas
-                </span>
-                <span className="text-green-700 font-bold shrink-0">
-                  +25 XP
-                </span>
-              </div>
-              <div className="flex justify-between items-center py-1.5">
-                <span className="text-ink-muted">2 Hari lalu</span>
-                <span className="text-[#171717] font-medium text-left flex-1 px-2.5 truncate">
-                  Tryout #02 Selesai
-                </span>
-                <span className="text-alert-rust font-bold shrink-0">
-                  780 PTS
-                </span>
-              </div>
+              {recentActivity.length > 0 ? (
+                recentActivity.map((item) => {
+                  const dateLabel = new Date(item.createdAt).toLocaleDateString("id-ID", {
+                    day: "2-digit",
+                    month: "short",
+                  })
+                  return (
+                    <div
+                      key={item.id}
+                      className="flex justify-between items-center py-1.5 border-b border-canvas-paper last:border-b-0"
+                    >
+                      <span className="text-ink-muted shrink-0">{dateLabel}</span>
+                      <span className="text-[#171717] font-medium text-left flex-1 px-2.5 truncate">
+                        {item.type}: {item.title}
+                      </span>
+                      <span className="text-alert-rust font-bold shrink-0">
+                        {item.score} PTS
+                      </span>
+                    </div>
+                  )
+                })
+              ) : (
+                <div className="py-4 text-center text-ink-muted font-mono text-xs border border-dashed border-[#D4D2C9] bg-canvas-paper">
+                  Belum ada riwayat evaluasi tercatat. Mulai sesi latihan atau tryout pertama Anda.
+                </div>
+              )}
             </div>
 
             <div className="pt-2 border-t border-[#D4D2C9] text-center">
@@ -707,9 +791,7 @@ export default function DashboardClient({ dbUser }: DashboardClientProps) {
               </Link>
             )}
           </div>
-
         </div>
-
       </div>
     </div>
   )
