@@ -19,7 +19,7 @@ describe("Admin Authorization Guard (requireAdmin & getAdminSession)", () => {
             auth: {
                 getUser: vi.fn().mockResolvedValue({ data: { user: null } }),
             },
-        } as any)
+        } as unknown as Awaited<ReturnType<typeof createClient>>)
 
         const result = await getAdminSession()
         expect(result.ok).toBe(false)
@@ -42,7 +42,7 @@ describe("Admin Authorization Guard (requireAdmin & getAdminSession)", () => {
                     data: { user: { id: "auth-student-1", email: "student@bbn.id" } },
                 }),
             },
-        } as any)
+        } as unknown as Awaited<ReturnType<typeof createClient>>)
 
         vi.mocked(createServiceClient).mockReturnValue({
             from: vi.fn().mockReturnValue({
@@ -61,7 +61,7 @@ describe("Admin Authorization Guard (requireAdmin & getAdminSession)", () => {
                     }),
                 }),
             }),
-        } as any)
+        } as unknown as ReturnType<typeof createServiceClient>)
 
         const result = await getAdminSession()
         expect(result.ok).toBe(false)
@@ -91,7 +91,7 @@ describe("Admin Authorization Guard (requireAdmin & getAdminSession)", () => {
             auth: {
                 getUser: vi.fn().mockResolvedValue({ data: { user: mockUser } }),
             },
-        } as any)
+        } as unknown as Awaited<ReturnType<typeof createClient>>)
 
         vi.mocked(createServiceClient).mockReturnValue({
             from: vi.fn().mockReturnValue({
@@ -104,7 +104,7 @@ describe("Admin Authorization Guard (requireAdmin & getAdminSession)", () => {
                     }),
                 }),
             }),
-        } as any)
+        } as unknown as ReturnType<typeof createServiceClient>)
 
         const result = await getAdminSession()
         expect(result.ok).toBe(true)
