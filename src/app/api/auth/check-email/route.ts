@@ -19,14 +19,12 @@ export async function POST(request: NextRequest) {
     const supabase = createServiceClient()
     const { data: user } = await supabase
       .from("users")
-      .select("id, is_active, name")
+      .select("id")
       .ilike("email", email)
       .maybeSingle()
 
     return NextResponse.json({
       exists: !!user,
-      isActive: user?.is_active ?? false,
-      name: user?.name || null,
     })
   } catch (error) {
     console.error("Check email error:", error)

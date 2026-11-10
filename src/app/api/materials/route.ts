@@ -74,11 +74,14 @@ export async function GET(request: NextRequest) {
         }
 
         // Annotate whether user has access to each material using authoritative helper
+        // Strip drive_url & podcast_url when locked to prevent paywall bypass
         const annotated = (materials || []).map((m) => {
             const canAccess = entitlements.canAccessMaterial(m)
 
             return {
                 ...m,
+                drive_url: canAccess ? m.drive_url : null,
+                podcast_url: canAccess ? m.podcast_url : null,
                 can_access: canAccess,
                 is_locked: !canAccess,
             }
