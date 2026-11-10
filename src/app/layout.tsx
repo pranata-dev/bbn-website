@@ -1,7 +1,6 @@
 import type { Metadata } from "next"
 import { Geist, JetBrains_Mono } from "next/font/google"
 import { Toaster } from "@/components/ui/sonner"
-import { ThemeProvider } from "@/contexts/ThemeContext"
 import "./globals.css"
 
 const geist = Geist({
@@ -37,9 +36,7 @@ export default function RootLayout({
   return (
     <html lang="id" className={`scroll-smooth ${geist.variable} ${jetbrainsMono.variable}`}>
       <body className={`${geist.variable} ${jetbrainsMono.variable} font-sans antialiased bg-background text-foreground selection:bg-accent selection:text-foreground`}>
-        <ThemeProvider>
-          {children}
-        </ThemeProvider>
+        {children}
         <Toaster position="top-right" richColors />
       </body>
     </html>
