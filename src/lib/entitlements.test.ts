@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest"
 import {
+    canBetaAccessCourse,
     resolveEntitlements,
     trackAllows,
     countFinishedAttempts,
@@ -210,6 +211,71 @@ describe("Entitlements & RBAC Authorization Rules", () => {
             ]
 
             expect(countFinishedAttempts(submissions)).toBe(3)
+        })
+    })
+
+    describe("Excellent Beta Entitlements & Grade Gating", () => {
+        it("grants full free access (PAID tier, practice unlocked) without subscriptions", () => {
+            const entitlements = resolveEntitlements({
+                role: "STUDENT",
+                subscriptions: [],
+                courseTracks,
+                isExcellentBeta: true,
+                excellentGrade: "XI",
+            })
+
+            expect(entitlements.tier).toBe("PAID")
+            expect(entitlements.isFreeTier).toBe(false)
+            expect(entitlements.isExcellentBeta).toBe(true)
+            expect(entitlements.excellentGrade).toBe("XI")
+            expect(entitlements.canAccessPractice).toBe(true)
+            expect(entitlements.canAccessMaterial({ course_id: "course-xi", is_free_preview: false })).toBe(true)
+            expect(entitlements.canStartTryout({ course_id: "course-xi", is_free_sample: false })).toBe(true)
+            expect(entitlements.tryoutAttemptLimit({ course_id: "course-xi", is_practice: false })).toBe(Infinity)
+        })
+
+        it("strictly scopes material and tryout access to the student's grade course when excellentCourseId is provided", () => {
+            const entitlements = resolveEntitlements({
+                role: "STUDENT",
+                subscriptions: [],
+                courseTracks,
+                isExcellentBeta: true,
+                excellentGrade: "X",
+                excellentCourseId: "course-fisika-x",
+            })
+
+            // Same grade allowed
+            expect(entitlements.canAccessMaterial({ course_id: "course-fisika-x", is_free_preview: false })).toBe(true)
+            expect(entitlements.canStartTryout({ course_id: "course-fisika-x", is_free_sample: false })).toBe(true)
+            expect(entitlements.tryoutAttemptLimit({ course_id: "course-fisika-x" })).toBe(Infinity)
+
+            // Different grade or university course denied even if marked free preview/sample
+            expect(entitlements.canAccessMaterial({ course_id: "course-fisika-xi", is_free_preview: true })).toBe(false)
+            expect(entitlements.canStartTryout({ course_id: "course-physics-1", is_free_sample: true })).toBe(false)
+            expect(entitlements.tryoutAttemptLimit({ course_id: "course-fisika-xii" })).toBe(0)
+        })
+
+        it("fails closed when the grade course has not been seeded yet (excellentCourseId: null)", () => {
+            const entitlements = resolveEntitlements({
+                role: "STUDENT",
+                subscriptions: [],
+                courseTracks,
+                isExcellentBeta: true,
+                excellentGrade: "XII",
+                excellentCourseId: null,
+            })
+
+            expect(entitlements.canAccessMaterial({ course_id: "course-physics-1", is_free_preview: true })).toBe(false)
+            expect(entitlements.canStartTryout({ course_id: "course-physics-1", is_free_sample: true })).toBe(false)
+            expect(entitlements.tryoutAttemptLimit({ course_id: "course-physics-1" })).toBe(0)
+        })
+
+        it("enforces grade isolation in canBetaAccessCourse helper", () => {
+            expect(canBetaAccessCourse(null, null, "course-physics-1")).toBe(true)
+            expect(canBetaAccessCourse("X", "course-x", "course-x")).toBe(true)
+            expect(canBetaAccessCourse("X", "course-x", "course-xi")).toBe(false)
+            expect(canBetaAccessCourse("X", null, "course-x")).toBe(false)
+            expect(canBetaAccessCourse("X", "course-x", null)).toBe(false)
         })
     })
 })
