@@ -49,6 +49,26 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"beta_feedback": {
+                  Row: {
+                    "category": string,"created_at": string,"grade": string | null,"id": string,"message": string,"page_path": string | null,"rating": number,"student_name": string | null,"user_id": string | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "category": string,"created_at"?: string,"grade"?: string | null,"id"?: string,"message": string,"page_path"?: string | null,"rating": number,"student_name"?: string | null,"user_id"?: string | null
+                  }
+                  Update: {
+                    "category"?: string,"created_at"?: string,"grade"?: string | null,"id"?: string,"message"?: string,"page_path"?: string | null,"rating"?: number,"student_name"?: string | null,"user_id"?: string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "beta_feedback_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "users"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"courses": {
                   Row: {
                     "code": string,"created_at": string,"id": string,"is_active": boolean,"slug": string,"sort_order": number,"title": string,"track": string

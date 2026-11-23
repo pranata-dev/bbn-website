@@ -10,6 +10,9 @@ export type Subject =
     | "ELEKTROSTATIKA"
     | "TERMODINAMIKA"
     | "KOMPUTASI"
+    | "FISIKA_X"
+    | "FISIKA_XI"
+    | "FISIKA_XII"
 
 export const ADMIN_COURSES: { code: Subject; label: string; track: "PHYSICS_SEM_3" | "NON_PHYSICS" }[] = [
     { code: "FISDAS2", label: "Fisika Dasar 2", track: "NON_PHYSICS" },
@@ -22,6 +25,9 @@ export const ADMIN_COURSES: { code: Subject; label: string; track: "PHYSICS_SEM_
     { code: "ELEKTROSTATIKA", label: "Elektromagnetika / Elektrostatika", track: "PHYSICS_SEM_3" },
     { code: "TERMODINAMIKA", label: "Termodinamika", track: "PHYSICS_SEM_3" },
     { code: "KOMPUTASI", label: "Fisika Komputasi", track: "PHYSICS_SEM_3" },
+    { code: "FISIKA_X", label: "Fisika Kelas X", track: "NON_PHYSICS" },
+    { code: "FISIKA_XI", label: "Fisika Kelas XI", track: "NON_PHYSICS" },
+    { code: "FISIKA_XII", label: "Fisika Kelas XII", track: "NON_PHYSICS" },
 ]
 
 export const COURSE_LABELS: Record<string, string> = Object.fromEntries(

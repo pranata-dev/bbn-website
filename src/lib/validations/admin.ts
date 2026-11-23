@@ -24,6 +24,24 @@ const transformLatex = (val: string): string => {
     return fixed
 }
 
+export const SUBJECT_VALUES = [
+    "FISDAS1",
+    "FISDAS2",
+    "STATISTIKA",
+    "MATEMATIKA1",
+    "MEKANIKA",
+    "FISMAT",
+    "GELOMBANG",
+    "ELEKTROSTATIKA",
+    "TERMODINAMIKA",
+    "KOMPUTASI",
+    "FISIKA_X",
+    "FISIKA_XI",
+    "FISIKA_XII",
+] as const
+
+export const subjectEnum = z.enum(SUBJECT_VALUES)
+
 // Reusable custom Zod type that enforces non-empty strings and applies LaTeX fixes
 export const latexStringSchema = z
     .string()
@@ -36,6 +54,7 @@ export const questionSchema = z.preprocess((val: unknown) => {
     const record = val as Record<string, unknown>
     return {
         ...record,
+        subject: typeof record.subject === "string" ? record.subject.trim().toUpperCase() : record.subject,
         option_a: record.option_a ?? record.optionA,
         option_b: record.option_b ?? record.optionB,
         option_c: record.option_c ?? record.optionC,
@@ -47,7 +66,7 @@ export const questionSchema = z.preprocess((val: unknown) => {
 }, z.object({
     text: latexStringSchema,
     category: z.string().min(1, "Category is required"),
-    subject: z.string().default("FISDAS2"),
+    subject: subjectEnum.default("FISDAS2"),
     course_id: z.string().optional().nullable(),
     type: z.enum(["MULTIPLE_CHOICE", "ESSAY"] as const).default("MULTIPLE_CHOICE"),
     option_a: latexStringSchema,
