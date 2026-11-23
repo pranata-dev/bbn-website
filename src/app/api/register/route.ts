@@ -217,6 +217,12 @@ export async function POST(request: NextRequest) {
       pricingTier = pricing.tier
     } else if (type === "UTS") {
       const unifiedPlan = getPlanByCode(planCode)
+      if (!unifiedPlan) {
+        return NextResponse.json(
+          { error: "Kode paket pendaftaran tidak valid." },
+          { status: 400 }
+        )
+      }
       const rawPrice = formData.get("price") as string
       calculatedPrice = rawPrice ? parseInt(rawPrice, 10) || unifiedPlan.price : unifiedPlan.price
       pricingTier = planCode
