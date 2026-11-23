@@ -9,6 +9,7 @@ import { SubjectProvider, useSubject } from "@/contexts/SubjectContext"
 import {
     getExcellentBetaGrade,
     getExcellentCourseByGrade,
+    normalizeExcellentName,
     type ExcellentGrade,
 } from "@/config/excellent"
 
@@ -98,9 +99,9 @@ function ExcellentLoginCard() {
         e.preventDefault()
         setErrorMessage(null)
 
-        const trimmedName = name.trim()
-        if (trimmedName.length < 2 || trimmedName.length > 60) {
-            setErrorMessage("Nama lengkap harus terdiri dari 2 sampai 60 karakter.")
+        const { displayName: trimmedName } = normalizeExcellentName(name)
+        if (trimmedName.length < 2 || trimmedName.length > 80) {
+            setErrorMessage("Nama lengkap harus terdiri dari 2 sampai 80 karakter.")
             return
         }
 
@@ -250,7 +251,7 @@ function ExcellentLoginCard() {
                         type="text"
                         autoComplete="name"
                         minLength={2}
-                        maxLength={60}
+                        maxLength={80}
                         placeholder="Contoh: Budi Santoso"
                         value={name}
                         onChange={(e) => {

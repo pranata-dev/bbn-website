@@ -1,23 +1,46 @@
-import { randomBytes, randomUUID, timingSafeEqual } from "node:crypto"
+import { timingSafeEqual } from "node:crypto"
 import { NextRequest, NextResponse } from "next/server"
 import { z } from "zod"
 import { createClient, createServiceClient } from "@/lib/supabase/server"
 import { checkRateLimit } from "@/lib/rate-limit"
-import { getExcellentCourseByGrade, type ExcellentGrade } from "@/config/excellent"
+import {
+    getExcellentCourseByGrade,
+    normalizeExcellentName,
+    type ExcellentGrade,
+} from "@/config/excellent"
+import {
+    resolveOrCreateExcellentUser,
+    type ExcellentAuthStore,
+} from "@/lib/excellent-auth"
 
 export const dynamic = "force-dynamic"
 
-const excellentLoginSchema = z.object({
-    name: z
-        .string()
-        .trim()
-        .min(2, "Nama lengkap minimal 2 karakter.")
-        .max(60, "Nama lengkap maksimal 60 karakter."),
-    password: z
-        .string()
-        .min(1, "Password kelas wajib diisi.")
-        .max(128, "Password kelas tidak valid."),
-})
+const excellentLoginSchema = z.preprocess(
+    (input) => {
+        if (!input || typeof input !== "object") return input
+        const record = input as Record<string, unknown>
+        const rawName =
+            typeof record.name === "string"
+                ? record.name
+                : typeof record.fullName === "string"
+                ? record.fullName
+                : ""
+        return {
+            name: normalizeExcellentName(rawName).displayName,
+            password: record.password,
+        }
+    },
+    z.object({
+        name: z
+            .string()
+            .min(2, "Nama lengkap minimal 2 karakter.")
+            .max(80, "Nama lengkap maksimal 80 karakter."),
+        password: z
+            .string()
+            .min(1, "Password kelas wajib diisi.")
+            .max(128, "Password kelas tidak valid."),
+    })
+)
 
 function safePasswordMatch(candidate: string, expected: string): boolean {
     const candidateBuf = Buffer.from(candidate, "utf8")
@@ -61,6 +84,87 @@ function resolveGradeFromPassword(password: string): {
     return { configured: true, grade: matchedGrade }
 }
 
+function createSupabaseExcellentAuthStore(
+    serviceClient: ReturnType<typeof createServiceClient>,
+    authClient: Awaited<ReturnType<typeof createClient>>
+): ExcellentAuthStore {
+    return {
+        async findProfileByEmail(email) {
+            const { data } = await serviceClient
+                .from("users")
+                .select("id, auth_id, email, name")
+                .eq("email", email)
+                .maybeSingle()
+            return data ?? null
+        },
+
+        async findProfileByAuthId(authId) {
+            const { data } = await serviceClient
+                .from("users")
+                .select("id, auth_id, email, name")
+                .eq("auth_id", authId)
+                .maybeSingle()
+            return data ?? null
+        },
+
+        async updateProfile(profileId, patch) {
+            const { error } = await serviceClient
+                .from("users")
+                .update(patch)
+                .eq("id", profileId)
+            if (error) {
+                throw new Error(`Failed to update Excellent Beta profile: ${error.message}`)
+            }
+        },
+
+        async insertProfile(row) {
+            const { error } = await serviceClient.from("users").insert(row)
+            if (error) {
+                throw new Error(`Failed to insert Excellent Beta profile: ${error.message}`)
+            }
+        },
+
+        async createAuthUser({ email, user_metadata }) {
+            const { data, error } = await serviceClient.auth.admin.createUser({
+                email,
+                email_confirm: true,
+                user_metadata,
+            })
+            return {
+                user: data?.user ? { id: data.user.id } : null,
+                error: error ?? null,
+            }
+        },
+
+        async updateAuthUserMetadata(authUserId, metadata) {
+            const { error } = await serviceClient.auth.admin.updateUserById(authUserId, {
+                user_metadata: metadata,
+            })
+            return { error: error ?? null }
+        },
+
+        async generateMagicLink(email) {
+            const { data, error } = await serviceClient.auth.admin.generateLink({
+                type: "magiclink",
+                email,
+            })
+            return {
+                user: data?.user ? { id: data.user.id } : null,
+                hashedToken: data?.properties?.hashed_token ?? null,
+                error: error ?? null,
+            }
+        },
+
+        async verifyMagicLinkOtp(hashedToken) {
+            const { error } = await authClient.auth.verifyOtp({
+                token_hash: hashedToken,
+                type: "magiclink",
+            })
+            return { error: error ?? null }
+        },
+    }
+}
+
 export async function POST(request: NextRequest) {
     const rateLimitResponse = checkRateLimit(request)
     if (rateLimitResponse) {
@@ -80,7 +184,9 @@ export async function POST(request: NextRequest) {
         const { configured, grade } = resolveGradeFromPassword(password)
 
         if (!configured) {
-            console.error("Excellent Beta login attempted but EXCELLENT_PASSWORD_* env vars are not configured.")
+            console.error(
+                "Excellent Beta login attempted but EXCELLENT_PASSWORD_* env vars are not configured."
+            )
             return NextResponse.json(
                 { error: "Akses kelas beta belum dikonfigurasi. Silakan hubungi pengajar." },
                 { status: 503 }
@@ -103,94 +209,14 @@ export async function POST(request: NextRequest) {
         }
 
         const serviceClient = createServiceClient()
-        const randomHex = randomBytes(8).toString("hex")
-        const syntheticEmail = `excellent-${grade.toLowerCase()}-${randomHex}@beta.bbn.local`
-        const generatedPassword = randomBytes(24).toString("base64url")
-
-        const { data: createdAuth, error: createUserError } =
-            await serviceClient.auth.admin.createUser({
-                email: syntheticEmail,
-                password: generatedPassword,
-                email_confirm: true,
-                user_metadata: {
-                    name,
-                    full_name: name,
-                    is_excellent_beta: true,
-                    excellent_grade: grade,
-                },
-            })
-
-        if (createUserError || !createdAuth.user) {
-            console.error("Failed to create Excellent Beta auth user:", createUserError)
-            return NextResponse.json(
-                { error: "Gagal membuat sesi belajar. Silakan coba lagi." },
-                { status: 500 }
-            )
-        }
-
-        const authUserId = createdAuth.user.id
-        const nowIso = new Date().toISOString()
-
-        // Ensure public.users row is active and synced whether on_auth_user_created trigger ran or not
-        const { data: existingProfile } = await serviceClient
-            .from("users")
-            .select("id")
-            .eq("auth_id", authUserId)
-            .maybeSingle()
-
-        if (existingProfile) {
-            const { error: updateErr } = await serviceClient
-                .from("users")
-                .update({
-                    name,
-                    role: "STUDENT",
-                    is_active: true,
-                    updated_at: nowIso,
-                })
-                .eq("id", existingProfile.id)
-
-            if (updateErr) {
-                console.error("Failed to sync Excellent Beta profile:", updateErr)
-                return NextResponse.json(
-                    { error: "Gagal menyiapkan profil siswa. Silakan coba lagi." },
-                    { status: 500 }
-                )
-            }
-        } else {
-            const { error: insertErr } = await serviceClient.from("users").insert({
-                id: randomUUID(),
-                auth_id: authUserId,
-                email: syntheticEmail,
-                name,
-                role: "STUDENT",
-                is_active: true,
-                created_at: nowIso,
-                updated_at: nowIso,
-            })
-
-            if (insertErr) {
-                console.error("Failed to insert Excellent Beta profile:", insertErr)
-                return NextResponse.json(
-                    { error: "Gagal menyiapkan profil siswa. Silakan coba lagi." },
-                    { status: 500 }
-                )
-            }
-        }
-
-        // Establish standard Supabase Auth SSR session cookies on this response
         const authClient = await createClient()
-        const { error: signInError } = await authClient.auth.signInWithPassword({
-            email: syntheticEmail,
-            password: generatedPassword,
-        })
+        const store = createSupabaseExcellentAuthStore(serviceClient, authClient)
 
-        if (signInError) {
-            console.error("Failed to sign in Excellent Beta user:", signInError)
-            return NextResponse.json(
-                { error: "Gagal memulai sesi masuk. Silakan coba lagi." },
-                { status: 500 }
-            )
-        }
+        await resolveOrCreateExcellentUser({
+            store,
+            rawName: name,
+            grade,
+        })
 
         return NextResponse.json({
             ok: true,
@@ -200,9 +226,8 @@ export async function POST(request: NextRequest) {
     } catch (error) {
         console.error("Excellent login error:", error)
         return NextResponse.json(
-            { error: "Terjadi kesalahan pada server. Silakan coba lagi." },
+            { error: "Gagal memulai sesi masuk. Silakan coba lagi." },
             { status: 500 }
         )
     }
 }
-
