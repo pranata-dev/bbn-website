@@ -1,6 +1,7 @@
 import { createClient, createServiceClient } from "@/lib/supabase/server"
 import DashboardClient from "./DashboardClient"
 import { redirect } from "next/navigation"
+import { getExcellentBetaGrade } from "@/config/excellent"
 
 export const dynamic = "force-dynamic"
 
@@ -28,9 +29,12 @@ export default async function DashboardPage() {
     redirect("/waiting-approval")
   }
 
+  const excellentGrade = getExcellentBetaGrade(authUser)
+
   return (
     <DashboardClient
       dbUser={userData}
+      excellentGrade={excellentGrade}
     />
   )
 }

@@ -4,9 +4,16 @@ import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import UserPresenceTracker from "@/components/UserPresenceTracker"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { BetaFeedbackDialog } from "@/components/dashboard/BetaFeedbackDialog"
 import { useState, useEffect, useSyncExternalStore } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { SubjectProvider, useSubject } from "@/contexts/SubjectContext"
+import {
+  EXCELLENT_COURSES,
+  getExcellentBetaGrade,
+  getExcellentCourseByGrade,
+  type ExcellentGrade,
+} from "@/config/excellent"
 import type { Subject } from "@/types"
 import {
   DropdownMenu,
@@ -28,6 +35,8 @@ import {
   LogOut,
   Menu,
   X,
+  Lock,
+  Check,
 } from "lucide-react"
 
 import { PHYSICS_COURSES, GENERAL_COURSES } from "./DashboardClient"
@@ -44,17 +53,133 @@ const NAV_ITEMS = [
 
 const emptySubscribe = () => () => {}
 
+interface UserProfileRow {
+  name?: string | null
+  email?: string
+  subscriptions?: {
+    status: string
+    track?: string
+    expires_at?: string | null
+  }[]
+}
+
 export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  const [userProfile, setUserProfile] = useState<UserProfileRow | null>(null)
+  const [studentName, setStudentName] = useState<string>("")
+  const [studentCategory, setStudentCategory] = useState<"PHYSICS_SEM_3" | "NON_PHYSICS">("PHYSICS_SEM_3")
+  const [excellentGrade, setExcellentGrade] = useState<ExcellentGrade | null>(null)
+
+  useEffect(() => {
+    const fetchUserPackage = async () => {
+      const supabase = createClient()
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
+
+      if (user) {
+        const betaGrade = getExcellentBetaGrade(user)
+        setExcellentGrade(betaGrade)
+
+        const fallbackName =
+          (typeof user.user_metadata?.name === "string" && user.user_metadata.name) ||
+          (typeof user.user_metadata?.full_name === "string" && user.user_metadata.full_name) ||
+          ""
+
+        try {
+          const userEmail = (user.email || "").toLowerCase().trim()
+          const { data: profile } = await supabase
+            .from("users")
+            .select("*, subscriptions(*)")
+            .or(`auth_id.eq.${user.id},email.ilike.${userEmail}`)
+            .maybeSingle()
+
+          if (profile) {
+            const typedProfile = profile as UserProfileRow
+            setUserProfile(typedProfile)
+            setStudentName(typedProfile.name || fallbackName)
+            const subs = typedProfile.subscriptions || []
+            const activeSub = subs.find(
+              (s) => s.status === "ACTIVE" && (!s.expires_at || new Date(s.expires_at) > new Date())
+            )
+            if (activeSub?.track === "NON_PHYSICS") {
+              setStudentCategory("NON_PHYSICS")
+            } else {
+              setStudentCategory("PHYSICS_SEM_3")
+            }
+          } else {
+            setStudentName(fallbackName)
+          }
+        } catch (error) {
+          console.error("Failed to fetch user profile", error)
+          setStudentName(fallbackName)
+        }
+      }
+    }
+
+    fetchUserPackage()
+  }, [])
+
   return (
-    <SubjectProvider>
-      <DashboardLayoutInner>
+    <SubjectProvider excellentGrade={excellentGrade}>
+      <DashboardLayoutInner
+        userProfile={userProfile}
+        studentName={studentName}
+        studentCategory={studentCategory}
+        excellentGrade={excellentGrade}
+      >
         {children}
       </DashboardLayoutInner>
     </SubjectProvider>
+  )
+}
+
+function ExcellentGradeSidebarPanel({ grade }: { grade: ExcellentGrade }) {
+  return (
+    <div className="space-y-2 font-mono">
+      <div className="flex items-center justify-between">
+        <span className="text-[10px] font-bold text-ink-muted uppercase tracking-wider">
+          Mata Pelajaran: Fisika
+        </span>
+      </div>
+      <div className="space-y-1.5">
+        {EXCELLENT_COURSES.map((course) => {
+          const isUnlocked = course.grade === grade
+          return (
+            <div
+              key={course.code}
+              aria-disabled={!isUnlocked}
+              className={`w-full flex items-center justify-between border px-2.5 py-2 text-xs transition-colors ${
+                isUnlocked
+                  ? "bg-accent-canary border-[#171717] text-[#171717] font-bold technical-shadow-sm"
+                  : "bg-canvas-paper border-[#171717]/35 text-ink-muted opacity-65 cursor-not-allowed select-none"
+              }`}
+            >
+              <span className="flex items-center gap-2 truncate">
+                {isUnlocked ? (
+                  <Check className="size-3.5 shrink-0 text-[#171717]" />
+                ) : (
+                  <Lock className="size-3 shrink-0 text-ink-muted" />
+                )}
+                <span className="truncate">{course.label}</span>
+              </span>
+              <span
+                className={`text-[9px] uppercase px-1.5 py-0.5 border ${
+                  isUnlocked
+                    ? "bg-surface-white border-[#171717] text-[#171717] font-bold"
+                    : "bg-transparent border-[#171717]/30 text-ink-muted"
+                }`}
+              >
+                {isUnlocked ? "Aktif" : "Terkunci"}
+              </span>
+            </div>
+          )
+        })}
+      </div>
+    </div>
   )
 }
 
@@ -141,52 +266,77 @@ function SubjectSwitcher({
 interface DashboardSidebarProps {
   pathname: string
   studentCategory: "PHYSICS_SEM_3" | "NON_PHYSICS"
+  excellentGrade: ExcellentGrade | null
   isDark: boolean
   onToggleTheme: () => void
   onLogout: () => void
+  onNavigate?: () => void
 }
 
 function DashboardSidebarContent({
   pathname,
   studentCategory,
+  excellentGrade,
   isDark,
   onToggleTheme,
   onLogout,
+  onNavigate,
 }: DashboardSidebarProps) {
+  const isExcellentBeta = Boolean(excellentGrade)
+  const visibleNavItems = isExcellentBeta
+    ? NAV_ITEMS.filter((item) => item.id !== "beli-paket" && !item.href.includes("beli-paket"))
+    : NAV_ITEMS
+
   return (
     <div className="flex flex-col h-full bg-surface-white font-sans border-r border-[#171717]">
       {/* Brand Area */}
       <div className="p-5 border-b border-[#171717] bg-canvas-paper">
-        <Link href="/dashboard" className="flex items-center gap-2.5 group">
+        <Link href="/dashboard" onClick={onNavigate} className="flex items-center gap-2.5 group">
           <span className="size-3 bg-alert-rust shrink-0 rounded-none group-hover:rotate-45 transition-transform" />
-          <div>
-            <span className="font-sans font-extrabold text-base tracking-tight text-[#171717] block leading-none">
-              BBN Education
-            </span>
+          <div className="min-w-0">
+            <div className="flex items-center gap-2">
+              <span className="font-sans font-extrabold text-base tracking-tight text-[#171717] leading-none">
+                BBN Education
+              </span>
+              {isExcellentBeta && (
+                <span className="font-mono text-[9px] font-bold uppercase px-1.5 py-0.5 bg-accent-canary text-[#171717] border border-[#171717]">
+                  BETA
+                </span>
+              )}
+            </div>
             <span className="font-mono text-[10px] font-semibold text-ink-muted block mt-1 tracking-wider uppercase">
-              STUDENT LMS // V2.4
+              {isExcellentBeta ? "SAS FISIKA // BETA" : "STUDENT LMS // V2.4"}
             </span>
           </div>
         </Link>
       </div>
 
-      {/* Course Registry Selector */}
+      {/* Course / Grade Registry Selector */}
       <div className="p-4 border-b border-[#171717] bg-surface-white">
-        <SubjectSwitcher studentCategory={studentCategory} />
+        {excellentGrade ? (
+          <ExcellentGradeSidebarPanel grade={excellentGrade} />
+        ) : (
+          <SubjectSwitcher studentCategory={studentCategory} />
+        )}
       </div>
 
       {/* Navigation Register */}
       <ScrollArea className="flex-1 min-h-0 p-3">
         <div className="font-mono text-[10px] text-ink-muted uppercase tracking-wider px-2 pb-2">
-          INDEX DIREKTORI
+          {isExcellentBeta ? "MENU BELAJAR" : "INDEX DIREKTORI"}
         </div>
         <nav className="flex flex-col gap-1.5 font-mono text-xs">
-          {NAV_ITEMS.map((item) => {
+          {visibleNavItems.map((item) => {
             const isActive = pathname === item.href
             const Icon = item.icon
 
             return (
-              <Link key={item.id} href={item.href} className="w-full block">
+              <Link
+                key={item.id}
+                href={item.href}
+                onClick={onNavigate}
+                className="w-full block"
+              >
                 <div
                   className={`flex items-center justify-between px-3 py-2 transition-all border ${
                     isActive
@@ -208,6 +358,8 @@ function DashboardSidebarContent({
 
       {/* Footer Controls */}
       <div className="p-3 border-t border-[#171717] space-y-1.5 bg-canvas-paper font-mono text-xs">
+        {isExcellentBeta && <BetaFeedbackDialog />}
+
         <button
           type="button"
           onClick={onToggleTheme}
@@ -236,22 +388,26 @@ function DashboardSidebarContent({
   )
 }
 
-interface UserProfileRow {
-  email?: string
-  subscriptions?: {
-    status: string
-    track?: string
-    expires_at?: string | null
-  }[]
-}
-
-function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
+function DashboardLayoutInner({
+  children,
+  userProfile,
+  studentName,
+  studentCategory,
+  excellentGrade,
+}: {
+  children: React.ReactNode
+  userProfile: UserProfileRow | null
+  studentName: string
+  studentCategory: "PHYSICS_SEM_3" | "NON_PHYSICS"
+  excellentGrade: ExcellentGrade | null
+}) {
   const pathname = usePathname()
   const router = useRouter()
   const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [userProfile, setUserProfile] = useState<UserProfileRow | null>(null)
-  const [studentCategory, setStudentCategory] = useState<"PHYSICS_SEM_3" | "NON_PHYSICS">("PHYSICS_SEM_3")
   const [isDark, setIsDark] = useState(false)
+
+  const isExcellentBeta = Boolean(excellentGrade)
+  const excellentCourse = excellentGrade ? getExcellentCourseByGrade(excellentGrade) : null
 
   const toggleTheme = () => {
     setIsDark((prev) => {
@@ -263,46 +419,10 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
     })
   }
 
-  useEffect(() => {
-    const fetchUserPackage = async () => {
-      const supabase = createClient()
-      const { data: { user } } = await supabase.auth.getUser()
-
-      if (user) {
-        try {
-          const userEmail = (user.email || "").toLowerCase().trim()
-          const { data: profile } = await supabase
-            .from("users")
-            .select("*, subscriptions(*)")
-            .or(`auth_id.eq.${user.id},email.ilike.${userEmail}`)
-            .maybeSingle()
-
-          if (profile) {
-            const typedProfile = profile as UserProfileRow
-            setUserProfile(typedProfile)
-            const subs = typedProfile.subscriptions || []
-            const activeSub = subs.find(
-              (s) => s.status === "ACTIVE" && (!s.expires_at || new Date(s.expires_at) > new Date())
-            )
-            if (activeSub?.track === "NON_PHYSICS") {
-              setStudentCategory("NON_PHYSICS")
-            } else {
-              setStudentCategory("PHYSICS_SEM_3")
-            }
-          }
-        } catch (error) {
-          console.error("Failed to fetch user profile", error)
-        }
-      }
-    }
-
-    fetchUserPackage()
-  }, [])
-
   const handleLogout = async () => {
     const supabase = createClient()
     await supabase.auth.signOut()
-    router.push("/login")
+    router.push(isExcellentBeta ? "/excellent-login" : "/login")
     router.refresh()
   }
 
@@ -315,19 +435,41 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-1.5">
             <span className="size-1.5 bg-accent-canary rounded-none" />
-            <span className="font-semibold tracking-wider">SYS_LMS // BBN_EDUCATION</span>
+            <span className="font-semibold tracking-wider">
+              {isExcellentBeta ? "SAS FISIKA // BETA" : "SYS_LMS // BBN_EDUCATION"}
+            </span>
           </div>
-          <span className="text-surface-white/40">|</span>
-          <span className="text-surface-white/70 hidden sm:inline">LATENCY: 24ms</span>
-          <span className="text-surface-white/40 hidden sm:inline">|</span>
-          <span className="text-emerald-400 font-semibold hidden md:inline">SYS_STATUS: NOMINAL</span>
+          {!isExcellentBeta && (
+            <>
+              <span className="text-surface-white/40">|</span>
+              <span className="text-surface-white/70 hidden sm:inline">LATENCY: 24ms</span>
+              <span className="text-surface-white/40 hidden sm:inline">|</span>
+              <span className="text-emerald-400 font-semibold hidden md:inline">SYS_STATUS: NOMINAL</span>
+            </>
+          )}
+          {isExcellentBeta && excellentCourse && (
+            <>
+              <span className="text-surface-white/40">|</span>
+              <span className="text-accent-canary font-semibold hidden sm:inline">
+                {excellentCourse.title.toUpperCase()}
+              </span>
+            </>
+          )}
         </div>
 
         <div className="flex items-center gap-3">
-          {userProfile?.email && (
-            <span className="text-surface-white/75 hidden md:inline truncate max-w-xs">
-              USER: {userProfile.email}
-            </span>
+          {isExcellentBeta ? (
+            studentName && (
+              <span className="text-surface-white/80 hidden md:inline truncate max-w-xs">
+                SISWA: {studentName}
+              </span>
+            )
+          ) : (
+            userProfile?.email && (
+              <span className="text-surface-white/75 hidden md:inline truncate max-w-xs">
+                USER: {userProfile.email}
+              </span>
+            )
           )}
           <button
             type="button"
@@ -346,18 +488,27 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
           <span className="font-sans font-extrabold text-sm text-[#171717]">
             BBN Education
           </span>
-          <span className="font-mono text-[9px] px-1 bg-canvas-paper border border-[#171717] text-ink-muted">
-            LMS
+          <span
+            className={`font-mono text-[9px] px-1.5 py-0.5 border border-[#171717] font-bold ${
+              isExcellentBeta
+                ? "bg-accent-canary text-[#171717]"
+                : "bg-canvas-paper text-ink-muted"
+            }`}
+          >
+            {isExcellentBeta ? "BETA" : "LMS"}
           </span>
         </Link>
-        <button
-          type="button"
-          onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="p-1.5 border border-[#171717] bg-canvas-paper text-[#171717] technical-shadow-sm cursor-pointer"
-          aria-label="Toggle navigation menu"
-        >
-          {sidebarOpen ? <X className="size-4" /> : <Menu className="size-4" />}
-        </button>
+        <div className="flex items-center gap-2">
+          {isExcellentBeta && <BetaFeedbackDialog compact />}
+          <button
+            type="button"
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+            className="p-1.5 border border-[#171717] bg-canvas-paper text-[#171717] technical-shadow-sm cursor-pointer"
+            aria-label="Toggle navigation menu"
+          >
+            {sidebarOpen ? <X className="size-4" /> : <Menu className="size-4" />}
+          </button>
+        </div>
       </div>
 
       {/* 3. WORKSPACE CONTAINER (SIDEBAR + MAIN CANVAS) */}
@@ -367,6 +518,7 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
           <DashboardSidebarContent
             pathname={pathname}
             studentCategory={studentCategory}
+            excellentGrade={excellentGrade}
             isDark={isDark}
             onToggleTheme={toggleTheme}
             onLogout={handleLogout}
@@ -384,9 +536,11 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
               <DashboardSidebarContent
                 pathname={pathname}
                 studentCategory={studentCategory}
+                excellentGrade={excellentGrade}
                 isDark={isDark}
                 onToggleTheme={toggleTheme}
                 onLogout={handleLogout}
+                onNavigate={() => setSidebarOpen(false)}
               />
             </aside>
           </div>

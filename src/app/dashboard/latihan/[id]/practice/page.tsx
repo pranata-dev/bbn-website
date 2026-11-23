@@ -7,7 +7,6 @@ import { ExamTimer } from "@/components/assessment/ExamTimer"
 import { QuestionViewer, QuestionOption } from "@/components/assessment/QuestionViewer"
 import { QuestionNavigator } from "@/components/assessment/QuestionNavigator"
 import { SubmitConfirmDialog } from "@/components/assessment/SubmitConfirmDialog"
-import { TabSwitchWarningDialog } from "@/components/assessment/TabSwitchWarningDialog"
 
 interface Question {
   id: string
@@ -44,7 +43,6 @@ export default function LatihanPracticePage() {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [answers, setAnswers] = useState<Record<string, AnswerState>>({})
   const [showSubmitDialog, setShowSubmitDialog] = useState(false)
-  const [showWarning, setShowWarning] = useState(false)
 
   // Start practice session
   useEffect(() => {
@@ -108,26 +106,6 @@ export default function LatihanPracticePage() {
 
     startPractice()
   }, [tryoutId, router])
-
-  // Anti-cheating: detect tab switching
-  useEffect(() => {
-    const handleVisibilityChange = () => {
-      if (document.hidden) {
-        setShowWarning(true)
-        toast.warning("Peringatan: Kamu terdeteksi berpindah tab!")
-        if (submissionId) {
-          fetch(`/api/submissions/${submissionId}/answers`, {
-            method: "PATCH",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ incrementTabSwitch: true }),
-          }).catch(() => {})
-        }
-      }
-    }
-
-    document.addEventListener("visibilitychange", handleVisibilityChange)
-    return () => document.removeEventListener("visibilitychange", handleVisibilityChange)
-  }, [submissionId])
 
   // Auto-save to localStorage
   useEffect(() => {
@@ -312,12 +290,6 @@ export default function LatihanPracticePage() {
         answeredCount={answeredCount}
         doubtfulCount={doubtfulCount}
         submitting={submitting}
-      />
-
-      {/* 5. TAB SWITCH INTEGRITY WARNING */}
-      <TabSwitchWarningDialog
-        isOpen={showWarning}
-        onClose={() => setShowWarning(false)}
       />
     </div>
   )

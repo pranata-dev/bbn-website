@@ -185,12 +185,17 @@ const FALLBACK_SEEDS: Record<string, MaterialItem[]> = {
 function MateriContent() {
   const searchParams = useSearchParams()
   const courseParam = searchParams.get("course")
-  const { selectedSubject } = useSubject()
-  const activeSubject = (courseParam || selectedSubject || "FISDAS2") as string
+  const { selectedSubject, isExcellentBeta, excellentCourse } = useSubject()
+  const activeSubject = isExcellentBeta && excellentCourse
+    ? excellentCourse.slug
+    : ((courseParam || selectedSubject || "FISDAS2") as string)
 
   const [materials, setMaterials] = useState<MaterialItem[]>([])
   const [isFreeTier, setIsFreeTier] = useState(false)
+  const [apiBetaMode, setApiBetaMode] = useState(false)
   const [loading, setLoading] = useState(true)
+
+  const inBetaMode = isExcellentBeta || apiBetaMode
 
   useEffect(() => {
     const fetchMaterials = async () => {
@@ -199,39 +204,66 @@ function MateriContent() {
         const res = await fetch(`/api/materials?subject=${activeSubject}`)
         if (res.ok) {
           const data = await res.json()
-          setIsFreeTier(Boolean(data.entitlements?.isFreeTier))
+          const isBetaResponse = Boolean(data.entitlements?.isExcellentBeta)
+          setApiBetaMode(isBetaResponse)
+          setIsFreeTier(!isBetaResponse && Boolean(data.entitlements?.isFreeTier))
+
+          if (isExcellentBeta || isBetaResponse) {
+            // Never show university FALLBACK_SEEDS in Excellent Beta mode
+            setMaterials(data.materials || [])
+            return
+          }
+
           if (data.materials && data.materials.length > 0) {
             setMaterials(data.materials)
             return
           }
         }
-        
-        // Fallback to initial curriculum seeds
+
+        if (isExcellentBeta) {
+          setMaterials([])
+          return
+        }
+
+        // Fallback to initial curriculum seeds for university mode only
         const fallback = FALLBACK_SEEDS[activeSubject] || FALLBACK_SEEDS["FISDAS2"]
         setMaterials(fallback)
       } catch (err) {
         console.error("Failed to load materials", err)
-        const fallback = FALLBACK_SEEDS[activeSubject] || FALLBACK_SEEDS["FISDAS2"]
-        setMaterials(fallback)
+        if (isExcellentBeta) {
+          setMaterials([])
+        } else {
+          const fallback = FALLBACK_SEEDS[activeSubject] || FALLBACK_SEEDS["FISDAS2"]
+          setMaterials(fallback)
+        }
       } finally {
         setLoading(false)
       }
     }
 
     fetchMaterials()
-  }, [activeSubject])
+  }, [activeSubject, isExcellentBeta])
 
-  const subjectTitle = activeSubject === "FISMAT" ? "Fisika Matematika" : "Fisika Dasar 2"
+  const subjectTitle =
+    inBetaMode && excellentCourse
+      ? excellentCourse.title
+      : activeSubject === "FISMAT"
+      ? "Fisika Matematika"
+      : "Fisika Dasar 2"
 
   return (
     <div className="space-y-6 font-sans">
       <PageHeader
         title={`Rangkuman & Modul: ${subjectTitle}`}
-        subtitle="Modul belajar interaktif dengan format Markdown, formula LaTeX, audio podcast, dan rangkuman PDF."
+        subtitle={
+          inBetaMode
+            ? "Kumpulan ringkasan konsep, penurunan rumus, dan contoh soal untuk persiapan SAS Fisika."
+            : "Modul belajar interaktif dengan format Markdown, formula LaTeX, audio podcast, dan rangkuman PDF."
+        }
       />
 
       {/* Free Tier Upgrade Banner */}
-      {isFreeTier && (
+      {isFreeTier && !inBetaMode && (
         <div className="bg-card border border-olive/30 rounded-2xl p-5 md:p-6 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="space-y-1">
             <div className="flex items-center gap-2">
@@ -244,7 +276,7 @@ function MateriContent() {
               Buka Akses Seluruh Modul & Tryout CBT
             </h3>
             <p className="text-xs text-muted-foreground max-w-xl">
-              Upgrade ke Paket Bulanan (Rp 35.000) atau Paket Semester (Rp 90.000) untuk mengakses seluruh materi lengkap, bank soal, dan simulasi tryout tanpa batas.
+              Paket Bulanan dan Paket Semester sedang disiapkan (Coming Soon) untuk membuka seluruh materi lengkap, bank soal, dan simulasi tryout.
             </p>
           </div>
           <Button asChild className="bg-olive hover:bg-olive/90 text-white font-semibold shrink-0">

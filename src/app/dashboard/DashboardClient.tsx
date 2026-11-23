@@ -4,6 +4,13 @@ import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
+import { useSubject } from "@/contexts/SubjectContext"
+import {
+  EXCELLENT_COURSES,
+  getExcellentBetaGrade,
+  getExcellentCourseByGrade,
+  type ExcellentGrade,
+} from "@/config/excellent"
 import {
   BookOpen,
   ArrowRight,
@@ -14,6 +21,8 @@ import {
   History,
   Cpu,
   ShieldCheck,
+  Lock,
+  CheckCircle2,
 } from "lucide-react"
 
 export interface CourseItem {
@@ -104,13 +113,27 @@ interface DashboardStatsResponse {
 
 interface DashboardClientProps {
   dbUser?: DbUserProfile | null
+  excellentGrade?: ExcellentGrade | null
 }
 
-export default function DashboardClient({ dbUser }: DashboardClientProps) {
+export default function DashboardClient({
+  dbUser,
+  excellentGrade: initialExcellentGrade = null,
+}: DashboardClientProps) {
   const router = useRouter()
+  const { excellentGrade: contextGrade } = useSubject()
   const [user, setUser] = useState<UserDashboardState | null>(null)
   const [stats, setStats] = useState<DashboardStatsResponse | null>(null)
+  const [detectedBetaGrade, setDetectedBetaGrade] = useState<ExcellentGrade | null>(
+    initialExcellentGrade
+  )
   const [loading, setLoading] = useState(true)
+
+  const activeBetaGrade = initialExcellentGrade ?? contextGrade ?? detectedBetaGrade
+  const isExcellentBeta = Boolean(activeBetaGrade)
+  const activeBetaCourse = activeBetaGrade
+    ? getExcellentCourseByGrade(activeBetaGrade) ?? null
+    : null
 
   // 1. Supabase Session, User Profile & Dashboard Stats Fetching
   useEffect(() => {
@@ -136,12 +159,17 @@ export default function DashboardClient({ dbUser }: DashboardClientProps) {
           profile = data as DbUserProfile | null
         }
 
+        const betaGradeFromAuth = getExcellentBetaGrade(authUser)
+        if (betaGradeFromAuth) {
+          setDetectedBetaGrade(betaGradeFromAuth)
+        }
+
         const name =
           profile?.name ||
           authUser?.user_metadata?.full_name ||
           authUser?.user_metadata?.name ||
           authUser?.email?.split("@")[0] ||
-          "Mahasiswa BBN"
+          (betaGradeFromAuth ? "Siswa Fisika" : "Mahasiswa BBN")
 
         const subs = profile?.subscriptions || []
         const activeSub = subs.find(
@@ -207,10 +235,12 @@ export default function DashboardClient({ dbUser }: DashboardClientProps) {
     }
   }
 
-  const isPaidUser = user?.plan_code === "MONTHLY" || user?.plan_code === "SEMESTER"
+  const isPaidUser = isExcellentBeta || user?.plan_code === "MONTHLY" || user?.plan_code === "SEMESTER"
 
   const completedMaterials = stats?.materialsStats.completedCount ?? 0
-  const totalMaterials = stats?.materialsStats.totalCount || 18
+  const totalMaterials = isExcellentBeta
+    ? stats?.materialsStats.totalCount ?? 0
+    : stats?.materialsStats.totalCount || 18
   const materialsPercent = totalMaterials > 0 ? Math.min(100, Math.round((completedMaterials / totalMaterials) * 100)) : 0
 
   const practiceAccuracy = stats?.latihanStats.avgScore ?? 0
@@ -252,37 +282,59 @@ export default function DashboardClient({ dbUser }: DashboardClientProps) {
       <section className="bg-surface-white border border-[#171717] p-5 technical-shadow tick-corner">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-2">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="bg-alert-rust text-white font-mono text-[10px] sm:text-xs px-2 py-0.5 font-bold uppercase tracking-wider">
-                TARGET HARIAN // {user?.track === "NON_PHYSICS" ? "TPB_UMUM" : "FISIKA_SEM_3"}
-              </span>
-              <span className="font-mono text-xs text-ink-muted">
-                SYNC: REALTIME
-              </span>
-              <span className="font-mono text-xs text-ink-muted hidden sm:inline">
-                |
-              </span>
-              <span className="font-mono text-xs font-bold text-[#171717] bg-canvas-paper border border-[#171717] px-2 py-0.5">
-                BBN_EDU // CORE
-              </span>
-            </div>
+            {isExcellentBeta && activeBetaCourse ? (
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="bg-alert-rust text-white font-mono text-[10px] sm:text-xs px-2 py-0.5 font-bold uppercase tracking-wider">
+                  PROGRAM SAS FISIKA
+                </span>
+                <span className="bg-accent-canary text-[#171717] border border-[#171717] font-mono text-[10px] sm:text-xs px-2 py-0.5 font-bold uppercase">
+                  BETA
+                </span>
+                <span className="font-mono text-xs font-bold text-[#171717] bg-canvas-paper border border-[#171717] px-2 py-0.5 uppercase">
+                  {activeBetaCourse.title}
+                </span>
+              </div>
+            ) : (
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="bg-alert-rust text-white font-mono text-[10px] sm:text-xs px-2 py-0.5 font-bold uppercase tracking-wider">
+                  TARGET HARIAN // {user?.track === "NON_PHYSICS" ? "TPB_UMUM" : "FISIKA_SEM_3"}
+                </span>
+                <span className="font-mono text-xs text-ink-muted">
+                  SYNC: REALTIME
+                </span>
+                <span className="font-mono text-xs text-ink-muted hidden sm:inline">
+                  |
+                </span>
+                <span className="font-mono text-xs font-bold text-[#171717] bg-canvas-paper border border-[#171717] px-2 py-0.5">
+                  BBN_EDU // CORE
+                </span>
+              </div>
+            )}
             <h1 className="text-2xl sm:text-3xl font-extrabold text-[#171717] tracking-tight">
-              Halo, {user?.name || "Mahasiswa BBN"}
+              Halo, {user?.name || (isExcellentBeta ? "Siswa Fisika" : "Mahasiswa BBN")}
             </h1>
-            <p className="text-sm text-ink-muted max-w-2xl leading-relaxed">
-              Progres kurikulum Anda saat ini berada pada <strong className="text-[#171717]">{materialsPercent}%</strong> ({completedMaterials} dari {totalMaterials} modul tersedia) dengan total <strong className="text-[#171717]">{(stats?.tryoutStats.completed ?? 0) + (stats?.latihanStats.completed ?? 0)} evaluasi</strong> tercatat.
-            </p>
+            {isExcellentBeta && activeBetaCourse ? (
+              <p className="text-sm text-ink-muted max-w-2xl leading-relaxed">
+                Selamat datang di ruang belajar <strong className="text-[#171717]">{activeBetaCourse.title}</strong>. Kamu sudah menyelesaikan <strong className="text-[#171717]">{(stats?.tryoutStats.completed ?? 0) + (stats?.latihanStats.completed ?? 0)} sesi evaluasi</strong> dengan <strong className="text-[#171717]">{totalMaterials} modul materi</strong> tersedia untuk kelas kamu.
+              </p>
+            ) : (
+              <p className="text-sm text-ink-muted max-w-2xl leading-relaxed">
+                Progres kurikulum Anda saat ini berada pada <strong className="text-[#171717]">{materialsPercent}%</strong> ({completedMaterials} dari {totalMaterials} modul tersedia) dengan total <strong className="text-[#171717]">{(stats?.tryoutStats.completed ?? 0) + (stats?.latihanStats.completed ?? 0)} evaluasi</strong> tercatat.
+              </p>
+            )}
           </div>
 
           {/* CTA Quick Action & Progress Strip */}
-          <div className="shrink-0 flex flex-col space-y-2.5 min-w-[320px]">
+          <div className="shrink-0 flex flex-col space-y-2.5 min-w-0 sm:min-w-[320px]">
             <Link
               href={nextMaterial ? `/dashboard/materi/${nextMaterial.slug}` : "/dashboard/materi"}
               className="px-4 py-3 bg-accent-canary text-[#171717] border border-[#171717] font-mono text-xs sm:text-sm font-bold flex items-center justify-center space-x-2 hover:-translate-x-0.5 hover:-translate-y-0.5 technical-shadow transition-transform"
             >
               <span className="truncate max-w-[260px]">
                 {nextMaterial
-                  ? `Lanjutkan: ${nextMaterial.title} (Modul ${String(nextMaterial.moduleNumber).padStart(2, "0")})`
+                  ? `Lanjutkan: ${nextMaterial.title} (Modul ${String(nextMaterial.moduleNumber ?? 1).padStart(2, "0")})`
+                  : isExcellentBeta && activeBetaCourse
+                  ? `Buka Materi ${activeBetaCourse.title}`
                   : "Buka Katalog Materi Kuliah"}
               </span>
               <ArrowRight className="size-4 shrink-0" />
@@ -459,10 +511,14 @@ export default function DashboardClient({ dbUser }: DashboardClientProps) {
                   </span>
                   <div>
                     <h3 className="font-mono text-xs sm:text-sm font-bold text-[#171717]">
-                      Simulasi Tryout UTS & UAS Terpadu
+                      {isExcellentBeta
+                        ? "Simulasi Tryout SAS Fisika"
+                        : "Simulasi Tryout UTS & UAS Terpadu"}
                     </h3>
                     <p className="text-xs text-ink-muted mt-0.5">
-                      Uji kesiapan akademik dengan timer real-time dan pembahasan langkah demi langkah.
+                      {isExcellentBeta
+                        ? "Uji kesiapan SAS Fisika dengan timer dan pembahasan soal."
+                        : "Uji kesiapan akademik dengan timer real-time dan pembahasan langkah demi langkah."}
                     </p>
                   </div>
                 </div>
@@ -523,6 +579,7 @@ export default function DashboardClient({ dbUser }: DashboardClientProps) {
           </div>
 
           {/* 2. Roadmap: Peta Jalur Belajar (Phase 01 - 04) */}
+          {!isExcellentBeta && (
           <div className="bg-surface-white border border-[#171717] p-5 technical-shadow space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-[#171717]">
               <div>
@@ -592,7 +649,7 @@ export default function DashboardClient({ dbUser }: DashboardClientProps) {
                   </div>
                 </div>
                 <div className="font-mono text-[10px] text-ink-muted mt-3 pt-2 border-t border-[#D4D2C9]">
-                  {stats?.tryoutStats.completed ?? 0} Tryout Диkerjakan
+                  {stats?.tryoutStats.completed ?? 0} Tryout Dikerjakan
                 </div>
               </div>
             </div>
@@ -614,102 +671,193 @@ export default function DashboardClient({ dbUser }: DashboardClientProps) {
               </Link>
             </div>
           </div>
+          )}
 
-          {/* 3. Course Catalog Cards (Active Courses List) */}
-          <div className="bg-surface-white border border-[#171717] p-5 technical-shadow space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-[#171717]">
-              <div>
-                <span className="font-mono text-[10px] font-bold text-alert-rust uppercase tracking-wider block">
-                  [SYS.04] // COURSE_CATALOG
-                </span>
-                <h2 className="font-bold text-lg text-[#171717] tracking-tight">
-                  Katalog Mata Kuliah Kamu
-                </h2>
-              </div>
-              <span className="font-mono text-xs font-bold text-[#171717] bg-canvas-paper border border-[#171717] px-2.5 py-0.5">
-                {activeCourses.length} MATA KULIAH
-              </span>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {activeCourses.map((course, idx) => (
-                <div
-                  key={course.slug}
-                  className="bg-canvas-paper border border-[#171717] p-4 flex flex-col justify-between hover:bg-surface-white hover:border-alert-rust transition-all group"
-                >
-                  <div className="space-y-1.5">
-                    <div className="flex items-center justify-between font-mono text-[10px] text-ink-muted">
-                      <span className="font-bold text-[#171717]">MOD-{String(idx + 1).padStart(2, "0")}</span>
-                      <span>KURIKULUM UTAMA</span>
-                    </div>
-                    <h3 className="font-bold text-base text-[#171717] group-hover:text-alert-rust transition-colors leading-snug">
-                      {course.name}
-                    </h3>
-                  </div>
-                  <div className="pt-3 mt-3 border-t border-[#D4D2C9] flex items-center justify-between">
-                    <Link
-                      href={`/dashboard/materi?course=${course.slug}`}
-                      className="font-mono text-xs font-bold text-[#171717] hover:underline flex items-center gap-1"
-                    >
-                      <span>Mulai Belajar</span>
-                      <ArrowRight className="size-3" />
-                    </Link>
-                    <span className="size-1.5 bg-alert-rust" />
-                  </div>
+          {/* 3. Course Catalog Cards OR Excellent Beta Physics Grade Selector */}
+          {isExcellentBeta && activeBetaGrade ? (
+            <div className="bg-surface-white border border-[#171717] p-5 technical-shadow space-y-4">
+              <div className="flex items-center justify-between pb-3 border-b border-[#171717]">
+                <div>
+                  <span className="font-mono text-[10px] font-bold text-alert-rust uppercase tracking-wider block">
+                    PILIHAN KELAS SAS
+                  </span>
+                  <h2 className="font-bold text-lg text-[#171717] tracking-tight">
+                    Mata Pelajaran: Fisika
+                  </h2>
                 </div>
-              ))}
+                <span className="font-mono text-xs font-bold text-[#171717] bg-accent-canary border border-[#171717] px-2.5 py-0.5 uppercase">
+                  {activeBetaCourse?.label || `Kelas ${activeBetaGrade}`}
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                {EXCELLENT_COURSES.map((course) => {
+                  const isUnlocked = course.grade === activeBetaGrade
+                  return (
+                    <div
+                      key={course.code}
+                      aria-disabled={!isUnlocked}
+                      className={`border p-4 flex flex-col justify-between transition-all ${
+                        isUnlocked
+                          ? "bg-accent-canary border-2 border-[#171717] shadow-[3px_3px_0px_#171717]"
+                          : "bg-canvas-paper border-[#171717]/40 opacity-65 cursor-not-allowed select-none"
+                      }`}
+                    >
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between gap-2 font-mono text-[10px]">
+                          <span className="font-bold text-[#171717] uppercase">
+                            FISIKA
+                          </span>
+                          {isUnlocked ? (
+                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-surface-white border border-[#171717] text-[#171717] font-bold uppercase">
+                              <CheckCircle2 className="size-3" />
+                              Aktif
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-surface-white border border-[#171717]/40 text-ink-muted font-bold uppercase">
+                              <Lock className="size-3" />
+                              Terkunci
+                            </span>
+                          )}
+                        </div>
+
+                        <h3 className="font-extrabold text-base text-[#171717] leading-snug">
+                          {course.label}
+                        </h3>
+                        <p className="text-xs text-[#171717]/75">
+                          {isUnlocked
+                            ? "Materi, latihan soal, dan tryout SAS terbuka penuh."
+                            : "Terkunci untuk kelas lain."}
+                        </p>
+                      </div>
+
+                      <div className="pt-3 mt-3 border-t border-[#171717]/25">
+                        {isUnlocked ? (
+                          <div className="flex items-center justify-between gap-2">
+                            <Link
+                              href="/dashboard/materi"
+                              className="font-mono text-xs font-bold text-[#171717] hover:underline flex items-center gap-1"
+                            >
+                              <span>Buka Materi</span>
+                              <ArrowRight className="size-3" />
+                            </Link>
+                            <Link
+                              href="/dashboard/latihan"
+                              className="font-mono text-xs font-bold text-alert-rust hover:underline"
+                            >
+                              Latihan
+                            </Link>
+                          </div>
+                        ) : (
+                          <span className="font-mono text-[11px] font-semibold text-ink-muted flex items-center gap-1.5">
+                            <Lock className="size-3" />
+                            <span>Tidak dapat dipilih</span>
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
             </div>
-          </div>
+          ) : (
+            <div className="bg-surface-white border border-[#171717] p-5 technical-shadow space-y-4">
+              <div className="flex items-center justify-between pb-3 border-b border-[#171717]">
+                <div>
+                  <span className="font-mono text-[10px] font-bold text-alert-rust uppercase tracking-wider block">
+                    [SYS.04] // COURSE_CATALOG
+                  </span>
+                  <h2 className="font-bold text-lg text-[#171717] tracking-tight">
+                    Katalog Mata Kuliah Kamu
+                  </h2>
+                </div>
+                <span className="font-mono text-xs font-bold text-[#171717] bg-canvas-paper border border-[#171717] px-2.5 py-0.5">
+                  {activeCourses.length} MATA KULIAH
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {activeCourses.map((course, idx) => (
+                  <div
+                    key={course.slug}
+                    className="bg-canvas-paper border border-[#171717] p-4 flex flex-col justify-between hover:bg-surface-white hover:border-alert-rust transition-all group"
+                  >
+                    <div className="space-y-1.5">
+                      <div className="flex items-center justify-between font-mono text-[10px] text-ink-muted">
+                        <span className="font-bold text-[#171717]">MOD-{String(idx + 1).padStart(2, "0")}</span>
+                        <span>KURIKULUM UTAMA</span>
+                      </div>
+                      <h3 className="font-bold text-base text-[#171717] group-hover:text-alert-rust transition-colors leading-snug">
+                        {course.name}
+                      </h3>
+                    </div>
+                    <div className="pt-3 mt-3 border-t border-[#D4D2C9] flex items-center justify-between">
+                      <Link
+                        href={`/dashboard/materi?course=${course.slug}`}
+                        className="font-mono text-xs font-bold text-[#171717] hover:underline flex items-center gap-1"
+                      >
+                        <span>Mulai Belajar</span>
+                        <ArrowRight className="size-3" />
+                      </Link>
+                      <span className="size-1.5 bg-alert-rust" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* ======================================================== */}
         {/* RIGHT COLUMN (5 COLS): Daily Challenge & Telemetry       */}
         {/* ======================================================== */}
         <div className="lg:col-span-5 space-y-6">
-          {/* 1. Daily Challenge: Tantangan Harian (+50 XP) */}
-          <div className="bg-surface-white border border-[#171717] p-5 technical-shadow relative space-y-3">
-            <div className="flex justify-between items-start">
-              <span className="font-mono text-[10px] font-bold bg-alert-rust text-white px-2 py-0.5 uppercase tracking-wider">
-                TANTANGAN HARIAN (+50 XP)
-              </span>
-              <span className="font-mono text-xs text-ink-muted">
-                ID: #CHL-092
-              </span>
-            </div>
-
-            <div>
-              <h3 className="font-bold text-lg text-[#171717] tracking-tight">
-                Persamaan Gerak Double Pendulum
-              </h3>
-              <p className="text-xs text-ink-muted leading-relaxed mt-1">
-                Tentukan Lagrangian <span className="font-mono font-bold text-[#171717]">L = T - V</span> pada sistem pendulum ganda bermassa m₁, m₂ dengan panjang batang kaku l₁, l₂.
-              </p>
-            </div>
-
-            {/* FORMULA // SCHEMA Container */}
-            <div className="bg-canvas-paper border border-[#171717] p-3 space-y-2">
-              <div className="bg-[#171717] text-white px-2 py-0.5 text-[10px] font-bold font-mono inline-block">
-                FORMULA // LAGRANGE
+          {/* 1. Daily Challenge: hidden in Excellent Beta mode */}
+          {!isExcellentBeta && (
+            <div className="bg-surface-white border border-[#171717] p-5 technical-shadow relative space-y-3">
+              <div className="flex justify-between items-start">
+                <span className="font-mono text-[10px] font-bold bg-alert-rust text-white px-2 py-0.5 uppercase tracking-wider">
+                  TANTANGAN HARIAN (+50 XP)
+                </span>
+                <span className="font-mono text-xs text-ink-muted">
+                  ID: #CHL-092
+                </span>
               </div>
-              <div className="font-mono text-xs font-bold text-[#171717] leading-relaxed break-all bg-surface-white p-2.5 border border-[#D4D2C9]">
-                L = ½(m₁+m₂)l₁²θ̇₁² + ½m₂l₂²θ̇₂² + m₂l₁l₂θ̇₁θ̇₂cos(θ₁-θ₂) + (m₁+m₂)gl₁cosθ₁ + m₂gl₂cosθ₂
-              </div>
-            </div>
 
-            <Link
-              href="/dashboard/tryouts"
-              className="w-full py-2.5 bg-accent-canary text-[#171717] border border-[#171717] font-mono text-xs font-bold hover:bg-yellow-400 flex items-center justify-center space-x-2 technical-shadow-sm transition-transform active:translate-x-0.5 block text-center"
-            >
-              <span>Pecahkan Soal (+50 XP)</span>
-              <ArrowRight className="size-3.5 inline ml-1" />
-            </Link>
-          </div>
+              <div>
+                <h3 className="font-bold text-lg text-[#171717] tracking-tight">
+                  Persamaan Gerak Double Pendulum
+                </h3>
+                <p className="text-xs text-ink-muted leading-relaxed mt-1">
+                  Tentukan Lagrangian <span className="font-mono font-bold text-[#171717]">L = T - V</span> pada sistem pendulum ganda bermassa m₁, m₂ dengan panjang batang kaku l₁, l₂.
+                </p>
+              </div>
+
+              {/* FORMULA // SCHEMA Container */}
+              <div className="bg-canvas-paper border border-[#171717] p-3 space-y-2">
+                <div className="bg-[#171717] text-white px-2 py-0.5 text-[10px] font-bold font-mono inline-block">
+                  FORMULA // LAGRANGE
+                </div>
+                <div className="font-mono text-xs font-bold text-[#171717] leading-relaxed break-all bg-surface-white p-2.5 border border-[#D4D2C9]">
+                  L = ½(m₁+m₂)l₁²θ̇₁² + ½m₂l₂²θ̇₂² + m₂l₁l₂θ̇₁θ̇₂cos(θ₁-θ₂) + (m₁+m₂)gl₁cosθ₁ + m₂gl₂cosθ₂
+                </div>
+              </div>
+
+              <Link
+                href="/dashboard/tryouts"
+                className="w-full py-2.5 bg-accent-canary text-[#171717] border border-[#171717] font-mono text-xs font-bold hover:bg-yellow-400 flex items-center justify-center space-x-2 technical-shadow-sm transition-transform active:translate-x-0.5 block text-center"
+              >
+                <span>Pecahkan Soal (+50 XP)</span>
+                <ArrowRight className="size-3.5 inline ml-1" />
+              </Link>
+            </div>
+          )}
 
           {/* 2. Telemetry Stream: Telemetri Belajar Terakhir */}
           <div className="bg-surface-white border border-[#171717] p-5 technical-shadow space-y-3">
             <div className="flex justify-between items-center pb-2 border-b border-[#D4D2C9]">
               <span className="font-mono text-xs font-bold uppercase text-[#171717] tracking-wider">
-                TELEMETRI BELAJAR TERAKHIR
+                {isExcellentBeta ? "RIWAYAT BELAJAR TERAKHIR" : "TELEMETRI BELAJAR TERAKHIR"}
               </span>
               <History className="size-4 text-ink-muted" />
             </div>
@@ -738,17 +886,17 @@ export default function DashboardClient({ dbUser }: DashboardClientProps) {
                 })
               ) : (
                 <div className="py-4 text-center text-ink-muted font-mono text-xs border border-dashed border-[#D4D2C9] bg-canvas-paper">
-                  Belum ada riwayat evaluasi tercatat. Mulai sesi latihan atau tryout pertama Anda.
+                  Belum ada riwayat evaluasi tercatat. Mulai sesi latihan atau tryout pertama kamu.
                 </div>
               )}
             </div>
 
             <div className="pt-2 border-t border-[#D4D2C9] text-center">
               <Link
-                href="/dashboard/tryouts"
+                href="/dashboard/history"
                 className="font-mono text-[11px] text-ink-muted hover:text-[#171717] font-bold underline"
               >
-                Lihat Catatan Telemetri Lengkap →
+                {isExcellentBeta ? "Lihat Semua Riwayat Skor" : "Lihat Catatan Telemetri Lengkap →"}
               </Link>
             </div>
           </div>
@@ -757,32 +905,42 @@ export default function DashboardClient({ dbUser }: DashboardClientProps) {
           <div className="bg-surface-white border border-[#171717] p-5 technical-shadow space-y-3">
             <div className="flex items-center justify-between pb-2 border-b border-[#D4D2C9]">
               <span className="font-mono text-xs font-bold text-alert-rust uppercase">
-                [CREDENTIAL // STATUS]
+                {isExcellentBeta ? "STATUS AKSES KELAS" : "[CREDENTIAL // STATUS]"}
               </span>
               <ShieldCheck className="size-4 text-[#171717]" />
             </div>
 
             <div className="space-y-1">
               <div className="font-mono text-[10px] text-ink-muted uppercase">
-                Langganan Aktif Siswa
+                {isExcellentBeta ? "Program Aktif" : "Langganan Aktif Siswa"}
               </div>
               <h4 className="font-black text-lg text-[#171717]">
-                {getPackageDisplayName()}
+                {isExcellentBeta && activeBetaCourse
+                  ? `SAS ${activeBetaCourse.title} (Beta)`
+                  : getPackageDisplayName()}
               </h4>
             </div>
 
             <div className="p-2.5 bg-canvas-paper border border-[#171717] font-mono text-xs space-y-1.5">
               <div className="flex justify-between">
-                <span className="text-ink-muted">KODE AKSES:</span>
-                <span className="font-bold text-[#171717]">{user?.plan_code || "FREE"}</span>
+                <span className="text-ink-muted">
+                  {isExcellentBeta ? "KELAS:" : "KODE AKSES:"}
+                </span>
+                <span className="font-bold text-[#171717]">
+                  {isExcellentBeta && activeBetaCourse
+                    ? activeBetaCourse.label.toUpperCase()
+                    : user?.plan_code || "FREE"}
+                </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-ink-muted">STATUS:</span>
-                <span className="font-bold text-green-700">VERIFIED ACTIVE</span>
+                <span className="font-bold text-green-700">
+                  {isExcellentBeta ? "AKSES PENUH AKTIF" : "VERIFIED ACTIVE"}
+                </span>
               </div>
             </div>
 
-            {!isPaidUser && (
+            {!isPaidUser && !isExcellentBeta && (
               <Link
                 href="/dashboard/beli-paket"
                 className="w-full py-2.5 bg-accent-canary hover:bg-[#fde667] text-[#171717] font-mono text-xs font-bold border border-[#171717] text-center block technical-shadow-sm transition-all"

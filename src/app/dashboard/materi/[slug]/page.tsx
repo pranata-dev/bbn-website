@@ -3,6 +3,7 @@
 import { useEffect, useState, useMemo } from "react"
 import { useParams } from "next/navigation"
 import Link from "next/link"
+import { useSubject } from "@/contexts/SubjectContext"
 import MarkdownLatex from "@/components/ui/markdown-latex"
 import TableOfContents, { extractToc } from "@/components/dashboard/TableOfContents"
 import { Button } from "@/components/ui/button"
@@ -326,10 +327,12 @@ function getSubjectDisplayName(code: string | undefined): string {
 export default function MaterialReaderPage() {
     const params = useParams()
     const slug = params.slug as string
+    const { isExcellentBeta } = useSubject()
 
     const [material, setMaterial] = useState<MaterialDetail | null>(null)
     const [loading, setLoading] = useState(true)
     const [upgradeRequired, setUpgradeRequired] = useState(false)
+    const [forbiddenGrade, setForbiddenGrade] = useState(false)
     const [lockedInfo, setLockedInfo] = useState<{ title?: string; summary?: string } | null>(null)
     const [mobileTocOpen, setMobileTocOpen] = useState(false)
     const [searchQuery, setSearchQuery] = useState("")
@@ -337,9 +340,16 @@ export default function MaterialReaderPage() {
     useEffect(() => {
         const fetchMaterial = async () => {
             setLoading(true)
+            setForbiddenGrade(false)
+            setUpgradeRequired(false)
             try {
                 const res = await fetch(`/api/materials/${slug}`)
                 const data = await res.json()
+
+                if (res.status === 403 && data.error === "FORBIDDEN_GRADE") {
+                    setForbiddenGrade(true)
+                    return
+                }
 
                 if (res.status === 403 && data.error === "UPGRADE_REQUIRED") {
                     setUpgradeRequired(true)
@@ -349,6 +359,11 @@ export default function MaterialReaderPage() {
 
                 if (res.ok && data.material) {
                     setMaterial(data.material)
+                    return
+                }
+
+                if (isExcellentBeta || data.entitlements?.isExcellentBeta) {
+                    setMaterial(null)
                     return
                 }
 
@@ -417,7 +432,7 @@ export default function MaterialReaderPage() {
         }
 
         fetchMaterial()
-    }, [slug])
+    }, [slug, isExcellentBeta])
 
     const toc = useMemo(() => {
         if (!material?.content_md) return []
@@ -448,6 +463,30 @@ export default function MaterialReaderPage() {
                     <p className="font-mono text-[10px] text-ink-muted">
                         Mengakses repositori silabus BBN_EDU...
                     </p>
+                </div>
+            </div>
+        )
+    }
+
+    if (forbiddenGrade) {
+        return (
+            <div className="max-w-md mx-auto py-16 text-center space-y-4">
+                <div className="bg-surface-white border-2 border-[#171717] p-8 technical-shadow space-y-4">
+                    <div className="size-12 bg-canvas-paper border border-[#171717] flex items-center justify-center mx-auto">
+                        <Lock className="w-6 h-6 text-[#171717]" />
+                    </div>
+                    <h2 className="text-lg font-extrabold text-[#171717]">
+                        Materi Tidak Tersedia untuk Kelas Kamu
+                    </h2>
+                    <p className="text-xs text-ink-muted font-sans leading-relaxed">
+                        Modul ini termasuk dalam kelas lain. Kembali ke daftar materi untuk membuka modul Fisika sesuai kelas kamu.
+                    </p>
+                    <Button asChild variant="outline" className="font-mono text-xs font-bold border-2 border-[#171717] rounded-none">
+                        <Link href="/dashboard/materi">
+                            <ArrowLeft className="w-3.5 h-3.5 mr-2" />
+                            KEMBALI KE DAFTAR MATERI
+                        </Link>
+                    </Button>
                 </div>
             </div>
         )

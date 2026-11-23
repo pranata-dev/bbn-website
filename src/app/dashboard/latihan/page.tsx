@@ -27,7 +27,7 @@ export default function LatihanPage() {
   const [latihans, setLatihans] = useState<LatihanItem[]>([])
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState<string>("all")
-  const { selectedSubject } = useSubject()
+  const { selectedSubject, isExcellentBeta, excellentCourse } = useSubject()
 
   const fetchLatihan = useCallback(async () => {
     setLoading(true)
@@ -53,35 +53,42 @@ export default function LatihanPage() {
 
   const countW1W4 = latihans.filter(t => t.category && ["WEEK_1", "WEEK_2", "WEEK_3", "WEEK_4"].includes(t.category)).length
   const countW5W7 = latihans.filter(t => t.category && ["WEEK_5", "WEEK_6", "WEEK_7"].includes(t.category)).length
+  const totalQuestionsCount = latihans.reduce((acc, item) => acc + (item.tryout_questions?.[0]?.count || 0), 0)
 
   return (
     <div className="space-y-8 font-sans">
       {/* Page Header with Brutalist Category Filter */}
       <PageHeader
-        title="Latihan Soal"
-        subtitle="Bank soal kurasi topik fisika dan sains lanjutan untuk mengasah ketajaman analisis matematis secara mandiri."
-        breadcrumb="~/bbn-edu/student/latihan-soal/"
+        title={isExcellentBeta && excellentCourse ? `Latihan Soal ${excellentCourse.title}` : "Latihan Soal"}
+        subtitle={
+          isExcellentBeta
+            ? "Latihan soal mandiri Fisika untuk persiapan SAS. Kamu bebas membuka catatan saat mengerjakan latihan ini."
+            : "Bank soal kurasi topik fisika dan sains lanjutan untuk mengasah ketajaman analisis matematis secara mandiri."
+        }
+        breadcrumb={isExcellentBeta ? "~/sas-fisika/latihan/" : "~/bbn-edu/student/latihan-soal/"}
         action={
-          <div className="flex items-center gap-2">
-            <span className="font-mono text-xs font-bold text-ink-muted uppercase hidden sm:inline">
-              FILTER:
-            </span>
-            <Select value={filter} onValueChange={setFilter}>
-              <SelectTrigger className="w-[190px] sm:w-[210px] bg-surface-white border-2 border-[#171717] rounded-none font-mono text-xs font-bold text-[#171717] technical-shadow-sm focus:ring-0 focus:border-[#171717] h-10 px-3">
-                <SelectValue placeholder="SEMUA KATEGORI" />
-              </SelectTrigger>
-              <SelectContent className="bg-surface-white border-2 border-[#171717] rounded-none shadow-none font-mono text-xs font-semibold text-[#171717]">
-                <SelectItem value="all" className="rounded-none cursor-pointer hover:bg-accent-canary focus:bg-accent-canary focus:text-[#171717]">
-                  [ALL] SEMUA KATEGORI
-                </SelectItem>
-                {Object.entries(CATEGORY_LABELS).map(([key, label]) => (
-                  <SelectItem key={key} value={key} className="rounded-none cursor-pointer hover:bg-accent-canary focus:bg-accent-canary focus:text-[#171717]">
-                    [{key}] {label.toUpperCase()}
+          !isExcellentBeta ? (
+            <div className="flex items-center gap-2">
+              <span className="font-mono text-xs font-bold text-ink-muted uppercase hidden sm:inline">
+                FILTER:
+              </span>
+              <Select value={filter} onValueChange={setFilter}>
+                <SelectTrigger className="w-[190px] sm:w-[210px] bg-surface-white border-2 border-[#171717] rounded-none font-mono text-xs font-bold text-[#171717] technical-shadow-sm focus:ring-0 focus:border-[#171717] h-10 px-3">
+                  <SelectValue placeholder="SEMUA KATEGORI" />
+                </SelectTrigger>
+                <SelectContent className="bg-surface-white border-2 border-[#171717] rounded-none shadow-none font-mono text-xs font-semibold text-[#171717]">
+                  <SelectItem value="all" className="rounded-none cursor-pointer hover:bg-accent-canary focus:bg-accent-canary focus:text-[#171717]">
+                    [ALL] SEMUA KATEGORI
                   </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+                  {Object.entries(CATEGORY_LABELS).map(([key, label]) => (
+                    <SelectItem key={key} value={key} className="rounded-none cursor-pointer hover:bg-accent-canary focus:bg-accent-canary focus:text-[#171717]">
+                      [{key}] {label.toUpperCase()}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          ) : undefined
         }
       />
 
@@ -90,7 +97,7 @@ export default function LatihanPage() {
         {/* Metric 01 */}
         <div className="bg-surface-white border-2 border-[#171717] technical-shadow p-5 relative tick-corner flex flex-col justify-between">
           <div className="flex items-center justify-between font-mono text-xs font-bold uppercase tracking-wider text-ink-muted">
-            <span>TOTAL_LATIHAN // REGISTRY</span>
+            <span>{isExcellentBeta ? "TOTAL PAKET LATIHAN" : "TOTAL_LATIHAN // REGISTRY"}</span>
             <div className="size-3 bg-accent-canary border border-[#171717]" />
           </div>
           <div className="mt-4">
@@ -98,7 +105,7 @@ export default function LatihanPage() {
               {String(latihans.length).padStart(2, "0")}
             </p>
             <p className="font-mono text-[10px] uppercase tracking-wider text-ink-muted mt-1">
-              STATUS: MODUL TERSEDIA
+              {isExcellentBeta ? "PAKET LATIHAN SAS TERSEDIA" : "STATUS: MODUL TERSEDIA"}
             </p>
           </div>
           <div className="w-full h-1 bg-border-grid mt-4 overflow-hidden">
@@ -109,15 +116,17 @@ export default function LatihanPage() {
         {/* Metric 02 */}
         <div className="bg-surface-white border-2 border-[#171717] technical-shadow p-5 relative tick-corner flex flex-col justify-between">
           <div className="flex items-center justify-between font-mono text-xs font-bold uppercase tracking-wider text-ink-muted">
-            <span>FASE_01 // WEEK 1-4</span>
+            <span>{isExcellentBeta ? "TOTAL BUTIR SOAL" : "FASE_01 // WEEK 1-4"}</span>
             <div className="size-3 bg-alert-rust border border-[#171717]" />
           </div>
           <div className="mt-4">
             <p className="font-mono text-3xl font-black text-[#171717]">
-              {String(countW1W4).padStart(2, "0")}
+              {String(isExcellentBeta ? totalQuestionsCount : countW1W4).padStart(2, "0")}
             </p>
             <p className="font-mono text-[10px] uppercase tracking-wider text-ink-muted mt-1">
-              MEKANIKA & KALKULUS
+              {isExcellentBeta && excellentCourse
+                ? `FISIKA ${excellentCourse.label.toUpperCase()}`
+                : "MEKANIKA & KALKULUS"}
             </p>
           </div>
           <div className="w-full h-1 bg-border-grid mt-4 overflow-hidden">
@@ -128,15 +137,15 @@ export default function LatihanPage() {
         {/* Metric 03 */}
         <div className="bg-surface-white border-2 border-[#171717] technical-shadow p-5 relative tick-corner flex flex-col justify-between">
           <div className="flex items-center justify-between font-mono text-xs font-bold uppercase tracking-wider text-ink-muted">
-            <span>FASE_02 // WEEK 5-7</span>
+            <span>{isExcellentBeta ? "MODE PENGERJAAN" : "FASE_02 // WEEK 5-7"}</span>
             <div className="size-3 bg-[#171717] border border-[#171717]" />
           </div>
           <div className="mt-4">
             <p className="font-mono text-3xl font-black text-[#171717]">
-              {String(countW5W7).padStart(2, "0")}
+              {isExcellentBeta ? "MANDIRI" : String(countW5W7).padStart(2, "0")}
             </p>
             <p className="font-mono text-[10px] uppercase tracking-wider text-ink-muted mt-1">
-              TERMODINAMIKA & GELOMBANG
+              {isExcellentBeta ? "TANPA BATAS WAKTU" : "TERMODINAMIKA & GELOMBANG"}
             </p>
           </div>
           <div className="w-full h-1 bg-border-grid mt-4 overflow-hidden">

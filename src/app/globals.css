@@ -201,25 +201,25 @@
     pointer-events: none;
     z-index: 10;
   }
+}
 
-  /* KaTeX display math container with technical blueprint styling */
-  .katex-display {
-    overflow-x: auto;
-    overflow-y: hidden;
-    -webkit-overflow-scrolling: touch;
-    padding: 1rem;
-    margin: 1.25rem 0 !important;
-    max-width: 100%;
-    background-color: #FFFFFF;
-    border: 1px solid #171717;
-    border-radius: 0px;
-    box-shadow: 2px 2px 0px #171717;
-  }
+/* KaTeX display math container: horizontal scroll on mobile without viewport overflow */
+.katex-display {
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  max-width: 100%;
+  padding: 0.75rem 1rem 0.25rem;
+  margin: 1.25rem 0 !important;
+  background-color: #FFFFFF;
+  border: 1px solid #171717;
+  border-radius: 0px;
+  box-shadow: 2px 2px 0px #171717;
+}
 
-  .katex {
-    font-size: 1.05em;
-    text-rendering: auto;
-  }
+.katex {
+  font-size: 1.05em;
+  text-rendering: auto;
 }
 
 /* Custom prose styling for BBN Education technical editorial content */
