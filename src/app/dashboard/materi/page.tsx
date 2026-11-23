@@ -264,22 +264,22 @@ function MateriContent() {
 
       {/* Free Tier Upgrade Banner */}
       {isFreeTier && !inBetaMode && (
-        <div className="bg-card border border-olive/30 rounded-2xl p-5 md:p-6 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="bg-surface-white border border-[#171717] dark:border-[#3F3F46] p-5 md:p-6 technical-shadow flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="space-y-1">
             <div className="flex items-center gap-2">
-              <span className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-300">
+              <span className="inline-flex items-center gap-1 text-xs font-mono font-bold px-2.5 py-0.5 bg-accent-canary text-[#171717] border border-[#171717] uppercase">
                 <Sparkles className="w-3.5 h-3.5" /> Akun Gratis
               </span>
-              <span className="text-xs text-muted-foreground font-medium">1 Modul Preview Terbuka</span>
+              <span className="text-xs font-mono text-ink-muted font-medium">1 Modul Preview Terbuka</span>
             </div>
-            <h3 className="text-base font-bold text-foreground">
+            <h3 className="text-base font-bold text-[#171717] dark:text-[#F5F4EE]">
               Buka Akses Seluruh Modul & Tryout CBT
             </h3>
-            <p className="text-xs text-muted-foreground max-w-xl">
+            <p className="text-xs text-ink-muted max-w-xl">
               Paket Bulanan dan Paket Semester sedang disiapkan (Coming Soon) untuk membuka seluruh materi lengkap, bank soal, dan simulasi tryout.
             </p>
           </div>
-          <Button asChild className="bg-olive hover:bg-olive/90 text-white font-semibold shrink-0">
+          <Button asChild className="bg-[#171717] hover:bg-[#171717]/90 text-white dark:bg-accent-canary dark:text-[#171717] dark:hover:bg-[#fde667] font-mono text-xs font-bold rounded-none border border-[#171717] dark:border-[#FDE047] technical-shadow-sm shrink-0">
             <Link href="/dashboard/beli-paket">
               Upgrade Paket
               <ArrowRight className="w-4 h-4 ml-1.5" />
@@ -290,9 +290,9 @@ function MateriContent() {
 
       {loading ? (
         <div className="flex items-center justify-center min-h-[35vh]">
-          <div className="text-center space-y-3">
-            <Loader2 className="w-8 h-8 animate-spin text-olive mx-auto" />
-            <p className="text-sm text-muted-foreground">Memuat daftar modul materi...</p>
+          <div className="bg-surface-white border border-[#171717] dark:border-[#3F3F46] p-8 technical-shadow text-center space-y-3">
+            <Loader2 className="w-8 h-8 animate-spin text-[#171717] dark:text-[#FDE047] mx-auto" />
+            <p className="text-xs font-mono text-ink-muted">Memuat daftar modul materi...</p>
           </div>
         </div>
       ) : materials.length > 0 ? (
@@ -304,64 +304,66 @@ function MateriContent() {
             return (
               <div
                 key={materi.id || idx}
-                className={`bg-card rounded-2xl p-6 border transition-all duration-200 flex flex-col justify-between h-full shadow-sm hover:shadow-md ${
-                  isUnlocked ? "border-border hover:border-olive/50" : "border-border/60 bg-muted/20 opacity-90"
+                className={`bg-surface-white p-6 border transition-all duration-200 flex flex-col justify-between h-full technical-shadow ${
+                  isUnlocked
+                    ? "border-[#171717] dark:border-[#3F3F46] hover:border-alert-rust dark:hover:border-[#FDE047]"
+                    : "border-[#171717]/40 dark:border-[#3F3F46] bg-canvas-paper dark:bg-[#181A20]/70 opacity-90"
                 }`}
               >
                 <div>
                   {/* Top Badge & Metadata */}
-                  <div className="flex items-center justify-between gap-2 mb-4">
-                    <span className="text-[11px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded bg-muted text-muted-foreground">
+                  <div className="flex items-center justify-between gap-2 mb-4 pb-2.5 border-b border-[#D4D2C9] dark:border-[#3F3F46]">
+                    <span className="text-[11px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 bg-canvas-paper dark:bg-[#22252E] text-ink-muted border border-[#D4D2C9] dark:border-[#3F3F46]">
                       Modul {materi.module_number ?? idx + 1}
                     </span>
                     {materi.is_free_preview ? (
-                      <span className="inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-400 border border-emerald-300">
+                      <span className="inline-flex items-center gap-1 text-[10px] font-mono font-bold uppercase px-2 py-0.5 bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-400 dark:border-emerald-500/50">
                         <CheckCircle className="w-3 h-3" /> Free Preview
                       </span>
                     ) : isUnlocked ? (
-                      <span className="inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full bg-olive/15 text-olive">
+                      <span className="inline-flex items-center gap-1 text-[10px] font-mono font-bold uppercase px-2 py-0.5 bg-accent-canary text-[#171717] border border-[#171717]">
                         <CheckCircle className="w-3 h-3" /> Terbuka
                       </span>
                     ) : (
-                      <span className="inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-400 border border-amber-300">
+                      <span className="inline-flex items-center gap-1 text-[10px] font-mono font-bold uppercase px-2 py-0.5 bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-400 dark:border-amber-500/50">
                         <Lock className="w-3 h-3" /> Premium
                       </span>
                     )}
                   </div>
 
                   {/* Title */}
-                  <h3 className="text-base font-bold text-foreground leading-snug mb-2">
+                  <h3 className="text-base font-extrabold text-[#171717] dark:text-[#F5F4EE] leading-snug mb-2">
                     {materi.title}
                   </h3>
 
                   {/* Summary */}
                   {materi.summary && (
-                    <p className="text-xs text-muted-foreground leading-relaxed line-clamp-3 mb-4">
+                    <p className="text-xs text-ink-muted leading-relaxed line-clamp-3 mb-4">
                       {materi.summary}
                     </p>
                   )}
 
                   {materi.reading_time_minutes && (
-                    <p className="text-[11px] font-medium text-muted-foreground flex items-center gap-1 mb-5">
-                      <Clock className="w-3 h-3 text-muted-foreground/70" />
+                    <p className="text-[11px] font-mono font-medium text-ink-muted flex items-center gap-1 mb-5">
+                      <Clock className="w-3 h-3 text-alert-rust" />
                       <span>{materi.reading_time_minutes} menit membaca</span>
                     </p>
                   )}
                 </div>
 
                 {/* Bottom Actions */}
-                <div className="space-y-2.5 pt-4 border-t border-border mt-auto">
+                <div className="space-y-2.5 pt-4 border-t border-[#D4D2C9] dark:border-[#3F3F46] mt-auto">
                   {isUnlocked ? (
-                    <Button asChild className="w-full bg-olive hover:bg-olive/90 text-white font-semibold text-xs h-10">
+                    <Button asChild className="w-full bg-[#171717] hover:bg-[#171717]/90 text-white dark:bg-accent-canary dark:text-[#171717] dark:hover:bg-[#fde667] font-mono font-bold text-xs h-10 rounded-none border border-[#171717] dark:border-[#FDE047] technical-shadow-sm">
                       <Link href={`/dashboard/materi/${itemSlug}`}>
                         <BookOpen className="w-4 h-4 mr-2" />
                         Baca Modul Interaktif
                       </Link>
                     </Button>
                   ) : (
-                    <Button asChild variant="outline" className="w-full text-xs h-10 border-amber-400/60 text-amber-900 dark:text-amber-300 hover:bg-amber-50">
+                    <Button asChild variant="outline" className="w-full font-mono font-bold text-xs h-10 rounded-none border border-[#171717] dark:border-amber-500/60 text-amber-900 dark:text-amber-300 hover:bg-amber-50 dark:hover:bg-amber-950/40">
                       <Link href="/dashboard/beli-paket">
-                        <Lock className="w-3.5 h-3.5 mr-2 text-amber-600" />
+                        <Lock className="w-3.5 h-3.5 mr-2 text-amber-600 dark:text-amber-400" />
                         Buka Akses Premium
                       </Link>
                     </Button>
@@ -370,7 +372,7 @@ function MateriContent() {
                   {isUnlocked && (materi.drive_url || materi.podcast_url) && (
                     <div className="flex gap-2">
                       {materi.drive_url && (
-                        <Button asChild variant="outline" size="sm" className="flex-1 text-[11px] h-8">
+                        <Button asChild variant="outline" size="sm" className="flex-1 text-[11px] font-mono font-bold h-8 rounded-none border-[#171717] dark:border-[#3F3F46] text-[#171717] dark:text-[#F5F4EE] hover:bg-accent-canary hover:text-[#171717] dark:hover:text-[#171717]">
                           <a href={materi.drive_url} target="_blank" rel="noopener noreferrer">
                             <FileDown className="w-3.5 h-3.5 mr-1" />
                             PDF
@@ -378,7 +380,7 @@ function MateriContent() {
                         </Button>
                       )}
                       {materi.podcast_url && (
-                        <Button asChild variant="outline" size="sm" className="flex-1 text-[11px] h-8">
+                        <Button asChild variant="outline" size="sm" className="flex-1 text-[11px] font-mono font-bold h-8 rounded-none border-[#171717] dark:border-[#3F3F46] text-[#171717] dark:text-[#F5F4EE] hover:bg-accent-canary hover:text-[#171717] dark:hover:text-[#171717]">
                           <a href={materi.podcast_url} target="_blank" rel="noopener noreferrer">
                             <Headphones className="w-3.5 h-3.5 mr-1" />
                             Podcast

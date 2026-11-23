@@ -138,14 +138,14 @@ export function BetaFeedbackDialog({
                     {errorMessage && (
                         <div
                             role="alert"
-                            className="p-2.5 border-2 border-alert-rust bg-[#FFF5F0] text-xs font-mono text-[#171717]"
+                            className="p-2.5 border-2 border-alert-rust bg-[#FFF5F0] dark:bg-rose-950/40 text-xs font-mono text-[#171717] dark:text-[#F5F4EE]"
                         >
                             {errorMessage}
                         </div>
                     )}
 
                     <div className="space-y-1.5">
-                        <label className="font-mono text-[11px] font-bold uppercase tracking-wider text-[#171717] block">
+                        <label className="font-mono text-[11px] font-bold uppercase tracking-wider text-[#171717] dark:text-[#F5F4EE] block">
                             Penilaian (1 sampai 5)
                         </label>
                         <div className="grid grid-cols-5 gap-2">
@@ -156,10 +156,10 @@ export function BetaFeedbackDialog({
                                         key={value}
                                         type="button"
                                         onClick={() => setRating(value)}
-                                        className={`py-2 border-2 border-[#171717] font-mono text-xs font-bold flex items-center justify-center gap-1 transition-colors cursor-pointer ${
+                                        className={`py-2 border-2 font-mono text-xs font-bold flex items-center justify-center gap-1 transition-colors cursor-pointer ${
                                             selected
-                                                ? "bg-accent-canary text-[#171717] shadow-[2px_2px_0px_#171717]"
-                                                : "bg-canvas-paper text-[#171717] hover:bg-surface-white"
+                                                ? "bg-accent-canary border-[#171717] dark:border-[#FDE047] text-[#171717] shadow-[2px_2px_0px_#171717] dark:shadow-[2px_2px_0px_#FDE047]"
+                                                : "bg-canvas-paper border-[#171717] dark:border-[#3F3F46] text-[#171717] dark:text-[#F5F4EE] hover:bg-surface-white dark:hover:bg-[#22252E]"
                                         }`}
                                     >
                                         <span>{value}</span>
@@ -175,17 +175,17 @@ export function BetaFeedbackDialog({
                     </div>
 
                     <div className="space-y-1.5">
-                        <label className="font-mono text-[11px] font-bold uppercase tracking-wider text-[#171717] block">
+                        <label className="font-mono text-[11px] font-bold uppercase tracking-wider text-[#171717] dark:text-[#F5F4EE] block">
                             Kategori
                         </label>
                         <Select
                             value={category}
                             onValueChange={(v) => setCategory(v as FeedbackCategory)}
                         >
-                            <SelectTrigger className="w-full bg-canvas-paper border-2 border-[#171717] rounded-none font-mono text-xs font-semibold text-[#171717] focus:ring-0 h-10">
+                            <SelectTrigger className="w-full bg-canvas-paper border-2 border-[#171717] dark:border-[#3F3F46] rounded-none font-mono text-xs font-semibold text-[#171717] dark:text-[#F5F4EE] focus:ring-0 h-10">
                                 <SelectValue placeholder="Pilih kategori" />
                             </SelectTrigger>
-                            <SelectContent className="bg-surface-white border-2 border-[#171717] rounded-none font-mono text-xs">
+                            <SelectContent className="bg-surface-white border-2 border-[#171717] dark:border-[#3F3F46] rounded-none font-mono text-xs text-[#171717] dark:text-[#F5F4EE]">
                                 {CATEGORY_OPTIONS.map((option) => (
                                     <SelectItem
                                         key={option.value}
@@ -202,7 +202,7 @@ export function BetaFeedbackDialog({
                     <div className="space-y-1.5">
                         <label
                             htmlFor="beta-feedback-message"
-                            className="font-mono text-[11px] font-bold uppercase tracking-wider text-[#171717] block"
+                            className="font-mono text-[11px] font-bold uppercase tracking-wider text-[#171717] dark:text-[#F5F4EE] block"
                         >
                             Pesan
                         </label>
@@ -216,7 +216,7 @@ export function BetaFeedbackDialog({
                                 if (errorMessage) setErrorMessage(null)
                             }}
                             placeholder="Tulis saran, soal yang membingungkan, atau kendala yang kamu temui..."
-                            className="w-full bg-canvas-paper border-2 border-[#171717] rounded-none p-3 text-sm font-sans text-[#171717] placeholder:text-ink-muted/60 focus:outline-none focus:border-alert-rust focus:bg-surface-white resize-y"
+                            className="w-full bg-canvas-paper border-2 border-[#171717] dark:border-[#3F3F46] rounded-none p-3 text-sm font-sans text-[#171717] dark:text-[#F5F4EE] placeholder:text-ink-muted/60 focus:outline-none focus:border-alert-rust dark:focus:border-[#FDE047] focus:bg-surface-white resize-y"
                             required
                         />
                         <div className="text-right font-mono text-[10px] text-ink-muted">
@@ -228,14 +228,14 @@ export function BetaFeedbackDialog({
                         <button
                             type="button"
                             onClick={() => setOpen(false)}
-                            className="px-4 py-2 border-2 border-[#171717] bg-surface-white hover:bg-canvas-paper font-mono text-xs font-bold uppercase text-[#171717] cursor-pointer"
+                            className="px-4 py-2 border-2 border-[#171717] dark:border-[#3F3F46] bg-surface-white hover:bg-canvas-paper dark:hover:bg-[#22252E] font-mono text-xs font-bold uppercase text-[#171717] dark:text-[#F5F4EE] cursor-pointer"
                         >
                             Batal
                         </button>
                         <button
                             type="submit"
                             disabled={submitting}
-                            className="px-4 py-2 border-2 border-[#171717] bg-accent-canary hover:bg-[#FACC15] font-mono text-xs font-bold uppercase text-[#171717] shadow-[3px_3px_0px_#171717] cursor-pointer disabled:opacity-60"
+                            className="px-4 py-2 border-2 border-[#171717] dark:border-[#FDE047] bg-accent-canary hover:bg-[#FACC15] font-mono text-xs font-bold uppercase text-[#171717] shadow-[3px_3px_0px_#171717] dark:shadow-[3px_3px_0px_#3F3F46] cursor-pointer disabled:opacity-60"
                         >
                             {submitting ? "Mengirim..." : "Kirim"}
                         </button>

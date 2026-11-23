@@ -62,7 +62,7 @@ interface CalloutConfig {
     prefix: string
     icon: React.ComponentType<{ className?: string }>
     headerClass: string
-    textClass: string
+    bodyBgClass: string
 }
 
 const CALLOUT_CONFIGS: Record<CalloutType, CalloutConfig> = {
@@ -71,49 +71,49 @@ const CALLOUT_CONFIGS: Record<CalloutType, CalloutConfig> = {
         prefix: "[!] FORMULA",
         icon: Sparkles,
         headerClass: "bg-accent-canary text-[#171717]",
-        textClass: "text-[#171717]",
+        bodyBgClass: "bg-surface-white dark:bg-amber-950/20",
     },
     NOTE: {
         title: "CATATAN PEMBELAJARAN",
         prefix: "[i] NOTE",
         icon: Info,
-        headerClass: "bg-canvas-paper text-[#171717]",
-        textClass: "text-[#171717]",
+        headerClass: "bg-canvas-paper text-[#171717] dark:bg-sky-950/50 dark:text-sky-200",
+        bodyBgClass: "bg-surface-white dark:bg-sky-950/20",
     },
     INFO: {
         title: "INFORMASI TEKNIS",
         prefix: "[i] INFO",
         icon: Info,
-        headerClass: "bg-canvas-paper text-[#171717]",
-        textClass: "text-[#171717]",
+        headerClass: "bg-canvas-paper text-[#171717] dark:bg-sky-950/50 dark:text-sky-200",
+        bodyBgClass: "bg-surface-white dark:bg-sky-950/20",
     },
     WARNING: {
         title: "PERINGATAN KONSEP",
         prefix: "[!] WARNING",
         icon: AlertTriangle,
         headerClass: "bg-alert-rust text-white",
-        textClass: "text-[#171717]",
+        bodyBgClass: "bg-surface-white dark:bg-rose-950/20",
     },
     CAUTION: {
         title: "PERHATIAN KHUSUS",
         prefix: "[!] CAUTION",
         icon: AlertTriangle,
         headerClass: "bg-alert-rust text-white",
-        textClass: "text-[#171717]",
+        bodyBgClass: "bg-surface-white dark:bg-rose-950/20",
     },
     TIP: {
         title: "TIPS UJIAN & PRAKTIS",
         prefix: "[*] TIP",
         icon: Lightbulb,
-        headerClass: "bg-[#e2e8d8] text-[#171717]",
-        textClass: "text-[#171717]",
+        headerClass: "bg-[#e2e8d8] text-[#171717] dark:bg-emerald-950/50 dark:text-emerald-200",
+        bodyBgClass: "bg-surface-white dark:bg-emerald-950/20",
     },
     IMPORTANT: {
         title: "PENTING DIINGAT",
         prefix: "[#] IMPORTANT",
         icon: AlertCircle,
-        headerClass: "bg-[#171717] text-white",
-        textClass: "text-[#171717]",
+        headerClass: "bg-[#171717] text-white dark:bg-accent-canary dark:text-[#171717]",
+        bodyBgClass: "bg-surface-white dark:bg-[#22252E]",
     },
 }
 
@@ -131,11 +131,11 @@ function CalloutBox({
 
     return (
         <div
-            className="my-5 border border-[#171717] bg-surface-white technical-shadow-sm overflow-hidden"
+            className="my-5 border border-[#171717] dark:border-[#3F3F46] bg-surface-white technical-shadow-sm overflow-hidden"
             role="alert"
         >
             {/* Rigid Callout Header */}
-            <div className={cn("px-3.5 py-1.5 border-b border-[#171717] flex items-center justify-between text-xs font-mono font-bold uppercase", config.headerClass)}>
+            <div className={cn("px-3.5 py-1.5 border-b border-[#171717] dark:border-[#3F3F46] flex items-center justify-between text-xs font-mono font-bold uppercase", config.headerClass)}>
                 <div className="flex items-center gap-2">
                     <IconComponent className="size-3.5 shrink-0" />
                     <span>{config.prefix} {"//"} {customTitle || config.title}</span>
@@ -144,7 +144,7 @@ function CalloutBox({
             </div>
 
             {/* Callout Body */}
-            <div className="p-3.5 sm:p-4 text-sm leading-relaxed text-[#171717] space-y-2 [&>p]:my-1.5 [&>.katex-display]:my-2 font-sans">
+            <div className={cn("p-3.5 sm:p-4 text-sm leading-relaxed text-[#171717] dark:text-[#F5F4EE] space-y-2 [&>p]:my-1.5 [&>.katex-display]:my-2 font-sans", config.bodyBgClass)}>
                 {children}
             </div>
         </div>
@@ -227,7 +227,7 @@ export default function MarkdownLatex({ children, className }: MarkdownLatexProp
     if (!children) return null
 
     return (
-        <div className={cn("prose prose-olive max-w-none text-[#171717]", className)}>
+        <div className={cn("prose prose-olive max-w-none text-[#171717] dark:text-[#F5F4EE]", className)}>
             <ReactMarkdown
                 remarkPlugins={[remarkGfm, remarkMath]}
                 rehypePlugins={markdownRehypePlugins}
@@ -237,7 +237,7 @@ export default function MarkdownLatex({ children, className }: MarkdownLatexProp
                         return (
                             <h1
                                 id={id}
-                                className="group relative scroll-mt-24 text-2xl md:text-3xl font-extrabold tracking-tight text-[#171717] mt-8 mb-4 border-b-2 border-[#171717] pb-3 flex items-center justify-between font-sans"
+                                className="group relative scroll-mt-24 text-2xl md:text-3xl font-extrabold tracking-tight text-inherit mt-8 mb-4 border-b-2 border-[#171717] dark:border-[#3F3F46] pb-3 flex items-center justify-between font-sans"
                                 {...props}
                             >
                                 <span>{children}</span>
@@ -256,7 +256,7 @@ export default function MarkdownLatex({ children, className }: MarkdownLatexProp
                         return (
                             <h2
                                 id={id}
-                                className="group relative scroll-mt-24 text-xl md:text-2xl font-bold tracking-tight text-[#171717] mt-7 mb-3 border-b border-[#171717] pb-2 flex items-center justify-between font-sans"
+                                className="group relative scroll-mt-24 text-xl md:text-2xl font-bold tracking-tight text-inherit mt-7 mb-3 border-b border-[#171717] dark:border-[#3F3F46] pb-2 flex items-center justify-between font-sans"
                                 {...props}
                             >
                                 <span>{children}</span>
@@ -275,7 +275,7 @@ export default function MarkdownLatex({ children, className }: MarkdownLatexProp
                         return (
                             <h3
                                 id={id}
-                                className="group relative scroll-mt-24 text-lg md:text-xl font-bold tracking-tight text-[#171717] mt-6 mb-2 flex items-center justify-between font-sans"
+                                className="group relative scroll-mt-24 text-lg md:text-xl font-bold tracking-tight text-inherit mt-6 mb-2 flex items-center justify-between font-sans"
                                 {...props}
                             >
                                 <span>{children}</span>
@@ -290,17 +290,17 @@ export default function MarkdownLatex({ children, className }: MarkdownLatexProp
                         )
                     },
                     p: ({ children, ...props }) => (
-                        <p className="leading-relaxed text-[#171717] my-3 text-sm md:text-base font-sans" {...props}>
+                        <p className="leading-relaxed text-inherit my-3 text-sm md:text-base font-sans" {...props}>
                             {children}
                         </p>
                     ),
                     ul: ({ children, ...props }) => (
-                        <ul className="list-disc list-inside space-y-1.5 my-3 text-[#171717] pl-2 text-sm md:text-base marker:text-alert-rust font-sans" {...props}>
+                        <ul className="list-disc list-inside space-y-1.5 my-3 text-inherit pl-2 text-sm md:text-base marker:text-alert-rust font-sans" {...props}>
                             {children}
                         </ul>
                     ),
                     ol: ({ children, ...props }) => (
-                        <ol className="list-decimal list-inside space-y-1.5 my-3 text-[#171717] pl-2 text-sm md:text-base marker:text-[#171717] font-sans marker:font-mono marker:font-bold" {...props}>
+                        <ol className="list-decimal list-inside space-y-1.5 my-3 text-inherit pl-2 text-sm md:text-base marker:text-current font-sans marker:font-mono marker:font-bold" {...props}>
                             {children}
                         </ol>
                     ),
@@ -318,7 +318,7 @@ export default function MarkdownLatex({ children, className }: MarkdownLatexProp
                         }
                         return (
                             <blockquote
-                                className="my-5 border-l-4 border-alert-rust bg-canvas-paper border-y border-r border-[#171717] p-3.5 italic text-[#171717] text-sm md:text-base leading-relaxed"
+                                className="my-5 border-l-4 border-alert-rust bg-canvas-paper border-y border-r border-[#171717] dark:border-[#3F3F46] p-3.5 italic text-[#171717] dark:text-[#F5F4EE] text-sm md:text-base leading-relaxed"
                                 {...props}
                             >
                                 {children}
@@ -326,36 +326,36 @@ export default function MarkdownLatex({ children, className }: MarkdownLatexProp
                         )
                     },
                     table: ({ children, ...props }) => (
-                        <div className="my-5 w-full overflow-x-auto border border-[#171717] bg-surface-white technical-shadow-sm">
+                        <div className="my-5 w-full overflow-x-auto border border-[#171717] dark:border-[#3F3F46] bg-surface-white technical-shadow-sm">
                             <table className="w-full border-collapse text-left text-sm" {...props}>
                                 {children}
                             </table>
                         </div>
                     ),
                     thead: ({ children, ...props }) => (
-                        <thead className="bg-canvas-paper border-b border-[#171717]" {...props}>
+                        <thead className="bg-canvas-paper dark:bg-[#22252E] border-b border-[#171717] dark:border-[#3F3F46]" {...props}>
                             {children}
                         </thead>
                     ),
                     th: ({ children, ...props }) => (
-                        <th className="px-4 py-2.5 text-xs font-mono font-bold uppercase tracking-wider text-[#171717] border-r border-[#171717] last:border-r-0" {...props}>
+                        <th className="px-4 py-2.5 text-xs font-mono font-bold uppercase tracking-wider text-[#171717] dark:text-[#F5F4EE] border-r border-[#171717] dark:border-[#3F3F46] last:border-r-0" {...props}>
                             {children}
                         </th>
                     ),
                     tr: ({ children, ...props }) => (
-                        <tr className="border-b border-[#171717]/30 last:border-b-0 hover:bg-canvas-paper/50 transition-colors even:bg-canvas-paper/20" {...props}>
+                        <tr className="border-b border-[#171717]/30 dark:border-[#3F3F46] last:border-b-0 hover:bg-canvas-paper/50 dark:hover:bg-[#22252E]/60 transition-colors even:bg-canvas-paper/20 dark:even:bg-[#22252E]/30" {...props}>
                             {children}
                         </tr>
                     ),
                     td: ({ children, ...props }) => (
-                        <td className="px-4 py-2.5 text-[#171717] border-r border-[#171717]/30 last:border-r-0 align-top text-xs sm:text-sm font-sans" {...props}>
+                        <td className="px-4 py-2.5 text-[#171717] dark:text-[#F5F4EE] border-r border-[#171717]/30 dark:border-[#3F3F46] last:border-r-0 align-top text-xs sm:text-sm font-sans" {...props}>
                             {children}
                         </td>
                     ),
                     a: ({ href, children, ...props }) => (
                         <a
                             href={href}
-                            className="font-medium text-[#171717] underline decoration-alert-rust decoration-2 underline-offset-4 hover:bg-accent-canary transition-colors"
+                            className="font-medium text-[#171717] dark:text-[#FDE047] underline decoration-alert-rust dark:decoration-[#FDE047] decoration-2 underline-offset-4 hover:bg-accent-canary hover:text-[#171717] dark:hover:text-[#171717] transition-colors"
                             {...props}
                         >
                             {children}
@@ -371,7 +371,7 @@ export default function MarkdownLatex({ children, className }: MarkdownLatexProp
                             return (
                                 <code
                                     className={cn(
-                                        "bg-canvas-paper px-1.5 py-0.5 font-mono text-xs font-bold text-[#171717] border border-[#171717]",
+                                        "bg-canvas-paper dark:bg-[#22252E] px-1.5 py-0.5 font-mono text-xs font-bold text-[#171717] dark:text-[#FDE047] border border-[#171717] dark:border-[#3F3F46]",
                                         className
                                     )}
                                     {...props}
@@ -381,7 +381,7 @@ export default function MarkdownLatex({ children, className }: MarkdownLatexProp
                             )
                         }
                         return (
-                            <div className="relative my-5 border border-[#171717] bg-[#121212] text-[#f5f4ee] technical-shadow-sm overflow-hidden">
+                            <div className="relative my-5 border border-[#171717] dark:border-[#3F3F46] bg-[#121212] text-[#f5f4ee] technical-shadow-sm overflow-hidden">
                                 <div className="bg-[#171717] border-b border-[#333333] px-3.5 py-1.5 flex items-center justify-between text-[11px] font-mono text-white/80">
                                     <div className="flex items-center gap-1.5">
                                         <span className="size-2 bg-alert-rust" />
@@ -399,7 +399,7 @@ export default function MarkdownLatex({ children, className }: MarkdownLatexProp
                             </div>
                         )
                     },
-                    hr: () => <hr className="my-8 border-t-2 border-[#171717]" />
+                    hr: () => <hr className="my-8 border-t-2 border-[#171717] dark:border-[#3F3F46]" />
                 }}
             >
                 {children}

@@ -83,13 +83,13 @@ export default function HistoryPage() {
 
       {/* Diagnostic Telemetry Strip (Mini Stats) */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
-        <div className="bg-surface-white border-2 border-[#171717] technical-shadow p-5 relative tick-corner flex flex-col justify-between">
+        <div className="bg-surface-white border-2 border-[#171717] dark:border-[#3F3F46] technical-shadow p-5 relative tick-corner flex flex-col justify-between">
           <div className="flex items-center justify-between font-mono text-xs font-bold uppercase tracking-wider text-ink-muted">
             <span>TOTAL_SESI // LOGS</span>
-            <div className="size-3 bg-accent-canary border border-[#171717]" />
+            <div className="size-3 bg-accent-canary border border-[#171717] dark:border-[#FDE047]" />
           </div>
           <div className="mt-4">
-            <p className="font-mono text-3xl font-black text-[#171717]">
+            <p className="font-mono text-3xl font-black text-[#171717] dark:text-[#F5F4EE]">
               {String(submissions.length).padStart(2, "0")}
             </p>
             <p className="font-mono text-[10px] uppercase tracking-wider text-ink-muted mt-1">
@@ -101,13 +101,13 @@ export default function HistoryPage() {
           </div>
         </div>
 
-        <div className="bg-surface-white border-2 border-[#171717] technical-shadow p-5 relative tick-corner flex flex-col justify-between">
+        <div className="bg-surface-white border-2 border-[#171717] dark:border-[#3F3F46] technical-shadow p-5 relative tick-corner flex flex-col justify-between">
           <div className="flex items-center justify-between font-mono text-xs font-bold uppercase tracking-wider text-ink-muted">
             <span>SESI_SELESAI // VALID</span>
-            <div className="size-3 bg-alert-rust border border-[#171717]" />
+            <div className="size-3 bg-alert-rust border border-[#171717] dark:border-[#3F3F46]" />
           </div>
           <div className="mt-4">
-            <p className="font-mono text-3xl font-black text-[#171717]">
+            <p className="font-mono text-3xl font-black text-[#171717] dark:text-[#F5F4EE]">
               {String(completedSubmissions.length).padStart(2, "0")}
             </p>
             <p className="font-mono text-[10px] uppercase tracking-wider text-ink-muted mt-1">
@@ -119,13 +119,13 @@ export default function HistoryPage() {
           </div>
         </div>
 
-        <div className="bg-surface-white border-2 border-[#171717] technical-shadow p-5 relative tick-corner flex flex-col justify-between">
+        <div className="bg-surface-white border-2 border-[#171717] dark:border-[#3F3F46] technical-shadow p-5 relative tick-corner flex flex-col justify-between">
           <div className="flex items-center justify-between font-mono text-xs font-bold uppercase tracking-wider text-ink-muted">
             <span>RATA_RATA_SKOR // AVG</span>
-            <div className="size-3 bg-[#171717] border border-[#171717]" />
+            <div className="size-3 bg-[#171717] dark:bg-[#F5F4EE] border border-[#171717] dark:border-[#F5F4EE]" />
           </div>
           <div className="mt-4">
-            <p className="font-mono text-3xl font-black text-[#171717]">
+            <p className="font-mono text-3xl font-black text-[#171717] dark:text-[#F5F4EE]">
               {averageScore}%
             </p>
             <p className="font-mono text-[10px] uppercase tracking-wider text-ink-muted mt-1">
@@ -133,16 +133,16 @@ export default function HistoryPage() {
             </p>
           </div>
           <div className="w-full h-1 bg-border-grid mt-4 overflow-hidden">
-            <div className="h-full bg-[#171717] w-1/2" />
+            <div className="h-full bg-[#171717] dark:bg-[#F5F4EE] w-1/2" />
           </div>
         </div>
       </div>
 
       {/* Main Activity Telemetry Stream */}
       <div className="space-y-4">
-        <div className="flex items-center justify-between border-b-2 border-[#171717] pb-2 font-mono text-xs">
+        <div className="flex items-center justify-between border-b-2 border-[#171717] dark:border-[#3F3F46] pb-2 font-mono text-xs">
           <div className="flex items-center gap-2">
-            <span className="font-bold text-[#171717]">&gt; AKTIVITAS_TERAKHIR</span>
+            <span className="font-bold text-[#171717] dark:text-[#F5F4EE]">&gt; AKTIVITAS_TERAKHIR</span>
             <span className="text-ink-muted hidden sm:inline">{"// TELEMETRI KRONOLOGIS"}</span>
           </div>
           <div className="text-ink-muted font-bold">
@@ -151,7 +151,7 @@ export default function HistoryPage() {
         </div>
 
         {loading ? (
-          <div className="bg-surface-white border-2 border-dashed border-[#171717] bg-grid-blueprint p-16 text-center font-mono text-xs font-bold text-ink-muted relative tick-corner">
+          <div className="bg-surface-white border-2 border-dashed border-[#171717] dark:border-[#3F3F46] bg-grid-blueprint p-16 text-center font-mono text-xs font-bold text-ink-muted relative tick-corner">
             <div className="animate-pulse">
               &gt; STATUS: PARSING_TELEMETRY_LOGS... // MEMUAT RIWAYAT
             </div>
@@ -164,7 +164,7 @@ export default function HistoryPage() {
             actionHref="/dashboard/tryouts"
           />
         ) : (
-          <div className="border-2 border-[#171717] bg-surface-white technical-shadow divide-y-2 divide-border-grid">
+          <div className="border-2 border-[#171717] dark:border-[#3F3F46] bg-surface-white technical-shadow divide-y-2 divide-border-grid">
             {submissions.map((sub) => {
               const isFinished = sub.status === "SUBMITTED" || sub.status === "COMPLETED" || sub.status === "TIMED_OUT"
               const title = sub.tryouts?.title || "Sesi Ujian / Latihan"
@@ -173,25 +173,25 @@ export default function HistoryPage() {
               return (
                 <div
                   key={sub.id}
-                  className="p-5 sm:p-6 flex flex-col lg:flex-row lg:items-center justify-between gap-5 hover:bg-canvas-paper/40 transition-colors"
+                  className="p-5 sm:p-6 flex flex-col lg:flex-row lg:items-center justify-between gap-5 hover:bg-canvas-paper/50 dark:hover:bg-[#22252E]/60 transition-colors"
                 >
                   {/* Left Column: Telemetry info */}
                   <div className="space-y-2 flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="font-mono text-[10px] font-bold px-2 py-0.5 uppercase bg-canvas-paper border border-[#171717] text-[#171717]">
+                      <span className="font-mono text-[10px] font-bold px-2 py-0.5 uppercase bg-canvas-paper dark:bg-[#22252E] border border-[#171717] dark:border-[#3F3F46] text-[#171717] dark:text-[#F5F4EE]">
                         {isPractice ? "LATIHAN MANDIRI" : "SIMULASI CBT"}
                       </span>
-                      <span className="font-mono text-[10px] font-bold px-2 py-0.5 uppercase bg-canvas-paper border border-[#171717] text-ink-muted">
+                      <span className="font-mono text-[10px] font-bold px-2 py-0.5 uppercase bg-canvas-paper dark:bg-[#22252E] border border-[#171717] dark:border-[#3F3F46] text-ink-muted">
                         {sub.tryouts?.subject || "FISIKA"}
                       </span>
 
                       {/* Status Badge */}
                       {sub.status === "SUBMITTED" || sub.status === "COMPLETED" ? (
-                        <span className="font-mono text-[10px] font-black px-2 py-0.5 uppercase bg-green-100 text-green-900 border border-[#171717]">
+                        <span className="font-mono text-[10px] font-black px-2 py-0.5 uppercase bg-green-100 dark:bg-emerald-950/60 text-green-900 dark:text-emerald-300 border border-[#171717] dark:border-emerald-500/60">
                           [STATUS: COMPLETED]
                         </span>
                       ) : sub.status === "TIMED_OUT" ? (
-                        <span className="font-mono text-[10px] font-black px-2 py-0.5 uppercase bg-alert-rust/15 text-alert-rust border border-[#171717]">
+                        <span className="font-mono text-[10px] font-black px-2 py-0.5 uppercase bg-alert-rust/15 dark:bg-orange-950/50 text-alert-rust border border-[#171717] dark:border-alert-rust">
                           [STATUS: TIMEOUT]
                         </span>
                       ) : (
@@ -205,7 +205,7 @@ export default function HistoryPage() {
                       </span>
                     </div>
 
-                    <h3 className="font-sans text-base sm:text-lg font-black text-[#171717] tracking-tight leading-snug truncate">
+                    <h3 className="font-sans text-base sm:text-lg font-black text-[#171717] dark:text-[#F5F4EE] tracking-tight leading-snug truncate">
                       {title}
                     </h3>
 
@@ -225,11 +225,11 @@ export default function HistoryPage() {
                   {/* Right Column: Score Box & Brutalist Action Buttons */}
                   <div className="flex items-center justify-between lg:justify-end gap-5 border-t lg:border-t-0 pt-4 lg:pt-0 border-border-grid">
                     {isFinished && (
-                      <div className="bg-canvas-paper border-2 border-[#171717] px-4 py-2 text-left lg:text-right min-w-[125px]">
+                      <div className="bg-canvas-paper dark:bg-[#22252E] border-2 border-[#171717] dark:border-[#3F3F46] px-4 py-2 text-left lg:text-right min-w-[125px]">
                         <p className="font-mono text-[9px] font-bold text-ink-muted uppercase tracking-wider">
                           SKOR_AKHIR
                         </p>
-                        <p className="font-mono text-2xl font-black text-[#171717] leading-none my-0.5">
+                        <p className="font-mono text-2xl font-black text-[#171717] dark:text-[#F5F4EE] leading-none my-0.5">
                           {sub.score ?? 0}%
                         </p>
                         <p className="font-mono text-[10px] text-ink-muted font-bold">
@@ -243,7 +243,7 @@ export default function HistoryPage() {
                         <Button
                           asChild
                           size="sm"
-                          className="bg-accent-canary hover:bg-[#FDE047]/90 text-[#171717] border-2 border-[#171717] technical-shadow rounded-none font-mono text-xs font-black py-2.5 px-4 uppercase tracking-wider transition-all"
+                          className="bg-accent-canary hover:bg-[#FDE047]/90 text-[#171717] border-2 border-[#171717] dark:border-[#FDE047] technical-shadow rounded-none font-mono text-xs font-black py-2.5 px-4 uppercase tracking-wider transition-all"
                         >
                           <Link href={`/dashboard/tryouts/${sub.tryout_id}/attempt`} className="flex items-center gap-1.5">
                             <span>LANJUTKAN</span>
@@ -256,7 +256,7 @@ export default function HistoryPage() {
                             asChild
                             size="sm"
                             variant="outline"
-                            className="bg-surface-white hover:bg-canvas-paper text-[#171717] border-2 border-[#171717] technical-shadow-sm rounded-none font-mono text-xs font-bold py-2 px-3 uppercase tracking-wider transition-all"
+                            className="bg-surface-white hover:bg-canvas-paper dark:hover:bg-[#22252E] text-[#171717] dark:text-[#F5F4EE] border-2 border-[#171717] dark:border-[#3F3F46] technical-shadow-sm rounded-none font-mono text-xs font-bold py-2 px-3 uppercase tracking-wider transition-all"
                           >
                             <Link href={`/dashboard/tryouts/${sub.tryout_id}/result?submissionId=${sub.id}`}>
                               HASIL
@@ -265,7 +265,7 @@ export default function HistoryPage() {
                           <Button
                             asChild
                             size="sm"
-                            className="bg-[#171717] hover:bg-accent-canary hover:text-[#171717] text-surface-white border-2 border-[#171717] technical-shadow rounded-none font-mono text-xs font-black py-2 px-4 uppercase tracking-wider transition-all"
+                            className="bg-[#171717] dark:bg-accent-canary hover:bg-accent-canary hover:text-[#171717] dark:hover:bg-[#FACC15] text-white dark:text-[#171717] border-2 border-[#171717] dark:border-[#FDE047] technical-shadow rounded-none font-mono text-xs font-black py-2 px-4 uppercase tracking-wider transition-all"
                           >
                             <Link href={`/dashboard/tryouts/${sub.tryout_id}/discussion`} className="flex items-center gap-1.5">
                               <span>PEMBAHASAN</span>

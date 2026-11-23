@@ -17,10 +17,10 @@ export function ProductSelector({ selected, onSelect }: ProductSelectorProps) {
       {/* 1. Primary: E-Learning Platform */}
       <div
         onClick={() => onSelect("UTS")}
-        className={`border-2 border-[#171717] p-6 sm:p-7 transition-all relative flex flex-col justify-between cursor-pointer ${
+        className={`border-2 p-6 sm:p-7 transition-all relative flex flex-col justify-between cursor-pointer ${
           isSelected
-            ? "bg-accent-canary/15 shadow-[6px_6px_0px_#171717] -translate-x-0.5 -translate-y-0.5"
-            : "bg-surface-white hover:bg-canvas-paper shadow-[3px_3px_0px_#171717] hover:shadow-[5px_5px_0px_#171717] hover:-translate-x-0.5 hover:-translate-y-0.5"
+            ? "border-[#171717] dark:border-[#FDE047] bg-accent-canary/15 dark:bg-accent-canary/10 shadow-[6px_6px_0px_#171717] dark:shadow-[6px_6px_0px_#FDE047] -translate-x-0.5 -translate-y-0.5"
+            : "border-[#171717] dark:border-[#3F3F46] bg-surface-white hover:bg-canvas-paper dark:hover:bg-[#22252E] shadow-[3px_3px_0px_#171717] dark:shadow-[3px_3px_0px_#3F3F46] hover:shadow-[5px_5px_0px_#171717] dark:hover:shadow-[5px_5px_0px_#FDE047] hover:-translate-x-0.5 hover:-translate-y-0.5"
         }`}
       >
         <div>
@@ -31,13 +31,13 @@ export function ProductSelector({ selected, onSelect }: ProductSelectorProps) {
               [01] PAKET UTAMA // E-LEARNING
             </span>
             {isSelected && (
-              <span className="w-6 h-6 bg-[#171717] text-accent-canary flex items-center justify-center font-bold text-xs border border-[#171717]">
+              <span className="w-6 h-6 bg-[#171717] dark:bg-accent-canary text-accent-canary dark:text-[#171717] flex items-center justify-center font-bold text-xs border border-[#171717]">
                 <Check className="w-3.5 h-3.5 stroke-[3]" />
               </span>
             )}
           </div>
 
-          <h3 className="font-extrabold text-[#171717] text-xl mb-1 leading-snug">
+          <h3 className="font-extrabold text-[#171717] dark:text-[#F5F4EE] text-xl mb-1 leading-snug">
             E-Learning Platform BBN
           </h3>
           <p className="font-mono text-xs font-bold text-alert-rust uppercase tracking-wider mb-3">
@@ -49,35 +49,35 @@ export function ProductSelector({ selected, onSelect }: ProductSelectorProps) {
           </p>
 
           <div className="flex flex-wrap gap-2">
-            <span className="bg-canvas-paper text-[#171717] font-mono text-[10px] font-bold px-2.5 py-1 border border-[#171717]">
+            <span className="bg-canvas-paper dark:bg-[#22252E] text-[#171717] dark:text-[#F5F4EE] font-mono text-[10px] font-bold px-2.5 py-1 border border-[#171717] dark:border-[#3F3F46]">
               MODUL INTERAKTIF
             </span>
-            <span className="bg-canvas-paper text-[#171717] font-mono text-[10px] font-bold px-2.5 py-1 border border-[#171717]">
+            <span className="bg-canvas-paper dark:bg-[#22252E] text-[#171717] dark:text-[#F5F4EE] font-mono text-[10px] font-bold px-2.5 py-1 border border-[#171717] dark:border-[#3F3F46]">
               SIMULASI CBT
             </span>
-            <span className="bg-canvas-paper text-[#171717] font-mono text-[10px] font-bold px-2.5 py-1 border border-[#171717]">
+            <span className="bg-canvas-paper dark:bg-[#22252E] text-[#171717] dark:text-[#F5F4EE] font-mono text-[10px] font-bold px-2.5 py-1 border border-[#171717] dark:border-[#3F3F46]">
               PEMBAHASAN SOAL
             </span>
           </div>
         </div>
 
-        <div className="pt-5 mt-6 border-t-2 border-[#171717] flex items-center justify-between font-mono text-xs font-bold text-[#171717]">
+        <div className="pt-5 mt-6 border-t-2 border-[#171717] dark:border-[#3F3F46] flex items-center justify-between font-mono text-xs font-bold text-[#171717] dark:text-[#F5F4EE]">
           <span>PILIH PAKET BELAJAR MANDIRI</span>
           <ArrowRight className="w-4 h-4" />
         </div>
       </div>
 
       {/* 2. Secondary: Offline / Private Tutoring Inquiry */}
-      <div className="border-2 border-[#171717] bg-canvas-paper p-6 sm:p-7 flex flex-col justify-between shadow-[3px_3px_0px_#171717]">
+      <div className="border-2 border-[#171717] dark:border-[#3F3F46] bg-canvas-paper p-6 sm:p-7 flex flex-col justify-between shadow-[3px_3px_0px_#171717] dark:shadow-[3px_3px_0px_#3F3F46]">
         <div>
           <div className="flex items-center justify-between mb-4">
-            <span className="inline-flex items-center gap-1.5 font-mono text-[10px] font-bold px-2.5 py-1 bg-surface-white text-[#171717] border border-[#171717] uppercase tracking-wider">
-              <MessageCircle className="w-3 h-3 text-emerald-700" />
+            <span className="inline-flex items-center gap-1.5 font-mono text-[10px] font-bold px-2.5 py-1 bg-surface-white text-[#171717] dark:text-[#F5F4EE] border border-[#171717] dark:border-[#3F3F46] uppercase tracking-wider">
+              <MessageCircle className="w-3 h-3 text-emerald-700 dark:text-emerald-400" />
               [02] BIMBINGAN OFFLINE
             </span>
           </div>
 
-          <h3 className="font-extrabold text-[#171717] text-xl mb-1 leading-snug">
+          <h3 className="font-extrabold text-[#171717] dark:text-[#F5F4EE] text-xl mb-1 leading-snug">
             Bimbingan Tatap Muka &amp; Privat
           </h3>
           <p className="font-mono text-xs font-bold text-ink-muted uppercase tracking-wider mb-3">
@@ -89,28 +89,28 @@ export function ProductSelector({ selected, onSelect }: ProductSelectorProps) {
           </p>
 
           <div className="flex flex-wrap gap-2">
-            <span className="bg-surface-white text-[#171717] font-mono text-[10px] font-bold px-2.5 py-1 border border-[#171717]">
+            <span className="bg-surface-white text-[#171717] dark:text-[#F5F4EE] font-mono text-[10px] font-bold px-2.5 py-1 border border-[#171717] dark:border-[#3F3F46]">
               JADWAL FLEKSIBEL
             </span>
-            <span className="bg-surface-white text-[#171717] font-mono text-[10px] font-bold px-2.5 py-1 border border-[#171717]">
+            <span className="bg-surface-white text-[#171717] dark:text-[#F5F4EE] font-mono text-[10px] font-bold px-2.5 py-1 border border-[#171717] dark:border-[#3F3F46]">
               PRIVAT 1-ON-1
             </span>
-            <span className="bg-surface-white text-[#171717] font-mono text-[10px] font-bold px-2.5 py-1 border border-[#171717]">
+            <span className="bg-surface-white text-[#171717] dark:text-[#F5F4EE] font-mono text-[10px] font-bold px-2.5 py-1 border border-[#171717] dark:border-[#3F3F46]">
               GRUP BELAJAR
             </span>
           </div>
         </div>
 
-        <div className="pt-5 mt-6 border-t-2 border-[#171717]">
+        <div className="pt-5 mt-6 border-t-2 border-[#171717] dark:border-[#3F3F46]">
           <a
             href={`https://wa.me/${BUSINESS_CONFIG.contact.adminWhatsapp.replace(/\D/g, "")}?text=${encodeURIComponent(
               "Halo Admin Belajar Bareng Nata, saya ingin mendaftar bimbingan tatap muka / offline privat."
             )}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="w-full inline-flex items-center justify-center gap-2 bg-surface-white hover:bg-accent-canary text-[#171717] border-2 border-[#171717] py-2.5 px-4 font-mono font-bold text-xs uppercase shadow-[2px_2px_0px_#171717] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_#171717] transition-all cursor-pointer"
+            className="w-full inline-flex items-center justify-center gap-2 bg-surface-white hover:bg-accent-canary text-[#171717] dark:text-[#F5F4EE] hover:text-[#171717] dark:hover:text-[#171717] border-2 border-[#171717] dark:border-[#3F3F46] dark:hover:border-[#FDE047] py-2.5 px-4 font-mono font-bold text-xs uppercase shadow-[2px_2px_0px_#171717] dark:shadow-[2px_2px_0px_#3F3F46] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_#171717] transition-all cursor-pointer"
           >
-            <MessageCircle className="w-3.5 h-3.5 text-emerald-700" />
+            <MessageCircle className="w-3.5 h-3.5 text-emerald-700 dark:text-emerald-400" />
             <span>KONSULTASI VIA WHATSAPP ADMIN</span>
           </a>
         </div>

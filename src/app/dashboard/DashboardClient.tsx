@@ -254,19 +254,19 @@ export default function DashboardClient({
   if (loading) {
     return (
       <div className="min-h-[50vh] bg-canvas-paper flex flex-col items-center justify-center p-8">
-        <div className="bg-surface-white border-2 border-[#171717] p-8 technical-shadow max-w-sm w-full text-center space-y-4">
+        <div className="bg-surface-white border-2 border-[#171717] dark:border-[#3F3F46] p-8 technical-shadow max-w-sm w-full text-center space-y-4">
           <div className="size-10 border-2 border-[#171717] bg-accent-canary flex items-center justify-center mx-auto animate-pulse">
             <Cpu className="size-5 text-[#171717]" />
           </div>
           <div className="space-y-1">
-            <div className="font-mono text-xs font-bold text-[#171717] uppercase tracking-wider">
+            <div className="font-mono text-xs font-bold text-[#171717] dark:text-[#F5F4EE] uppercase tracking-wider">
               [SYSTEM.INITIALIZING]
             </div>
             <p className="text-xs font-mono text-ink-muted">
               Sinkronisasi BBN_EDU // CORE...
             </p>
           </div>
-          <div className="w-full bg-[#171717]/10 h-2 border border-[#171717] overflow-hidden">
+          <div className="w-full bg-[#171717]/10 dark:bg-[#22252E] h-2 border border-[#171717] dark:border-[#3F3F46] overflow-hidden">
             <div className="h-full bg-accent-canary w-2/3 animate-pulse" />
           </div>
         </div>
@@ -279,7 +279,7 @@ export default function DashboardClient({
       {/* ======================================================== */}
       {/* 1. GREETING BLUEPRINT BANNER (TAB [01] DASHBOARD)       */}
       {/* ======================================================== */}
-      <section className="bg-surface-white border border-[#171717] p-5 technical-shadow tick-corner">
+      <section className="bg-surface-white border border-[#171717] dark:border-[#3F3F46] p-5 technical-shadow tick-corner">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-2">
             {isExcellentBeta && activeBetaCourse ? (
@@ -290,7 +290,7 @@ export default function DashboardClient({
                 <span className="bg-accent-canary text-[#171717] border border-[#171717] font-mono text-[10px] sm:text-xs px-2 py-0.5 font-bold uppercase">
                   BETA
                 </span>
-                <span className="font-mono text-xs font-bold text-[#171717] bg-canvas-paper border border-[#171717] px-2 py-0.5 uppercase">
+                <span className="font-mono text-xs font-bold text-[#171717] dark:text-[#F5F4EE] bg-canvas-paper border border-[#171717] dark:border-[#3F3F46] px-2 py-0.5 uppercase">
                   {activeBetaCourse.title}
                 </span>
               </div>
@@ -305,21 +305,21 @@ export default function DashboardClient({
                 <span className="font-mono text-xs text-ink-muted hidden sm:inline">
                   |
                 </span>
-                <span className="font-mono text-xs font-bold text-[#171717] bg-canvas-paper border border-[#171717] px-2 py-0.5">
+                <span className="font-mono text-xs font-bold text-[#171717] dark:text-[#F5F4EE] bg-canvas-paper border border-[#171717] dark:border-[#3F3F46] px-2 py-0.5">
                   BBN_EDU // CORE
                 </span>
               </div>
             )}
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-[#171717] tracking-tight">
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-[#171717] dark:text-[#F5F4EE] tracking-tight">
               Halo, {user?.name || (isExcellentBeta ? "Siswa Fisika" : "Mahasiswa BBN")}
             </h1>
             {isExcellentBeta && activeBetaCourse ? (
               <p className="text-sm text-ink-muted max-w-2xl leading-relaxed">
-                Selamat datang di ruang belajar <strong className="text-[#171717]">{activeBetaCourse.title}</strong>. Kamu sudah menyelesaikan <strong className="text-[#171717]">{(stats?.tryoutStats.completed ?? 0) + (stats?.latihanStats.completed ?? 0)} sesi evaluasi</strong> dengan <strong className="text-[#171717]">{totalMaterials} modul materi</strong> tersedia untuk kelas kamu.
+                Selamat datang di ruang belajar <strong className="text-[#171717] dark:text-[#F5F4EE]">{activeBetaCourse.title}</strong>. Kamu sudah menyelesaikan <strong className="text-[#171717] dark:text-[#F5F4EE]">{(stats?.tryoutStats.completed ?? 0) + (stats?.latihanStats.completed ?? 0)} sesi evaluasi</strong> dengan <strong className="text-[#171717] dark:text-[#F5F4EE]">{totalMaterials} modul materi</strong> tersedia untuk kelas kamu.
               </p>
             ) : (
               <p className="text-sm text-ink-muted max-w-2xl leading-relaxed">
-                Progres kurikulum Anda saat ini berada pada <strong className="text-[#171717]">{materialsPercent}%</strong> ({completedMaterials} dari {totalMaterials} modul tersedia) dengan total <strong className="text-[#171717]">{(stats?.tryoutStats.completed ?? 0) + (stats?.latihanStats.completed ?? 0)} evaluasi</strong> tercatat.
+                Progres kurikulum Anda saat ini berada pada <strong className="text-[#171717] dark:text-[#F5F4EE]">{materialsPercent}%</strong> ({completedMaterials} dari {totalMaterials} modul tersedia) dengan total <strong className="text-[#171717] dark:text-[#F5F4EE]">{(stats?.tryoutStats.completed ?? 0) + (stats?.latihanStats.completed ?? 0)} evaluasi</strong> tercatat.
               </p>
             )}
           </div>
@@ -328,7 +328,7 @@ export default function DashboardClient({
           <div className="shrink-0 flex flex-col space-y-2.5 min-w-0 sm:min-w-[320px]">
             <Link
               href={nextMaterial ? `/dashboard/materi/${nextMaterial.slug}` : "/dashboard/materi"}
-              className="px-4 py-3 bg-accent-canary text-[#171717] border border-[#171717] font-mono text-xs sm:text-sm font-bold flex items-center justify-center space-x-2 hover:-translate-x-0.5 hover:-translate-y-0.5 technical-shadow transition-transform"
+              className="px-4 py-3 bg-accent-canary text-[#171717] border border-[#171717] dark:border-[#FDE047] font-mono text-xs sm:text-sm font-bold flex items-center justify-center space-x-2 hover:-translate-x-0.5 hover:-translate-y-0.5 technical-shadow transition-transform"
             >
               <span className="truncate max-w-[260px]">
                 {nextMaterial
@@ -346,7 +346,7 @@ export default function DashboardClient({
                   {completedMaterials} / {totalMaterials} MODUL ({materialsPercent}%)
                 </span>
               </div>
-              <div className="w-full bg-canvas-paper h-2 border border-[#171717] p-0.5">
+              <div className="w-full bg-canvas-paper h-2 border border-[#171717] dark:border-[#3F3F46] p-0.5">
                 <div
                   className="bg-alert-rust h-full transition-all duration-300"
                   style={{ width: `${materialsPercent}%` }}
@@ -362,18 +362,18 @@ export default function DashboardClient({
       {/* ======================================================== */}
       <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Metric 01: Materi Selesai */}
-        <div className="bg-surface-white border border-[#171717] p-4 technical-shadow flex flex-col justify-between">
-          <div className="flex justify-between items-start border-b border-[#D4D2C9] pb-2 mb-2">
+        <div className="bg-surface-white border border-[#171717] dark:border-[#3F3F46] p-4 technical-shadow flex flex-col justify-between">
+          <div className="flex justify-between items-start border-b border-[#D4D2C9] dark:border-[#3F3F46] pb-2 mb-2">
             <span className="font-mono text-xs text-ink-muted uppercase font-bold tracking-wider">
               [METRIK 01]
             </span>
-            <BookOpen className="size-4 text-[#171717]" />
+            <BookOpen className="size-4 text-[#171717] dark:text-[#F5F4EE]" />
           </div>
           <div className="my-2">
             <div className="font-mono text-xs text-ink-muted font-bold uppercase mb-1">
               Akses & Progres Modul
             </div>
-            <div className="text-3xl sm:text-4xl font-extrabold text-[#171717] tracking-tight">
+            <div className="text-3xl sm:text-4xl font-extrabold text-[#171717] dark:text-[#F5F4EE] tracking-tight">
               {completedMaterials}{" "}
               <span className="text-xl sm:text-2xl font-normal text-ink-muted">
                 / {totalMaterials}
@@ -383,14 +383,14 @@ export default function DashboardClient({
               {materialsPercent}% kurikulum terbuka/tuntas
             </div>
           </div>
-          <div className="w-full bg-canvas-paper h-1.5 border border-[#171717] mt-2">
-            <div className="bg-[#171717] h-full" style={{ width: `${materialsPercent}%` }} />
+          <div className="w-full bg-canvas-paper h-1.5 border border-[#171717] dark:border-[#3F3F46] mt-2">
+            <div className="bg-[#171717] dark:bg-[#F5F4EE] h-full" style={{ width: `${materialsPercent}%` }} />
           </div>
         </div>
 
         {/* Metric 02: Akurasi Latihan */}
-        <div className="bg-surface-white border border-[#171717] p-4 technical-shadow flex flex-col justify-between">
-          <div className="flex justify-between items-start border-b border-[#D4D2C9] pb-2 mb-2">
+        <div className="bg-surface-white border border-[#171717] dark:border-[#3F3F46] p-4 technical-shadow flex flex-col justify-between">
+          <div className="flex justify-between items-start border-b border-[#D4D2C9] dark:border-[#3F3F46] pb-2 mb-2">
             <span className="font-mono text-xs text-ink-muted uppercase font-bold tracking-wider">
               [METRIK 02]
             </span>
@@ -400,32 +400,32 @@ export default function DashboardClient({
             <div className="font-mono text-xs text-ink-muted font-bold uppercase mb-1">
               Akurasi Latihan
             </div>
-            <div className="text-3xl sm:text-4xl font-extrabold text-[#171717] tracking-tight">
+            <div className="text-3xl sm:text-4xl font-extrabold text-[#171717] dark:text-[#F5F4EE] tracking-tight">
               {practiceAccuracy}%
             </div>
-            <div className="font-mono text-[11px] text-green-700 font-bold mt-1">
+            <div className="font-mono text-[11px] text-green-700 dark:text-emerald-400 font-bold mt-1">
               {stats?.latihanStats.completed ?? 0} sesi latihan diselesaikan
             </div>
           </div>
-          <div className="w-full bg-canvas-paper h-1.5 border border-[#171717] mt-2">
-            <div className="bg-green-700 h-full" style={{ width: `${Math.min(100, practiceAccuracy)}%` }} />
+          <div className="w-full bg-canvas-paper h-1.5 border border-[#171717] dark:border-[#3F3F46] mt-2">
+            <div className="bg-green-700 dark:bg-emerald-500 h-full" style={{ width: `${Math.min(100, practiceAccuracy)}%` }} />
           </div>
         </div>
 
         {/* Metric 03: Peringkat Kelas */}
-        <div className="bg-surface-white border border-[#171717] p-4 technical-shadow flex flex-col justify-between">
-          <div className="flex justify-between items-start border-b border-[#D4D2C9] pb-2 mb-2">
+        <div className="bg-surface-white border border-[#171717] dark:border-[#3F3F46] p-4 technical-shadow flex flex-col justify-between">
+          <div className="flex justify-between items-start border-b border-[#D4D2C9] dark:border-[#3F3F46] pb-2 mb-2">
             <span className="font-mono text-xs text-ink-muted uppercase font-bold tracking-wider">
               [METRIK 03]
             </span>
-            <Award className="size-4 text-[#171717]" />
+            <Award className="size-4 text-[#171717] dark:text-[#F5F4EE]" />
           </div>
           <div className="my-2">
             <div className="font-mono text-xs text-ink-muted font-bold uppercase mb-1">
               Peringkat Kelas
             </div>
             <div className="text-3xl sm:text-4xl font-extrabold text-alert-rust tracking-tight">
-              {leaderboardRank ? `#${String(leaderboardRank).padStart(2, "0")}` : "—"}{" "}
+              {leaderboardRank ? `#${String(leaderboardRank).padStart(2, "0")}` : "-"}{" "}
               <span className="text-xl sm:text-2xl font-normal text-ink-muted">
                 / {totalParticipants || 1}
               </span>
@@ -436,7 +436,7 @@ export default function DashboardClient({
                 : "Selesaikan tryout untuk peringkat"}
             </div>
           </div>
-          <div className="w-full bg-canvas-paper h-1.5 border border-[#171717] mt-2">
+          <div className="w-full bg-canvas-paper h-1.5 border border-[#171717] dark:border-[#3F3F46] mt-2">
             <div
               className="bg-accent-canary h-full"
               style={{
@@ -450,28 +450,28 @@ export default function DashboardClient({
         </div>
 
         {/* Metric 04: Tryout Terakhir */}
-        <div className="bg-surface-white border border-[#171717] p-4 technical-shadow flex flex-col justify-between">
-          <div className="flex justify-between items-start border-b border-[#D4D2C9] pb-2 mb-2">
+        <div className="bg-surface-white border border-[#171717] dark:border-[#3F3F46] p-4 technical-shadow flex flex-col justify-between">
+          <div className="flex justify-between items-start border-b border-[#D4D2C9] dark:border-[#3F3F46] pb-2 mb-2">
             <span className="font-mono text-xs text-ink-muted uppercase font-bold tracking-wider">
               [METRIK 04]
             </span>
-            <TrendingUp className="size-4 text-[#171717]" />
+            <TrendingUp className="size-4 text-[#171717] dark:text-[#F5F4EE]" />
           </div>
           <div className="my-2">
             <div className="font-mono text-xs text-ink-muted font-bold uppercase mb-1">
               Tryout Terakhir
             </div>
-            <div className="text-3xl sm:text-4xl font-extrabold text-[#171717] tracking-tight">
-              {latestTryoutScore !== null && latestTryoutScore !== undefined ? latestTryoutScore : "—"}{" "}
+            <div className="text-3xl sm:text-4xl font-extrabold text-[#171717] dark:text-[#F5F4EE] tracking-tight">
+              {latestTryoutScore !== null && latestTryoutScore !== undefined ? latestTryoutScore : "-"}{" "}
               <span className="text-sm font-normal text-ink-muted font-mono">/ 100</span>
             </div>
-            <div className="font-mono text-[11px] text-[#171717] font-bold mt-1 truncate">
+            <div className="font-mono text-[11px] text-[#171717] dark:text-[#F5F4EE] font-bold mt-1 truncate">
               {stats?.tryoutStats.latestTitle
                 ? stats.tryoutStats.latestTitle
                 : `Rata-rata Tryout: ${stats?.tryoutStats.avgScore ?? 0}/100`}
             </div>
           </div>
-          <div className="w-full bg-canvas-paper h-1.5 border border-[#171717] mt-2">
+          <div className="w-full bg-canvas-paper h-1.5 border border-[#171717] dark:border-[#3F3F46] mt-2">
             <div
               className="bg-alert-rust h-full"
               style={{ width: `${Math.min(100, latestTryoutScore ?? 0)}%` }}
@@ -489,28 +489,28 @@ export default function DashboardClient({
         {/* ======================================================== */}
         <div className="lg:col-span-7 space-y-6">
           {/* 1. Agenda Box: Jadwal & Evaluasi Mendatang */}
-          <div className="bg-surface-white border border-[#171717] p-5 technical-shadow space-y-4">
-            <div className="flex justify-between items-center pb-3 border-b border-[#171717]">
+          <div className="bg-surface-white border border-[#171717] dark:border-[#3F3F46] p-5 technical-shadow space-y-4">
+            <div className="flex justify-between items-center pb-3 border-b border-[#171717] dark:border-[#3F3F46]">
               <div className="flex items-center space-x-2">
-                <Calendar className="size-4 text-[#171717]" />
-                <h2 className="font-bold text-lg text-[#171717] tracking-tight">
+                <Calendar className="size-4 text-[#171717] dark:text-[#F5F4EE]" />
+                <h2 className="font-bold text-lg text-[#171717] dark:text-[#F5F4EE] tracking-tight">
                   Jadwal & Evaluasi Mendatang
                 </h2>
               </div>
-              <span className="font-mono text-[11px] font-bold text-ink-muted bg-canvas-paper px-2 py-0.5 border border-[#171717]/30">
+              <span className="font-mono text-[11px] font-bold text-ink-muted bg-canvas-paper px-2 py-0.5 border border-[#171717]/30 dark:border-[#3F3F46]">
                 GMT+7 SYNCED
               </span>
             </div>
 
             <div className="space-y-3">
               {/* Task 1: DEADLINE */}
-              <div className="p-3.5 border border-[#171717] bg-canvas-paper flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div className="p-3.5 border border-[#171717] dark:border-[#3F3F46] bg-canvas-paper flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div className="flex items-start space-x-3">
                   <span className="px-2 py-0.5 bg-alert-rust text-white font-mono text-[10px] font-bold mt-0.5 shrink-0">
                     EVALUASI
                   </span>
                   <div>
-                    <h3 className="font-mono text-xs sm:text-sm font-bold text-[#171717]">
+                    <h3 className="font-mono text-xs sm:text-sm font-bold text-[#171717] dark:text-[#F5F4EE]">
                       {isExcellentBeta
                         ? "Simulasi Tryout SAS Fisika"
                         : "Simulasi Tryout UTS & UAS Terpadu"}
@@ -524,20 +524,20 @@ export default function DashboardClient({
                 </div>
                 <Link
                   href="/dashboard/tryouts"
-                  className="px-3 py-1 bg-accent-canary hover:bg-[#fde667] text-[#171717] border border-[#171717] font-mono text-xs font-bold text-center self-start sm:self-center shrink-0 technical-shadow-sm transition-transform active:translate-x-0.5"
+                  className="px-3 py-1 bg-accent-canary hover:bg-[#fde667] text-[#171717] border border-[#171717] dark:border-[#FDE047] font-mono text-xs font-bold text-center self-start sm:self-center shrink-0 technical-shadow-sm transition-transform active:translate-x-0.5"
                 >
                   BUKA
                 </Link>
               </div>
 
               {/* Task 2: LATIHAN */}
-              <div className="p-3.5 border border-[#D4D2C9] bg-surface-white flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div className="p-3.5 border border-[#D4D2C9] dark:border-[#3F3F46] bg-surface-white flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div className="flex items-start space-x-3">
-                  <span className="px-2 py-0.5 bg-canvas-paper border border-[#D4D2C9] font-mono text-[10px] font-bold text-[#171717] mt-0.5 shrink-0">
+                  <span className="px-2 py-0.5 bg-canvas-paper border border-[#D4D2C9] dark:border-[#3F3F46] font-mono text-[10px] font-bold text-[#171717] dark:text-[#F5F4EE] mt-0.5 shrink-0">
                     DRILL SOAL
                   </span>
                   <div>
-                    <h3 className="font-mono text-xs sm:text-sm font-bold text-[#171717]">
+                    <h3 className="font-mono text-xs sm:text-sm font-bold text-[#171717] dark:text-[#F5F4EE]">
                       Latihan Mandiri Tanpa Batas Waktu
                     </h3>
                     <p className="text-xs text-ink-muted mt-0.5">
@@ -547,20 +547,20 @@ export default function DashboardClient({
                 </div>
                 <Link
                   href="/dashboard/latihan"
-                  className="px-3 py-1 bg-surface-white hover:bg-canvas-paper text-[#171717] border border-[#171717] font-mono text-xs font-bold text-center self-start sm:self-center shrink-0"
+                  className="px-3 py-1 bg-surface-white hover:bg-canvas-paper dark:hover:bg-[#22252E] text-[#171717] dark:text-[#F5F4EE] border border-[#171717] dark:border-[#3F3F46] dark:hover:border-[#FDE047] font-mono text-xs font-bold text-center self-start sm:self-center shrink-0 transition-colors"
                 >
                   LATIHAN
                 </Link>
               </div>
 
               {/* Task 3: SILABUS */}
-              <div className="p-3.5 border border-[#D4D2C9] bg-surface-white flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div className="p-3.5 border border-[#D4D2C9] dark:border-[#3F3F46] bg-surface-white flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div className="flex items-start space-x-3">
-                  <span className="px-2 py-0.5 bg-canvas-paper border border-[#D4D2C9] font-mono text-[10px] font-bold text-[#171717] mt-0.5 shrink-0">
+                  <span className="px-2 py-0.5 bg-canvas-paper border border-[#D4D2C9] dark:border-[#3F3F46] font-mono text-[10px] font-bold text-[#171717] dark:text-[#F5F4EE] mt-0.5 shrink-0">
                     MODUL
                   </span>
                   <div>
-                    <h3 className="font-mono text-xs sm:text-sm font-bold text-[#171717]">
+                    <h3 className="font-mono text-xs sm:text-sm font-bold text-[#171717] dark:text-[#F5F4EE]">
                       Eksplorasi Diktat & Penurunan Rumus LaTeX
                     </h3>
                     <p className="text-xs text-ink-muted mt-0.5">
@@ -570,7 +570,7 @@ export default function DashboardClient({
                 </div>
                 <Link
                   href="/dashboard/materi"
-                  className="px-3 py-1 bg-surface-white hover:bg-canvas-paper text-[#171717] border border-[#171717] font-mono text-xs font-bold text-center self-start sm:self-center shrink-0"
+                  className="px-3 py-1 bg-surface-white hover:bg-canvas-paper dark:hover:bg-[#22252E] text-[#171717] dark:text-[#F5F4EE] border border-[#171717] dark:border-[#3F3F46] dark:hover:border-[#FDE047] font-mono text-xs font-bold text-center self-start sm:self-center shrink-0 transition-colors"
                 >
                   LAUNCH
                 </Link>
@@ -580,38 +580,38 @@ export default function DashboardClient({
 
           {/* 2. Roadmap: Peta Jalur Belajar (Phase 01 - 04) */}
           {!isExcellentBeta && (
-          <div className="bg-surface-white border border-[#171717] p-5 technical-shadow space-y-4">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-[#171717]">
+          <div className="bg-surface-white border border-[#171717] dark:border-[#3F3F46] p-5 technical-shadow space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-[#171717] dark:border-[#3F3F46]">
               <div>
                 <span className="font-mono text-[10px] font-bold text-alert-rust uppercase tracking-wider block">
                   BBN_EDU // SYLLABUS_ROADMAP
                 </span>
-                <h2 className="font-bold text-lg text-[#171717] tracking-tight mt-0.5">
+                <h2 className="font-bold text-lg text-[#171717] dark:text-[#F5F4EE] tracking-tight mt-0.5">
                   Roadmap Kurikulum {user?.track === "NON_PHYSICS" ? "Sains Dasar TPB" : "Fisika Lanjutan"}
                 </h2>
               </div>
-              <span className="font-mono text-xs font-bold bg-accent-canary px-2.5 py-0.5 border border-[#171717] self-start sm:self-auto">
+              <span className="font-mono text-xs font-bold bg-accent-canary text-[#171717] px-2.5 py-0.5 border border-[#171717] self-start sm:self-auto">
                 TAHUN AJARAN 2025/2026
               </span>
             </div>
 
             {/* 4-Column Internal Grid for Phase 01 to 04 */}
             <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 text-center">
-              <div className="border border-[#171717] p-3 bg-canvas-paper flex flex-col justify-between">
+              <div className="border border-[#171717] dark:border-[#3F3F46] p-3 bg-canvas-paper flex flex-col justify-between">
                 <div>
-                  <span className="font-mono text-xs font-bold text-green-700 block mb-1">
-                    FASE 01 ✓
+                  <span className="font-mono text-xs font-bold text-green-700 dark:text-emerald-400 block mb-1">
+                    FASE 01 [OK]
                   </span>
-                  <div className="font-mono text-xs font-bold text-[#171717]">
+                  <div className="font-mono text-xs font-bold text-[#171717] dark:text-[#F5F4EE]">
                     Fondasi Konsep & Vektor
                   </div>
                 </div>
-                <div className="font-mono text-[10px] text-ink-muted mt-3 pt-2 border-t border-[#D4D2C9]">
+                <div className="font-mono text-[10px] text-ink-muted mt-3 pt-2 border-t border-[#D4D2C9] dark:border-[#3F3F46]">
                   Modul 01 • Terbuka
                 </div>
               </div>
 
-              <div className="border-2 border-[#171717] p-3 bg-accent-canary shadow-[2px_2px_0px_#171717] flex flex-col justify-between">
+              <div className="border-2 border-[#171717] dark:border-[#FDE047] p-3 bg-accent-canary shadow-[2px_2px_0px_#171717] dark:shadow-[2px_2px_0px_#3F3F46] flex flex-col justify-between">
                 <div>
                   <span className="font-mono text-xs font-bold text-alert-rust block mb-1">
                     FASE 02 (AKTIF)
@@ -625,36 +625,36 @@ export default function DashboardClient({
                 </div>
               </div>
 
-              <div className="border border-[#171717] p-3 bg-canvas-paper flex flex-col justify-between">
+              <div className="border border-[#171717] dark:border-[#3F3F46] p-3 bg-canvas-paper flex flex-col justify-between">
                 <div>
-                  <span className="font-mono text-xs font-bold text-[#171717] block mb-1">
+                  <span className="font-mono text-xs font-bold text-[#171717] dark:text-[#F5F4EE] block mb-1">
                     FASE 03
                   </span>
-                  <div className="font-mono text-xs font-bold text-[#171717]">
+                  <div className="font-mono text-xs font-bold text-[#171717] dark:text-[#F5F4EE]">
                     Drill Latihan Soal
                   </div>
                 </div>
-                <div className="font-mono text-[10px] text-ink-muted mt-3 pt-2 border-t border-[#D4D2C9]">
+                <div className="font-mono text-[10px] text-ink-muted mt-3 pt-2 border-t border-[#D4D2C9] dark:border-[#3F3F46]">
                   {stats?.latihanStats.completed ?? 0} Sesi Selesai
                 </div>
               </div>
 
-              <div className="border border-[#171717] p-3 bg-surface-white flex flex-col justify-between">
+              <div className="border border-[#171717] dark:border-[#3F3F46] p-3 bg-surface-white flex flex-col justify-between">
                 <div>
                   <span className="font-mono text-xs font-bold text-ink-muted block mb-1">
-                    FASE 04 {isPaidUser ? "✓" : "🔒"}
+                    FASE 04 {isPaidUser ? "[OK]" : "[LOCK]"}
                   </span>
-                  <div className="font-mono text-xs font-bold text-[#171717]">
+                  <div className="font-mono text-xs font-bold text-[#171717] dark:text-[#F5F4EE]">
                     Simulasi Ujian Akhir
                   </div>
                 </div>
-                <div className="font-mono text-[10px] text-ink-muted mt-3 pt-2 border-t border-[#D4D2C9]">
+                <div className="font-mono text-[10px] text-ink-muted mt-3 pt-2 border-t border-[#D4D2C9] dark:border-[#3F3F46]">
                   {stats?.tryoutStats.completed ?? 0} Tryout Dikerjakan
                 </div>
               </div>
             </div>
 
-            <div className="pt-3 border-t border-[#D4D2C9] flex flex-wrap items-center justify-between text-ink-muted font-mono text-xs gap-2">
+            <div className="pt-3 border-t border-[#D4D2C9] dark:border-[#3F3F46] flex flex-wrap items-center justify-between text-ink-muted font-mono text-xs gap-2">
               <div className="flex items-center gap-3">
                 <span>TOTAL: {totalMaterials} MODUL</span>
                 <span>•</span>
@@ -664,7 +664,7 @@ export default function DashboardClient({
               </div>
               <Link
                 href="/dashboard/materi"
-                className="text-[#171717] font-bold hover:underline flex items-center gap-1"
+                className="text-[#171717] dark:text-[#FDE047] font-bold hover:underline flex items-center gap-1"
               >
                 <span>Buka Silabus Lengkap</span>
                 <ArrowRight className="size-3.5" />
@@ -675,13 +675,13 @@ export default function DashboardClient({
 
           {/* 3. Course Catalog Cards OR Excellent Beta Physics Grade Selector */}
           {isExcellentBeta && activeBetaGrade ? (
-            <div className="bg-surface-white border border-[#171717] p-5 technical-shadow space-y-4">
-              <div className="flex items-center justify-between pb-3 border-b border-[#171717]">
+            <div className="bg-surface-white border border-[#171717] dark:border-[#3F3F46] p-5 technical-shadow space-y-4">
+              <div className="flex items-center justify-between pb-3 border-b border-[#171717] dark:border-[#3F3F46]">
                 <div>
                   <span className="font-mono text-[10px] font-bold text-alert-rust uppercase tracking-wider block">
                     PILIHAN KELAS SAS
                   </span>
-                  <h2 className="font-bold text-lg text-[#171717] tracking-tight">
+                  <h2 className="font-bold text-lg text-[#171717] dark:text-[#F5F4EE] tracking-tight">
                     Mata Pelajaran: Fisika
                   </h2>
                 </div>
@@ -699,39 +699,39 @@ export default function DashboardClient({
                       aria-disabled={!isUnlocked}
                       className={`border p-4 flex flex-col justify-between transition-all ${
                         isUnlocked
-                          ? "bg-accent-canary border-2 border-[#171717] shadow-[3px_3px_0px_#171717]"
-                          : "bg-canvas-paper border-[#171717]/40 opacity-65 cursor-not-allowed select-none"
+                          ? "bg-accent-canary border-2 border-[#171717] dark:border-[#FDE047] shadow-[3px_3px_0px_#171717] dark:shadow-[3px_3px_0px_#3F3F46]"
+                          : "bg-canvas-paper dark:bg-[#22252E] border-[#171717]/40 dark:border-[#3F3F46] opacity-70 cursor-not-allowed select-none"
                       }`}
                     >
                       <div className="space-y-2">
                         <div className="flex items-center justify-between gap-2 font-mono text-[10px]">
-                          <span className="font-bold text-[#171717] uppercase">
+                          <span className={`font-bold uppercase ${isUnlocked ? "text-[#171717]" : "text-[#171717] dark:text-[#F5F4EE]"}`}>
                             FISIKA
                           </span>
                           {isUnlocked ? (
-                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-surface-white border border-[#171717] text-[#171717] font-bold uppercase">
+                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-surface-white dark:bg-[#171717] border border-[#171717] text-[#171717] dark:text-[#F5F4EE] font-bold uppercase">
                               <CheckCircle2 className="size-3" />
                               Aktif
                             </span>
                           ) : (
-                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-surface-white border border-[#171717]/40 text-ink-muted font-bold uppercase">
+                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-surface-white border border-[#171717]/40 dark:border-[#3F3F46] text-ink-muted font-bold uppercase">
                               <Lock className="size-3" />
                               Terkunci
                             </span>
                           )}
                         </div>
 
-                        <h3 className="font-extrabold text-base text-[#171717] leading-snug">
+                        <h3 className={`font-extrabold text-base leading-snug ${isUnlocked ? "text-[#171717]" : "text-[#171717] dark:text-[#F5F4EE]"}`}>
                           {course.label}
                         </h3>
-                        <p className="text-xs text-[#171717]/75">
+                        <p className={`text-xs ${isUnlocked ? "text-[#171717]/75" : "text-[#171717]/75 dark:text-[#A1A1AA]"}`}>
                           {isUnlocked
                             ? "Materi, latihan soal, dan tryout SAS terbuka penuh."
                             : "Terkunci untuk kelas lain."}
                         </p>
                       </div>
 
-                      <div className="pt-3 mt-3 border-t border-[#171717]/25">
+                      <div className={`pt-3 mt-3 border-t ${isUnlocked ? "border-[#171717]/25" : "border-[#171717]/25 dark:border-[#3F3F46]"}`}>
                         {isUnlocked ? (
                           <div className="flex items-center justify-between gap-2">
                             <Link
@@ -743,7 +743,7 @@ export default function DashboardClient({
                             </Link>
                             <Link
                               href="/dashboard/latihan"
-                              className="font-mono text-xs font-bold text-alert-rust hover:underline"
+                              className="font-mono text-xs font-bold text-[#C84A0E] hover:underline"
                             >
                               Latihan
                             </Link>
@@ -761,17 +761,17 @@ export default function DashboardClient({
               </div>
             </div>
           ) : (
-            <div className="bg-surface-white border border-[#171717] p-5 technical-shadow space-y-4">
-              <div className="flex items-center justify-between pb-3 border-b border-[#171717]">
+            <div className="bg-surface-white border border-[#171717] dark:border-[#3F3F46] p-5 technical-shadow space-y-4">
+              <div className="flex items-center justify-between pb-3 border-b border-[#171717] dark:border-[#3F3F46]">
                 <div>
                   <span className="font-mono text-[10px] font-bold text-alert-rust uppercase tracking-wider block">
                     [SYS.04] // COURSE_CATALOG
                   </span>
-                  <h2 className="font-bold text-lg text-[#171717] tracking-tight">
+                  <h2 className="font-bold text-lg text-[#171717] dark:text-[#F5F4EE] tracking-tight">
                     Katalog Mata Kuliah Kamu
                   </h2>
                 </div>
-                <span className="font-mono text-xs font-bold text-[#171717] bg-canvas-paper border border-[#171717] px-2.5 py-0.5">
+                <span className="font-mono text-xs font-bold text-[#171717] dark:text-[#F5F4EE] bg-canvas-paper border border-[#171717] dark:border-[#3F3F46] px-2.5 py-0.5">
                   {activeCourses.length} MATA KULIAH
                 </span>
               </div>
@@ -780,21 +780,21 @@ export default function DashboardClient({
                 {activeCourses.map((course, idx) => (
                   <div
                     key={course.slug}
-                    className="bg-canvas-paper border border-[#171717] p-4 flex flex-col justify-between hover:bg-surface-white hover:border-alert-rust transition-all group"
+                    className="bg-canvas-paper border border-[#171717] dark:border-[#3F3F46] p-4 flex flex-col justify-between hover:bg-surface-white dark:hover:bg-[#22252E] hover:border-alert-rust dark:hover:border-[#FDE047] transition-all group"
                   >
                     <div className="space-y-1.5">
                       <div className="flex items-center justify-between font-mono text-[10px] text-ink-muted">
-                        <span className="font-bold text-[#171717]">MOD-{String(idx + 1).padStart(2, "0")}</span>
+                        <span className="font-bold text-[#171717] dark:text-[#F5F4EE]">MOD-{String(idx + 1).padStart(2, "0")}</span>
                         <span>KURIKULUM UTAMA</span>
                       </div>
-                      <h3 className="font-bold text-base text-[#171717] group-hover:text-alert-rust transition-colors leading-snug">
+                      <h3 className="font-bold text-base text-[#171717] dark:text-[#F5F4EE] group-hover:text-alert-rust dark:group-hover:text-[#FDE047] transition-colors leading-snug">
                         {course.name}
                       </h3>
                     </div>
-                    <div className="pt-3 mt-3 border-t border-[#D4D2C9] flex items-center justify-between">
+                    <div className="pt-3 mt-3 border-t border-[#D4D2C9] dark:border-[#3F3F46] flex items-center justify-between">
                       <Link
                         href={`/dashboard/materi?course=${course.slug}`}
-                        className="font-mono text-xs font-bold text-[#171717] hover:underline flex items-center gap-1"
+                        className="font-mono text-xs font-bold text-[#171717] dark:text-[#F5F4EE] hover:underline flex items-center gap-1"
                       >
                         <span>Mulai Belajar</span>
                         <ArrowRight className="size-3" />
@@ -814,7 +814,7 @@ export default function DashboardClient({
         <div className="lg:col-span-5 space-y-6">
           {/* 1. Daily Challenge: hidden in Excellent Beta mode */}
           {!isExcellentBeta && (
-            <div className="bg-surface-white border border-[#171717] p-5 technical-shadow relative space-y-3">
+            <div className="bg-surface-white border border-[#171717] dark:border-[#3F3F46] p-5 technical-shadow relative space-y-3">
               <div className="flex justify-between items-start">
                 <span className="font-mono text-[10px] font-bold bg-alert-rust text-white px-2 py-0.5 uppercase tracking-wider">
                   TANTANGAN HARIAN (+50 XP)
@@ -825,27 +825,27 @@ export default function DashboardClient({
               </div>
 
               <div>
-                <h3 className="font-bold text-lg text-[#171717] tracking-tight">
+                <h3 className="font-bold text-lg text-[#171717] dark:text-[#F5F4EE] tracking-tight">
                   Persamaan Gerak Double Pendulum
                 </h3>
                 <p className="text-xs text-ink-muted leading-relaxed mt-1">
-                  Tentukan Lagrangian <span className="font-mono font-bold text-[#171717]">L = T - V</span> pada sistem pendulum ganda bermassa m₁, m₂ dengan panjang batang kaku l₁, l₂.
+                  Tentukan Lagrangian <span className="font-mono font-bold text-[#171717] dark:text-[#F5F4EE]">L = T - V</span> pada sistem pendulum ganda bermassa m₁, m₂ dengan panjang batang kaku l₁, l₂.
                 </p>
               </div>
 
               {/* FORMULA // SCHEMA Container */}
-              <div className="bg-canvas-paper border border-[#171717] p-3 space-y-2">
-                <div className="bg-[#171717] text-white px-2 py-0.5 text-[10px] font-bold font-mono inline-block">
+              <div className="bg-canvas-paper border border-[#171717] dark:border-[#3F3F46] p-3 space-y-2">
+                <div className="bg-[#171717] dark:bg-[#22252E] dark:border dark:border-[#3F3F46] text-white px-2 py-0.5 text-[10px] font-bold font-mono inline-block">
                   FORMULA // LAGRANGE
                 </div>
-                <div className="font-mono text-xs font-bold text-[#171717] leading-relaxed break-all bg-surface-white p-2.5 border border-[#D4D2C9]">
+                <div className="font-mono text-xs font-bold text-[#171717] dark:text-[#F5F4EE] leading-relaxed break-all bg-surface-white p-2.5 border border-[#D4D2C9] dark:border-[#3F3F46]">
                   L = ½(m₁+m₂)l₁²θ̇₁² + ½m₂l₂²θ̇₂² + m₂l₁l₂θ̇₁θ̇₂cos(θ₁-θ₂) + (m₁+m₂)gl₁cosθ₁ + m₂gl₂cosθ₂
                 </div>
               </div>
 
               <Link
                 href="/dashboard/tryouts"
-                className="w-full py-2.5 bg-accent-canary text-[#171717] border border-[#171717] font-mono text-xs font-bold hover:bg-yellow-400 flex items-center justify-center space-x-2 technical-shadow-sm transition-transform active:translate-x-0.5 block text-center"
+                className="w-full py-2.5 bg-accent-canary text-[#171717] border border-[#171717] dark:border-[#FDE047] font-mono text-xs font-bold hover:bg-yellow-400 flex items-center justify-center space-x-2 technical-shadow-sm transition-transform active:translate-x-0.5 block text-center"
               >
                 <span>Pecahkan Soal (+50 XP)</span>
                 <ArrowRight className="size-3.5 inline ml-1" />
@@ -854,9 +854,9 @@ export default function DashboardClient({
           )}
 
           {/* 2. Telemetry Stream: Telemetri Belajar Terakhir */}
-          <div className="bg-surface-white border border-[#171717] p-5 technical-shadow space-y-3">
-            <div className="flex justify-between items-center pb-2 border-b border-[#D4D2C9]">
-              <span className="font-mono text-xs font-bold uppercase text-[#171717] tracking-wider">
+          <div className="bg-surface-white border border-[#171717] dark:border-[#3F3F46] p-5 technical-shadow space-y-3">
+            <div className="flex justify-between items-center pb-2 border-b border-[#D4D2C9] dark:border-[#3F3F46]">
+              <span className="font-mono text-xs font-bold uppercase text-[#171717] dark:text-[#F5F4EE] tracking-wider">
                 {isExcellentBeta ? "RIWAYAT BELAJAR TERAKHIR" : "TELEMETRI BELAJAR TERAKHIR"}
               </span>
               <History className="size-4 text-ink-muted" />
@@ -872,10 +872,10 @@ export default function DashboardClient({
                   return (
                     <div
                       key={item.id}
-                      className="flex justify-between items-center py-1.5 border-b border-canvas-paper last:border-b-0"
+                      className="flex justify-between items-center py-1.5 border-b border-canvas-paper dark:border-[#3F3F46]/60 last:border-b-0"
                     >
                       <span className="text-ink-muted shrink-0">{dateLabel}</span>
-                      <span className="text-[#171717] font-medium text-left flex-1 px-2.5 truncate">
+                      <span className="text-[#171717] dark:text-[#F5F4EE] font-medium text-left flex-1 px-2.5 truncate">
                         {item.type}: {item.title}
                       </span>
                       <span className="text-alert-rust font-bold shrink-0">
@@ -885,48 +885,48 @@ export default function DashboardClient({
                   )
                 })
               ) : (
-                <div className="py-4 text-center text-ink-muted font-mono text-xs border border-dashed border-[#D4D2C9] bg-canvas-paper">
+                <div className="py-4 text-center text-ink-muted font-mono text-xs border border-dashed border-[#D4D2C9] dark:border-[#3F3F46] bg-canvas-paper">
                   Belum ada riwayat evaluasi tercatat. Mulai sesi latihan atau tryout pertama kamu.
                 </div>
               )}
             </div>
 
-            <div className="pt-2 border-t border-[#D4D2C9] text-center">
+            <div className="pt-2 border-t border-[#D4D2C9] dark:border-[#3F3F46] text-center">
               <Link
                 href="/dashboard/history"
-                className="font-mono text-[11px] text-ink-muted hover:text-[#171717] font-bold underline"
+                className="font-mono text-[11px] text-ink-muted hover:text-[#171717] dark:hover:text-[#FDE047] font-bold underline"
               >
-                {isExcellentBeta ? "Lihat Semua Riwayat Skor" : "Lihat Catatan Telemetri Lengkap →"}
+                {isExcellentBeta ? "Lihat Semua Riwayat Skor" : "Lihat Catatan Telemetri Lengkap ->"}
               </Link>
             </div>
           </div>
 
           {/* 3. Account Status / Credentials Widget */}
-          <div className="bg-surface-white border border-[#171717] p-5 technical-shadow space-y-3">
-            <div className="flex items-center justify-between pb-2 border-b border-[#D4D2C9]">
+          <div className="bg-surface-white border border-[#171717] dark:border-[#3F3F46] p-5 technical-shadow space-y-3">
+            <div className="flex items-center justify-between pb-2 border-b border-[#D4D2C9] dark:border-[#3F3F46]">
               <span className="font-mono text-xs font-bold text-alert-rust uppercase">
                 {isExcellentBeta ? "STATUS AKSES KELAS" : "[CREDENTIAL // STATUS]"}
               </span>
-              <ShieldCheck className="size-4 text-[#171717]" />
+              <ShieldCheck className="size-4 text-[#171717] dark:text-[#F5F4EE]" />
             </div>
 
             <div className="space-y-1">
               <div className="font-mono text-[10px] text-ink-muted uppercase">
                 {isExcellentBeta ? "Program Aktif" : "Langganan Aktif Siswa"}
               </div>
-              <h4 className="font-black text-lg text-[#171717]">
+              <h4 className="font-black text-lg text-[#171717] dark:text-[#F5F4EE]">
                 {isExcellentBeta && activeBetaCourse
                   ? `SAS ${activeBetaCourse.title} (Beta)`
                   : getPackageDisplayName()}
               </h4>
             </div>
 
-            <div className="p-2.5 bg-canvas-paper border border-[#171717] font-mono text-xs space-y-1.5">
+            <div className="p-2.5 bg-canvas-paper border border-[#171717] dark:border-[#3F3F46] font-mono text-xs space-y-1.5">
               <div className="flex justify-between">
                 <span className="text-ink-muted">
                   {isExcellentBeta ? "KELAS:" : "KODE AKSES:"}
                 </span>
-                <span className="font-bold text-[#171717]">
+                <span className="font-bold text-[#171717] dark:text-[#F5F4EE]">
                   {isExcellentBeta && activeBetaCourse
                     ? activeBetaCourse.label.toUpperCase()
                     : user?.plan_code || "FREE"}
@@ -934,7 +934,7 @@ export default function DashboardClient({
               </div>
               <div className="flex justify-between">
                 <span className="text-ink-muted">STATUS:</span>
-                <span className="font-bold text-green-700">
+                <span className="font-bold text-green-700 dark:text-emerald-400">
                   {isExcellentBeta ? "AKSES PENUH AKTIF" : "VERIFIED ACTIVE"}
                 </span>
               </div>
@@ -943,7 +943,7 @@ export default function DashboardClient({
             {!isPaidUser && !isExcellentBeta && (
               <Link
                 href="/dashboard/beli-paket"
-                className="w-full py-2.5 bg-accent-canary hover:bg-[#fde667] text-[#171717] font-mono text-xs font-bold border border-[#171717] text-center block technical-shadow-sm transition-all"
+                className="w-full py-2.5 bg-accent-canary hover:bg-[#fde667] text-[#171717] font-mono text-xs font-bold border border-[#171717] dark:border-[#FDE047] text-center block technical-shadow-sm transition-all"
               >
                 UPGRADE KE PAKET LENGKAP &rarr;
               </Link>

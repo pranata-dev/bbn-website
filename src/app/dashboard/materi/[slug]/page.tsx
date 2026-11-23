@@ -455,9 +455,9 @@ export default function MaterialReaderPage() {
     if (loading) {
         return (
             <div className="flex items-center justify-center min-h-[50vh]">
-                <div className="bg-surface-white border border-[#171717] p-8 technical-shadow text-center space-y-3 max-w-xs w-full">
-                    <Loader2 className="w-8 h-8 animate-spin text-[#171717] mx-auto" />
-                    <p className="font-mono text-xs font-bold text-[#171717] uppercase tracking-wider">
+                <div className="bg-surface-white border border-[#171717] dark:border-[#3F3F46] p-8 technical-shadow text-center space-y-3 max-w-xs w-full">
+                    <Loader2 className="w-8 h-8 animate-spin text-[#171717] dark:text-[#FDE047] mx-auto" />
+                    <p className="font-mono text-xs font-bold text-[#171717] dark:text-[#F5F4EE] uppercase tracking-wider">
                         [FETCHING_MODULE_DATA]
                     </p>
                     <p className="font-mono text-[10px] text-ink-muted">
@@ -471,17 +471,17 @@ export default function MaterialReaderPage() {
     if (forbiddenGrade) {
         return (
             <div className="max-w-md mx-auto py-16 text-center space-y-4">
-                <div className="bg-surface-white border-2 border-[#171717] p-8 technical-shadow space-y-4">
-                    <div className="size-12 bg-canvas-paper border border-[#171717] flex items-center justify-center mx-auto">
-                        <Lock className="w-6 h-6 text-[#171717]" />
+                <div className="bg-surface-white border-2 border-[#171717] dark:border-[#3F3F46] p-8 technical-shadow space-y-4">
+                    <div className="size-12 bg-canvas-paper border border-[#171717] dark:border-[#3F3F46] flex items-center justify-center mx-auto">
+                        <Lock className="w-6 h-6 text-[#171717] dark:text-[#F5F4EE]" />
                     </div>
-                    <h2 className="text-lg font-extrabold text-[#171717]">
+                    <h2 className="text-lg font-extrabold text-[#171717] dark:text-[#F5F4EE]">
                         Materi Tidak Tersedia untuk Kelas Kamu
                     </h2>
                     <p className="text-xs text-ink-muted font-sans leading-relaxed">
                         Modul ini termasuk dalam kelas lain. Kembali ke daftar materi untuk membuka modul Fisika sesuai kelas kamu.
                     </p>
-                    <Button asChild variant="outline" className="font-mono text-xs font-bold border-2 border-[#171717] rounded-none">
+                    <Button asChild variant="outline" className="font-mono text-xs font-bold border-2 border-[#171717] dark:border-[#3F3F46] text-[#171717] dark:text-[#F5F4EE] hover:bg-accent-canary hover:text-[#171717] dark:hover:text-[#171717] rounded-none">
                         <Link href="/dashboard/materi">
                             <ArrowLeft className="w-3.5 h-3.5 mr-2" />
                             KEMBALI KE DAFTAR MATERI
@@ -495,16 +495,16 @@ export default function MaterialReaderPage() {
     if (upgradeRequired) {
         return (
             <div className="max-w-xl mx-auto py-12 px-4">
-                <div className="bg-surface-white border border-[#171717] p-8 text-center technical-shadow space-y-6">
+                <div className="bg-surface-white border border-[#171717] dark:border-[#3F3F46] p-8 text-center technical-shadow space-y-6">
                     <div className="size-14 bg-accent-canary border border-[#171717] flex items-center justify-center mx-auto technical-shadow-sm">
                         <Lock className="w-7 h-7 text-[#171717]" />
                     </div>
 
                     <div className="space-y-2">
-                        <span className="font-mono text-[11px] font-bold uppercase tracking-wider px-2.5 py-1 bg-alert-rust text-white border border-[#171717] inline-block">
+                        <span className="font-mono text-[11px] font-bold uppercase tracking-wider px-2.5 py-1 bg-alert-rust text-white border border-[#171717] dark:border-alert-rust inline-block">
                             [SECURITY.RESTRICTED // AKSES_KHUSUS_PREMIUM]
                         </span>
-                        <h1 className="text-2xl font-black tracking-tight text-[#171717]">
+                        <h1 className="text-2xl font-black tracking-tight text-[#171717] dark:text-[#F5F4EE]">
                             {lockedInfo?.title || "Modul Terkunci"}
                         </h1>
                         <p className="text-xs sm:text-sm text-ink-muted leading-relaxed max-w-md mx-auto font-sans">
@@ -513,8 +513,8 @@ export default function MaterialReaderPage() {
                         </p>
                     </div>
 
-                    <div className="p-4 bg-canvas-paper border border-[#171717] text-left text-xs space-y-2.5 text-[#171717] font-mono">
-                        <p className="font-bold uppercase tracking-wider border-b border-[#171717]/20 pb-1">
+                    <div className="p-4 bg-canvas-paper border border-[#171717] dark:border-[#3F3F46] text-left text-xs space-y-2.5 text-[#171717] dark:text-[#F5F4EE] font-mono">
+                        <p className="font-bold uppercase tracking-wider border-b border-[#171717]/20 dark:border-[#3F3F46] pb-1">
                             KEUNTUNGAN BERLANGGANAN BBN EDUCATION:
                         </p>
                         <p className="flex items-center gap-2">
@@ -532,7 +532,7 @@ export default function MaterialReaderPage() {
                     </div>
 
                     <div className="flex flex-col sm:flex-row gap-3 pt-2">
-                        <Button asChild variant="outline" className="flex-1 font-mono text-xs font-bold border border-[#171717] rounded-none technical-shadow-sm hover:bg-canvas-paper">
+                        <Button asChild variant="outline" className="flex-1 font-mono text-xs font-bold border border-[#171717] dark:border-[#3F3F46] text-[#171717] dark:text-[#F5F4EE] rounded-none technical-shadow-sm hover:bg-canvas-paper dark:hover:bg-[#22252E]">
                             <Link href="/dashboard/materi">
                                 <ArrowLeft className="w-3.5 h-3.5 mr-2" />
                                 KEMBALI KE SILABUS
@@ -540,7 +540,7 @@ export default function MaterialReaderPage() {
                         </Button>
                         <Button
                             asChild
-                            className="flex-1 bg-accent-canary hover:bg-[#fde667] text-[#171717] font-mono text-xs font-bold border border-[#171717] rounded-none technical-shadow-sm transition-all"
+                            className="flex-1 bg-accent-canary hover:bg-[#fde667] text-[#171717] font-mono text-xs font-bold border border-[#171717] dark:border-[#FDE047] rounded-none technical-shadow-sm transition-all"
                         >
                             <Link href="/dashboard/beli-paket">
                                 <Sparkles className="w-3.5 h-3.5 mr-2" />
@@ -556,15 +556,15 @@ export default function MaterialReaderPage() {
     if (!material) {
         return (
             <div className="max-w-md mx-auto py-16 text-center space-y-4">
-                <div className="bg-surface-white border border-[#171717] p-8 technical-shadow space-y-4">
+                <div className="bg-surface-white border border-[#171717] dark:border-[#3F3F46] p-8 technical-shadow space-y-4">
                     <BookOpen className="w-10 h-10 text-ink-muted mx-auto" />
-                    <h2 className="text-lg font-bold text-[#171717] font-mono uppercase">
+                    <h2 className="text-lg font-bold text-[#171717] dark:text-[#F5F4EE] font-mono uppercase">
                         [ERROR: MODUL_TIDAK_DITEMUKAN]
                     </h2>
                     <p className="text-xs text-ink-muted font-sans">
                         Modul materi yang kamu cari tidak terdaftar dalam repositori akademik.
                     </p>
-                    <Button asChild variant="outline" className="font-mono text-xs font-bold border border-[#171717] rounded-none">
+                    <Button asChild variant="outline" className="font-mono text-xs font-bold border border-[#171717] dark:border-[#3F3F46] text-[#171717] dark:text-[#F5F4EE] rounded-none">
                         <Link href="/dashboard/materi">
                             <ArrowLeft className="w-3.5 h-3.5 mr-2" />
                             KEMBALI KE DAFTAR MATERI
@@ -584,22 +584,22 @@ export default function MaterialReaderPage() {
             {/* ======================================================== */}
             {/* TAB [02] MATERI HEADER & SEARCH FILTER BAR               */}
             {/* ======================================================== */}
-            <div className="bg-surface-white border border-[#171717] p-4 technical-shadow flex flex-col md:flex-row md:items-center justify-between gap-3">
+            <div className="bg-surface-white border border-[#171717] dark:border-[#3F3F46] p-4 technical-shadow flex flex-col md:flex-row md:items-center justify-between gap-3">
                 <div>
-                    <div className="flex items-center space-x-2 font-mono text-xs">
+                    <div className="flex items-center space-x-2 font-mono text-xs flex-wrap">
                         <span className="uppercase text-ink-muted font-bold">
                             ARCHIVE // KURIKULUM
                         </span>
-                        <span className="text-[#D4D2C9]">/</span>
+                        <span className="text-[#D4D2C9] dark:text-[#3F3F46]">/</span>
                         <span className="text-alert-rust font-bold uppercase">
-                            SEMESTER 1 // {subjectTitle}
+                            {subjectTitle}
                         </span>
-                        <span className="text-[#D4D2C9]">/</span>
-                        <span className="text-[#171717] font-bold">
+                        <span className="text-[#D4D2C9] dark:text-[#3F3F46]">/</span>
+                        <span className="text-[#171717] dark:text-[#F5F4EE] font-bold">
                             MODUL {material.module_number ?? 1}
                         </span>
                     </div>
-                    <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-[#171717] tracking-tight mt-1">
+                    <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-[#171717] dark:text-[#F5F4EE] tracking-tight mt-1">
                         {material.title}
                     </h1>
                 </div>
@@ -614,13 +614,13 @@ export default function MaterialReaderPage() {
                                 if (e.key === "Enter") handleSearchJump()
                             }}
                             placeholder="Cari Seksi atau Teorema..."
-                            className="px-3 py-1.5 bg-canvas-paper text-xs font-mono border border-[#171717] focus:outline-none focus:ring-1 focus:ring-[#171717] placeholder:text-ink-muted w-48 sm:w-60 rounded-none"
+                            className="px-3 py-1.5 bg-canvas-paper dark:bg-[#22252E] text-[#171717] dark:text-[#F5F4EE] text-xs font-mono border border-[#171717] dark:border-[#3F3F46] focus:outline-none focus:ring-1 focus:ring-[#171717] dark:focus:ring-[#FDE047] placeholder:text-ink-muted w-48 sm:w-60 rounded-none"
                         />
                     </div>
                     <button
                         type="button"
                         onClick={handleSearchJump}
-                        className="px-3 py-1.5 bg-accent-canary border border-[#171717] text-xs font-mono font-bold hover:bg-yellow-400 rounded-none cursor-pointer"
+                        className="px-3 py-1.5 bg-accent-canary text-[#171717] border border-[#171717] dark:border-[#FDE047] text-xs font-mono font-bold hover:bg-yellow-400 rounded-none cursor-pointer"
                     >
                         FILTER
                     </button>
@@ -630,14 +630,14 @@ export default function MaterialReaderPage() {
             {/* Topic Badges Filter Row & Quick Action Links */}
             <div className="flex flex-wrap items-center justify-between gap-3 font-mono text-xs">
                 <div className="flex flex-wrap items-center gap-2">
-                    <span className="px-3 py-1 bg-[#171717] text-white font-bold border border-[#171717]">
+                    <span className="px-3 py-1 bg-[#171717] dark:bg-[#22252E] text-white dark:text-[#F5F4EE] font-bold border border-[#171717] dark:border-[#3F3F46]">
                         MODUL {material.module_number ?? 1}
                     </span>
-                    <span className="px-3 py-1 bg-surface-white text-[#171717] border border-[#171717] font-semibold">
+                    <span className="px-3 py-1 bg-surface-white text-[#171717] dark:text-[#F5F4EE] border border-[#171717] dark:border-[#3F3F46] font-semibold">
                         {subjectTitle}
                     </span>
                     {material.reading_time_minutes && (
-                        <span className="px-3 py-1 bg-canvas-paper text-ink-muted border border-[#171717]">
+                        <span className="px-3 py-1 bg-canvas-paper text-ink-muted border border-[#171717] dark:border-[#3F3F46]">
                             <Clock className="size-3 inline mr-1 text-alert-rust" />
                             DURASI: {material.reading_time_minutes} MENIT BACA
                         </span>
@@ -652,7 +652,7 @@ export default function MaterialReaderPage() {
                 {/* Right Actions: PDF & Podcast Download */}
                 <div className="flex items-center gap-2">
                     {material.drive_url && (
-                        <Button asChild variant="outline" size="sm" className="font-mono text-xs font-bold h-8 border border-[#171717] rounded-none technical-shadow-sm hover:bg-accent-canary hover:text-[#171717] transition-all">
+                        <Button asChild variant="outline" size="sm" className="font-mono text-xs font-bold h-8 border border-[#171717] dark:border-[#3F3F46] text-[#171717] dark:text-[#F5F4EE] rounded-none technical-shadow-sm hover:bg-accent-canary hover:text-[#171717] dark:hover:text-[#171717] transition-all">
                             <a href={material.drive_url} target="_blank" rel="noopener noreferrer">
                                 <FileDown className="w-3.5 h-3.5 mr-1.5" />
                                 UNDUH PDF
@@ -660,7 +660,7 @@ export default function MaterialReaderPage() {
                         </Button>
                     )}
                     {material.podcast_url && (
-                        <Button asChild variant="outline" size="sm" className="font-mono text-xs font-bold h-8 border border-[#171717] rounded-none technical-shadow-sm hover:bg-accent-canary hover:text-[#171717] transition-all">
+                        <Button asChild variant="outline" size="sm" className="font-mono text-xs font-bold h-8 border border-[#171717] dark:border-[#3F3F46] text-[#171717] dark:text-[#F5F4EE] rounded-none technical-shadow-sm hover:bg-accent-canary hover:text-[#171717] dark:hover:text-[#171717] transition-all">
                             <a href={material.podcast_url} target="_blank" rel="noopener noreferrer">
                                 <Headphones className="w-3.5 h-3.5 mr-1.5" />
                                 PODCAST AUDIO
@@ -682,7 +682,7 @@ export default function MaterialReaderPage() {
                     
                     {/* Abstract / Summary Annotation Box */}
                     {material.summary && (
-                        <div className="border-l-4 border-alert-rust bg-canvas-paper border-y border-r border-[#171717] p-4 text-xs sm:text-sm text-foreground/90 leading-relaxed font-sans">
+                        <div className="border-l-4 border-alert-rust bg-canvas-paper border-y border-r border-[#171717] dark:border-[#3F3F46] p-4 text-xs sm:text-sm text-[#171717] dark:text-[#F5F4EE] leading-relaxed font-sans">
                             <span className="font-mono text-[10px] font-bold uppercase text-alert-rust block mb-1">
                                 [ANNOTATION // RINGKASAN_EKSEKUTIF]
                             </span>
@@ -692,11 +692,11 @@ export default function MaterialReaderPage() {
 
                     {/* Mobile/Tablet TOC Drawer (below lg) */}
                     {toc.length > 0 && (
-                        <div className="lg:hidden border border-[#171717] bg-surface-white p-3.5 technical-shadow-sm">
+                        <div className="lg:hidden border border-[#171717] dark:border-[#3F3F46] bg-surface-white p-3.5 technical-shadow-sm">
                             <button
                                 type="button"
                                 onClick={() => setMobileTocOpen(!mobileTocOpen)}
-                                className="flex items-center justify-between w-full font-mono text-xs font-bold text-[#171717]"
+                                className="flex items-center justify-between w-full font-mono text-xs font-bold text-[#171717] dark:text-[#F5F4EE]"
                             >
                                 <span className="flex items-center gap-2">
                                     <Terminal className="w-3.5 h-3.5 text-alert-rust" />
@@ -704,13 +704,13 @@ export default function MaterialReaderPage() {
                                 </span>
                                 <ChevronDown
                                     className={cn(
-                                        "w-4 h-4 text-[#171717] transition-transform duration-200",
+                                        "w-4 h-4 text-[#171717] dark:text-[#F5F4EE] transition-transform duration-200",
                                         mobileTocOpen && "rotate-180"
                                     )}
                                 />
                             </button>
                             {mobileTocOpen && (
-                                <nav className="mt-3 pt-3 border-t border-[#171717] space-y-1 font-mono text-xs">
+                                <nav className="mt-3 pt-3 border-t border-[#171717] dark:border-[#3F3F46] space-y-1 font-mono text-xs">
                                     {toc.map((item) => (
                                         <a
                                             key={item.id}
@@ -729,10 +729,10 @@ export default function MaterialReaderPage() {
                                                 }
                                             }}
                                             className={cn(
-                                                "block py-1.5 px-2 hover:bg-accent-canary transition-colors leading-snug border border-transparent hover:border-[#171717]",
+                                                "block py-1.5 px-2 hover:bg-accent-canary hover:text-[#171717] dark:hover:text-[#171717] transition-colors leading-snug border border-transparent hover:border-[#171717]",
                                                 item.level === 3
                                                     ? "pl-4 text-ink-muted text-[11px]"
-                                                    : "font-bold text-[#171717]"
+                                                    : "font-bold text-[#171717] dark:text-[#F5F4EE]"
                                             )}
                                         >
                                             <span className="mr-1.5 text-ink-muted">
@@ -747,7 +747,7 @@ export default function MaterialReaderPage() {
                     )}
 
                     {/* Core Markdown & LaTeX Reader Canvas */}
-                    <article className="bg-surface-white border border-[#171717] p-6 sm:p-8 technical-shadow min-w-0">
+                    <article className="bg-surface-white border border-[#171717] dark:border-[#3F3F46] p-6 sm:p-8 technical-shadow min-w-0">
                         <MarkdownLatex>
                             {material.content_md ||
                                 `# ${material.title}\n\n${material.summary || "Materi sedang disiapkan oleh tim akademik BBN Education."}`}
@@ -759,13 +759,13 @@ export default function MaterialReaderPage() {
                         {prevModule ? (
                             <Link
                                 href={`/dashboard/materi/${prevModule.slug || prevModule.id}`}
-                                className="group flex flex-col p-4 border border-[#171717] bg-surface-white hover:bg-canvas-paper technical-shadow hover:translate-x-0.5 hover:translate-y-0.5 transition-all text-left"
+                                className="group flex flex-col p-4 border border-[#171717] dark:border-[#3F3F46] bg-surface-white hover:bg-canvas-paper dark:hover:bg-[#22252E] dark:hover:border-[#FDE047] technical-shadow hover:translate-x-0.5 hover:translate-y-0.5 transition-all text-left"
                             >
-                                <div className="flex items-center gap-1.5 font-mono text-xs font-bold text-ink-muted group-hover:text-alert-rust transition-colors mb-1">
+                                <div className="flex items-center gap-1.5 font-mono text-xs font-bold text-ink-muted group-hover:text-alert-rust dark:group-hover:text-[#FDE047] transition-colors mb-1">
                                     <ArrowLeft className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-1" />
                                     <span>[PREV_MODULE]</span>
                                 </div>
-                                <span className="text-sm font-bold text-[#171717] group-hover:text-alert-rust transition-colors line-clamp-1">
+                                <span className="text-sm font-bold text-[#171717] dark:text-[#F5F4EE] group-hover:text-alert-rust dark:group-hover:text-[#FDE047] transition-colors line-clamp-1">
                                     {prevModule.title}
                                 </span>
                             </Link>
@@ -776,13 +776,13 @@ export default function MaterialReaderPage() {
                         {nextModule ? (
                             <Link
                                 href={`/dashboard/materi/${nextModule.slug || nextModule.id}`}
-                                className="group flex flex-col p-4 border border-[#171717] bg-surface-white hover:bg-canvas-paper technical-shadow hover:translate-x-0.5 hover:translate-y-0.5 transition-all text-right sm:items-end"
+                                className="group flex flex-col p-4 border border-[#171717] dark:border-[#3F3F46] bg-surface-white hover:bg-canvas-paper dark:hover:bg-[#22252E] dark:hover:border-[#FDE047] technical-shadow hover:translate-x-0.5 hover:translate-y-0.5 transition-all text-right sm:items-end"
                             >
-                                <div className="flex items-center justify-end gap-1.5 font-mono text-xs font-bold text-ink-muted group-hover:text-alert-rust transition-colors mb-1">
+                                <div className="flex items-center justify-end gap-1.5 font-mono text-xs font-bold text-ink-muted group-hover:text-alert-rust dark:group-hover:text-[#FDE047] transition-colors mb-1">
                                     <span>[NEXT_MODULE]</span>
                                     <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
                                 </div>
-                                <span className="text-sm font-bold text-[#171717] group-hover:text-alert-rust transition-colors line-clamp-1">
+                                <span className="text-sm font-bold text-[#171717] dark:text-[#F5F4EE] group-hover:text-alert-rust dark:group-hover:text-[#FDE047] transition-colors line-clamp-1">
                                     {nextModule.title}
                                 </span>
                             </Link>
@@ -792,9 +792,9 @@ export default function MaterialReaderPage() {
                     </nav>
 
                     {/* Post-Reading CBT Practice Banner Box */}
-                    <section className="p-6 border-2 border-[#171717] bg-accent-canary technical-shadow flex flex-col sm:flex-row items-center justify-between gap-5">
+                    <section className="p-6 border-2 border-[#171717] dark:border-[#FDE047] bg-accent-canary technical-shadow flex flex-col sm:flex-row items-center justify-between gap-5">
                         <div className="space-y-1 text-center sm:text-left">
-                            <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-[#171717] bg-surface-white border border-[#171717] px-2 py-0.5 inline-block">
+                            <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-[#171717] dark:text-[#F5F4EE] bg-surface-white dark:bg-[#171717] border border-[#171717] px-2 py-0.5 inline-block">
                                 [EVALUATION.GATEWAY] // VERIFIKASI_PEMAHAMAN
                             </span>
                             <h2 className="text-lg font-black text-[#171717] tracking-tight">
@@ -806,7 +806,7 @@ export default function MaterialReaderPage() {
                         </div>
                         <Button
                             asChild
-                            className="bg-[#171717] hover:bg-surface-white hover:text-[#171717] text-white font-mono text-xs font-bold border-2 border-[#171717] rounded-none px-5 py-3 shrink-0 technical-shadow-sm transition-all"
+                            className="bg-[#171717] hover:bg-white hover:text-[#171717] text-white font-mono text-xs font-bold border-2 border-[#171717] rounded-none px-5 py-3 shrink-0 technical-shadow-sm transition-all"
                         >
                             <Link href="/dashboard/tryouts">
                                 BUKA TRYOUT CBT
@@ -824,24 +824,24 @@ export default function MaterialReaderPage() {
                     
                     {/* 1. Rigid Table of Contents Component */}
                     {toc.length > 0 && (
-                        <div className="bg-surface-white border border-[#171717] p-4 technical-shadow">
+                        <div className="bg-surface-white border border-[#171717] dark:border-[#3F3F46] p-4 technical-shadow">
                             <TableOfContents items={toc} />
                         </div>
                     )}
 
                     {/* 2. LaTeX Reference // Lembar Rumus Drawer */}
-                    <div className="bg-surface-white border border-[#171717] p-4 technical-shadow space-y-3">
-                        <div className="bg-[#171717] text-white px-3 py-1.5 text-xs font-mono font-bold uppercase tracking-wider flex justify-between items-center">
+                    <div className="bg-surface-white border border-[#171717] dark:border-[#3F3F46] p-4 technical-shadow space-y-3">
+                        <div className="bg-[#171717] dark:bg-[#22252E] dark:border dark:border-[#3F3F46] text-white px-3 py-1.5 text-xs font-mono font-bold uppercase tracking-wider flex justify-between items-center">
                             <span>LATEX REFERENCE // LEMBAR RUMUS</span>
                             <span className="text-accent-canary font-mono text-[10px]">MOD_{String(material.module_number ?? 1).padStart(2, "0")}</span>
                         </div>
 
                         {/* Formula 1 */}
-                        <div className="p-3 bg-canvas-paper border border-[#D4D2C9] space-y-1">
+                        <div className="p-3 bg-canvas-paper border border-[#D4D2C9] dark:border-[#3F3F46] space-y-1">
                             <span className="text-[10px] font-mono text-ink-muted uppercase block font-bold">
                                 HUKUM COULOMB VEKTOR
                             </span>
-                            <div className="text-xs font-bold text-[#171717] font-mono">
+                            <div className="text-xs font-bold text-[#171717] dark:text-[#F5F4EE] font-mono">
                                 F⃗ = (1 / 4πε₀) · (q₁q₂ / r²) · r̂
                             </div>
                             <p className="text-[11px] text-ink-muted leading-tight">
@@ -850,11 +850,11 @@ export default function MaterialReaderPage() {
                         </div>
 
                         {/* Formula 2 */}
-                        <div className="p-3 bg-canvas-paper border border-[#D4D2C9] space-y-1">
+                        <div className="p-3 bg-canvas-paper border border-[#D4D2C9] dark:border-[#3F3F46] space-y-1">
                             <span className="text-[10px] font-mono text-ink-muted uppercase block font-bold">
                                 MEDAN LISTRIK KONTINU
                             </span>
-                            <div className="text-xs font-bold text-[#171717] font-mono">
+                            <div className="text-xs font-bold text-[#171717] dark:text-[#F5F4EE] font-mono">
                                 E⃗ = (1 / 4πε₀) ∫ (dq / r²) · r̂
                             </div>
                             <p className="text-[11px] text-ink-muted leading-tight">
@@ -863,11 +863,11 @@ export default function MaterialReaderPage() {
                         </div>
 
                         {/* Formula 3 */}
-                        <div className="p-3 bg-canvas-paper border border-[#D4D2C9] space-y-1">
+                        <div className="p-3 bg-canvas-paper border border-[#D4D2C9] dark:border-[#3F3F46] space-y-1">
                             <span className="text-[10px] font-mono text-ink-muted uppercase block font-bold">
                                 MEDAN AKSIAL DIPOLE
                             </span>
-                            <div className="text-xs font-bold text-[#171717] font-mono">
+                            <div className="text-xs font-bold text-[#171717] dark:text-[#F5F4EE] font-mono">
                                 E_z ≈ (1 / 2πε₀) · (p / z³)
                             </div>
                         </div>
@@ -877,7 +877,7 @@ export default function MaterialReaderPage() {
                                 href={material.drive_url || material.pdf_url || "#"}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="w-full py-2 bg-canvas-paper text-[#171717] border border-[#171717] font-mono text-xs font-bold hover:bg-accent-canary transition-colors flex items-center justify-center space-x-1.5 cursor-pointer"
+                                className="w-full py-2 bg-canvas-paper text-[#171717] dark:text-[#F5F4EE] border border-[#171717] dark:border-[#3F3F46] font-mono text-xs font-bold hover:bg-accent-canary hover:text-[#171717] dark:hover:text-[#171717] transition-colors flex items-center justify-center space-x-1.5 cursor-pointer"
                             >
                                 <Download className="size-3.5" />
                                 <span>UNDUH CHEATSHEET PDF</span>
@@ -886,7 +886,7 @@ export default function MaterialReaderPage() {
                             <button
                                 type="button"
                                 disabled
-                                className="w-full py-2 bg-canvas-paper text-ink-muted border border-[#D4D2C9] font-mono text-xs font-bold flex items-center justify-center space-x-1.5 cursor-not-allowed opacity-60"
+                                className="w-full py-2 bg-canvas-paper text-ink-muted border border-[#D4D2C9] dark:border-[#3F3F46] font-mono text-xs font-bold flex items-center justify-center space-x-1.5 cursor-not-allowed opacity-60"
                             >
                                 <Download className="size-3.5" />
                                 <span>PDF BELUM TERSEDIA</span>
@@ -895,9 +895,9 @@ export default function MaterialReaderPage() {
                     </div>
 
                     {/* 3. Archival Metadata Box */}
-                    <div className="p-3 bg-canvas-paper border border-dashed border-[#171717] font-mono text-xs text-ink-muted flex items-center justify-between">
+                    <div className="p-3 bg-canvas-paper border border-dashed border-[#171717] dark:border-[#3F3F46] font-mono text-xs text-ink-muted flex items-center justify-between">
                         <span>BBN_EDU-REF: #BBN-{material.subject}-V2</span>
-                        <span className="text-[#171717] font-bold">KURIKULUM RESMI</span>
+                        <span className="text-[#171717] dark:text-[#F5F4EE] font-bold">KURIKULUM RESMI</span>
                     </div>
 
                 </aside>

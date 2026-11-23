@@ -154,8 +154,8 @@ export default function TableOfContents({ items, className }: TableOfContentsPro
     return (
         <div className={cn("font-mono text-xs space-y-3", className)}>
             {/* Rigid Directory Tree Header */}
-            <div className="border-b border-[#171717] pb-2 flex items-center justify-between">
-                <div className="flex items-center gap-1.5 font-bold uppercase tracking-wider text-[#171717]">
+            <div className="border-b border-[#171717] dark:border-[#3F3F46] pb-2 flex items-center justify-between">
+                <div className="flex items-center gap-1.5 font-bold uppercase tracking-wider text-[#171717] dark:text-[#F5F4EE]">
                     <Terminal className="size-3.5 text-alert-rust" />
                     <span>[SYS.TOC] // DIREKTORI_MODUL</span>
                 </div>
@@ -177,7 +177,7 @@ export default function TableOfContents({ items, className }: TableOfContentsPro
                                 href={`#${item.id}`}
                                 onClick={(e) => handleLinkClick(e, item.id)}
                                 className={cn(
-                                    "block p-2.5 border-2 border-[#171717] bg-accent-canary text-[#171717] font-bold technical-shadow-sm transition-all leading-snug",
+                                    "block p-2.5 border-2 border-[#171717] dark:border-[#FDE047] bg-accent-canary text-[#171717] font-bold technical-shadow-sm transition-all leading-snug",
                                     item.level === 3 ? "ml-2.5" : ""
                                 )}
                             >
@@ -203,20 +203,20 @@ export default function TableOfContents({ items, className }: TableOfContentsPro
                                 href={`#${item.id}`}
                                 onClick={(e) => handleLinkClick(e, item.id)}
                                 className={cn(
-                                    "block p-2 border border-[#D4D2C9] bg-surface-white hover:bg-canvas-paper hover:border-[#171717] transition-all leading-snug group",
+                                    "block p-2 border border-[#D4D2C9] dark:border-[#3F3F46] bg-surface-white hover:bg-canvas-paper dark:hover:bg-[#22252E] hover:border-[#171717] dark:hover:border-[#FDE047] transition-all leading-snug group",
                                     item.level === 3 ? "ml-2.5" : ""
                                 )}
                             >
                                 <div className="flex items-center justify-between gap-1.5">
                                     <div className="flex items-center gap-1.5 truncate">
-                                        <span className="w-4 h-4 bg-green-700 text-surface-white text-[9px] font-bold flex items-center justify-center shrink-0">
+                                        <span className="w-4 h-4 bg-green-700 dark:bg-emerald-500 text-white dark:text-[#171717] text-[9px] font-bold flex items-center justify-center shrink-0">
                                             ✓
                                         </span>
-                                        <span className="text-xs font-semibold text-[#171717] truncate">
+                                        <span className="text-xs font-semibold text-[#171717] dark:text-[#F5F4EE] truncate">
                                             {item.text}
                                         </span>
                                     </div>
-                                    <span className="text-[9px] font-mono font-bold text-green-700 bg-green-100 border border-green-300 px-1 py-0.2 shrink-0">
+                                    <span className="text-[9px] font-mono font-bold text-green-700 dark:text-emerald-300 bg-green-100 dark:bg-emerald-950/60 border border-green-300 dark:border-emerald-500/60 px-1 py-0.2 shrink-0">
                                         SELESAI 100%
                                     </span>
                                 </div>
@@ -231,12 +231,12 @@ export default function TableOfContents({ items, className }: TableOfContentsPro
                             href={`#${item.id}`}
                             onClick={(e) => handleLinkClick(e, item.id)}
                             className={cn(
-                                "block p-2 border border-[#D4D2C9] bg-surface-white hover:bg-canvas-paper hover:border-[#171717] text-ink-muted hover:text-[#171717] transition-all leading-snug group",
+                                "block p-2 border border-[#D4D2C9] dark:border-[#3F3F46] bg-surface-white hover:bg-canvas-paper dark:hover:bg-[#22252E] hover:border-[#171717] dark:hover:border-[#FDE047] text-ink-muted hover:text-[#171717] dark:hover:text-[#F5F4EE] transition-all leading-snug group",
                                 item.level === 3 ? "ml-2.5 text-[11px]" : "text-xs"
                             )}
                         >
                             <div className="flex items-center gap-1.5">
-                                <span className="font-mono text-[10px] text-ink-muted/70 group-hover:text-[#171717] shrink-0">
+                                <span className="font-mono text-[10px] text-ink-muted/70 group-hover:text-[#171717] dark:group-hover:text-[#FDE047] shrink-0">
                                     {item.level === 3 ? "├─[+]" : "[+]"}
                                 </span>
                                 <span className="truncate group-hover:font-medium">
@@ -253,9 +253,9 @@ export default function TableOfContents({ items, className }: TableOfContentsPro
                 <button
                     type="button"
                     onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-                    className="flex items-center justify-center gap-1.5 text-[11px] font-bold text-[#171717] bg-canvas-paper border border-[#171717] hover:bg-accent-canary transition-colors py-2 px-3 w-full cursor-pointer technical-shadow-sm"
+                    className="flex items-center justify-center gap-1.5 text-[11px] font-bold text-[#171717] dark:text-[#F5F4EE] bg-canvas-paper border border-[#171717] dark:border-[#3F3F46] hover:bg-accent-canary hover:text-[#171717] dark:hover:text-[#171717] dark:hover:border-[#FDE047] transition-colors py-2 px-3 w-full cursor-pointer technical-shadow-sm"
                 >
-                    <ArrowUp className="size-3 text-[#171717]" />
+                    <ArrowUp className="size-3" />
                     <span>[^ KEMBALI_KE_PUNCAK]</span>
                 </button>
             </div>
