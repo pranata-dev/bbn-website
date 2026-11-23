@@ -45,6 +45,7 @@ export async function GET(request: NextRequest) {
                 slug,
                 title,
                 summary,
+                content_md,
                 module_number,
                 sort_order,
                 reading_time_minutes,
@@ -97,12 +98,16 @@ export async function GET(request: NextRequest) {
         }
 
         // Annotate whether user has access to each material using authoritative helper
-        // Strip drive_url & podcast_url when locked to prevent paywall bypass
+        // Strip drive_url, podcast_url, and raw content_md from list payload
         const annotated = (materials || []).map((m) => {
             const canAccess = entitlements.canAccessMaterial(m)
+            const hasContent = Boolean(m.content_md && m.content_md.trim().length > 0)
+            const { content_md: _omittedContent, ...materialFields } = m
+            void _omittedContent
 
             return {
-                ...m,
+                ...materialFields,
+                has_content: hasContent,
                 drive_url: canAccess ? m.drive_url : null,
                 podcast_url: canAccess ? m.podcast_url : null,
                 can_access: canAccess,

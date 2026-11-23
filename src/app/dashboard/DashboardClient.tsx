@@ -103,6 +103,7 @@ interface DashboardStatsResponse {
       title: string
       slug: string
       moduleNumber: number
+      hasContent?: boolean
     } | null
   }
   leaderboardStats: {
@@ -327,11 +328,15 @@ export default function DashboardClient({
           {/* CTA Quick Action & Progress Strip */}
           <div className="shrink-0 flex flex-col space-y-2.5 min-w-0 sm:min-w-[320px]">
             <Link
-              href={nextMaterial ? `/dashboard/materi/${nextMaterial.slug}` : "/dashboard/materi"}
+              href={
+                nextMaterial && nextMaterial.hasContent !== false
+                  ? `/dashboard/materi/${nextMaterial.slug}`
+                  : "/dashboard/materi"
+              }
               className="px-4 py-3 bg-accent-canary text-[#171717] border border-[#171717] dark:border-[#FDE047] font-mono text-xs sm:text-sm font-bold flex items-center justify-center space-x-2 hover:-translate-x-0.5 hover:-translate-y-0.5 technical-shadow transition-transform"
             >
               <span className="truncate max-w-[260px]">
-                {nextMaterial
+                {nextMaterial && nextMaterial.hasContent !== false
                   ? `Lanjutkan: ${nextMaterial.title} (Modul ${String(nextMaterial.moduleNumber ?? 1).padStart(2, "0")})`
                   : isExcellentBeta && activeBetaCourse
                   ? `Buka Materi ${activeBetaCourse.title}`

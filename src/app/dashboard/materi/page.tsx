@@ -7,6 +7,7 @@ import { useSubject } from "@/contexts/SubjectContext"
 import { PageHeader } from "@/components/dashboard/PageHeader"
 import { EmptyState } from "@/components/dashboard/EmptyState"
 import { Button } from "@/components/ui/button"
+import { toDirectDownloadUrl } from "@/lib/download-url"
 import { BookOpen, Headphones, FileDown, Lock, Sparkles, Clock, CheckCircle, ArrowRight, Loader2 } from "lucide-react"
 
 interface MaterialItem {
@@ -14,6 +15,8 @@ interface MaterialItem {
   slug: string | null
   title: string
   summary: string | null
+  has_content?: boolean
+  content_md?: string | null
   module_number: number | null
   reading_time_minutes: number | null
   is_free_preview: boolean
@@ -300,6 +303,14 @@ function MateriContent() {
           {materials.map((materi, idx) => {
             const isUnlocked = materi.can_access || !materi.is_locked
             const itemSlug = materi.slug || materi.id
+            const pdfDownloadUrl = toDirectDownloadUrl(materi.drive_url || materi.pdf_url)
+            const podcastDownloadUrl = toDirectDownloadUrl(materi.podcast_url)
+            const hasReadableContent =
+              materi.has_content !== undefined
+                ? materi.has_content
+                : materi.content_md !== undefined
+                ? Boolean(materi.content_md && materi.content_md.trim().length > 0)
+                : Boolean(materi.id.startsWith("seed-"))
 
             return (
               <div
@@ -318,7 +329,7 @@ function MateriContent() {
                     </span>
                     {materi.is_free_preview ? (
                       <span className="inline-flex items-center gap-1 text-[10px] font-mono font-bold uppercase px-2 py-0.5 bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-400 dark:border-emerald-500/50">
-                        <CheckCircle className="w-3 h-3" /> Free Preview
+                        <CheckCircle className="w-3 h-3" /> {inBetaMode ? "Terbuka" : "Free Preview"}
                       </span>
                     ) : isUnlocked ? (
                       <span className="inline-flex items-center gap-1 text-[10px] font-mono font-bold uppercase px-2 py-0.5 bg-accent-canary text-[#171717] border border-[#171717]">
@@ -353,39 +364,65 @@ function MateriContent() {
 
                 {/* Bottom Actions */}
                 <div className="space-y-2.5 pt-4 border-t border-[#D4D2C9] dark:border-[#3F3F46] mt-auto">
-                  {isUnlocked ? (
-                    <Button asChild className="w-full bg-[#171717] hover:bg-[#171717]/90 text-white dark:bg-accent-canary dark:text-[#171717] dark:hover:bg-[#fde667] font-mono font-bold text-xs h-10 rounded-none border border-[#171717] dark:border-[#FDE047] technical-shadow-sm">
-                      <Link href={`/dashboard/materi/${itemSlug}`}>
-                        <BookOpen className="w-4 h-4 mr-2" />
-                        Baca Modul Interaktif
-                      </Link>
-                    </Button>
-                  ) : (
+                  {!isUnlocked ? (
                     <Button asChild variant="outline" className="w-full font-mono font-bold text-xs h-10 rounded-none border border-[#171717] dark:border-amber-500/60 text-amber-900 dark:text-amber-300 hover:bg-amber-50 dark:hover:bg-amber-950/40">
                       <Link href="/dashboard/beli-paket">
                         <Lock className="w-3.5 h-3.5 mr-2 text-amber-600 dark:text-amber-400" />
                         Buka Akses Premium
                       </Link>
                     </Button>
-                  )}
+                  ) : hasReadableContent ? (
+                    <>
+                      <Button asChild className="w-full bg-[#171717] hover:bg-[#171717]/90 text-white dark:bg-accent-canary dark:text-[#171717] dark:hover:bg-[#fde667] font-mono font-bold text-xs h-10 rounded-none border border-[#171717] dark:border-[#FDE047] technical-shadow-sm">
+                        <Link href={`/dashboard/materi/${itemSlug}`}>
+                          <BookOpen className="w-4 h-4 mr-2" />
+                          Baca Modul Interaktif
+                        </Link>
+                      </Button>
 
-                  {isUnlocked && (materi.drive_url || materi.podcast_url) && (
-                    <div className="flex gap-2">
-                      {materi.drive_url && (
-                        <Button asChild variant="outline" size="sm" className="flex-1 text-[11px] font-mono font-bold h-8 rounded-none border-[#171717] dark:border-[#3F3F46] text-[#171717] dark:text-[#F5F4EE] hover:bg-accent-canary hover:text-[#171717] dark:hover:text-[#171717]">
-                          <a href={materi.drive_url} target="_blank" rel="noopener noreferrer">
-                            <FileDown className="w-3.5 h-3.5 mr-1" />
-                            PDF
+                      {(pdfDownloadUrl || podcastDownloadUrl) && (
+                        <div className="flex gap-2">
+                          {pdfDownloadUrl && (
+                            <Button asChild variant="outline" size="sm" className="flex-1 text-[11px] font-mono font-bold h-8 rounded-none border-[#171717] dark:border-[#3F3F46] text-[#171717] dark:text-[#F5F4EE] hover:bg-accent-canary hover:text-[#171717] dark:hover:text-[#171717]">
+                              <a href={pdfDownloadUrl} target="_blank" rel="noopener noreferrer" download>
+                                <FileDown className="w-3.5 h-3.5 mr-1" />
+                                PDF
+                              </a>
+                            </Button>
+                          )}
+                          {podcastDownloadUrl && (
+                            <Button asChild variant="outline" size="sm" className="flex-1 text-[11px] font-mono font-bold h-8 rounded-none border-[#171717] dark:border-[#3F3F46] text-[#171717] dark:text-[#F5F4EE] hover:bg-accent-canary hover:text-[#171717] dark:hover:text-[#171717]">
+                              <a href={podcastDownloadUrl} target="_blank" rel="noopener noreferrer" download>
+                                <Headphones className="w-3.5 h-3.5 mr-1" />
+                                Podcast
+                              </a>
+                            </Button>
+                          )}
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <div className="flex flex-col gap-2">
+                      {pdfDownloadUrl && (
+                        <Button asChild className="w-full bg-accent-canary hover:bg-[#fde667] text-[#171717] font-mono font-bold text-xs h-10 rounded-none border-2 border-[#171717] dark:border-[#FDE047] technical-shadow-sm">
+                          <a href={pdfDownloadUrl} target="_blank" rel="noopener noreferrer" download>
+                            <FileDown className="w-4 h-4 mr-2" />
+                            Unduh Materi (PDF)
                           </a>
                         </Button>
                       )}
-                      {materi.podcast_url && (
-                        <Button asChild variant="outline" size="sm" className="flex-1 text-[11px] font-mono font-bold h-8 rounded-none border-[#171717] dark:border-[#3F3F46] text-[#171717] dark:text-[#F5F4EE] hover:bg-accent-canary hover:text-[#171717] dark:hover:text-[#171717]">
-                          <a href={materi.podcast_url} target="_blank" rel="noopener noreferrer">
-                            <Headphones className="w-3.5 h-3.5 mr-1" />
-                            Podcast
+                      {podcastDownloadUrl && (
+                        <Button asChild variant="outline" className="w-full bg-surface-white hover:bg-canvas-paper dark:hover:bg-[#22252E] text-[#171717] dark:text-[#F5F4EE] font-mono font-bold text-xs h-10 rounded-none border-2 border-[#171717] dark:border-[#3F3F46] dark:hover:border-[#FDE047] technical-shadow-sm">
+                          <a href={podcastDownloadUrl} target="_blank" rel="noopener noreferrer" download>
+                            <Headphones className="w-4 h-4 mr-2" />
+                            Unduh Podcast (Audio)
                           </a>
                         </Button>
+                      )}
+                      {!pdfDownloadUrl && !podcastDownloadUrl && (
+                        <div className="text-center font-mono text-[11px] text-ink-muted py-2 border border-dashed border-[#D4D2C9] dark:border-[#3F3F46] bg-canvas-paper">
+                          Tautan unduhan sedang disiapkan
+                        </div>
                       )}
                     </div>
                   )}

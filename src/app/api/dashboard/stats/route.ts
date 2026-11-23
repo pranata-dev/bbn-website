@@ -205,6 +205,7 @@ export async function GET(request: NextRequest) {
             id: string
             title: string
             slug: string | null
+            content_md: string | null
             module_number: number | null
             is_free_preview: boolean
         }> = []
@@ -213,7 +214,7 @@ export async function GET(request: NextRequest) {
             if (excellentCourse) {
                 const { data: gradeMaterials } = await adminSupabase
                     .from("materials")
-                    .select("id, title, slug, module_number, is_free_preview")
+                    .select("id, title, slug, content_md, module_number, is_free_preview")
                     .eq("is_published", true)
                     .eq("course_id", excellentCourse.id)
                     .order("module_number", { ascending: true })
@@ -222,7 +223,7 @@ export async function GET(request: NextRequest) {
         } else {
             const { data: materialsData } = await adminSupabase
                 .from("materials")
-                .select("id, title, slug, module_number, is_free_preview, courses!inner(track)")
+                .select("id, title, slug, content_md, module_number, is_free_preview, courses!inner(track)")
                 .eq("is_published", true)
                 .eq("courses.track", userTrack)
                 .order("module_number", { ascending: true })
@@ -299,6 +300,10 @@ export async function GET(request: NextRequest) {
                           title: nextMaterialRow.title,
                           slug: nextMaterialRow.slug,
                           moduleNumber: nextMaterialRow.module_number,
+                          hasContent: Boolean(
+                              nextMaterialRow.content_md &&
+                                  nextMaterialRow.content_md.trim().length > 0
+                          ),
                       }
                     : null,
             },
