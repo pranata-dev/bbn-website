@@ -73,10 +73,10 @@ export default function LatihanPage() {
                 FILTER:
               </span>
               <Select value={filter} onValueChange={setFilter}>
-                <SelectTrigger className="w-[190px] sm:w-[210px] bg-surface-white border-2 border-[#171717] rounded-none font-mono text-xs font-bold text-[#171717] technical-shadow-sm focus:ring-0 focus:border-[#171717] h-10 px-3">
+                <SelectTrigger className="w-[190px] sm:w-[210px] bg-surface-white border-2 border-[#171717] dark:border-[#3F3F46] rounded-none font-mono text-xs font-bold text-[#171717] dark:text-[#F5F4EE] technical-shadow-sm focus:ring-0 focus:border-[#171717] dark:focus:border-[#FDE047] h-10 px-3">
                   <SelectValue placeholder="SEMUA KATEGORI" />
                 </SelectTrigger>
-                <SelectContent className="bg-surface-white border-2 border-[#171717] rounded-none shadow-none font-mono text-xs font-semibold text-[#171717]">
+                <SelectContent className="bg-surface-white border-2 border-[#171717] dark:border-[#3F3F46] rounded-none shadow-none font-mono text-xs font-semibold text-[#171717] dark:text-[#F5F4EE]">
                   <SelectItem value="all" className="rounded-none cursor-pointer hover:bg-accent-canary focus:bg-accent-canary focus:text-[#171717]">
                     [ALL] SEMUA KATEGORI
                   </SelectItem>
@@ -95,13 +95,13 @@ export default function LatihanPage() {
       {/* Mini Stats Summary Strip (Bento Metrics) */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
         {/* Metric 01 */}
-        <div className="bg-surface-white border-2 border-[#171717] technical-shadow p-5 relative tick-corner flex flex-col justify-between">
+        <div className="bg-surface-white border-2 border-[#171717] dark:border-[#3F3F46] technical-shadow p-5 relative tick-corner flex flex-col justify-between">
           <div className="flex items-center justify-between font-mono text-xs font-bold uppercase tracking-wider text-ink-muted">
             <span>{isExcellentBeta ? "TOTAL PAKET LATIHAN" : "TOTAL_LATIHAN // REGISTRY"}</span>
             <div className="size-3 bg-accent-canary border border-[#171717]" />
           </div>
           <div className="mt-4">
-            <p className="font-mono text-3xl font-black text-[#171717]">
+            <p className="font-mono text-3xl font-black text-[#171717] dark:text-[#F5F4EE]">
               {String(latihans.length).padStart(2, "0")}
             </p>
             <p className="font-mono text-[10px] uppercase tracking-wider text-ink-muted mt-1">
@@ -114,13 +114,13 @@ export default function LatihanPage() {
         </div>
 
         {/* Metric 02 */}
-        <div className="bg-surface-white border-2 border-[#171717] technical-shadow p-5 relative tick-corner flex flex-col justify-between">
+        <div className="bg-surface-white border-2 border-[#171717] dark:border-[#3F3F46] technical-shadow p-5 relative tick-corner flex flex-col justify-between">
           <div className="flex items-center justify-between font-mono text-xs font-bold uppercase tracking-wider text-ink-muted">
             <span>{isExcellentBeta ? "TOTAL BUTIR SOAL" : "FASE_01 // WEEK 1-4"}</span>
             <div className="size-3 bg-alert-rust border border-[#171717]" />
           </div>
           <div className="mt-4">
-            <p className="font-mono text-3xl font-black text-[#171717]">
+            <p className="font-mono text-3xl font-black text-[#171717] dark:text-[#F5F4EE]">
               {String(isExcellentBeta ? totalQuestionsCount : countW1W4).padStart(2, "0")}
             </p>
             <p className="font-mono text-[10px] uppercase tracking-wider text-ink-muted mt-1">
@@ -135,13 +135,13 @@ export default function LatihanPage() {
         </div>
 
         {/* Metric 03 */}
-        <div className="bg-surface-white border-2 border-[#171717] technical-shadow p-5 relative tick-corner flex flex-col justify-between">
+        <div className="bg-surface-white border-2 border-[#171717] dark:border-[#3F3F46] technical-shadow p-5 relative tick-corner flex flex-col justify-between">
           <div className="flex items-center justify-between font-mono text-xs font-bold uppercase tracking-wider text-ink-muted">
             <span>{isExcellentBeta ? "MODE PENGERJAAN" : "FASE_02 // WEEK 5-7"}</span>
-            <div className="size-3 bg-[#171717] border border-[#171717]" />
+            <div className="size-3 bg-[#171717] dark:bg-[#F5F4EE] border border-[#171717] dark:border-[#3F3F46]" />
           </div>
           <div className="mt-4">
-            <p className="font-mono text-3xl font-black text-[#171717]">
+            <p className="font-mono text-3xl font-black text-[#171717] dark:text-[#F5F4EE]">
               {isExcellentBeta ? "MANDIRI" : String(countW5W7).padStart(2, "0")}
             </p>
             <p className="font-mono text-[10px] uppercase tracking-wider text-ink-muted mt-1">
@@ -149,7 +149,7 @@ export default function LatihanPage() {
             </p>
           </div>
           <div className="w-full h-1 bg-border-grid mt-4 overflow-hidden">
-            <div className="h-full bg-[#171717] w-1/3" />
+            <div className="h-full bg-[#171717] dark:bg-[#F5F4EE] w-1/3" />
           </div>
         </div>
       </div>
@@ -157,9 +157,9 @@ export default function LatihanPage() {
       {/* Main Catalog View */}
       <div className="space-y-4">
         {/* Catalog Subheader Strip */}
-        <div className="flex items-center justify-between border-b-2 border-[#171717] pb-2 font-mono text-xs">
+        <div className="flex items-center justify-between border-b-2 border-[#171717] dark:border-[#3F3F46] pb-2 font-mono text-xs">
           <div className="flex items-center gap-2">
-            <span className="font-bold text-[#171717]">&gt; MODUL_LATIHAN</span>
+            <span className="font-bold text-[#171717] dark:text-[#F5F4EE]">&gt; MODUL_LATIHAN</span>
             <span className="text-ink-muted hidden sm:inline">{`// SUBJECT: ${selectedSubject.toUpperCase()}`}</span>
           </div>
           <div className="text-ink-muted font-bold">
@@ -168,7 +168,7 @@ export default function LatihanPage() {
         </div>
 
         {loading ? (
-          <div className="bg-surface-white border-2 border-dashed border-[#171717] bg-grid-blueprint p-16 text-center font-mono text-xs font-bold text-ink-muted relative tick-corner">
+          <div className="bg-surface-white border-2 border-dashed border-[#171717] dark:border-[#3F3F46] bg-grid-blueprint p-16 text-center font-mono text-xs font-bold text-ink-muted relative tick-corner">
             <div className="animate-pulse">
               &gt; STATUS: FETCHING_PRACTICE_MODULES... // MENGHUBUNGKAN TELEMETRI
             </div>
@@ -187,14 +187,14 @@ export default function LatihanPage() {
               return (
                 <div
                   key={latihan.id}
-                  className={`bg-surface-white border-2 border-[#171717] technical-shadow p-6 flex flex-col justify-between relative tick-corner transition-all duration-150 ${isLocked ? "opacity-75" : "hover:-translate-x-0.5 hover:-translate-y-0.5"
+                  className={`bg-surface-white border-2 border-[#171717] dark:border-[#3F3F46] technical-shadow p-6 flex flex-col justify-between relative tick-corner transition-all duration-150 ${isLocked ? "opacity-75" : "hover:-translate-x-0.5 hover:-translate-y-0.5"
                     }`}
                 >
                   <div>
                     {/* Top Tag Strip */}
                     <div className="flex items-center justify-between gap-2 mb-3.5 flex-wrap">
                       <div className="flex items-center gap-2">
-                        <span className="font-mono text-[10px] font-bold px-2 py-0.5 uppercase bg-canvas-paper border border-[#171717] text-[#171717]">
+                        <span className="font-mono text-[10px] font-bold px-2 py-0.5 uppercase bg-canvas-paper border border-[#171717] dark:border-[#3F3F46] text-[#171717] dark:text-[#F5F4EE]">
                           {categoryLabel}
                         </span>
                         <span className="font-mono text-[10px] font-bold text-ink-muted">
@@ -202,14 +202,14 @@ export default function LatihanPage() {
                         </span>
                       </div>
                       {isLocked && (
-                        <span className="font-mono text-[10px] font-black px-2 py-0.5 uppercase bg-alert-rust text-surface-white border border-[#171717]">
+                        <span className="font-mono text-[10px] font-black px-2 py-0.5 uppercase bg-alert-rust text-white border border-[#171717] dark:border-alert-rust">
                           LOCKED [PRO]
                         </span>
                       )}
                     </div>
 
                     {/* Title */}
-                    <h3 className="font-sans text-lg font-black text-[#171717] mb-2 leading-tight tracking-tight">
+                    <h3 className="font-sans text-lg font-black text-[#171717] dark:text-[#F5F4EE] mb-2 leading-tight tracking-tight">
                       {latihan.title}
                     </h3>
 
@@ -221,12 +221,12 @@ export default function LatihanPage() {
                     )}
 
                     {/* Specs / Meta Strip */}
-                    <div className="flex items-center gap-2 font-mono text-xs font-bold text-[#171717] mb-6 flex-wrap">
-                      <div className="px-2.5 py-1 bg-canvas-paper border border-[#171717] flex items-center gap-1.5">
+                    <div className="flex items-center gap-2 font-mono text-xs font-bold text-[#171717] dark:text-[#F5F4EE] mb-6 flex-wrap">
+                      <div className="px-2.5 py-1 bg-canvas-paper border border-[#171717] dark:border-[#3F3F46] flex items-center gap-1.5">
                         <span className="text-alert-rust font-black">#</span>
                         <span>{latihan.tryout_questions?.[0]?.count || 0} BUTIR SOAL</span>
                       </div>
-                      <div className="px-2.5 py-1 bg-canvas-paper border border-[#171717] text-ink-muted">
+                      <div className="px-2.5 py-1 bg-canvas-paper border border-[#171717] dark:border-[#3F3F46] text-ink-muted">
                         MODE: MANDIRI
                       </div>
                     </div>
@@ -236,7 +236,7 @@ export default function LatihanPage() {
                   <div className="pt-2">
                     {isLocked ? (
                       <Button
-                        className="w-full bg-canvas-paper text-ink-muted border-2 border-[#171717] rounded-none font-mono text-xs font-bold py-3 uppercase tracking-wider cursor-not-allowed hover:bg-canvas-paper"
+                        className="w-full bg-canvas-paper text-ink-muted border-2 border-[#171717] dark:border-[#3F3F46] rounded-none font-mono text-xs font-bold py-3 uppercase tracking-wider cursor-not-allowed hover:bg-canvas-paper"
                         size="sm"
                         onClick={() => toast.error("Upgrade paket Anda untuk mengakses modul latihan ini!")}
                       >
@@ -245,7 +245,7 @@ export default function LatihanPage() {
                     ) : (
                       <Button
                         asChild
-                        className="w-full bg-accent-canary hover:bg-[#FDE047]/90 text-[#171717] border-2 border-[#171717] technical-shadow rounded-none font-mono text-xs font-black py-3 uppercase tracking-wider transition-all"
+                        className="w-full bg-accent-canary hover:bg-[#FDE047]/90 text-[#171717] border-2 border-[#171717] dark:border-[#FDE047] technical-shadow rounded-none font-mono text-xs font-black py-3 uppercase tracking-wider transition-all"
                         size="sm"
                       >
                         <Link href={`/dashboard/latihan/${latihan.id}`} className="flex items-center justify-center gap-2">

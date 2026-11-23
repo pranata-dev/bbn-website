@@ -35,14 +35,14 @@ export function SubmitConfirmDialog({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent
         showCloseButton={true}
-        className="border-4 border-[#171717] shadow-[8px_8px_0px_#171717] bg-surface-white rounded-none font-mono max-w-lg p-6 sm:p-8 relative tick-corner"
+        className="border-4 border-[#171717] dark:border-[#FDE047] shadow-[8px_8px_0px_#171717] dark:shadow-[8px_8px_0px_#3F3F46] bg-surface-white rounded-none font-mono max-w-lg p-6 sm:p-8 relative tick-corner"
       >
         <DialogHeader className="space-y-2 pr-8">
           <div className="flex items-center gap-2 font-mono text-xs font-black text-alert-rust uppercase">
             <span className="size-2 bg-alert-rust border border-[#171717]" />
             <span>[KONFIRMASI // AKHIRI_UJIAN]</span>
           </div>
-          <DialogTitle className="font-sans text-xl sm:text-2xl font-black text-[#171717] tracking-tight">
+          <DialogTitle className="font-sans text-xl sm:text-2xl font-black text-[#171717] dark:text-[#F5F4EE] tracking-tight">
             Kumpulkan Lembar Jawaban?
           </DialogTitle>
           <DialogDescription className="font-sans text-xs text-ink-muted leading-relaxed">
@@ -52,15 +52,15 @@ export function SubmitConfirmDialog({
 
         {/* Status Breakdown Matrix */}
         <div className="grid grid-cols-3 gap-3 my-5">
-          <div className="bg-canvas-paper border-2 border-[#171717] p-3 text-center">
+          <div className="bg-canvas-paper border-2 border-[#171717] dark:border-[#3F3F46] p-3 text-center">
             <span className="font-mono text-[10px] font-bold text-ink-muted uppercase block">
               TERJAWAB
             </span>
-            <span className="font-mono text-2xl font-black text-green-700">
+            <span className="font-mono text-2xl font-black text-green-700 dark:text-emerald-400">
               {answeredCount}
             </span>
           </div>
-          <div className="bg-canvas-paper border-2 border-[#171717] p-3 text-center">
+          <div className="bg-canvas-paper border-2 border-[#171717] dark:border-[#3F3F46] p-3 text-center">
             <span className="font-mono text-[10px] font-bold text-ink-muted uppercase block">
               RAGU-RAGU
             </span>
@@ -68,18 +68,18 @@ export function SubmitConfirmDialog({
               {doubtfulCount}
             </span>
           </div>
-          <div className="bg-canvas-paper border-2 border-[#171717] p-3 text-center">
+          <div className="bg-canvas-paper border-2 border-[#171717] dark:border-[#3F3F46] p-3 text-center">
             <span className="font-mono text-[10px] font-bold text-ink-muted uppercase block">
               KOSONG
             </span>
-            <span className="font-mono text-2xl font-black text-[#171717]">
+            <span className="font-mono text-2xl font-black text-[#171717] dark:text-[#F5F4EE]">
               {unansweredCount}
             </span>
           </div>
         </div>
 
         {unansweredCount > 0 && (
-          <div className="p-3 bg-amber-50 border-2 border-amber-600 text-amber-900 font-mono text-xs font-bold leading-relaxed mb-4">
+          <div className="p-3 bg-amber-50 dark:bg-amber-950/40 border-2 border-amber-600 dark:border-amber-500/70 text-amber-900 dark:text-amber-300 font-mono text-xs font-bold leading-relaxed mb-4">
             PERINGATAN: Masih terdapat {unansweredCount} butir soal yang belum Anda jawab. Jawaban kosong bernilai 0.
           </div>
         )}
@@ -88,7 +88,7 @@ export function SubmitConfirmDialog({
           <button
             onClick={onClose}
             disabled={submitting}
-            className="w-full sm:w-auto px-4 py-2.5 bg-surface-white border-2 border-[#171717] hover:bg-canvas-paper text-[#171717] font-mono text-xs font-bold uppercase transition-all"
+            className="w-full sm:w-auto px-4 py-2.5 bg-surface-white border-2 border-[#171717] dark:border-[#3F3F46] hover:bg-canvas-paper dark:hover:bg-[#22252E] text-[#171717] dark:text-[#F5F4EE] font-mono text-xs font-bold uppercase transition-all cursor-pointer"
             type="button"
           >
             Lanjutkan Pengerjaan
@@ -96,7 +96,7 @@ export function SubmitConfirmDialog({
           <button
             onClick={onConfirm}
             disabled={submitting}
-            className="w-full sm:w-auto px-5 py-2.5 bg-alert-rust hover:bg-[#a04410] text-surface-white border-2 border-[#171717] shadow-[4px_4px_0px_#171717] font-mono text-xs font-black uppercase tracking-wider transition-all disabled:opacity-50"
+            className="w-full sm:w-auto px-5 py-2.5 bg-alert-rust hover:bg-[#a04410] text-white border-2 border-[#171717] dark:border-[#FDE047] shadow-[4px_4px_0px_#171717] dark:shadow-[4px_4px_0px_#3F3F46] font-mono text-xs font-black uppercase tracking-wider transition-all disabled:opacity-50 cursor-pointer"
             type="button"
           >
             {submitting ? "MENGIRIMKAN..." : "YA, KUMPULKAN SEKARANG"}

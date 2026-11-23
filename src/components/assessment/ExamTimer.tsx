@@ -28,10 +28,10 @@ export function ExamTimer({
   return (
     <div className="w-full sticky top-0 z-50 select-none">
       {/* 1. TOP DOCKED TELEMETRY BAR */}
-      <header className="w-full bg-surface-white border-b-2 border-[#171717] px-4 py-2 flex flex-wrap items-center justify-between gap-3 shadow-none">
+      <header className="w-full bg-surface-white border-b-2 border-[#171717] dark:border-[#3F3F46] px-4 py-2 flex flex-wrap items-center justify-between gap-3 shadow-none">
         {/* Left: Integrity Protocol Status & Token */}
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 bg-[#FEF2F2] border border-alert-rust px-2.5 py-1">
+          <div className="flex items-center gap-2 bg-[#FEF2F2] dark:bg-rose-950/40 border border-alert-rust px-2.5 py-1">
             <span className="inline-block size-2 bg-alert-rust animate-pulse" />
             <span className="font-mono text-[10px] sm:text-xs text-alert-rust font-bold tracking-wider uppercase">
               {isPractice ? "LATIHAN MANDIRI // ACTIVE" : "CBT LOCKDOWN ACTIVE // INTEGRITY PROTOCOL"}
@@ -40,17 +40,17 @@ export function ExamTimer({
 
           <div className="hidden lg:flex items-center gap-2 border-l border-border-grid pl-3 font-mono text-xs">
             <span className="text-ink-muted">
-              TOKEN: <strong className="text-[#171717]">#{tokenId.toUpperCase()}</strong>
+              TOKEN: <strong className="text-[#171717] dark:text-[#F5F4EE]">#{tokenId.toUpperCase()}</strong>
             </span>
             <span className="text-border-grid">|</span>
             <span className="text-ink-muted">
-              SESI: <strong className="text-[#171717]">{subject.toUpperCase()}</strong>
+              SESI: <strong className="text-[#171717] dark:text-[#F5F4EE]">{subject.toUpperCase()}</strong>
             </span>
           </div>
         </div>
 
         {/* Center: Clock & Question Counter */}
-        <div className="flex items-center gap-3 bg-canvas-paper px-3 py-1 border-2 border-[#171717] technical-shadow-sm">
+        <div className="flex items-center gap-3 bg-canvas-paper px-3 py-1 border-2 border-[#171717] dark:border-[#3F3F46] technical-shadow-sm">
           {!isPractice && (
             <>
               <div className="flex items-center gap-2">
@@ -60,10 +60,10 @@ export function ExamTimer({
                 <span
                   className={`font-mono text-sm sm:text-base font-black tracking-wider px-2.5 py-0.5 border ${
                     isCritical
-                      ? "bg-alert-rust text-surface-white border-[#171717] animate-pulse"
+                      ? "bg-alert-rust text-white border-[#171717] dark:border-alert-rust animate-pulse"
                       : isWarning
-                      ? "bg-amber-100 text-amber-800 border-amber-600"
-                      : "bg-surface-white text-[#171717] border-[#171717]"
+                      ? "bg-amber-100 text-amber-800 border-amber-600 dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-500/60"
+                      : "bg-surface-white dark:bg-[#22252E] text-[#171717] dark:text-[#F5F4EE] border-[#171717] dark:border-[#3F3F46]"
                   }`}
                 >
                   {formatTimer(timeLeft)}
@@ -73,7 +73,7 @@ export function ExamTimer({
             </>
           )}
 
-          <div className="flex items-center gap-1.5 font-mono text-xs font-bold text-[#171717]">
+          <div className="flex items-center gap-1.5 font-mono text-xs font-bold text-[#171717] dark:text-[#F5F4EE]">
             <span>SOAL {currentIndex + 1} DARI {totalQuestions}</span>
             <span className="text-ink-muted font-normal text-[11px] hidden md:inline">
               ({answeredCount} DIJAWAB)
@@ -83,8 +83,8 @@ export function ExamTimer({
 
         {/* Right: Telemetry Auto-save Sync Status */}
         <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1.5 px-2.5 py-1 bg-surface-white border border-[#171717] font-mono text-[10px] font-bold text-green-800">
-            <span className="size-2 bg-green-700 inline-block" />
+          <div className="flex items-center gap-1.5 px-2.5 py-1 bg-surface-white border border-[#171717] dark:border-[#3F3F46] font-mono text-[10px] font-bold text-green-800 dark:text-emerald-400">
+            <span className="size-2 bg-green-700 dark:bg-emerald-400 inline-block" />
             <span className="hidden sm:inline">TELEMETRY SYNC:</span>
             <span>AUTO-SAVED</span>
           </div>
@@ -93,14 +93,14 @@ export function ExamTimer({
 
       {/* 2. SUB-BAR LOCKDOWN NOTICE */}
       {!isPractice && (
-        <div className="w-full bg-[#171717] text-surface-white px-4 py-1 text-center flex items-center justify-between font-mono text-[10px] tracking-tight border-b border-[#171717]">
+        <div className="w-full bg-[#171717] dark:bg-[#14171D] text-white px-4 py-1 text-center flex items-center justify-between font-mono text-[10px] tracking-tight border-b border-[#171717] dark:border-[#3F3F46]">
           <div className="flex items-center gap-2 overflow-hidden whitespace-nowrap">
             <span className="text-accent-canary font-bold tracking-widest">[BBN_EDU CBT // PROTOCOL]</span>
-            <span className="truncate text-border-grid hidden sm:inline">
+            <span className="truncate text-[#D4D2C9] dark:text-[#A1A1AA] hidden sm:inline">
               Menekan Esc, berpindah tab, atau devtools akan memicu catatan integritas. Lembar jawaban terenkripsi (AES-256).
             </span>
           </div>
-          <div className="flex items-center gap-3 shrink-0 text-border-grid">
+          <div className="flex items-center gap-3 shrink-0 text-[#D4D2C9] dark:text-[#A1A1AA]">
             <span>HASH: 9F8A-BBN-EDU</span>
             <span className="hidden md:inline">SECURITY: L4 STRICT</span>
           </div>

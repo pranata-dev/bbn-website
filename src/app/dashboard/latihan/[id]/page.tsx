@@ -94,9 +94,9 @@ export default function LatihanDetailPage() {
   if (loading) {
     return (
       <div className="min-h-[50vh] flex flex-col items-center justify-center font-mono">
-        <div className="bg-surface-white border-2 border-dashed border-[#171717] bg-grid-blueprint p-12 text-center relative tick-corner">
+        <div className="bg-surface-white border-2 border-dashed border-[#171717] dark:border-[#3F3F46] bg-grid-blueprint p-12 text-center relative tick-corner">
           <div className="size-3 bg-accent-canary border border-[#171717] mx-auto mb-3 animate-spin" />
-          <p className="font-mono text-xs font-bold text-[#171717]">
+          <p className="font-mono text-xs font-bold text-[#171717] dark:text-[#F5F4EE]">
             &gt; STATUS: FETCHING_PRACTICE_METADATA...
           </p>
         </div>
@@ -109,16 +109,16 @@ export default function LatihanDetailPage() {
       <div className="space-y-6 font-mono max-w-xl mx-auto">
         <Link
           href="/dashboard/latihan"
-          className="inline-flex items-center gap-2 bg-surface-white hover:bg-canvas-paper text-[#171717] border-2 border-[#171717] technical-shadow-sm px-4 py-2 font-mono text-xs font-bold uppercase transition-all"
+          className="inline-flex items-center gap-2 bg-surface-white hover:bg-canvas-paper dark:hover:bg-[#22252E] text-[#171717] dark:text-[#F5F4EE] border-2 border-[#171717] dark:border-[#3F3F46] technical-shadow-sm px-4 py-2 font-mono text-xs font-bold uppercase transition-all"
         >
           <span>&larr;</span>
           <span>Kembali</span>
         </Link>
-        <div className="bg-surface-white border-2 border-dashed border-[#171717] p-8 text-center relative tick-corner bg-grid-blueprint">
-          <div className="size-14 bg-canvas-paper border-2 border-[#171717] flex items-center justify-center mx-auto mb-4 font-mono text-2xl font-black">
+        <div className="bg-surface-white border-2 border-dashed border-[#171717] dark:border-[#3F3F46] p-8 text-center relative tick-corner bg-grid-blueprint">
+          <div className="size-14 bg-canvas-paper border-2 border-[#171717] dark:border-[#3F3F46] flex items-center justify-center mx-auto mb-4 font-mono text-2xl font-black text-[#171717] dark:text-[#F5F4EE]">
             Ø
           </div>
-          <h3 className="font-sans text-xl font-black text-[#171717] mb-2">Modul Tidak Ditemukan</h3>
+          <h3 className="font-sans text-xl font-black text-[#171717] dark:text-[#F5F4EE] mb-2">Modul Tidak Ditemukan</h3>
           <p className="font-sans text-xs text-ink-muted leading-relaxed">
             {error || "Latihan soal yang Anda cari tidak tersedia."}
           </p>
@@ -133,7 +133,7 @@ export default function LatihanDetailPage() {
       <div>
         <Link
           href="/dashboard/latihan"
-          className="inline-flex items-center gap-2 bg-surface-white hover:bg-canvas-paper text-[#171717] border-2 border-[#171717] technical-shadow-sm px-4 py-2 font-mono text-xs font-bold uppercase transition-all"
+          className="inline-flex items-center gap-2 bg-surface-white hover:bg-canvas-paper dark:hover:bg-[#22252E] text-[#171717] dark:text-[#F5F4EE] border-2 border-[#171717] dark:border-[#3F3F46] technical-shadow-sm px-4 py-2 font-mono text-xs font-bold uppercase transition-all"
         >
           <span>&larr;</span>
           <span>Kembali ke Daftar Latihan</span>
@@ -142,18 +142,18 @@ export default function LatihanDetailPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
         {/* Main detail card */}
-        <div className="lg:col-span-2 bg-surface-white border-2 border-[#171717] technical-shadow relative tick-corner overflow-hidden">
+        <div className="lg:col-span-2 bg-surface-white border-2 border-[#171717] dark:border-[#3F3F46] technical-shadow relative tick-corner overflow-hidden">
           {/* Header */}
-          <div className="border-b-2 border-[#171717] bg-canvas-paper px-6 py-5 sm:px-8 sm:py-6">
+          <div className="border-b-2 border-[#171717] dark:border-[#3F3F46] bg-canvas-paper px-6 py-5 sm:px-8 sm:py-6">
             <div className="flex items-center gap-2 mb-2 flex-wrap">
-              <span className="font-mono text-[10px] font-bold text-[#171717] bg-surface-white border border-[#171717] px-2.5 py-0.5 uppercase tracking-wider">
+              <span className="font-mono text-[10px] font-bold text-[#171717] dark:text-[#F5F4EE] bg-surface-white border border-[#171717] dark:border-[#3F3F46] px-2.5 py-0.5 uppercase tracking-wider">
                 {latihan.category || "Semua Materi"}
               </span>
               <span className="font-mono text-[10px] font-black uppercase tracking-wider px-2 py-0.5 bg-accent-canary text-[#171717] border border-[#171717]">
                 MODE MANDIRI
               </span>
             </div>
-            <h1 className="font-sans text-2xl sm:text-3xl font-black text-[#171717] tracking-tight leading-tight">
+            <h1 className="font-sans text-2xl sm:text-3xl font-black text-[#171717] dark:text-[#F5F4EE] tracking-tight leading-tight">
               {latihan.title}
             </h1>
           </div>
@@ -161,7 +161,7 @@ export default function LatihanDetailPage() {
           {/* Content */}
           <div className="p-6 sm:p-8 space-y-6">
             <div>
-              <h3 className="font-mono text-xs font-bold text-[#171717] uppercase tracking-wider mb-2 flex items-center gap-2">
+              <h3 className="font-mono text-xs font-bold text-[#171717] dark:text-[#F5F4EE] uppercase tracking-wider mb-2 flex items-center gap-2">
                 <span className="size-2 bg-alert-rust border border-[#171717]" />
                 Deskripsi Modul Latihan
               </h3>
@@ -171,10 +171,10 @@ export default function LatihanDetailPage() {
             </div>
 
             {/* CTA action box */}
-            <div className="bg-canvas-paper border-2 border-[#171717] p-5 relative tick-corner technical-shadow-sm">
+            <div className="bg-canvas-paper border-2 border-[#171717] dark:border-[#3F3F46] p-5 relative tick-corner technical-shadow-sm">
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div>
-                  <p className="font-mono text-sm font-black text-[#171717]">
+                  <p className="font-mono text-sm font-black text-[#171717] dark:text-[#F5F4EE]">
                     SIAP BERLATIH MANDIRI?
                   </p>
                   <p className="font-mono text-[10px] text-ink-muted mt-0.5">
@@ -185,7 +185,7 @@ export default function LatihanDetailPage() {
                   previousSubmission.status === "IN_PROGRESS" ? (
                     <Link
                       href={`/dashboard/latihan/${validId}/practice`}
-                      className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-accent-canary hover:bg-[#FDE047]/90 text-[#171717] font-mono text-xs font-black px-6 py-3 border-2 border-[#171717] technical-shadow uppercase tracking-wider transition-all"
+                      className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-accent-canary hover:bg-[#FDE047]/90 text-[#171717] font-mono text-xs font-black px-6 py-3 border-2 border-[#171717] dark:border-[#FDE047] technical-shadow uppercase tracking-wider transition-all"
                     >
                       <span>Lanjutkan Latihan</span>
                       <span>&rarr;</span>
@@ -194,13 +194,13 @@ export default function LatihanDetailPage() {
                     <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
                       <Link
                         href={`/dashboard/latihan/${validId}/discussion`}
-                        className="inline-flex items-center justify-center gap-1.5 bg-surface-white hover:bg-canvas-paper text-[#171717] font-mono text-xs font-bold px-4 py-2.5 border-2 border-[#171717] technical-shadow-sm uppercase transition-all"
+                        className="inline-flex items-center justify-center gap-1.5 bg-surface-white hover:bg-canvas-paper dark:hover:bg-[#22252E] text-[#171717] dark:text-[#F5F4EE] font-mono text-xs font-bold px-4 py-2.5 border-2 border-[#171717] dark:border-[#3F3F46] technical-shadow-sm uppercase transition-all"
                       >
                         Lihat Pembahasan
                       </Link>
                       <Link
                         href={`/dashboard/latihan/${validId}/practice`}
-                        className="inline-flex items-center justify-center gap-2 bg-accent-canary hover:bg-[#FDE047]/90 text-[#171717] font-mono text-xs font-black px-5 py-2.5 border-2 border-[#171717] technical-shadow uppercase transition-all"
+                        className="inline-flex items-center justify-center gap-2 bg-accent-canary hover:bg-[#FDE047]/90 text-[#171717] font-mono text-xs font-black px-5 py-2.5 border-2 border-[#171717] dark:border-[#FDE047] technical-shadow uppercase transition-all"
                       >
                         <span>Ulangi Latihan</span>
                         <span>&rarr;</span>
@@ -210,7 +210,7 @@ export default function LatihanDetailPage() {
                 ) : (
                   <Link
                     href={`/dashboard/latihan/${validId}/practice`}
-                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-accent-canary hover:bg-[#FDE047]/90 text-[#171717] font-mono text-xs font-black px-6 py-3 border-2 border-[#171717] technical-shadow uppercase tracking-wider transition-all"
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-accent-canary hover:bg-[#FDE047]/90 text-[#171717] font-mono text-xs font-black px-6 py-3 border-2 border-[#171717] dark:border-[#FDE047] technical-shadow uppercase tracking-wider transition-all"
                   >
                     <span>Mulai Latihan</span>
                     <span>&rarr;</span>
@@ -223,14 +223,14 @@ export default function LatihanDetailPage() {
 
         {/* Sidebar module specs */}
         <div className="space-y-6">
-          <div className="bg-surface-white border-2 border-[#171717] technical-shadow p-5 relative tick-corner">
-            <h2 className="font-mono text-xs font-bold text-[#171717] uppercase tracking-wider pb-3 border-b-2 border-[#171717]">
+          <div className="bg-surface-white border-2 border-[#171717] dark:border-[#3F3F46] technical-shadow p-5 relative tick-corner">
+            <h2 className="font-mono text-xs font-bold text-[#171717] dark:text-[#F5F4EE] uppercase tracking-wider pb-3 border-b-2 border-[#171717] dark:border-[#3F3F46]">
               SPESIFIKASI MODUL
             </h2>
             <div className="divide-y divide-border-grid mt-2">
               <div className="py-3 flex items-center justify-between">
                 <span className="font-mono text-xs text-ink-muted">TOTAL SOAL:</span>
-                <span className="font-mono text-sm font-black text-[#171717]">
+                <span className="font-mono text-sm font-black text-[#171717] dark:text-[#F5F4EE]">
                   {latihan.questionCount} BUTIR
                 </span>
               </div>
@@ -246,7 +246,7 @@ export default function LatihanDetailPage() {
               </div>
               <div className="py-3 flex items-center justify-between">
                 <span className="font-mono text-xs text-ink-muted">TIPE SESI:</span>
-                <span className="font-mono text-xs font-bold text-[#171717]">
+                <span className="font-mono text-xs font-bold text-[#171717] dark:text-[#F5F4EE]">
                   ANALISIS MANDIRI
                 </span>
               </div>

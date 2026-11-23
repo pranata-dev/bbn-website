@@ -66,10 +66,10 @@ export default function TryoutsPage() {
               FILTER:
             </span>
             <Select value={filter} onValueChange={setFilter}>
-              <SelectTrigger className="w-[190px] sm:w-[210px] bg-surface-white border-2 border-[#171717] rounded-none font-mono text-xs font-bold text-[#171717] technical-shadow-sm focus:ring-0 focus:border-[#171717] h-10 px-3">
+              <SelectTrigger className="w-[190px] sm:w-[210px] bg-surface-white border-2 border-[#171717] dark:border-[#3F3F46] rounded-none font-mono text-xs font-bold text-[#171717] dark:text-[#F5F4EE] technical-shadow-sm focus:ring-0 focus:border-[#171717] dark:focus:border-[#FDE047] h-10 px-3">
                 <SelectValue placeholder="SEMUA KATEGORI" />
               </SelectTrigger>
-              <SelectContent className="bg-surface-white border-2 border-[#171717] rounded-none shadow-none font-mono text-xs font-semibold text-[#171717]">
+              <SelectContent className="bg-surface-white border-2 border-[#171717] dark:border-[#3F3F46] rounded-none shadow-none font-mono text-xs font-semibold text-[#171717] dark:text-[#F5F4EE]">
                 <SelectItem value="all" className="rounded-none cursor-pointer hover:bg-accent-canary focus:bg-accent-canary focus:text-[#171717]">
                   [ALL] SEMUA KATEGORI
                 </SelectItem>
@@ -87,13 +87,13 @@ export default function TryoutsPage() {
       {/* Mini Stats Summary Strip (Bento Metrics) */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
         {/* Metric 01 */}
-        <div className="bg-surface-white border-2 border-[#171717] technical-shadow p-5 relative tick-corner flex flex-col justify-between">
+        <div className="bg-surface-white border-2 border-[#171717] dark:border-[#3F3F46] technical-shadow p-5 relative tick-corner flex flex-col justify-between">
           <div className="flex items-center justify-between font-mono text-xs font-bold uppercase tracking-wider text-ink-muted">
             <span>TOTAL_TRYOUT // CBT</span>
             <div className="size-3 bg-accent-canary border border-[#171717]" />
           </div>
           <div className="mt-4">
-            <p className="font-mono text-3xl font-black text-[#171717]">
+            <p className="font-mono text-3xl font-black text-[#171717] dark:text-[#F5F4EE]">
               {String(tryouts.length).padStart(2, "0")}
             </p>
             <p className="font-mono text-[10px] uppercase tracking-wider text-ink-muted mt-1">
@@ -106,13 +106,13 @@ export default function TryoutsPage() {
         </div>
 
         {/* Metric 02 */}
-        <div className="bg-surface-white border-2 border-[#171717] technical-shadow p-5 relative tick-corner flex flex-col justify-between">
+        <div className="bg-surface-white border-2 border-[#171717] dark:border-[#3F3F46] technical-shadow p-5 relative tick-corner flex flex-col justify-between">
           <div className="flex items-center justify-between font-mono text-xs font-bold uppercase tracking-wider text-ink-muted">
             <span>TRYOUT // FASE 01</span>
             <div className="size-3 bg-alert-rust border border-[#171717]" />
           </div>
           <div className="mt-4">
-            <p className="font-mono text-3xl font-black text-[#171717]">
+            <p className="font-mono text-3xl font-black text-[#171717] dark:text-[#F5F4EE]">
               {String(countW1W4).padStart(2, "0")}
             </p>
             <p className="font-mono text-[10px] uppercase tracking-wider text-ink-muted mt-1">
@@ -125,13 +125,13 @@ export default function TryoutsPage() {
         </div>
 
         {/* Metric 03 */}
-        <div className="bg-surface-white border-2 border-[#171717] technical-shadow p-5 relative tick-corner flex flex-col justify-between">
+        <div className="bg-surface-white border-2 border-[#171717] dark:border-[#3F3F46] technical-shadow p-5 relative tick-corner flex flex-col justify-between">
           <div className="flex items-center justify-between font-mono text-xs font-bold uppercase tracking-wider text-ink-muted">
             <span>TRYOUT // FASE 02</span>
-            <div className="size-3 bg-[#171717] border border-[#171717]" />
+            <div className="size-3 bg-[#171717] dark:bg-[#F5F4EE] border border-[#171717] dark:border-[#3F3F46]" />
           </div>
           <div className="mt-4">
-            <p className="font-mono text-3xl font-black text-[#171717]">
+            <p className="font-mono text-3xl font-black text-[#171717] dark:text-[#F5F4EE]">
               {String(countW5W7).padStart(2, "0")}
             </p>
             <p className="font-mono text-[10px] uppercase tracking-wider text-ink-muted mt-1">
@@ -139,7 +139,7 @@ export default function TryoutsPage() {
             </p>
           </div>
           <div className="w-full h-1 bg-border-grid mt-4 overflow-hidden">
-            <div className="h-full bg-[#171717] w-1/3" />
+            <div className="h-full bg-[#171717] dark:bg-[#F5F4EE] w-1/3" />
           </div>
         </div>
       </div>
@@ -147,9 +147,9 @@ export default function TryoutsPage() {
       {/* Main Catalog View */}
       <div className="space-y-4">
         {/* Catalog Subheader Strip */}
-        <div className="flex items-center justify-between border-b-2 border-[#171717] pb-2 font-mono text-xs">
+        <div className="flex items-center justify-between border-b-2 border-[#171717] dark:border-[#3F3F46] pb-2 font-mono text-xs">
           <div className="flex items-center gap-2">
-            <span className="font-bold text-[#171717]">&gt; SIMULASI_UJIAN_CBT</span>
+            <span className="font-bold text-[#171717] dark:text-[#F5F4EE]">&gt; SIMULASI_UJIAN_CBT</span>
             <span className="text-ink-muted hidden sm:inline">{`// SUBJECT: ${selectedSubject.toUpperCase()}`}</span>
           </div>
           <div className="text-ink-muted font-bold">
@@ -158,7 +158,7 @@ export default function TryoutsPage() {
         </div>
 
         {loading ? (
-          <div className="bg-surface-white border-2 border-dashed border-[#171717] bg-grid-blueprint p-16 text-center font-mono text-xs font-bold text-ink-muted relative tick-corner">
+          <div className="bg-surface-white border-2 border-dashed border-[#171717] dark:border-[#3F3F46] bg-grid-blueprint p-16 text-center font-mono text-xs font-bold text-ink-muted relative tick-corner">
             <div className="animate-pulse">
               &gt; STATUS: FETCHING_CBT_SCHEDULE... // SINKRONISASI SERVER
             </div>
@@ -176,13 +176,13 @@ export default function TryoutsPage() {
               return (
                 <div
                   key={tryout.id}
-                  className="bg-surface-white border-2 border-[#171717] technical-shadow p-6 flex flex-col justify-between relative tick-corner transition-all duration-150 hover:-translate-x-0.5 hover:-translate-y-0.5"
+                  className="bg-surface-white border-2 border-[#171717] dark:border-[#3F3F46] technical-shadow p-6 flex flex-col justify-between relative tick-corner transition-all duration-150 hover:-translate-x-0.5 hover:-translate-y-0.5"
                 >
                   <div>
                     {/* Top Tag Strip */}
                     <div className="flex items-center justify-between gap-2 mb-3.5 flex-wrap">
                       <div className="flex items-center gap-2">
-                        <span className="font-mono text-[10px] font-bold px-2 py-0.5 uppercase bg-canvas-paper border border-[#171717] text-[#171717]">
+                        <span className="font-mono text-[10px] font-bold px-2 py-0.5 uppercase bg-canvas-paper border border-[#171717] dark:border-[#3F3F46] text-[#171717] dark:text-[#F5F4EE]">
                           {categoryLabel}
                         </span>
                         <span className="font-mono text-[10px] font-bold text-ink-muted">
@@ -195,7 +195,7 @@ export default function TryoutsPage() {
                     </div>
 
                     {/* Title */}
-                    <h3 className="font-sans text-lg font-black text-[#171717] mb-2 leading-tight tracking-tight">
+                    <h3 className="font-sans text-lg font-black text-[#171717] dark:text-[#F5F4EE] mb-2 leading-tight tracking-tight">
                       {tryout.title}
                     </h3>
 
@@ -207,16 +207,16 @@ export default function TryoutsPage() {
                     )}
 
                     {/* Specs / Meta Strip */}
-                    <div className="flex items-center gap-2 font-mono text-xs font-bold text-[#171717] mb-6 flex-wrap">
-                      <div className="px-2.5 py-1 bg-canvas-paper border border-[#171717] flex items-center gap-1.5">
-                        <span className="text-alert-rust font-black">⏱</span>
+                    <div className="flex items-center gap-2 font-mono text-xs font-bold text-[#171717] dark:text-[#F5F4EE] mb-6 flex-wrap">
+                      <div className="px-2.5 py-1 bg-canvas-paper border border-[#171717] dark:border-[#3F3F46] flex items-center gap-1.5">
+                        <span className="text-alert-rust font-black">T:</span>
                         <span>{tryout.duration} MENIT</span>
                       </div>
-                      <div className="px-2.5 py-1 bg-canvas-paper border border-[#171717] flex items-center gap-1.5">
-                        <span className="text-alert-rust font-black">📝</span>
+                      <div className="px-2.5 py-1 bg-canvas-paper border border-[#171717] dark:border-[#3F3F46] flex items-center gap-1.5">
+                        <span className="text-alert-rust font-black">#</span>
                         <span>{tryout.tryout_questions?.[0]?.count || 0} BUTIR SOAL</span>
                       </div>
-                      <div className="px-2.5 py-1 bg-canvas-paper border border-[#171717] text-ink-muted">
+                      <div className="px-2.5 py-1 bg-canvas-paper border border-[#171717] dark:border-[#3F3F46] text-ink-muted">
                         SKOR NASIONAL
                       </div>
                     </div>
@@ -226,7 +226,7 @@ export default function TryoutsPage() {
                   <div className="pt-2">
                     <Button
                       asChild
-                      className="w-full bg-[#171717] hover:bg-accent-canary hover:text-[#171717] text-surface-white border-2 border-[#171717] technical-shadow rounded-none font-mono text-xs font-black py-3 uppercase tracking-wider transition-all"
+                      className="w-full bg-[#171717] dark:bg-accent-canary hover:bg-accent-canary dark:hover:bg-[#fde667] hover:text-[#171717] text-white dark:text-[#171717] border-2 border-[#171717] dark:border-[#FDE047] technical-shadow rounded-none font-mono text-xs font-black py-3 uppercase tracking-wider transition-all"
                       size="sm"
                     >
                       <Link href={`/dashboard/tryouts/${tryout.id}`} className="flex items-center justify-center gap-2">

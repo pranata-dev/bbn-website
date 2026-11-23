@@ -201,9 +201,9 @@ export default function LatihanPracticePage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh] font-mono">
-        <div className="bg-surface-white border-2 border-dashed border-[#171717] bg-grid-blueprint p-12 text-center relative tick-corner">
+        <div className="bg-surface-white border-2 border-dashed border-[#171717] dark:border-[#3F3F46] bg-grid-blueprint p-12 text-center relative tick-corner">
           <div className="size-3 bg-accent-canary border border-[#171717] mx-auto mb-3 animate-spin" />
-          <p className="font-mono text-xs font-bold text-[#171717]">
+          <p className="font-mono text-xs font-bold text-[#171717] dark:text-[#F5F4EE]">
             &gt; STATUS: INITIALIZING_PRACTICE_MODULE...
           </p>
           <p className="font-mono text-[10px] text-ink-muted mt-1">

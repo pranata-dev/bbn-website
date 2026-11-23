@@ -38,24 +38,24 @@ export function QuestionNavigator({
   const unansweredCount = totalQuestions - answeredCount
 
   return (
-    <footer className="w-full bg-surface-white border-t-2 border-[#171717] sticky bottom-0 z-40 select-none">
+    <footer className="w-full bg-surface-white border-t-2 border-[#171717] dark:border-[#3F3F46] sticky bottom-0 z-40 select-none">
       {/* 1. TOP STRIP: SYSTEM MATRIX & LEGEND */}
       <div className="bg-canvas-paper border-b border-border-grid px-4 py-2.5">
         <div className="max-w-[1720px] mx-auto flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
           {/* Legend Summary */}
           <div className="flex items-center gap-3 font-mono text-[11px] shrink-0 flex-wrap">
-            <span className="font-bold text-[#171717] uppercase">MATRIKS SOAL:</span>
+            <span className="font-bold text-[#171717] dark:text-[#F5F4EE] uppercase">MATRIKS SOAL:</span>
             <div className="flex items-center gap-1.5">
-              <span className="size-2.5 bg-green-700 border border-[#171717] inline-block" />
-              <span className="text-ink-muted">Terjawab: <strong className="text-[#171717]">{answeredCount}</strong></span>
+              <span className="size-2.5 bg-green-700 dark:bg-emerald-500 border border-[#171717] dark:border-[#3F3F46] inline-block" />
+              <span className="text-ink-muted">Terjawab: <strong className="text-[#171717] dark:text-[#F5F4EE]">{answeredCount}</strong></span>
             </div>
             <div className="flex items-center gap-1.5">
               <span className="size-2.5 bg-accent-canary border border-[#171717] inline-block" />
-              <span className="text-ink-muted">Ragu-ragu: <strong className="text-[#171717]">{doubtfulCount}</strong></span>
+              <span className="text-ink-muted">Ragu-ragu: <strong className="text-[#171717] dark:text-[#F5F4EE]">{doubtfulCount}</strong></span>
             </div>
             <div className="flex items-center gap-1.5">
-              <span className="size-2.5 bg-surface-white border border-[#171717] inline-block" />
-              <span className="text-ink-muted">Belum: <strong className="text-[#171717]">{unansweredCount}</strong></span>
+              <span className="size-2.5 bg-surface-white border border-[#171717] dark:border-[#3F3F46] inline-block" />
+              <span className="text-ink-muted">Belum: <strong className="text-[#171717] dark:text-[#F5F4EE]">{unansweredCount}</strong></span>
             </div>
           </div>
 
@@ -71,14 +71,14 @@ export function QuestionNavigator({
                 <button
                   key={q.id}
                   onClick={() => onSelectQuestion(idx)}
-                  className={`size-7 sm:size-8 shrink-0 font-mono text-xs font-bold transition-all flex items-center justify-center ${
+                  className={`size-7 sm:size-8 shrink-0 font-mono text-xs font-bold transition-all flex items-center justify-center cursor-pointer ${
                     isActive
                       ? "border-2 border-alert-rust bg-accent-canary text-[#171717] scale-110 font-black z-10 technical-shadow-sm"
                       : isFlagged
-                      ? "bg-accent-canary text-[#171717] border-2 border-[#171717]"
+                      ? "bg-accent-canary text-[#171717] border-2 border-[#171717] dark:border-[#FDE047]"
                       : isAnswered
-                      ? "bg-green-700 text-surface-white border border-[#171717]"
-                      : "bg-surface-white text-ink-muted border border-border-grid hover:border-[#171717] hover:text-[#171717]"
+                      ? "bg-green-700 dark:bg-emerald-600 text-white border border-[#171717] dark:border-emerald-400"
+                      : "bg-surface-white dark:bg-[#22252E] text-ink-muted border border-border-grid dark:border-[#3F3F46] hover:border-[#171717] dark:hover:border-[#FDE047] hover:text-[#171717] dark:hover:text-[#F5F4EE]"
                   }`}
                   title={`Ke Soal No. ${idx + 1}`}
                 >
@@ -97,7 +97,7 @@ export function QuestionNavigator({
           <button
             onClick={onPrev}
             disabled={isFirst}
-            className="px-4 py-2.5 bg-surface-white border-2 border-[#171717] hover:bg-canvas-paper text-[#171717] font-mono text-xs font-bold flex items-center gap-2 technical-shadow-sm transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+            className="px-4 py-2.5 bg-surface-white border-2 border-[#171717] dark:border-[#3F3F46] hover:bg-canvas-paper dark:hover:bg-[#22252E] dark:hover:border-[#FDE047] text-[#171717] dark:text-[#F5F4EE] font-mono text-xs font-bold flex items-center gap-2 technical-shadow-sm transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
             type="button"
           >
             <span>&larr;</span>
@@ -112,12 +112,12 @@ export function QuestionNavigator({
             type="button"
             className={`flex items-center gap-2 px-4 py-2 border-2 transition-all font-mono text-xs font-bold uppercase cursor-pointer ${
               isDoubtful
-                ? "bg-accent-canary border-[#171717] text-[#171717] technical-shadow-sm"
-                : "bg-canvas-paper border-[#171717] text-ink-muted hover:text-[#171717] hover:bg-[#FEF3C7]"
+                ? "bg-accent-canary border-[#171717] dark:border-[#FDE047] text-[#171717] technical-shadow-sm"
+                : "bg-canvas-paper border-[#171717] dark:border-[#3F3F46] text-ink-muted hover:text-[#171717] dark:hover:text-[#171717] hover:bg-[#FEF3C7] dark:hover:bg-accent-canary"
             }`}
           >
             <span
-              className={`size-3.5 border border-[#171717] flex items-center justify-center ${
+              className={`size-3.5 border border-[#171717] dark:border-[#3F3F46] flex items-center justify-center ${
                 isDoubtful ? "bg-[#171717] text-accent-canary" : "bg-surface-white"
               }`}
             >
@@ -132,7 +132,7 @@ export function QuestionNavigator({
           {!isLast && (
             <button
               onClick={onNext}
-              className="px-5 py-2.5 bg-accent-canary hover:bg-[#FDE047]/90 text-[#171717] border-2 border-[#171717] technical-shadow font-mono text-xs font-black uppercase tracking-wider flex items-center gap-2 transition-all active:translate-x-0.5 active:translate-y-0.5"
+              className="px-5 py-2.5 bg-accent-canary hover:bg-[#FDE047]/90 text-[#171717] border-2 border-[#171717] dark:border-[#FDE047] technical-shadow font-mono text-xs font-black uppercase tracking-wider flex items-center gap-2 transition-all active:translate-x-0.5 active:translate-y-0.5 cursor-pointer"
               type="button"
             >
               <span>SIMPAN &amp; LANJUT</span>
@@ -143,7 +143,7 @@ export function QuestionNavigator({
           <button
             onClick={onSubmit}
             disabled={submitting}
-            className="px-5 py-2.5 bg-[#171717] hover:bg-alert-rust text-surface-white border-2 border-[#171717] technical-shadow font-mono text-xs font-black uppercase tracking-wider flex items-center gap-2 transition-all disabled:opacity-50"
+            className="px-5 py-2.5 bg-[#171717] dark:bg-alert-rust hover:bg-alert-rust dark:hover:bg-[#c8561c] text-white border-2 border-[#171717] dark:border-[#FDE047] technical-shadow font-mono text-xs font-black uppercase tracking-wider flex items-center gap-2 transition-all disabled:opacity-50 cursor-pointer"
             type="button"
             title="Kumpulkan dan Akhiri Ujian"
           >

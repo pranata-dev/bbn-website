@@ -48,59 +48,67 @@ export default function LatihanResultPage() {
             : fallbackTotal
 
     const getScoreColor = (score: number) => {
-        if (score >= 80) return "text-[#3c5443]"
-        if (score >= 60) return "text-[#b8860b]"
-        if (score >= 40) return "text-[#e87a5d]"
-        return "text-red-500"
+        if (score >= 80) return "text-emerald-700 dark:text-emerald-400"
+        if (score >= 60) return "text-amber-700 dark:text-amber-400"
+        if (score >= 40) return "text-alert-rust"
+        return "text-rose-700 dark:text-rose-400"
     }
 
     const getScoreMessage = (score: number) => {
-        if (score >= 80) return "Luar biasa! 🎉"
-        if (score >= 60) return "Bagus, terus tingkatkan! 👍"
-        if (score >= 40) return "Cukup, perlu latihan lagi. 💪"
-        return "Jangan menyerah, terus belajar! 📚"
+        if (score >= 80) return "Hasil sangat baik. Pertahankan konsistensi belajarmu."
+        if (score >= 60) return "Hasil cukup baik. Tinjau kembali beberapa soal untuk memperkuat konsep."
+        if (score >= 40) return "Terus berlatih. Pelajari pembahasan agar pemahaman makin matang."
+        return "Jangan menyerah. Buka pembahasan soal untuk memahami langkah penyelesaian."
     }
 
     return (
-        <div className="max-w-lg mx-auto space-y-6 font-mono">
-            <div className="bg-[#FEFCF3] border-4 border-[#2b1b11] shadow-[6px_6px_0px_#2b1b11] text-center overflow-hidden">
+        <div className="max-w-xl mx-auto space-y-6 font-sans py-4">
+            <div className="bg-surface-white border-2 border-[#171717] dark:border-[#3F3F46] technical-shadow text-center overflow-hidden relative tick-corner">
                 {/* Score header */}
-                <div className="bg-[#2b1b11] p-8 border-b-4 border-[#2b1b11]">
-                    <div className="w-16 h-16 bg-[#e87a5d] border-4 border-[#FEFCF3] flex items-center justify-center mx-auto mb-4 shadow-[3px_3px_0px_rgba(0,0,0,0.3)]">
-                        <Trophy className="w-8 h-8 text-[#FEFCF3] stroke-[2]" />
+                <div className="bg-canvas-paper p-8 border-b-2 border-[#171717] dark:border-[#3F3F46]">
+                    <div className="w-16 h-16 bg-accent-canary border-2 border-[#171717] flex items-center justify-center mx-auto mb-4 technical-shadow-sm">
+                        <Trophy className="w-8 h-8 text-[#171717] stroke-[2]" />
                     </div>
-                    <h2 className="text-lg font-bold text-[#FEFCF3] mb-2" style={{ fontFamily: "var(--font-press-start)", fontSize: "0.9rem" }}>
-                        Latihan Selesai!
-                    </h2>
-                    <p className="text-[#FEFCF3]/70 text-sm font-bold">{getScoreMessage(score)}</p>
+                    <span className="font-mono text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 bg-alert-rust text-white inline-block mb-2">
+                        EVALUASI LATIHAN SELESAI
+                    </span>
+                    <h1 className="text-2xl font-black text-[#171717] dark:text-[#F5F4EE] tracking-tight mb-1.5">
+                        Latihan Selesai
+                    </h1>
+                    <p className="text-ink-muted text-sm max-w-md mx-auto leading-relaxed">
+                        {getScoreMessage(score)}
+                    </p>
                 </div>
 
-                <div className="p-8 space-y-6">
+                <div className="p-6 sm:p-8 space-y-6">
                     {/* Score display */}
                     <div>
-                        <p className="text-[10px] text-[#3c5443] font-bold uppercase tracking-wider mb-1">Skor Kamu</p>
-                        <p className={`text-5xl font-extrabold ${getScoreColor(score)}`} style={{ fontFamily: "var(--font-press-start)" }}>
-                            {score}%
+                        <p className="font-mono text-[10px] text-ink-muted font-bold uppercase tracking-wider mb-1">
+                            SKOR KAMU
+                        </p>
+                        <p className={`font-mono text-5xl sm:text-6xl font-black tracking-tight ${getScoreColor(score)}`}>
+                            {score}
+                            <span className="text-2xl font-bold text-ink-muted ml-1">%</span>
                         </p>
                     </div>
 
                     {/* Stats */}
                     <div className="grid grid-cols-2 gap-4">
-                        <div className="bg-[#bed3c6] border-4 border-[#2b1b11] p-4 shadow-[2px_2px_0px_#2b1b11]">
+                        <div className="bg-canvas-paper border-2 border-[#171717] dark:border-[#3F3F46] p-4 technical-shadow-sm">
                             <div className="flex items-center justify-center gap-2 mb-1">
-                                <CheckCircle className="w-4 h-4 text-[#3c5443] stroke-[2]" />
-                                <span className="text-[10px] text-[#3c5443] font-bold uppercase tracking-wider">Benar</span>
+                                <CheckCircle className="w-4 h-4 text-emerald-700 dark:text-emerald-400 stroke-[2]" />
+                                <span className="font-mono text-[10px] text-ink-muted font-bold uppercase tracking-wider">Benar</span>
                             </div>
-                            <p className="text-xl font-extrabold text-[#2b1b11]">
-                                {correct}/{total}
+                            <p className="font-mono text-2xl font-black text-[#171717] dark:text-[#F5F4EE]">
+                                {correct} <span className="text-sm font-bold text-ink-muted">/ {total}</span>
                             </p>
                         </div>
-                        <div className="bg-[#bed3c6] border-4 border-[#2b1b11] p-4 shadow-[2px_2px_0px_#2b1b11]">
+                        <div className="bg-canvas-paper border-2 border-[#171717] dark:border-[#3F3F46] p-4 technical-shadow-sm">
                             <div className="flex items-center justify-center gap-2 mb-1">
-                                <Target className="w-4 h-4 text-[#2b1b11] stroke-[2]" />
-                                <span className="text-[10px] text-[#3c5443] font-bold uppercase tracking-wider">Akurasi</span>
+                                <Target className="w-4 h-4 text-alert-rust stroke-[2]" />
+                                <span className="font-mono text-[10px] text-ink-muted font-bold uppercase tracking-wider">Akurasi</span>
                             </div>
-                            <p className="text-xl font-extrabold text-[#2b1b11]">
+                            <p className="font-mono text-2xl font-black text-[#171717] dark:text-[#F5F4EE]">
                                 {total > 0 ? Math.round((correct / total) * 100) : 0}%
                             </p>
                         </div>
@@ -110,21 +118,21 @@ export default function LatihanResultPage() {
                     <div className="flex flex-col gap-3 pt-2">
                         <Link
                             href={`/dashboard/latihan/${id}/discussion`}
-                            className="w-full inline-flex items-center justify-center gap-2 bg-[#e87a5d] text-[#FEFCF3] font-bold text-sm px-6 py-3 border-2 border-[#2b1b11] shadow-[3px_3px_0px_#2b1b11] hover:shadow-[4px_4px_0px_#2b1b11] hover:-translate-y-0.5 transition-all"
+                            className="w-full inline-flex items-center justify-center gap-2 bg-accent-canary hover:bg-[#fde667] text-[#171717] font-mono font-black text-xs uppercase tracking-wider px-6 py-3.5 border-2 border-[#171717] dark:border-[#FDE047] technical-shadow transition-all"
                         >
                             <Target className="w-4 h-4 stroke-[2]" />
                             Lihat Pembahasan
                         </Link>
                         <Link
                             href="/dashboard/leaderboard"
-                            className="w-full inline-flex items-center justify-center gap-2 bg-[#FEFCF3] text-[#2b1b11] font-bold text-sm px-6 py-3 border-2 border-[#2b1b11] shadow-[3px_3px_0px_#2b1b11] hover:shadow-[4px_4px_0px_#2b1b11] hover:-translate-y-0.5 transition-all"
+                            className="w-full inline-flex items-center justify-center gap-2 bg-surface-white hover:bg-canvas-paper dark:hover:bg-[#22252E] text-[#171717] dark:text-[#F5F4EE] font-mono font-bold text-xs uppercase tracking-wider px-6 py-3 border-2 border-[#171717] dark:border-[#3F3F46] technical-shadow-sm transition-all"
                         >
                             <Trophy className="w-4 h-4 stroke-[2]" />
                             Lihat Leaderboard
                         </Link>
                         <Link
                             href="/dashboard"
-                            className="w-full inline-flex items-center justify-center gap-2 bg-[#bed3c6] text-[#2b1b11] font-bold text-sm px-6 py-3 border-2 border-[#2b1b11] shadow-[3px_3px_0px_#2b1b11] hover:shadow-[4px_4px_0px_#2b1b11] hover:-translate-y-0.5 transition-all"
+                            className="w-full inline-flex items-center justify-center gap-2 bg-canvas-paper hover:bg-surface-white dark:hover:bg-[#22252E] text-[#171717] dark:text-[#F5F4EE] font-mono font-bold text-xs uppercase tracking-wider px-6 py-3 border-2 border-[#171717] dark:border-[#3F3F46] transition-all"
                         >
                             <Home className="w-4 h-4 stroke-[2]" />
                             Kembali ke Dashboard

@@ -101,9 +101,9 @@ export default function TryoutDetailPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[50vh] font-mono">
-        <div className="bg-surface-white border-2 border-dashed border-[#171717] bg-grid-blueprint p-12 text-center relative tick-corner">
+        <div className="bg-surface-white border-2 border-dashed border-[#171717] dark:border-[#3F3F46] bg-grid-blueprint p-12 text-center relative tick-corner">
           <div className="size-3 bg-accent-canary border border-[#171717] mx-auto mb-3 animate-spin" />
-          <p className="font-mono text-xs font-bold text-[#171717]">
+          <p className="font-mono text-xs font-bold text-[#171717] dark:text-[#F5F4EE]">
             &gt; STATUS: FETCHING_TRYOUT_SPECIFICATION...
           </p>
         </div>
@@ -114,17 +114,17 @@ export default function TryoutDetailPage() {
   if (!tryout) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[50vh] text-center max-w-lg mx-auto p-6 font-mono">
-        <div className="bg-surface-white border-2 border-dashed border-[#171717] bg-grid-blueprint p-10 text-center relative tick-corner w-full">
-          <div className="size-14 bg-canvas-paper border-2 border-[#171717] flex items-center justify-center mx-auto mb-4 font-mono text-2xl font-black">
+        <div className="bg-surface-white border-2 border-dashed border-[#171717] dark:border-[#3F3F46] bg-grid-blueprint p-10 text-center relative tick-corner w-full">
+          <div className="size-14 bg-canvas-paper border-2 border-[#171717] dark:border-[#3F3F46] flex items-center justify-center mx-auto mb-4 font-mono text-2xl font-black text-[#171717] dark:text-[#F5F4EE]">
             Ø
           </div>
-          <h2 className="font-sans text-xl font-black text-[#171717] mb-2">Tryout Tidak Ditemukan</h2>
+          <h2 className="font-sans text-xl font-black text-[#171717] dark:text-[#F5F4EE] mb-2">Tryout Tidak Ditemukan</h2>
           <p className="font-sans text-xs text-ink-muted mb-6">
             Tryout ini tidak tersedia atau belum diaktifkan oleh tim akademik BBN Education.
           </p>
           <Link
             href="/dashboard/tryouts"
-            className="inline-flex items-center gap-2 bg-accent-canary hover:bg-[#FDE047]/90 text-[#171717] border-2 border-[#171717] technical-shadow font-mono text-xs font-black px-5 py-2.5 uppercase transition-all"
+            className="inline-flex items-center gap-2 bg-accent-canary hover:bg-[#FDE047]/90 text-[#171717] border-2 border-[#171717] dark:border-[#FDE047] technical-shadow font-mono text-xs font-black px-5 py-2.5 uppercase transition-all"
           >
             <span>&larr;</span>
             <span>Kembali ke Daftar Tryout</span>
@@ -152,7 +152,7 @@ export default function TryoutDetailPage() {
       <div>
         <Link
           href="/dashboard/tryouts"
-          className="inline-flex items-center gap-2 bg-surface-white hover:bg-canvas-paper text-[#171717] border-2 border-[#171717] technical-shadow-sm px-4 py-2 font-mono text-xs font-bold uppercase transition-all"
+          className="inline-flex items-center gap-2 bg-surface-white hover:bg-canvas-paper dark:hover:bg-[#22252E] text-[#171717] dark:text-[#F5F4EE] border-2 border-[#171717] dark:border-[#3F3F46] technical-shadow-sm px-4 py-2 font-mono text-xs font-bold uppercase transition-all"
         >
           <span>&larr;</span>
           <span>Kembali ke Daftar Tryout</span>
@@ -160,21 +160,21 @@ export default function TryoutDetailPage() {
       </div>
 
       {/* Main Spec Card */}
-      <div className="bg-surface-white border-2 border-[#171717] technical-shadow relative tick-corner overflow-hidden">
+      <div className="bg-surface-white border-2 border-[#171717] dark:border-[#3F3F46] technical-shadow relative tick-corner overflow-hidden">
         {/* Terminal Header */}
-        <div className="border-b-2 border-[#171717] bg-canvas-paper p-6 sm:p-8">
+        <div className="border-b-2 border-[#171717] dark:border-[#3F3F46] bg-canvas-paper p-6 sm:p-8">
           <div className="flex items-center gap-2 mb-3 flex-wrap">
-            <span className="font-mono text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 bg-surface-white border border-[#171717] text-[#171717]">
+            <span className="font-mono text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 bg-surface-white border border-[#171717] dark:border-[#3F3F46] text-[#171717] dark:text-[#F5F4EE]">
               {tryout.category ? CATEGORY_LABELS[tryout.category] || tryout.category : "Semua Materi"}
             </span>
-            <span className="font-mono text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 bg-surface-white border border-[#171717] text-ink-muted">
+            <span className="font-mono text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 bg-surface-white border border-[#171717] dark:border-[#3F3F46] text-ink-muted">
               {tryout.subject || "FISDAS2"}
             </span>
             <span className="font-mono text-[10px] font-black uppercase tracking-wider px-2 py-0.5 bg-accent-canary text-[#171717] border border-[#171717]">
               CBT TIMED
             </span>
           </div>
-          <h1 className="font-sans text-2xl sm:text-3xl font-black tracking-tight text-[#171717] leading-tight">
+          <h1 className="font-sans text-2xl sm:text-3xl font-black tracking-tight text-[#171717] dark:text-[#F5F4EE] leading-tight">
             {tryout.title}
           </h1>
           {tryout.description && (
@@ -187,19 +187,19 @@ export default function TryoutDetailPage() {
         <div className="p-6 sm:p-8 space-y-6">
           {/* Bento Stats Specification Strip */}
           <div className="grid grid-cols-2 gap-4">
-            <div className="bg-canvas-paper border-2 border-[#171717] p-4 flex flex-col justify-between technical-shadow-sm">
+            <div className="bg-canvas-paper border-2 border-[#171717] dark:border-[#3F3F46] p-4 flex flex-col justify-between technical-shadow-sm">
               <span className="font-mono text-[10px] font-bold text-ink-muted uppercase tracking-wider">
                 DURASI_UJIAN
               </span>
-              <p className="font-mono text-2xl font-black text-[#171717] mt-1">
+              <p className="font-mono text-2xl font-black text-[#171717] dark:text-[#F5F4EE] mt-1">
                 {tryout.duration} <span className="text-sm font-bold text-ink-muted">MENIT</span>
               </p>
             </div>
-            <div className="bg-canvas-paper border-2 border-[#171717] p-4 flex flex-col justify-between technical-shadow-sm">
+            <div className="bg-canvas-paper border-2 border-[#171717] dark:border-[#3F3F46] p-4 flex flex-col justify-between technical-shadow-sm">
               <span className="font-mono text-[10px] font-bold text-ink-muted uppercase tracking-wider">
                 JUMLAH_SOAL
               </span>
-              <p className="font-mono text-2xl font-black text-[#171717] mt-1">
+              <p className="font-mono text-2xl font-black text-[#171717] dark:text-[#F5F4EE] mt-1">
                 {questionCount > 0 ? questionCount : "Tersedia"}{" "}
                 <span className="text-sm font-bold text-ink-muted">BUTIR</span>
               </p>
@@ -207,7 +207,7 @@ export default function TryoutDetailPage() {
           </div>
 
           {/* Rules & Integrity Specification Box */}
-          <div className="bg-canvas-paper border-2 border-[#171717] p-5 space-y-3 relative tick-corner">
+          <div className="bg-canvas-paper border-2 border-[#171717] dark:border-[#3F3F46] p-5 space-y-3 relative tick-corner">
             <div className="flex items-center gap-2 text-alert-rust font-mono text-xs font-black uppercase tracking-wider">
               <span className="size-2 bg-alert-rust border border-[#171717]" />
               <span>[!] KETENTUAN PENGERJAAN &amp; INTEGRITAS CBT</span>
@@ -235,12 +235,12 @@ export default function TryoutDetailPage() {
           {/* Action Trigger Buttons */}
           {submission && submission.status === "IN_PROGRESS" ? (
             <div className="space-y-3">
-              <div className="bg-accent-canary/20 border-2 border-[#171717] p-3.5 text-center font-mono text-xs font-bold text-[#171717]">
+              <div className="bg-accent-canary/20 dark:bg-accent-canary/15 border-2 border-[#171717] dark:border-[#FDE047] p-3.5 text-center font-mono text-xs font-bold text-[#171717] dark:text-[#FDE047]">
                 SESI AKTIF: Anda memiliki sesi pengerjaan yang sedang berjalan.
               </div>
               <Button
                 asChild
-                className="w-full bg-accent-canary hover:bg-[#FDE047]/90 text-[#171717] border-2 border-[#171717] technical-shadow rounded-none font-mono text-sm font-black py-4 uppercase tracking-wider transition-all h-auto"
+                className="w-full bg-accent-canary hover:bg-[#FDE047]/90 text-[#171717] border-2 border-[#171717] dark:border-[#FDE047] technical-shadow rounded-none font-mono text-sm font-black py-4 uppercase tracking-wider transition-all h-auto"
               >
                 <Link href={`/dashboard/tryouts/${id}/attempt`} className="flex items-center justify-center gap-2">
                   <span>LANJUTKAN PENGERJAAN TRYOUT</span>
@@ -250,11 +250,11 @@ export default function TryoutDetailPage() {
             </div>
           ) : isCompleted ? (
             <div className="space-y-4">
-              <div className="bg-canvas-paper border-2 border-[#171717] p-4 text-center space-y-1 technical-shadow-sm">
+              <div className="bg-canvas-paper border-2 border-[#171717] dark:border-[#3F3F46] p-4 text-center space-y-1 technical-shadow-sm">
                 <p className="font-mono text-[10px] font-bold text-ink-muted uppercase">
                   STATUS: {submission.status === "TIMED_OUT" ? "WAKTU_HABIS" : "SELESAI_DIKERJAKAN"}
                 </p>
-                <p className="font-mono text-2xl font-black text-[#171717]">
+                <p className="font-mono text-2xl font-black text-[#171717] dark:text-[#F5F4EE]">
                   SKOR TERCATAT: {submission.score ?? 0}%
                 </p>
               </div>
@@ -262,7 +262,7 @@ export default function TryoutDetailPage() {
                 <Button
                   asChild
                   variant="outline"
-                  className="flex-1 bg-surface-white hover:bg-canvas-paper text-[#171717] border-2 border-[#171717] technical-shadow-sm rounded-none font-mono text-xs font-bold py-3 uppercase tracking-wider h-auto"
+                  className="flex-1 bg-surface-white hover:bg-canvas-paper dark:hover:bg-[#22252E] text-[#171717] dark:text-[#F5F4EE] border-2 border-[#171717] dark:border-[#3F3F46] technical-shadow-sm rounded-none font-mono text-xs font-bold py-3 uppercase tracking-wider h-auto"
                 >
                   <Link href={`/dashboard/tryouts/${id}/discussion`}>
                     BUKA LEMBAR PEMBAHASAN
@@ -271,7 +271,7 @@ export default function TryoutDetailPage() {
                 {remainingQuota > 0 && (
                   <Button
                     onClick={() => setShowConfirm(true)}
-                    className="flex-1 bg-accent-canary hover:bg-[#FDE047]/90 text-[#171717] border-2 border-[#171717] technical-shadow rounded-none font-mono text-xs font-black py-3 uppercase tracking-wider h-auto transition-all"
+                    className="flex-1 bg-accent-canary hover:bg-[#FDE047]/90 text-[#171717] border-2 border-[#171717] dark:border-[#FDE047] technical-shadow rounded-none font-mono text-xs font-black py-3 uppercase tracking-wider h-auto transition-all"
                   >
                     KERJAKAN ULANG
                   </Button>
@@ -287,7 +287,7 @@ export default function TryoutDetailPage() {
               ) : (
                 <Button
                   onClick={() => setShowConfirm(true)}
-                  className="w-full bg-[#171717] hover:bg-accent-canary hover:text-[#171717] text-surface-white border-2 border-[#171717] technical-shadow rounded-none font-mono text-sm font-black py-4 uppercase tracking-wider transition-all h-auto"
+                  className="w-full bg-[#171717] dark:bg-accent-canary hover:bg-accent-canary dark:hover:bg-[#fde667] hover:text-[#171717] text-white dark:text-[#171717] border-2 border-[#171717] dark:border-[#FDE047] technical-shadow rounded-none font-mono text-sm font-black py-4 uppercase tracking-wider transition-all h-auto"
                 >
                   MULAI TRYOUT SEKARANG &rarr;
                 </Button>
@@ -299,29 +299,29 @@ export default function TryoutDetailPage() {
 
       {/* Confirmation Dialog */}
       <Dialog open={showConfirm} onOpenChange={setShowConfirm}>
-        <DialogContent className="border-4 border-[#171717] shadow-[8px_8px_0px_#171717] bg-surface-white rounded-none font-mono max-w-md p-6 sm:p-7 relative tick-corner">
+        <DialogContent className="border-4 border-[#171717] dark:border-[#FDE047] shadow-[8px_8px_0px_#171717] dark:shadow-[8px_8px_0px_#3F3F46] bg-surface-white rounded-none font-mono max-w-md p-6 sm:p-7 relative tick-corner">
           <DialogHeader className="space-y-2">
             <div className="flex items-center gap-2 font-mono text-xs font-black text-alert-rust uppercase">
               <span className="size-2 bg-alert-rust border border-[#171717]" />
               <span>[KONFIRMASI // MULAI_SESI_CBT]</span>
             </div>
-            <DialogTitle className="font-sans text-xl font-black text-[#171717]">
+            <DialogTitle className="font-sans text-xl font-black text-[#171717] dark:text-[#F5F4EE]">
               Mulai Pengerjaan Tryout?
             </DialogTitle>
             <DialogDescription className="font-sans text-xs text-ink-muted leading-relaxed">
-              Anda akan memulai simulasi <strong className="text-[#171717]">{tryout.title}</strong>. Timer {tryout.duration} menit akan langsung berjalan mundur dan tidak dapat dijeda.
+              Anda akan memulai simulasi <strong className="text-[#171717] dark:text-[#F5F4EE]">{tryout.title}</strong>. Timer {tryout.duration} menit akan langsung berjalan mundur dan tidak dapat dijeda.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="gap-2 sm:gap-3 pt-4">
             <Button
               variant="outline"
-              className="bg-surface-white border-2 border-[#171717] rounded-none font-mono text-xs font-bold uppercase"
+              className="bg-surface-white border-2 border-[#171717] dark:border-[#3F3F46] text-[#171717] dark:text-[#F5F4EE] hover:bg-canvas-paper dark:hover:bg-[#22252E] rounded-none font-mono text-xs font-bold uppercase"
               onClick={() => setShowConfirm(false)}
             >
               Batal
             </Button>
             <Button
-              className="bg-accent-canary hover:bg-[#FDE047]/90 text-[#171717] border-2 border-[#171717] technical-shadow rounded-none font-mono text-xs font-black uppercase tracking-wider"
+              className="bg-accent-canary hover:bg-[#FDE047]/90 text-[#171717] border-2 border-[#171717] dark:border-[#FDE047] technical-shadow rounded-none font-mono text-xs font-black uppercase tracking-wider"
               onClick={() => router.push(`/dashboard/tryouts/${id}/attempt`)}
             >
               Ya, Mulai Sesi Ujian &rarr;
