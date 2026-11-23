@@ -28,14 +28,23 @@ export const metadata: Metadata = {
   },
 }
 
+const THEME_INIT_SCRIPT = `(function(){try{if(window.location.pathname.startsWith('/dashboard')&&localStorage.getItem('bbn-dashboard-theme')==='dark'){document.documentElement.classList.add('dark');}}catch(e){}})();`
+
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
   return (
-    <html lang="id" className={`scroll-smooth ${geist.variable} ${jetbrainsMono.variable}`}>
-      <body className={`${geist.variable} ${jetbrainsMono.variable} font-sans antialiased bg-background text-foreground selection:bg-accent selection:text-foreground`}>
+    <html
+      lang="id"
+      suppressHydrationWarning
+      className={`scroll-smooth ${geist.variable} ${jetbrainsMono.variable}`}
+    >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
+      </head>
+      <body className={`${geist.variable} ${jetbrainsMono.variable} font-sans antialiased bg-background text-foreground selection:bg-accent selection:text-accent-foreground`}>
         {children}
         <Toaster position="top-right" richColors />
       </body>

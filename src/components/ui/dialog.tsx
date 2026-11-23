@@ -62,7 +62,7 @@ function DialogContent({
         <DialogPrimitive.Content
           data-slot="dialog-content"
           className={cn(
-            "pointer-events-auto relative w-full max-w-lg bg-surface-white border-4 border-[#171717] shadow-[8px_8px_0px_#171717] p-6 sm:p-8 rounded-none outline-none duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
+            "pointer-events-auto relative w-full max-w-lg bg-surface-white border-4 border-[#171717] dark:border-[#3F3F46] shadow-[8px_8px_0px_#171717] dark:shadow-[8px_8px_0px_#3F3F46] p-6 sm:p-8 rounded-none outline-none duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
             className
           )}
           {...props}
@@ -71,7 +71,7 @@ function DialogContent({
           {showCloseButton && (
             <DialogPrimitive.Close
               data-slot="dialog-close"
-              className="absolute top-4 right-4 size-7 bg-canvas-paper hover:bg-accent-canary text-[#171717] border-2 border-[#171717] flex items-center justify-center transition-colors focus:outline-hidden disabled:pointer-events-none [&_svg]:size-4 [&_svg]:stroke-[2.5]"
+              className="absolute top-4 right-4 size-7 bg-canvas-paper hover:bg-accent-canary text-[#171717] dark:text-[#F5F4EE] dark:hover:text-[#171717] border-2 border-[#171717] dark:border-[#3F3F46] flex items-center justify-center transition-colors focus:outline-hidden disabled:pointer-events-none [&_svg]:size-4 [&_svg]:stroke-[2.5]"
             >
               <XIcon />
               <span className="sr-only">Close</span>
@@ -127,7 +127,7 @@ function DialogTitle({
   return (
     <DialogPrimitive.Title
       data-slot="dialog-title"
-      className={cn("text-lg sm:text-xl font-black text-[#171717] tracking-tight leading-tight", className)}
+      className={cn("text-lg sm:text-xl font-black text-[#171717] dark:text-[#F5F4EE] tracking-tight leading-tight", className)}
       {...props}
     />
   )

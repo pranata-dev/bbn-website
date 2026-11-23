@@ -3,6 +3,8 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -48,25 +50,25 @@
   --radius-4xl: calc(var(--radius));
 
   /* BBN Education Core Design Tokens */
-  --color-canvas-paper: #F5F4EE;
-  --color-surface-white: #FFFFFF;
-  --color-surface-container: #F0EDED;
-  --color-accent-canary: #FDE047;
-  --color-alert-rust: #B85014;
-  --color-border-grid: #D4D2C9;
-  --color-ink-muted: #52525B;
+  --color-canvas-paper: var(--canvas-paper);
+  --color-surface-white: var(--surface-white);
+  --color-surface-container: var(--surface-container);
+  --color-accent-canary: var(--accent-canary);
+  --color-alert-rust: var(--alert-rust);
+  --color-border-grid: var(--border-grid);
+  --color-ink-muted: var(--ink-muted);
 
   /* Backward Compatibility Aliases */
-  --color-soft-cream: #F5F4EE;
-  --color-sage-green: #FDE047;
-  --color-olive-brown: #171717;
-  --color-olive: #171717;
-  --color-soft-peach: #B85014;
-  --color-cream: #F5F4EE;
-  --color-dark-brown: #171717;
-  --color-soft-brown: #52525B;
-  --color-warm-beige: #F5F4EE;
-  --color-warm-gray: #D4D2C9;
+  --color-soft-cream: var(--canvas-paper);
+  --color-sage-green: var(--accent-canary);
+  --color-olive-brown: var(--foreground);
+  --color-olive: var(--foreground);
+  --color-soft-peach: var(--alert-rust);
+  --color-cream: var(--canvas-paper);
+  --color-dark-brown: var(--foreground);
+  --color-soft-brown: var(--ink-muted);
+  --color-warm-beige: var(--canvas-paper);
+  --color-warm-gray: var(--border-grid);
 }
 
 :root {
@@ -111,31 +113,80 @@
   --alert-rust: #B85014;
   --ink-muted: #52525B;
   --border-grid: #D4D2C9;
+  --shadow-ink: #171717;
+  --grid-line: rgba(212, 210, 201, 0.45);
+  --tick-ink: #171717;
+}
+
+.dark {
+  --background: #0F1115;
+  --foreground: #F5F4EE;
+  --card: #181A20;
+  --card-foreground: #F5F4EE;
+  --popover: #181A20;
+  --popover-foreground: #F5F4EE;
+  --primary: #FDE047;
+  --primary-foreground: #171717;
+  --secondary: #D95F1A;
+  --secondary-foreground: #FFFFFF;
+  --muted: #22252E;
+  --muted-foreground: #A1A1AA;
+  --accent: #FDE047;
+  --accent-foreground: #171717;
+  --destructive: #EF4444;
+  --border: #3F3F46;
+  --input: #3F3F46;
+  --ring: #FDE047;
+  --chart-1: #FDE047;
+  --chart-2: #EA6A2A;
+  --chart-3: #F5F4EE;
+  --chart-4: #22252E;
+  --chart-5: #A1A1AA;
+  --sidebar: #181A20;
+  --sidebar-foreground: #F5F4EE;
+  --sidebar-primary: #FDE047;
+  --sidebar-primary-foreground: #171717;
+  --sidebar-accent: #22252E;
+  --sidebar-accent-foreground: #F5F4EE;
+  --sidebar-border: #3F3F46;
+  --sidebar-ring: #FDE047;
+
+  /* Explicit Dark Blueprint Tokens */
+  --canvas-paper: #0F1115;
+  --surface-white: #181A20;
+  --surface-container: #22252E;
+  --accent-canary: #FDE047;
+  --alert-rust: #EA6A2A;
+  --ink-muted: #A1A1AA;
+  --border-grid: #2E323D;
+  --shadow-ink: #3F3F46;
+  --grid-line: rgba(63, 63, 70, 0.35);
+  --tick-ink: #71717A;
 }
 
 @utility bg-grid-blueprint {
   background-size: 24px 24px;
   background-image:
-    linear-gradient(to right, rgba(212, 210, 201, 0.45) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(212, 210, 201, 0.45) 1px, transparent 1px);
+    linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
 }
 
 @utility technical-shadow {
-  box-shadow: 3px 3px 0px #171717;
+  box-shadow: 3px 3px 0px var(--shadow-ink);
   transition: transform 0.08s ease, box-shadow 0.08s ease;
 
   &:active {
     transform: translate(3px, 3px);
-    box-shadow: 0px 0px 0px #171717;
+    box-shadow: 0px 0px 0px var(--shadow-ink);
   }
 }
 
 @utility technical-shadow-sm {
-  box-shadow: 1px 1px 0px #171717;
+  box-shadow: 1px 1px 0px var(--shadow-ink);
 }
 
 @utility ruler-tick-h {
-  background-image: repeating-linear-gradient(90deg, #171717 0, #171717 1px, transparent 1px, transparent 12px);
+  background-image: repeating-linear-gradient(90deg, var(--foreground) 0, var(--foreground) 1px, transparent 1px, transparent 12px);
   height: 4px;
 }
 
@@ -160,9 +211,9 @@
   }
 
   .glass-card {
-    background: rgba(255, 255, 255, 0.95);
-    border: 1px solid #171717;
-    box-shadow: 2px 2px 0px #171717;
+    background: var(--surface-white);
+    border: 1px solid var(--border);
+    box-shadow: 2px 2px 0px var(--shadow-ink);
   }
 
   .section-padding {
@@ -184,7 +235,7 @@
     left: -6px;
     font-family: var(--font-jetbrains-mono), monospace;
     font-size: 11px;
-    color: #171717;
+    color: var(--tick-ink);
     line-height: 1;
     pointer-events: none;
     z-index: 10;
@@ -196,7 +247,7 @@
     right: -6px;
     font-family: var(--font-jetbrains-mono), monospace;
     font-size: 11px;
-    color: #171717;
+    color: var(--tick-ink);
     line-height: 1;
     pointer-events: none;
     z-index: 10;
@@ -211,15 +262,28 @@
   max-width: 100%;
   padding: 0.75rem 1rem 0.25rem;
   margin: 1.25rem 0 !important;
-  background-color: #FFFFFF;
-  border: 1px solid #171717;
+  background-color: var(--surface-white);
+  border: 1px solid var(--border);
   border-radius: 0px;
-  box-shadow: 2px 2px 0px #171717;
+  box-shadow: 2px 2px 0px var(--shadow-ink);
+  color: inherit;
 }
 
 .katex {
   font-size: 1.05em;
   text-rendering: auto;
+  color: inherit;
+}
+
+.dark .katex-display {
+  background-color: #14171D;
+  border-color: #3F3F46;
+  box-shadow: 2px 2px 0px #3F3F46;
+  color: #F5F4EE;
+}
+
+.dark .katex {
+  color: inherit;
 }
 
 /* Custom prose styling for BBN Education technical editorial content */
@@ -246,14 +310,33 @@
   --tw-prose-invert-links: #FDE047;
   --tw-prose-invert-bold: #FFFFFF;
   --tw-prose-invert-counters: #FDE047;
-  --tw-prose-invert-bullets: #B85014;
-  --tw-prose-invert-hr: #52525B;
+  --tw-prose-invert-bullets: #EA6A2A;
+  --tw-prose-invert-hr: #3F3F46;
   --tw-prose-invert-quotes: #F5F4EE;
   --tw-prose-invert-quote-borders: #FDE047;
-  --tw-prose-invert-captions: #D4D2C9;
+  --tw-prose-invert-captions: #A1A1AA;
   --tw-prose-invert-code: #FDE047;
   --tw-prose-invert-pre-code: #F5F4EE;
-  --tw-prose-invert-pre-bg: #171717;
-  --tw-prose-invert-th-borders: #52525B;
-  --tw-prose-invert-td-borders: #52525B;
+  --tw-prose-invert-pre-bg: #0F1115;
+  --tw-prose-invert-th-borders: #3F3F46;
+  --tw-prose-invert-td-borders: #2E323D;
+}
+
+.dark .prose-olive {
+  --tw-prose-body: #F5F4EE;
+  --tw-prose-headings: #F5F4EE;
+  --tw-prose-lead: #A1A1AA;
+  --tw-prose-links: #FDE047;
+  --tw-prose-bold: #FFFFFF;
+  --tw-prose-counters: #FDE047;
+  --tw-prose-bullets: #FDE047;
+  --tw-prose-hr: #3F3F46;
+  --tw-prose-quotes: #F5F4EE;
+  --tw-prose-quote-borders: #FDE047;
+  --tw-prose-captions: #A1A1AA;
+  --tw-prose-code: #FDE047;
+  --tw-prose-pre-code: #F5F4EE;
+  --tw-prose-pre-bg: #0F1115;
+  --tw-prose-th-borders: #3F3F46;
+  --tw-prose-td-borders: #2E323D;
 }

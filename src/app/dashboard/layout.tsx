@@ -41,6 +41,51 @@ import {
 
 import { PHYSICS_COURSES, GENERAL_COURSES } from "./DashboardClient"
 
+const THEME_STORAGE_KEY = "bbn-dashboard-theme"
+
+const themeListeners = new Set<() => void>()
+
+function subscribeTheme(callback: () => void) {
+  themeListeners.add(callback)
+  const onStorage = (e: StorageEvent) => {
+    if (e.key === THEME_STORAGE_KEY) callback()
+  }
+  if (typeof window !== "undefined") {
+    window.addEventListener("storage", onStorage)
+  }
+  return () => {
+    themeListeners.delete(callback)
+    if (typeof window !== "undefined") {
+      window.removeEventListener("storage", onStorage)
+    }
+  }
+}
+
+function getThemeSnapshot(): boolean {
+  if (typeof window === "undefined") return false
+  try {
+    return localStorage.getItem(THEME_STORAGE_KEY) === "dark"
+  } catch {
+    return false
+  }
+}
+
+function getServerThemeSnapshot(): boolean {
+  return false
+}
+
+function setPersistedTheme(isDark: boolean) {
+  try {
+    localStorage.setItem(THEME_STORAGE_KEY, isDark ? "dark" : "light")
+  } catch {
+    // ignore storage errors
+  }
+  if (typeof document !== "undefined") {
+    document.documentElement.classList.toggle("dark", isDark)
+  }
+  themeListeners.forEach((listener) => listener())
+}
+
 const NAV_ITEMS = [
   { id: "dashboard", href: "/dashboard", label: "[01] Dashboard", icon: LayoutDashboard },
   { id: "materi", href: "/dashboard/materi", label: "[02] Materi Modul", icon: BookOpen },
@@ -154,8 +199,8 @@ function ExcellentGradeSidebarPanel({ grade }: { grade: ExcellentGrade }) {
               aria-disabled={!isUnlocked}
               className={`w-full flex items-center justify-between border px-2.5 py-2 text-xs transition-colors ${
                 isUnlocked
-                  ? "bg-accent-canary border-[#171717] text-[#171717] font-bold technical-shadow-sm"
-                  : "bg-canvas-paper border-[#171717]/35 text-ink-muted opacity-65 cursor-not-allowed select-none"
+                  ? "bg-accent-canary border-[#171717] dark:border-[#FDE047] text-[#171717] font-bold technical-shadow-sm"
+                  : "bg-canvas-paper dark:bg-[#22252E] border-[#171717]/35 dark:border-[#3F3F46] text-ink-muted opacity-65 cursor-not-allowed select-none"
               }`}
             >
               <span className="flex items-center gap-2 truncate">
@@ -169,8 +214,8 @@ function ExcellentGradeSidebarPanel({ grade }: { grade: ExcellentGrade }) {
               <span
                 className={`text-[9px] uppercase px-1.5 py-0.5 border ${
                   isUnlocked
-                    ? "bg-surface-white border-[#171717] text-[#171717] font-bold"
-                    : "bg-transparent border-[#171717]/30 text-ink-muted"
+                    ? "bg-white border-[#171717] text-[#171717] font-bold"
+                    : "bg-transparent border-[#171717]/30 dark:border-[#3F3F46] text-ink-muted"
                 }`}
               >
                 {isUnlocked ? "Aktif" : "Terkunci"}
@@ -209,17 +254,17 @@ function SubjectSwitcher({
           <DropdownMenuTrigger asChild>
             <button
               type="button"
-              className="w-full flex items-center justify-between bg-canvas-paper hover:bg-surface-white border border-[#171717] h-9 px-3 text-left text-xs font-semibold text-[#171717] technical-shadow-sm transition-colors cursor-pointer rounded-none"
+              className="w-full flex items-center justify-between bg-canvas-paper hover:bg-surface-white dark:bg-[#22252E] dark:hover:bg-[#2A2E39] border border-[#171717] dark:border-[#3F3F46] h-9 px-3 text-left text-xs font-semibold text-[#171717] dark:text-[#F5F4EE] technical-shadow-sm transition-colors cursor-pointer rounded-none"
             >
               <div className="flex items-center gap-2 truncate">
                 <span className="size-2 bg-alert-rust rounded-none shrink-0" />
                 <span className="truncate">{currentCourseName}</span>
               </div>
-              <ChevronDown className="size-3.5 text-[#171717] shrink-0 ml-1" />
+              <ChevronDown className="size-3.5 text-[#171717] dark:text-[#F5F4EE] shrink-0 ml-1" />
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent
-            className="w-60 bg-surface-white border border-[#171717] rounded-none shadow-[2px_2px_0px_#171717] p-1 max-h-64 overflow-y-auto font-mono text-xs"
+            className="w-60 bg-surface-white border border-[#171717] dark:border-[#3F3F46] rounded-none shadow-[2px_2px_0px_#171717] dark:shadow-[2px_2px_0px_#3F3F46] p-1 max-h-64 overflow-y-auto font-mono text-xs"
             align="start"
           >
             {allowedCourses.map((course) => {
@@ -232,7 +277,7 @@ function SubjectSwitcher({
                   className={`flex items-center justify-between cursor-pointer font-semibold text-xs px-2.5 py-2 rounded-none transition-colors ${
                     isSelected
                       ? "bg-accent-canary text-[#171717]"
-                      : "text-[#171717] hover:bg-canvas-paper"
+                      : "text-[#171717] dark:text-[#F5F4EE] hover:bg-canvas-paper dark:hover:bg-[#22252E]"
                   }`}
                   onClick={() => {
                     setSelectedSubject(course.slug as Subject)
@@ -241,7 +286,7 @@ function SubjectSwitcher({
                   <div className="flex items-center gap-2 truncate">
                     <span
                       className={`size-1.5 rounded-none shrink-0 ${
-                        isSelected ? "bg-alert-rust" : "bg-[#171717]/40"
+                        isSelected ? "bg-alert-rust" : "bg-[#171717]/40 dark:bg-[#A1A1AA]"
                       }`}
                     />
                     <span className="truncate">{course.name}</span>
@@ -255,7 +300,7 @@ function SubjectSwitcher({
           </DropdownMenuContent>
         </DropdownMenu>
       ) : (
-        <div className="w-full bg-canvas-paper border border-[#171717] h-9 px-3 flex items-center justify-between text-xs font-semibold text-ink-muted">
+        <div className="w-full bg-canvas-paper border border-[#171717] dark:border-[#3F3F46] h-9 px-3 flex items-center justify-between text-xs font-semibold text-ink-muted">
           <span>Memuat...</span>
         </div>
       )}
@@ -288,18 +333,18 @@ function DashboardSidebarContent({
     : NAV_ITEMS
 
   return (
-    <div className="flex flex-col h-full bg-surface-white font-sans border-r border-[#171717]">
+    <div className="flex flex-col h-full bg-surface-white font-sans border-r border-[#171717] dark:border-[#3F3F46]">
       {/* Brand Area */}
-      <div className="p-5 border-b border-[#171717] bg-canvas-paper">
+      <div className="p-5 border-b border-[#171717] dark:border-[#3F3F46] bg-canvas-paper">
         <Link href="/dashboard" onClick={onNavigate} className="flex items-center gap-2.5 group">
           <span className="size-3 bg-alert-rust shrink-0 rounded-none group-hover:rotate-45 transition-transform" />
           <div className="min-w-0">
             <div className="flex items-center gap-2">
-              <span className="font-sans font-extrabold text-base tracking-tight text-[#171717] leading-none">
+              <span className="font-sans font-extrabold text-base tracking-tight text-[#171717] dark:text-[#F5F4EE] leading-none">
                 BBN Education
               </span>
               {isExcellentBeta && (
-                <span className="font-mono text-[9px] font-bold uppercase px-1.5 py-0.5 bg-accent-canary text-[#171717] border border-[#171717]">
+                <span className="font-mono text-[9px] font-bold uppercase px-1.5 py-0.5 bg-accent-canary text-[#171717] border border-[#171717] dark:border-[#FDE047]">
                   BETA
                 </span>
               )}
@@ -312,7 +357,7 @@ function DashboardSidebarContent({
       </div>
 
       {/* Course / Grade Registry Selector */}
-      <div className="p-4 border-b border-[#171717] bg-surface-white">
+      <div className="p-4 border-b border-[#171717] dark:border-[#3F3F46] bg-surface-white">
         {excellentGrade ? (
           <ExcellentGradeSidebarPanel grade={excellentGrade} />
         ) : (
@@ -340,12 +385,16 @@ function DashboardSidebarContent({
                 <div
                   className={`flex items-center justify-between px-3 py-2 transition-all border ${
                     isActive
-                      ? "bg-accent-canary text-[#171717] border-[#171717] font-bold technical-shadow-sm"
-                      : "border-transparent text-[#171717] hover:bg-canvas-paper hover:border-[#171717] hover:border-r-4 hover:border-r-alert-rust"
+                      ? "bg-accent-canary text-[#171717] border-[#171717] dark:border-[#FDE047] font-bold technical-shadow-sm"
+                      : "border-transparent text-[#171717] dark:text-[#F5F4EE] hover:bg-canvas-paper dark:hover:bg-[#22252E] hover:border-[#171717] dark:hover:border-[#3F3F46] hover:border-r-4 hover:border-r-alert-rust"
                   }`}
                 >
                   <div className="flex items-center gap-2.5 truncate">
-                    <Icon className="size-4 shrink-0 text-[#171717]" />
+                    <Icon
+                      className={`size-4 shrink-0 ${
+                        isActive ? "text-[#171717]" : "text-[#171717] dark:text-[#F5F4EE]"
+                      }`}
+                    />
                     <span className="truncate">{item.label}</span>
                   </div>
                   {isActive && <span className="size-1.5 bg-[#171717] shrink-0" />}
@@ -357,31 +406,36 @@ function DashboardSidebarContent({
       </ScrollArea>
 
       {/* Footer Controls */}
-      <div className="p-3 border-t border-[#171717] space-y-1.5 bg-canvas-paper font-mono text-xs">
+      <div className="p-3 border-t border-[#171717] dark:border-[#3F3F46] space-y-1.5 bg-canvas-paper font-mono text-xs">
         {isExcellentBeta && <BetaFeedbackDialog />}
 
         <button
           type="button"
           onClick={onToggleTheme}
-          className="w-full py-2 px-3 border border-[#171717] bg-surface-white hover:bg-accent-canary transition-colors flex items-center justify-between cursor-pointer"
+          aria-pressed={isDark}
+          className="w-full py-2 px-3 border border-[#171717] dark:border-[#3F3F46] bg-surface-white text-[#171717] dark:text-[#F5F4EE] hover:bg-accent-canary hover:text-[#171717] transition-colors flex items-center justify-between cursor-pointer group"
         >
-          <span className="flex items-center gap-2">
-            {isDark ? <Moon className="size-3.5" /> : <Sun className="size-3.5" />}
-            <span>{isDark ? "MODE MALAM" : "MODE TERANG"}</span>
+          <span className="flex items-center gap-2 font-bold">
+            {isDark ? <Sun className="size-3.5 text-accent-canary group-hover:text-[#171717]" /> : <Moon className="size-3.5" />}
+            <span>{isDark ? "MODE TERANG" : "MODE MALAM"}</span>
           </span>
-          <span className="size-1.5 bg-[#171717]" />
+          <span
+            className={`size-1.5 ${
+              isDark ? "bg-accent-canary group-hover:bg-[#171717]" : "bg-[#171717]"
+            }`}
+          />
         </button>
 
         <button
           type="button"
           onClick={onLogout}
-          className="w-full py-2 px-3 border border-[#171717] bg-surface-white hover:bg-alert-rust hover:text-surface-white transition-colors flex items-center justify-between cursor-pointer group"
+          className="w-full py-2 px-3 border border-[#171717] dark:border-[#3F3F46] bg-surface-white hover:bg-alert-rust hover:text-white transition-colors flex items-center justify-between cursor-pointer group"
         >
-          <span className="flex items-center gap-2 text-alert-rust group-hover:text-surface-white font-bold">
+          <span className="flex items-center gap-2 text-alert-rust group-hover:text-white font-bold">
             <LogOut className="size-3.5" />
             <span>KELUAR SESI</span>
           </span>
-          <span className="size-1.5 bg-alert-rust group-hover:bg-surface-white" />
+          <span className="size-1.5 bg-alert-rust group-hover:bg-white" />
         </button>
       </div>
     </div>
@@ -404,34 +458,40 @@ function DashboardLayoutInner({
   const pathname = usePathname()
   const router = useRouter()
   const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [isDark, setIsDark] = useState(false)
+  const isDark = useSyncExternalStore(subscribeTheme, getThemeSnapshot, getServerThemeSnapshot)
 
   const isExcellentBeta = Boolean(excellentGrade)
   const excellentCourse = excellentGrade ? getExcellentCourseByGrade(excellentGrade) : null
 
+  // Sync `.dark` class while inside `/dashboard/**` and strip it on unmount to isolate other routes
+  useEffect(() => {
+    document.documentElement.classList.toggle("dark", isDark)
+  }, [isDark])
+
+  useEffect(() => {
+    return () => {
+      document.documentElement.classList.remove("dark")
+    }
+  }, [])
+
   const toggleTheme = () => {
-    setIsDark((prev) => {
-      const next = !prev
-      if (typeof document !== "undefined") {
-        document.documentElement.classList.toggle("dark", next)
-      }
-      return next
-    })
+    setPersistedTheme(!isDark)
   }
 
   const handleLogout = async () => {
     const supabase = createClient()
     await supabase.auth.signOut()
+    document.documentElement.classList.remove("dark")
     router.push(isExcellentBeta ? "/excellent-login" : "/login")
     router.refresh()
   }
 
   return (
-    <div className="min-h-screen bg-canvas-paper text-[#171717] font-sans antialiased">
+    <div className="min-h-screen bg-canvas-paper text-[#171717] dark:text-[#F5F4EE] font-sans antialiased">
       <UserPresenceTracker />
 
       {/* 1. TOP TELEMETRY UTILITY BAR (24px Fixed) */}
-      <div className="h-6 w-full bg-[#171717] text-surface-white font-mono text-[10px] sm:text-[11px] px-4 flex items-center justify-between border-b border-[#171717] sticky top-0 z-50 select-none">
+      <div className="h-6 w-full bg-[#171717] dark:bg-[#090B0E] text-white font-mono text-[10px] sm:text-[11px] px-4 flex items-center justify-between border-b border-[#171717] dark:border-[#3F3F46] sticky top-0 z-50 select-none">
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-1.5">
             <span className="size-1.5 bg-accent-canary rounded-none" />
@@ -441,15 +501,15 @@ function DashboardLayoutInner({
           </div>
           {!isExcellentBeta && (
             <>
-              <span className="text-surface-white/40">|</span>
-              <span className="text-surface-white/70 hidden sm:inline">LATENCY: 24ms</span>
-              <span className="text-surface-white/40 hidden sm:inline">|</span>
+              <span className="text-white/40">|</span>
+              <span className="text-white/70 hidden sm:inline">LATENCY: 24ms</span>
+              <span className="text-white/40 hidden sm:inline">|</span>
               <span className="text-emerald-400 font-semibold hidden md:inline">SYS_STATUS: NOMINAL</span>
             </>
           )}
           {isExcellentBeta && excellentCourse && (
             <>
-              <span className="text-surface-white/40">|</span>
+              <span className="text-white/40">|</span>
               <span className="text-accent-canary font-semibold hidden sm:inline">
                 {excellentCourse.title.toUpperCase()}
               </span>
@@ -460,13 +520,13 @@ function DashboardLayoutInner({
         <div className="flex items-center gap-3">
           {isExcellentBeta ? (
             studentName && (
-              <span className="text-surface-white/80 hidden md:inline truncate max-w-xs">
+              <span className="text-white/80 hidden md:inline truncate max-w-xs">
                 SISWA: {studentName}
               </span>
             )
           ) : (
             userProfile?.email && (
-              <span className="text-surface-white/75 hidden md:inline truncate max-w-xs">
+              <span className="text-white/75 hidden md:inline truncate max-w-xs">
                 USER: {userProfile.email}
               </span>
             )
@@ -474,7 +534,7 @@ function DashboardLayoutInner({
           <button
             type="button"
             onClick={handleLogout}
-            className="text-surface-white/80 hover:text-accent-canary underline transition-colors cursor-pointer"
+            className="text-white/80 hover:text-accent-canary underline transition-colors cursor-pointer"
           >
             [LOGOUT]
           </button>
@@ -482,16 +542,16 @@ function DashboardLayoutInner({
       </div>
 
       {/* 2. MOBILE HEADER BAR */}
-      <div className="lg:hidden flex items-center justify-between p-3.5 bg-surface-white border-b border-[#171717] sticky top-6 z-40">
+      <div className="lg:hidden flex items-center justify-between p-3.5 bg-surface-white border-b border-[#171717] dark:border-[#3F3F46] sticky top-6 z-40">
         <Link href="/dashboard" className="flex items-center gap-2">
           <span className="size-2.5 bg-alert-rust rounded-none" />
-          <span className="font-sans font-extrabold text-sm text-[#171717]">
+          <span className="font-sans font-extrabold text-sm text-[#171717] dark:text-[#F5F4EE]">
             BBN Education
           </span>
           <span
-            className={`font-mono text-[9px] px-1.5 py-0.5 border border-[#171717] font-bold ${
+            className={`font-mono text-[9px] px-1.5 py-0.5 border border-[#171717] dark:border-[#3F3F46] font-bold ${
               isExcellentBeta
-                ? "bg-accent-canary text-[#171717]"
+                ? "bg-accent-canary text-[#171717] dark:border-[#FDE047]"
                 : "bg-canvas-paper text-ink-muted"
             }`}
           >
@@ -502,8 +562,16 @@ function DashboardLayoutInner({
           {isExcellentBeta && <BetaFeedbackDialog compact />}
           <button
             type="button"
+            onClick={toggleTheme}
+            className="p-1.5 border border-[#171717] dark:border-[#3F3F46] bg-canvas-paper text-[#171717] dark:text-[#F5F4EE] technical-shadow-sm cursor-pointer"
+            aria-label={isDark ? "Ubah ke Mode Terang" : "Ubah ke Mode Malam"}
+          >
+            {isDark ? <Sun className="size-4 text-accent-canary" /> : <Moon className="size-4" />}
+          </button>
+          <button
+            type="button"
             onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="p-1.5 border border-[#171717] bg-canvas-paper text-[#171717] technical-shadow-sm cursor-pointer"
+            className="p-1.5 border border-[#171717] dark:border-[#3F3F46] bg-canvas-paper text-[#171717] dark:text-[#F5F4EE] technical-shadow-sm cursor-pointer"
             aria-label="Toggle navigation menu"
           >
             {sidebarOpen ? <X className="size-4" /> : <Menu className="size-4" />}
@@ -529,7 +597,7 @@ function DashboardLayoutInner({
         {sidebarOpen && (
           <div className="lg:hidden fixed inset-0 z-50">
             <div
-              className="absolute inset-0 bg-[#171717]/60 backdrop-blur-xs"
+              className="absolute inset-0 bg-[#0F1115]/75 backdrop-blur-xs"
               onClick={() => setSidebarOpen(false)}
             />
             <aside className="relative w-64 h-full bg-surface-white z-10 technical-shadow">
