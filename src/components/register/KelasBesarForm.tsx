@@ -7,7 +7,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { PaymentUpload } from "./PaymentUpload"
 import { GoPayInfo } from "./GoPayInfo"
 
 export interface KelasBesarFormState {
@@ -35,9 +34,6 @@ const KELAS_BESAR_SUBJECTS = [
 export function KelasBesarForm({
   formData,
   onChange,
-  paymentFile,
-  paymentPreview,
-  onPaymentChange,
 }: KelasBesarFormProps) {
   const update = (field: keyof KelasBesarFormState, value: string) => {
     onChange({ ...formData, [field]: value })
@@ -155,19 +151,9 @@ export function KelasBesarForm({
           <span className="w-1.5 h-4 bg-[#E8A07C] rounded-full" />
           Investasi Belajar
         </h4>
-        <div className="flex justify-between items-end mb-4 pb-3 border-b border-[#FFEED6]">
-          <span className="text-sm text-[#827148]/80 font-bold mb-1">Biaya Kelas</span>
-          <div className="flex flex-col items-end">
-            <div className="flex items-center gap-2 mb-1">
-              <span className="inline-flex items-center text-[10px] font-bold bg-[#E8A07C] text-white px-2 py-0.5 rounded-md">
-                Hemat 33%
-              </span>
-              <span className="line-through text-[#827148]/50 text-xs">
-                Rp 45.000
-              </span>
-            </div>
-            <span className="text-lg font-extrabold text-[#827148]">Rp 30.000</span>
-          </div>
+        <div className="flex justify-between items-center mb-4 pb-3 border-b border-[#FFEED6]">
+          <span className="text-sm text-[#827148]/80 font-bold">Biaya Kelas</span>
+          <span className="font-mono text-lg font-extrabold text-[#171717]">Coming Soon</span>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-2 gap-x-6">
           {[
@@ -185,15 +171,8 @@ export function KelasBesarForm({
         </div>
       </div>
 
-      {/* GoPay Payment Info */}
+      {/* Payment Coming Soon Notice */}
       <GoPayInfo />
-
-      {/* Payment Upload */}
-      <PaymentUpload
-        file={paymentFile}
-        previewUrl={paymentPreview}
-        onFileChange={onPaymentChange}
-      />
     </div>
   )
 }

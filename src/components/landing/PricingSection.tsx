@@ -4,7 +4,6 @@ import { useState } from "react"
 import Link from "next/link"
 import { Check, ArrowRight } from "lucide-react"
 import { SUBSCRIPTION_PLANS, OFFLINE_TUTORING_PLANS, type SubscriptionPlanCode } from "@/config/plans"
-import { BUSINESS_CONFIG } from "@/config/business"
 
 const ELEARNING_CODES: SubscriptionPlanCode[] = ["FREE", "MONTHLY", "SEMESTER"]
 
@@ -22,10 +21,10 @@ export function PricingSection() {
               <span>[SYS.06] // SUBSCRIPTION_TIERS</span>
             </div>
             <h2 className="font-sans text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#171717] tracking-tight">
-              Investasi Akses & Biaya Belajar
+              Pilihan Paket Belajar
             </h2>
             <p className="font-sans text-sm sm:text-base text-ink-muted mt-2.5 max-w-2xl leading-relaxed">
-              Pilih kredensial akses yang sesuai dengan kurikulum target dan ritme belajarmu. Tanpa biaya tersembunyi.
+              Mulai dari paket gratis terlebih dahulu. Informasi biaya paket berbayar akan segera diumumkan.
             </p>
           </div>
 
@@ -62,8 +61,9 @@ export function PricingSection() {
             {ELEARNING_CODES.map((code) => {
               const plan = SUBSCRIPTION_PLANS[code]
               const isPopular = !!plan.isPopular
-              const formattedPrice = plan.price === 0 ? "Gratis" : `Rp ${plan.price.toLocaleString("id-ID")}`
-              const periodLabel = plan.durationDays === 0 ? "/ selamanya" : `/ ${plan.durationDays} hari`
+              const isFree = plan.code === "FREE"
+              const displayPrice = isFree ? "Gratis" : "Coming Soon"
+              const periodLabel = isFree ? "/ selamanya" : ""
 
               return (
                 <div
@@ -93,25 +93,17 @@ export function PricingSection() {
                       {plan.label}
                     </h3>
 
-                    {/* Price with optional strikethrough */}
+                    {/* Price Display */}
                     <div className="my-4">
-                      {plan.originalPrice && plan.originalPrice > plan.price && (
-                        <div className="flex items-center gap-2 mb-1 font-mono text-xs">
-                          <span className="text-[#171717]/60 line-through">
-                            Rp {plan.originalPrice.toLocaleString("id-ID")}
-                          </span>
-                          <span className="font-bold bg-alert-rust text-surface-white px-1.5 py-0.2 border border-[#171717] text-[10px]">
-                            HEMAT {Math.round(((plan.originalPrice - plan.price) / plan.originalPrice) * 100)}%
-                          </span>
-                        </div>
-                      )}
                       <div className="flex items-baseline gap-1.5 font-mono">
                         <span className="text-3xl sm:text-4xl font-extrabold text-[#171717] tracking-tight">
-                          {formattedPrice}
+                          {displayPrice}
                         </span>
-                        <span className="text-xs text-ink-muted font-medium">
-                          {periodLabel}
-                        </span>
+                        {periodLabel && (
+                          <span className="text-xs text-ink-muted font-medium">
+                            {periodLabel}
+                          </span>
+                        )}
                       </div>
                     </div>
 
@@ -130,16 +122,26 @@ export function PricingSection() {
                     </ul>
                   </div>
 
-                  {/* Sharp Dark CTA Button */}
-                  <Link
-                    href={`/register?plan=${plan.code.toLowerCase()}`}
-                    className="w-full py-3.5 px-4 bg-[#171717] hover:bg-[#171717]/90 text-surface-white font-mono font-bold text-xs uppercase text-center block border border-[#171717] shadow-[2px_2px_0px_#FFFFFF] hover:translate-x-[1px] hover:translate-y-[1px] transition-all cursor-pointer"
-                  >
-                    <span className="inline-flex items-center justify-center gap-1.5">
-                      <span>{plan.price === 0 ? "Mulai Belajar Gratis" : `Pilih ${plan.label}`}</span>
-                      <ArrowRight className="size-3.5 text-accent-canary" />
-                    </span>
-                  </Link>
+                  {/* CTA Button */}
+                  {isFree ? (
+                    <Link
+                      href="/register?plan=free"
+                      className="w-full py-3.5 px-4 bg-[#171717] hover:bg-[#171717]/90 text-surface-white font-mono font-bold text-xs uppercase text-center block border border-[#171717] shadow-[2px_2px_0px_#FFFFFF] hover:translate-x-[1px] hover:translate-y-[1px] transition-all cursor-pointer"
+                    >
+                      <span className="inline-flex items-center justify-center gap-1.5">
+                        <span>Mulai Belajar Gratis</span>
+                        <ArrowRight className="size-3.5 text-accent-canary" />
+                      </span>
+                    </Link>
+                  ) : (
+                    <button
+                      type="button"
+                      disabled
+                      className="w-full py-3.5 px-4 bg-[#171717]/75 text-surface-white font-mono font-bold text-xs uppercase text-center block border border-[#171717] opacity-80 cursor-not-allowed"
+                    >
+                      Coming Soon
+                    </button>
+                  )}
                 </div>
               )
             })}
@@ -179,10 +181,7 @@ export function PricingSection() {
 
                   <div className="flex items-baseline gap-1.5 my-4 font-mono">
                     <span className="text-3xl sm:text-4xl font-extrabold text-[#171717] tracking-tight">
-                      {plan.price}
-                    </span>
-                    <span className="text-xs text-ink-muted font-medium">
-                      {plan.period}
+                      Coming Soon
                     </span>
                   </div>
 
@@ -201,18 +200,14 @@ export function PricingSection() {
                   </ul>
                 </div>
 
-                {/* Sharp Dark CTA Button for WhatsApp Consultation */}
-                <a
-                  href={`https://wa.me/${BUSINESS_CONFIG.contact.adminWhatsapp}?text=${encodeURIComponent(plan.waMessage)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full py-3.5 px-4 bg-[#171717] hover:bg-[#171717]/90 text-surface-white font-mono font-bold text-xs uppercase text-center block border border-[#171717] shadow-[2px_2px_0px_#FFFFFF] hover:translate-x-[1px] hover:translate-y-[1px] transition-all cursor-pointer"
+                {/* Disabled Coming Soon CTA */}
+                <button
+                  type="button"
+                  disabled
+                  className="w-full py-3.5 px-4 bg-[#171717]/75 text-surface-white font-mono font-bold text-xs uppercase text-center block border border-[#171717] opacity-80 cursor-not-allowed"
                 >
-                  <span className="inline-flex items-center justify-center gap-1.5">
-                    <span>Konsultasi via WhatsApp</span>
-                    <ArrowRight className="size-3.5 text-accent-canary" />
-                  </span>
-                </a>
+                  Coming Soon
+                </button>
               </div>
             ))}
           </div>

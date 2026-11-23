@@ -226,7 +226,7 @@ function RegisterContent() {
           <p className="font-mono text-xs sm:text-sm text-ink-muted mt-2 max-w-xl mx-auto">
             {currentStep === 1
               ? "Pilih jenis layanan platform belajar yang sesuai dengan kebutuhan akademikmu."
-              : "Lengkapi data diri mahasiswa dan selesaikan verifikasi bukti pembayaran transfer."}
+              : "Lengkapi data diri mahasiswa dan pilih paket belajar yang tersedia."}
           </p>
         </div>
 
@@ -348,11 +348,11 @@ function RegisterContent() {
 
                   <div className="mt-8 pt-6 border-t-2 border-[#171717] space-y-4">
                     <button
-                      type="submit"
-                      disabled={isLoading}
-                      className="w-full py-4 bg-accent-canary hover:bg-[#FACC15] text-[#171717] font-bold font-mono text-xs uppercase tracking-wider border-2 border-[#171717] shadow-[4px_4px_0px_#171717] hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_#171717] transition-all cursor-pointer disabled:opacity-50"
+                      type="button"
+                      disabled
+                      className="w-full py-4 bg-canvas-paper text-ink-muted font-bold font-mono text-xs uppercase tracking-wider border-2 border-[#171717] opacity-80 cursor-not-allowed"
                     >
-                      {isLoading ? "MEMPROSES PENDAFTARAN..." : "DAFTAR SEKARANG →"}
+                      Coming Soon
                     </button>
 
                     <p className="text-center font-mono text-xs text-ink-muted">

@@ -4,9 +4,7 @@ import { useState, useMemo, useEffect } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
-import { MAX_FILE_SIZE, ACCEPTED_IMAGE_TYPES } from "@/constants"
 import { createClient } from "@/lib/supabase/client"
-import { BUSINESS_CONFIG } from "@/config/business"
 import { SUBSCRIPTION_PLAN_LIST, type PlanCode } from "@/config/plans"
 import {
   Dialog,
@@ -18,7 +16,6 @@ import {
 } from "@/components/ui/dialog"
 import {
   Check,
-  Upload,
   ArrowRight,
 } from "lucide-react"
 
@@ -81,7 +78,7 @@ const UNIFIED_PACKAGES: PackageOption[] = SUBSCRIPTION_PLAN_LIST.map((plan) => (
   price: plan.price,
   originalPrice: plan.originalPrice,
   discountBadge: plan.badge,
-  headline: `${plan.subtitle} — Masa Aktif ${plan.durationLabel}`,
+  headline: `${plan.subtitle} (${plan.durationLabel})`,
   features: plan.features,
   isPopular: plan.isPopular,
 }))
@@ -113,9 +110,6 @@ interface AuthUserSummary {
 }
 
 export function UTSPackageForm({
-  paymentFile: propPaymentFile,
-  paymentPreview: propPaymentPreview,
-  onPaymentChange: propOnPaymentChange,
   isLoading: propIsLoading = false,
   initialPlan,
 }: UTSPackageFormProps) {
@@ -138,24 +132,16 @@ export function UTSPackageForm({
   // Determine initial plan from query param (`free`, `monthly`, `semester`)
   const normalizedInitPlan = (initialPlan || "").trim().toUpperCase()
   const defaultCycle: BillingCycle =
-    normalizedInitPlan === "FREE"
-      ? "FREE"
-      : normalizedInitPlan === "MONTHLY"
+    normalizedInitPlan === "MONTHLY"
       ? "MONTHLY"
-      : "SEMESTER"
+      : normalizedInitPlan === "SEMESTER"
+      ? "SEMESTER"
+      : "FREE"
 
   // Curriculum & Package Selection States
   const [studentCategory, setStudentCategory] = useState<StudentCategory>("PHYSICS_SEM_3")
   const [billingCycle, setBillingCycle] = useState<BillingCycle>(defaultCycle)
   const [selectedPackageId, setSelectedPackageId] = useState<string>(defaultCycle.toLowerCase())
-
-  // Payment / File Upload State
-  const [localPaymentFile, setLocalPaymentFile] = useState<File | null>(null)
-  const [localPaymentPreview, setLocalPaymentPreview] = useState<string | null>(null)
-  const [copiedBank, setCopiedBank] = useState(false)
-
-  const activeFile = propPaymentFile !== undefined ? propPaymentFile : localPaymentFile
-  const activePreview = propPaymentPreview !== undefined ? propPaymentPreview : localPaymentPreview
 
   // Check existing Supabase auth session on mount & verify duplicate
   useEffect(() => {
@@ -250,57 +236,14 @@ export function UTSPackageForm({
     }
   }
 
-  // File Upload Handlers
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-
-    if (!ACCEPTED_IMAGE_TYPES.includes(file.type)) {
-      toast.error("Format file tidak didukung. Gunakan JPG, PNG, atau WebP.")
-      return
-    }
-
-    if (file.size > MAX_FILE_SIZE) {
-      toast.error("Ukuran file maksimal 5MB.")
-      return
-    }
-
-    const preview = URL.createObjectURL(file)
-    if (propOnPaymentChange) {
-      propOnPaymentChange(file, preview)
-    } else {
-      setLocalPaymentFile(file)
-      setLocalPaymentPreview(preview)
-    }
-  }
-
-  const handleClearFile = () => {
-    if (activePreview) URL.revokeObjectURL(activePreview)
-    if (propOnPaymentChange) {
-      propOnPaymentChange(null, null)
-    } else {
-      setLocalPaymentFile(null)
-      setLocalPaymentPreview(null)
-    }
-  }
-
-  const handleCopySeaBank = async () => {
-    const accountNumber = BUSINESS_CONFIG.payment.accountNumber
-    try {
-      await navigator.clipboard.writeText(accountNumber)
-      setCopiedBank(true)
-      toast.success(`Nomor rekening ${BUSINESS_CONFIG.payment.bankName} berhasil disalin!`)
-      setTimeout(() => setCopiedBank(false), 2500)
-    } catch {
-      toast.error("Gagal menyalin nomor rekening.")
-    }
-  }
-
-  const formatRupiah = (val: number) => `Rp ${val.toLocaleString("id-ID")}`
-
   // Form Submission & Database Sync
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+
+    if (!isFreePlan) {
+      toast.info("Paket berbayar belum dibuka (Coming Soon). Silakan pilih Paket Gratis terlebih dahulu.")
+      return
+    }
 
     if (!fullName || fullName.length < 3) {
       toast.error("Nama lengkap minimal 3 karakter.")
@@ -312,10 +255,6 @@ export function UTSPackageForm({
     }
     if (!whatsapp) {
       toast.error("Masukkan nomor WhatsApp yang valid.")
-      return
-    }
-    if (!isFreePlan && !activeFile) {
-      toast.error("Mohon unggah bukti pembayaran transfer bank.")
       return
     }
 
@@ -362,9 +301,6 @@ export function UTSPackageForm({
       formPayload.append("selectedPackageName", selectedPackage.name)
       formPayload.append("packageType", selectedPackage.id)
       formPayload.append("price", String(selectedPackage.price))
-      if (activeFile) {
-        formPayload.append("paymentProof", activeFile)
-      }
       if (resolvedAuthId) {
         formPayload.append("authId", resolvedAuthId)
       }
@@ -380,13 +316,8 @@ export function UTSPackageForm({
         throw new Error(data.error || "Gagal memproses pendaftaran.")
       }
 
-      if (isFreePlan || data.status === "ACTIVE_FREE") {
-        toast.success("Akun Paket Gratis aktif! Mengalihkan...")
-        router.push(resolvedAuthId ? "/dashboard" : "/login")
-      } else {
-        toast.success("Pendaftaran berhasil! Mengalihkan ke halaman verifikasi...")
-        router.push("/waiting-approval")
-      }
+      toast.success("Akun Paket Gratis aktif! Mengalihkan...")
+      router.push(resolvedAuthId ? "/dashboard" : "/login")
     } catch (error) {
       console.error("Submission error:", error)
       const message = error instanceof Error ? error.message : "Terjadi kesalahan saat mendaftar."
@@ -688,9 +619,6 @@ export function UTSPackageForm({
                     }`}
                   >
                     <span>SEMESTER</span>
-                    <span className="text-[9px] bg-alert-rust text-white font-mono px-1">
-                      HEMAT 40%
-                    </span>
                   </button>
                 </div>
               </div>
@@ -699,6 +627,7 @@ export function UTSPackageForm({
               <div className="space-y-3.5">
                 {activePackageList.map((pkg) => {
                   const isSelected = selectedPackage.id === pkg.id
+                  const isPkgFree = pkg.planCode === "FREE"
 
                   return (
                     <div
@@ -725,11 +654,9 @@ export function UTSPackageForm({
                             <h4 className="font-extrabold text-sm text-[#171717]">
                               {pkg.name}
                             </h4>
-                            {pkg.discountBadge && (
-                              <span className="font-mono text-[9px] font-bold text-white bg-alert-rust px-1.5 py-0.5 border border-[#171717]">
-                                {pkg.discountBadge}
-                              </span>
-                            )}
+                            <span className="font-mono text-[9px] font-bold text-[#171717] bg-accent-canary px-1.5 py-0.5 border border-[#171717] uppercase">
+                              {isPkgFree ? "GRATIS" : "COMING SOON"}
+                            </span>
                           </div>
                           <p className="font-mono text-xs text-ink-muted mt-1">
                             {pkg.headline}
@@ -741,20 +668,15 @@ export function UTSPackageForm({
                                 key={i}
                                 className="font-mono text-[10px] text-[#171717] bg-canvas-paper border border-[#171717] px-2 py-0.5"
                               >
-                                ✓ {feat}
+                                {feat}
                               </span>
                             ))}
                           </div>
                         </div>
 
                         <div className="text-left sm:text-right shrink-0 border-t sm:border-t-0 pt-3 sm:pt-0 border-[#171717]/20">
-                          {pkg.originalPrice && (
-                            <span className="font-mono text-xs text-ink-muted line-through block">
-                              {formatRupiah(pkg.originalPrice)}
-                            </span>
-                          )}
                           <span className="font-mono text-xl font-extrabold text-[#171717]">
-                            {formatRupiah(pkg.price)}
+                            {isPkgFree ? "Gratis" : "Coming Soon"}
                           </span>
                         </div>
                       </div>
@@ -766,7 +688,7 @@ export function UTSPackageForm({
           </div>
 
           {/* ======================================================== */}
-          {/* RIGHT COLUMN: Invoice Ticket, Bank Readout, Upload & CTA */}
+          {/* RIGHT COLUMN: Invoice Ticket & CTA                       */}
           {/* ======================================================== */}
           <div className="lg:col-span-5 space-y-6 lg:sticky lg:top-24">
             {/* Purchase Order / Invoice Ticket */}
@@ -776,7 +698,7 @@ export function UTSPackageForm({
                 <div className="flex items-center gap-1.5">
                   <span className="w-2.5 h-2.5 bg-accent-canary border border-[#171717]" />
                   <span className="font-mono text-xs font-bold text-[#171717]">
-                    INVOICE_TICKET // PO_8829
+                    RINGKASAN PAKET
                   </span>
                 </div>
                 <span className="text-[10px] bg-[#171717] text-surface-white px-2 py-0.5">
@@ -813,9 +735,9 @@ export function UTSPackageForm({
 
                 {/* Dashed Price Breakdown Divider */}
                 <div className="pt-3 border-t-2 border-dashed border-[#171717] flex items-center justify-between">
-                  <span className="font-bold text-xs text-[#171717]">TOTAL DITAGIHKAN:</span>
+                  <span className="font-bold text-xs text-[#171717]">TOTAL BIAYA:</span>
                   <span className="text-2xl font-black text-[#171717]">
-                    {formatRupiah(selectedPackage.price)}
+                    {isFreePlan ? "Gratis" : "Coming Soon"}
                   </span>
                 </div>
               </div>
@@ -830,103 +752,41 @@ export function UTSPackageForm({
                   </p>
                 </div>
               ) : (
-                <>
-                  {/* Transfer Bank Readout Table */}
-                  <div className="border-2 border-[#171717] bg-canvas-paper p-4 mt-6 space-y-2 text-xs">
-                    <div className="flex items-center justify-between border-b border-[#171717]/20 pb-1.5">
-                      <span className="font-bold text-[#171717]">
-                        TRANSFER BANK ({BUSINESS_CONFIG.payment.bankName})
-                      </span>
-                      <span className="text-[9px] bg-accent-canary text-[#171717] px-1.5 py-0.5 border border-[#171717] font-bold">
-                        MANUAL CONFIRM
-                      </span>
-                    </div>
-
-                    <div className="space-y-1.5 pt-1">
-                      <div className="flex items-center justify-between">
-                        <span className="text-ink-muted text-[11px]">NO. REKENING:</span>
-                        <div className="flex items-center gap-1.5">
-                          <span className="font-extrabold text-[#171717]">
-                            {BUSINESS_CONFIG.payment.accountNumber}
-                          </span>
-                          <button
-                            type="button"
-                            onClick={handleCopySeaBank}
-                            className="bg-surface-white border border-[#171717] px-2 py-0.5 text-[10px] font-bold hover:bg-accent-canary shadow-[1px_1px_0px_#171717] cursor-pointer"
-                          >
-                            {copiedBank ? "TERSALIN ✓" : "SALIN"}
-                          </button>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center justify-between text-[11px]">
-                        <span className="text-ink-muted">ATAS NAMA:</span>
-                        <span className="font-bold text-[#171717]">
-                          {BUSINESS_CONFIG.payment.accountHolder}
-                        </span>
-                      </div>
-                    </div>
+                <div className="border-2 border-[#171717] bg-canvas-paper p-4 mt-6 space-y-2 text-xs">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="font-bold text-[#171717] uppercase">
+                      Paket Berbayar Belum Dibuka
+                    </span>
+                    <span className="text-[10px] bg-accent-canary text-[#171717] px-2 py-0.5 border border-[#171717] font-bold uppercase">
+                      Coming Soon
+                    </span>
                   </div>
-
-                  {/* File Upload Box */}
-                  <div className="mt-6">
-                    <label className="font-mono text-[10px] sm:text-xs font-bold text-[#171717] uppercase tracking-wider mb-2 block">
-                      UNGGAH BUKTI TRANSFER PEMBAYARAN *
-                    </label>
-
-                    {activePreview ? (
-                      <div className="border-2 border-[#171717] p-3 bg-accent-canary/15 flex items-center justify-between">
-                        <div className="flex items-center gap-2 truncate">
-                          <span className="w-5 h-5 bg-[#171717] text-accent-canary flex items-center justify-center font-bold text-xs shrink-0">
-                            ✓
-                          </span>
-                          <span className="text-xs font-bold text-[#171717] truncate">
-                            {activeFile?.name || "Bukti Transfer Terlampir"}
-                          </span>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={handleClearFile}
-                          className="text-xs font-bold text-alert-rust underline hover:text-[#171717] shrink-0 ml-2 cursor-pointer"
-                        >
-                          [HAPUS]
-                        </button>
-                      </div>
-                    ) : (
-                      <label className="border-2 border-dashed border-[#171717] hover:border-alert-rust bg-canvas-paper hover:bg-surface-white p-5 flex flex-col items-center justify-center text-center cursor-pointer transition-colors block">
-                        <input
-                          type="file"
-                          accept="image/*"
-                          onChange={handleFileChange}
-                          className="hidden"
-                        />
-                        <Upload className="w-6 h-6 text-[#171717] mb-2" />
-                        <span className="text-xs font-bold text-[#171717] uppercase">
-                          Klik untuk Unggah Bukti Transfer
-                        </span>
-                        <span className="text-[10px] text-ink-muted mt-1">
-                          JPG, PNG, atau WebP (Maksimal 5MB)
-                        </span>
-                      </label>
-                    )}
-                  </div>
-                </>
+                  <p className="text-[11px] text-ink-muted leading-relaxed font-sans">
+                    Informasi harga dan pembayaran untuk paket berbayar akan segera tersedia. Kamu dapat mendaftar menggunakan Paket Gratis terlebih dahulu.
+                  </p>
+                </div>
               )}
 
-              {/* Massive High-Contrast Submit Checkout Button */}
+              {/* Submit Button */}
               <button
                 type="submit"
-                disabled={isFormBusy}
-                className="w-full py-4 bg-accent-canary hover:bg-[#FACC15] text-[#171717] font-bold font-mono text-xs uppercase tracking-wider border-2 border-[#171717] shadow-[4px_4px_0px_#171717] hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_#171717] active:translate-y-0 active:shadow-[2px_2px_0px_#171717] transition-all cursor-pointer disabled:opacity-50 mt-6 flex items-center justify-center gap-2"
+                disabled={isFormBusy || !isFreePlan}
+                className={`w-full py-4 font-bold font-mono text-xs uppercase tracking-wider border-2 border-[#171717] transition-all mt-6 flex items-center justify-center gap-2 ${
+                  isFreePlan
+                    ? "bg-accent-canary hover:bg-[#FACC15] text-[#171717] shadow-[4px_4px_0px_#171717] hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_#171717] active:translate-y-0 active:shadow-[2px_2px_0px_#171717] cursor-pointer disabled:opacity-50"
+                    : "bg-canvas-paper text-ink-muted cursor-not-allowed opacity-80"
+                }`}
               >
-                {isFormBusy ? (
+                {!isFreePlan ? (
+                  <span>Coming Soon</span>
+                ) : isFormBusy ? (
                   <>
                     <span className="w-3.5 h-3.5 border-2 border-[#171717] border-t-transparent animate-spin inline-block" />
                     <span>MEMPROSES PENDAFTARAN...</span>
                   </>
                 ) : (
                   <>
-                    <span>DAFTAR &amp; SELESAIKAN ORDER</span>
+                    <span>DAFTAR PAKET GRATIS</span>
                     <ArrowRight className="w-4 h-4" />
                   </>
                 )}

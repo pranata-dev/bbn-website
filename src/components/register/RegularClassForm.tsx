@@ -9,8 +9,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { PaymentUpload } from "./PaymentUpload"
-import { BUSINESS_CONFIG } from "@/config/business"
 
 export interface RegularClassFormProps {
   paymentFile?: File | null
@@ -31,27 +29,6 @@ export interface RegularClassFormState {
   weeks: number
 }
 
-// -------------------------------------------------------------
-// PRICING MATRICES (Weeks 1 to 7)
-// -------------------------------------------------------------
-const PKU_PRICING: Record<string, number[]> = {
-  "1": [70000, 135000, 205000, 275000, 345000, 415000, 485000],
-  "2-4": [50000, 95000, 140000, 185000, 230000, 275000, 320000],
-  "5-6": [45000, 85000, 125000, 165000, 205000, 245000, 285000],
-  "7-8": [40000, 75000, 110000, 145000, 180000, 215000, 250000],
-  "9-12": [30000, 55000, 80000, 105000, 130000, 155000, 180000],
-  ">12": [20000, 35000, 50000, 65000, 80000, 95000, 110000],
-}
-
-const NON_PKU_PRICING: Record<string, number[]> = {
-  "1": [75000, 145000, 210000, 275000, 340000, 405000, 470000],
-  "2-4": [55000, 105000, 150000, 195000, 240000, 285000, 330000],
-  "5-6": [50000, 95000, 135000, 175000, 215000, 255000, 295000],
-  "7-8": [45000, 85000, 120000, 155000, 190000, 225000, 260000],
-  "9-12": [35000, 65000, 90000, 115000, 140000, 165000, 190000],
-  ">12": [25000, 45000, 60000, 75000, 90000, 105000, 120000],
-}
-
 const PKU_COURSES = [
   "Fisika Dasar 1",
   "Fisika Dasar 2",
@@ -69,13 +46,8 @@ const NON_PKU_COURSES = [
   "Fisika Komputasi",
 ]
 
-export function RegularClassForm({
-  paymentFile,
-  paymentPreview,
-  onPaymentChange,
-  onSubmit,
-  isLoading = false,
-}: RegularClassFormProps) {
+export function RegularClassForm(_props: RegularClassFormProps) {
+  void _props
   // Left Column States
   const [fullName, setFullName] = useState("")
   const [email, setEmail] = useState("")
@@ -84,143 +56,31 @@ export function RegularClassForm({
   const [selectedCourse, setSelectedCourse] = useState(PKU_COURSES[0])
   const [location, setLocation] = useState<"Offline" | "Online">("Offline")
   const [groupMembers, setGroupMembers] = useState("")
-  const [isSubmitting, setIsSubmitting] = useState(false)
 
   // Right Column States (Calculator Steppers)
   const [peopleCount, setPeopleCount] = useState<number>(1)
   const [weekCount, setWeekCount] = useState<number>(1)
-  const [copiedBank, setCopiedBank] = useState(false)
-
-  // Map peopleCount to Tier key
-  const getTierKey = (count: number): string => {
-    if (count === 1) return "1"
-    if (count >= 2 && count <= 4) return "2-4"
-    if (count >= 5 && count <= 6) return "5-6"
-    if (count >= 7 && count <= 8) return "7-8"
-    if (count >= 9 && count <= 12) return "9-12"
-    return ">12"
-  }
 
   const getTierLabel = (count: number): string => {
     if (count === 1) return "1 Orang (Privat)"
-    if (count >= 2 && count <= 4) return "2–4 Orang"
-    if (count >= 5 && count <= 6) return "5–6 Orang"
-    if (count >= 7 && count <= 8) return "7–8 Orang"
-    if (count >= 9 && count <= 12) return "9–12 Orang"
+    if (count >= 2 && count <= 4) return "2-4 Orang"
+    if (count >= 5 && count <= 6) return "5-6 Orang"
+    if (count >= 7 && count <= 8) return "7-8 Orang"
+    if (count >= 9 && count <= 12) return "9-12 Orang"
     return "> 12 Orang"
   }
 
-  // Reactive Pricing Calculation
   const pricing = useMemo(() => {
-    const tierKey = getTierKey(peopleCount)
-    const pricingMatrix = isPkuStudent === "Iya" ? PKU_PRICING : NON_PKU_PRICING
-    const tierArray = pricingMatrix[tierKey] ?? pricingMatrix["1"]
-
     const clampedWeeks = Math.max(1, Math.min(7, weekCount))
-    const basePrice1Week = tierArray[0]
-    const pricePerPerson = tierArray[clampedWeeks - 1] ?? tierArray[tierArray.length - 1]
-
-    const normalTotalPerPerson = basePrice1Week * clampedWeeks
-    const normalTotalGroup = normalTotalPerPerson * peopleCount
-    const actualTotalGroup = pricePerPerson * peopleCount
-
-    const isDiscounted = clampedWeeks > 1 && pricePerPerson < normalTotalPerPerson
-    const discountPercent = isDiscounted
-      ? Math.round(((normalTotalPerPerson - pricePerPerson) / normalTotalPerPerson) * 100)
-      : 0
-
     return {
-      tierKey,
       tierLabel: getTierLabel(peopleCount),
-      basePrice1Week,
-      pricePerPerson,
-      normalTotalPerPerson,
-      normalTotalGroup,
-      actualTotalGroup,
-      isDiscounted,
-      discountPercent,
       weeks: clampedWeeks,
     }
-  }, [peopleCount, weekCount, isPkuStudent])
+  }, [peopleCount, weekCount])
 
-  const formatRupiah = (val: number) => `Rp ${val.toLocaleString("id-ID")}`
-
-  const handleCopySeaBank = async () => {
-    const accountNumber = BUSINESS_CONFIG.payment.accountNumber
-    try {
-      await navigator.clipboard.writeText(accountNumber)
-      setCopiedBank(true)
-      toast.success(`Nomor rekening ${BUSINESS_CONFIG.payment.bankName} berhasil disalin!`)
-      setTimeout(() => setCopiedBank(false), 2500)
-    } catch {
-      toast.error("Gagal menyalin nomor rekening.")
-    }
-  }
-
-  const handleFormSubmit = async (e: React.FormEvent) => {
+  const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    if (!fullName || fullName.length < 3) {
-      toast.error("Nama lengkap minimal 3 karakter.")
-      return
-    }
-    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      toast.error("Masukkan alamat email aktif yang valid.")
-      return
-    }
-    if (!whatsapp) {
-      toast.error("Masukkan nomor WhatsApp yang valid.")
-      return
-    }
-    if (peopleCount > 1 && !groupMembers) {
-      toast.error("Mohon tuliskan nama anggota grup Anda.")
-      return
-    }
-    if (!paymentFile) {
-      toast.error("Mohon unggah bukti pembayaran transfer bank.")
-      return
-    }
-
-    setIsSubmitting(true)
-    try {
-      const formPayload = new FormData()
-      formPayload.append("type", "REGULAR")
-      formPayload.append("fullName", fullName)
-      formPayload.append("name", fullName)
-      formPayload.append("email", email)
-      formPayload.append("whatsapp", whatsapp)
-      formPayload.append("phone", whatsapp)
-      formPayload.append("subject", selectedCourse)
-      formPayload.append("studentCategory", isPkuStudent === "Iya" ? "NON_PHYSICS" : "PHYSICS_SEM_3")
-      formPayload.append("groupSize", String(peopleCount))
-      formPayload.append("sessionCount", String(weekCount))
-      formPayload.append("price", String(pricing.actualTotalGroup))
-      formPayload.append(
-        "notes",
-        `Lokasi: ${location} | Kategori: ${isPkuStudent === "Iya" ? "PKU" : "Non-PKU"}${groupMembers ? ` | Anggota: ${groupMembers}` : ""
-        }`
-      )
-      formPayload.append("paymentProof", paymentFile)
-
-      const res = await fetch("/api/register", {
-        method: "POST",
-        body: formPayload,
-      })
-      const data = await res.json()
-      if (!res.ok) {
-        throw new Error(data.error || "Gagal memproses pendaftaran Kelas Reguler.")
-      }
-
-      if (onSubmit) {
-        onSubmit(e)
-      } else {
-        toast.success("Pendaftaran Kelas Reguler berhasil diajukan!")
-      }
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : "Terjadi kesalahan saat mendaftar."
-      toast.error(msg)
-    } finally {
-      setIsSubmitting(false)
-    }
+    toast.info("Pendaftaran Kelas Reguler belum dibuka (Coming Soon).")
   }
 
   const activeCourseOptions = isPkuStudent === "Iya" ? PKU_COURSES : NON_PKU_COURSES
@@ -411,16 +271,17 @@ export function RegularClassForm({
               </div>
             )}
 
-            {/* Payment Proof Upload */}
-            {onPaymentChange && (
-              <div className="pt-2 border-t border-[#FFEED6]">
-                <PaymentUpload
-                  file={paymentFile || null}
-                  previewUrl={paymentPreview || null}
-                  onFileChange={onPaymentChange}
-                />
+            {/* Payment Notice */}
+            <div className="pt-2 border-t border-[#FFEED6]">
+              <div className="p-4 border-2 border-[#171717] bg-canvas-paper flex items-center justify-between gap-3">
+                <p className="text-xs text-ink-muted">
+                  Pendaftaran dan pembayaran Kelas Reguler sedang disiapkan.
+                </p>
+                <span className="font-mono text-[10px] font-bold uppercase px-2 py-0.5 bg-accent-canary text-[#171717] border border-[#171717] shrink-0">
+                  Coming Soon
+                </span>
               </div>
-            )}
+            </div>
           </div>
 
           {/* ======================================================== */}
@@ -543,8 +404,8 @@ export function RegularClassForm({
                 </div>
                 <div className="flex justify-between items-center">
                   <span>Harga per orang ({weekCount} minggu)</span>
-                  <span className="font-bold text-[#827148]">
-                    {formatRupiah(pricing.pricePerPerson)}
+                  <span className="font-mono font-bold text-[#171717]">
+                    Coming Soon
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
@@ -568,95 +429,48 @@ export function RegularClassForm({
               <div className="flex justify-between items-end mb-4">
                 <div>
                   <p className="text-xs text-[#827148]/70 uppercase tracking-wider font-semibold">
-                    Total yang harus dibayarkan
+                    Total Biaya
                   </p>
                   <p className="text-xs text-[#827148]/60 mt-0.5">
-                    {peopleCount > 1 ? `(Total untuk ${peopleCount} orang)` : "(Tarif per orang)"}
+                    {peopleCount > 1 ? `(Untuk ${peopleCount} orang)` : "(Tarif per orang)"}
                   </p>
                 </div>
 
                 <div className="flex flex-col items-end">
-                  {pricing.isDiscounted && (
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="bg-[#E8A07C] text-white text-[10px] px-2 py-0.5 rounded-full font-bold">
-                        Hemat {pricing.discountPercent}%
-                      </span>
-                      <span className="text-xs text-[#827148]/50 line-through font-semibold">
-                        {formatRupiah(pricing.normalTotalGroup)}
-                      </span>
-                    </div>
-                  )}
-                  <span className="text-2xl font-extrabold text-[#827148] tracking-tight">
-                    {formatRupiah(pricing.actualTotalGroup)}
+                  <span className="font-mono text-2xl font-extrabold text-[#171717] tracking-tight">
+                    Coming Soon
                   </span>
                 </div>
               </div>
-
-              {/* Tips Patungan (Conditional: IF peopleCount > 1) */}
-              {peopleCount > 1 && (
-                <div className="p-3.5 rounded-xl bg-[#FFEED6]/50 border border-[#FFEED6] text-xs text-[#827148] font-semibold mb-3">
-                  <span>💡 Tips: Kamu cukup tagih patungan ke teman sirkelmu sebesar </span>
-                  <span className="font-bold text-[#827148] underline">
-                    {formatRupiah(pricing.pricePerPerson)}/orang
-                  </span>
-                  <span>.</span>
-                </div>
-              )}
 
               {/* Disclaimer */}
               <p className="text-xs text-[#827148]/60 leading-relaxed font-medium pt-3 border-t border-[#FFEED6]/60">
-                *Tarif sudah termasuk konsultasi tugas, tanya jawab tak terbatas selama periode sesi belajar aktif, dan materi rangkuman.
+                Informasi tarif dan jadwal pembukaan kelas reguler akan segera diumumkan.
               </p>
             </div>
 
-            {/* 3. Payment Information Card (SeaBank) */}
-            <div className="bg-[#FFEED6]/30 border border-[#FFEED6] rounded-3xl p-6 shadow-2xs">
-              {/* Title Row */}
-              <div className="flex items-center mb-2">
-                <div className="w-5 h-5 bg-[#A5AF79] rounded-md mr-3 flex items-center justify-center shadow-2xs">
-                  <div className="w-2 h-2 rounded-xs bg-white" />
-                </div>
-                <h4 className="font-bold text-sm text-[#827148]">
-                  Pembayaran via SeaBank
+            {/* 3. Payment Notice */}
+            <div className="bg-canvas-paper border-2 border-[#171717] p-6 space-y-2">
+              <div className="flex items-center justify-between gap-2">
+                <h4 className="font-bold text-sm text-[#171717]">
+                  Pembayaran Kelas Reguler
                 </h4>
+                <span className="font-mono text-[10px] font-bold uppercase px-2 py-0.5 bg-accent-canary text-[#171717] border border-[#171717]">
+                  Coming Soon
+                </span>
               </div>
-
-              {/* Instruction */}
-              <p className="text-xs text-[#827148]/80 mb-4 font-medium leading-relaxed">
-                Silakan lakukan transfer ke nomor berikut sesuai dengan total tagihan.
+              <p className="text-xs text-ink-muted leading-relaxed">
+                Informasi rekening pembayaran dan pendaftaran kelas reguler belum tersedia saat ini.
               </p>
-
-              {/* Bank Details Box */}
-              <div className="bg-white border border-[#FFEED6] rounded-2xl p-4 flex justify-between items-center shadow-2xs">
-                <div>
-                  <span className="text-[10px] font-bold text-[#827148]/60 uppercase tracking-wider block mb-0.5">
-                    NOMOR {BUSINESS_CONFIG.payment.bankName.toUpperCase()}
-                  </span>
-                  <span className="text-lg font-extrabold text-[#827148] tracking-wider block">
-                    {BUSINESS_CONFIG.payment.accountNumber}
-                  </span>
-                  <span className="text-xs text-[#827148]/80 font-medium block mt-0.5">
-                    a.n. {BUSINESS_CONFIG.payment.accountHolder}
-                  </span>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={handleCopySeaBank}
-                  className="bg-[#A5AF79] hover:bg-[#949e6a] text-white text-xs px-4 py-2 rounded-xl font-bold transition-colors cursor-pointer shadow-2xs shrink-0"
-                >
-                  {copiedBank ? "Tersalin ✓" : "Salin"}
-                </button>
-              </div>
             </div>
 
-            {/* 4. Submit Button */}
+            {/* 4. Disabled Submit Button */}
             <button
               type="submit"
-              disabled={isLoading || isSubmitting}
-              className="w-full bg-[#E8A07C] hover:bg-[#E8A07C]/90 active:bg-[#d8916e] text-white font-bold rounded-xl py-4 transition-colors shadow-sm cursor-pointer text-center text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled
+              className="w-full bg-canvas-paper text-ink-muted font-mono font-bold uppercase border-2 border-[#171717] py-4 text-center text-xs sm:text-sm opacity-80 cursor-not-allowed"
             >
-              {isLoading || isSubmitting ? "Memproses pendaftaran..." : "Saya Sudah Transfer & Daftar"}
+              Coming Soon
             </button>
 
           </div>

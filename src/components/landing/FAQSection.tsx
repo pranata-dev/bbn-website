@@ -52,9 +52,9 @@ const FAQS_DATA = [
   },
   {
     code: "Q8",
-    question: "Metode pembayaran apa saja yang didukung?",
+    question: "Bagaimana informasi biaya dan pembayaran paket berbayar?",
     answer:
-      "Kami mendukung transfer bank, virtual account, dan QRIS agar proses aktivasi langganan akun Anda dapat dilakukan secara mudah, terverifikasi otomatis, dan cepat.",
+      "Informasi rincian biaya dan metode pembayaran paket berbayar akan segera diumumkan (Coming Soon). Saat ini kamu dapat mencoba paket gratis yang tersedia.",
   },
 ]
 

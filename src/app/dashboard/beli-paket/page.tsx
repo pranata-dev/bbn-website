@@ -1,13 +1,10 @@
 "use client"
 
 import { useState } from "react"
-import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { Loader2, CheckCircle2 } from "lucide-react"
 import { toast } from "sonner"
 import {
     ProductSelector,
-    PaymentUpload,
     PricingBreakdown,
     GoPayInfo,
 } from "@/components/register"
@@ -27,10 +24,7 @@ import { SUBSCRIPTION_PLAN_LIST, type PlanCode } from "@/config/plans"
 const PAID_PLANS = SUBSCRIPTION_PLAN_LIST.filter((p) => p.code !== "FREE")
 
 export default function UpgradePackagePage() {
-    const router = useRouter()
-    const [isLoading, setIsLoading] = useState(false)
     const [selectedType, setSelectedType] = useState<RegistrationType | null>("UTS")
-    const [isSuccess, setIsSuccess] = useState(false)
 
     // Form data
     const [track, setTrack] = useState<"PHYSICS_SEM_3" | "NON_PHYSICS">("PHYSICS_SEM_3")
@@ -42,108 +36,9 @@ export default function UpgradePackagePage() {
     const [scheduledTime, setScheduledTime] = useState("")
     const [notes, setNotes] = useState("")
 
-    // File
-    const [paymentFile, setPaymentFile] = useState<File | null>(null)
-    const [paymentPreview, setPaymentPreview] = useState<string | null>(null)
-
-    const handlePaymentChange = (file: File | null, preview: string | null) => {
-        setPaymentFile(file)
-        setPaymentPreview(preview)
-    }
-
-    const selectedPaidPlan = PAID_PLANS.find((p) => p.code === planCode) || PAID_PLANS[1]
-
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault()
-
-        if (!selectedType) {
-            toast.error("Pilih jenis layanan terlebih dahulu.")
-            return
-        }
-
-        if (selectedType !== "UTS" && !subject) {
-            toast.error("Pilih mata kuliah.")
-            return
-        }
-
-        if (!paymentFile) {
-            toast.error("Unggah bukti transfer terlebih dahulu.")
-            return
-        }
-
-        setIsLoading(true)
-
-        try {
-            const formData = new FormData()
-            formData.append("type", selectedType)
-            formData.append(
-                "subject",
-                selectedType === "UTS"
-                    ? track === "PHYSICS_SEM_3"
-                        ? "Fisika Smt 3"
-                        : "Umum / Non-Fisika"
-                    : subject
-            )
-            formData.append("track", track)
-            formData.append("paymentProof", paymentFile)
-
-            if (selectedType === "REGULAR") {
-                formData.append("groupSize", groupSize)
-                formData.append("sessionCount", sessionCount)
-                formData.append("scheduledDate", scheduledDate)
-                formData.append("scheduledTime", scheduledTime)
-                formData.append("notes", notes)
-            } else if (selectedType === "UTS") {
-                formData.append("plan_code", planCode)
-                formData.append("packageType", planCode.toLowerCase())
-                formData.append("price", String(selectedPaidPlan.price))
-            }
-
-            const res = await fetch("/api/dashboard/purchase", {
-                method: "POST",
-                body: formData,
-            })
-
-            const data = await res.json()
-
-            if (!res.ok) {
-                throw new Error(data.error || "Gagal melakukan pembelian paket.")
-            }
-
-            setIsSuccess(true)
-            toast.success("Pesanan berhasil dikirim!", {
-                description: "Admin kami akan memverifikasi bukti pembayaran Anda.",
-            })
-        } catch (error) {
-            toast.error(error instanceof Error ? error.message : "Terjadi kesalahan.")
-        } finally {
-            setIsLoading(false)
-        }
-    }
-
-    if (isSuccess) {
-        return (
-            <div className="max-w-xl mx-auto py-12 px-4 text-center font-sans">
-                <div className="bg-white border border-[#FFEED6] rounded-3xl p-8 sm:p-10 shadow-sm space-y-5">
-                    <div className="w-16 h-16 rounded-2xl bg-[#A5AF79]/15 text-[#A5AF79] mx-auto flex items-center justify-center">
-                        <CheckCircle2 className="w-9 h-9" />
-                    </div>
-                    <h1 className="text-2xl font-bold text-[#827148]">Pembelian Berhasil Diajukan</h1>
-                    <p className="text-sm text-[#827148]/75 leading-relaxed">
-                        Bukti pembayaran kamu telah diterima dan sedang menunggu verifikasi oleh tim admin.
-                        Akses modul dan tryout kamu akan aktif setelah disetujui.
-                    </p>
-                    <div className="pt-2">
-                        <Button
-                            onClick={() => router.push("/dashboard")}
-                            className="w-full bg-[#827148] hover:bg-[#827148]/90 text-white rounded-xl h-11 font-semibold shadow-xs"
-                        >
-                            Kembali ke Dashboard
-                        </Button>
-                    </div>
-                </div>
-            </div>
-        )
+        toast.info("Pembelian paket berbayar belum dibuka (Coming Soon).")
     }
 
     return (
@@ -241,24 +136,19 @@ export default function UpgradePackagePage() {
                                                         }`}
                                                     >
                                                         <div className="flex items-center justify-between">
-                                                            <span className="font-bold text-base text-[#827148]">
+                                                            <span className="font-bold text-base text-[#171717]">
                                                                 {plan.name}
                                                             </span>
-                                                            <span className="text-[10px] font-bold bg-[#A5AF79] text-white px-2.5 py-0.5 rounded-full">
-                                                                {plan.badge}
+                                                            <span className="font-mono text-[10px] font-bold bg-accent-canary text-[#171717] border border-[#171717] px-2 py-0.5 uppercase">
+                                                                Coming Soon
                                                             </span>
                                                         </div>
                                                         <div className="mt-2 flex items-baseline gap-2">
-                                                            <span className="text-2xl font-extrabold text-[#827148]">
-                                                                {plan.priceFormatted}
+                                                            <span className="font-mono text-2xl font-extrabold text-[#171717]">
+                                                                Coming Soon
                                                             </span>
-                                                            {plan.originalPriceFormatted && (
-                                                                <span className="text-xs text-[#827148]/50 line-through">
-                                                                    {plan.originalPriceFormatted}
-                                                                </span>
-                                                            )}
                                                         </div>
-                                                        <div className="text-xs text-[#827148]/70 mt-1">
+                                                        <div className="text-xs text-ink-muted mt-1">
                                                             Masa aktif: {plan.durationLabel}
                                                         </div>
                                                     </div>
@@ -373,27 +263,19 @@ export default function UpgradePackagePage() {
                             )}
 
                             {selectedType === "KELAS_BESAR" && (
-                                <div className="p-4 bg-[#E8A07C]/15 border border-[#E8A07C] text-[#827148] rounded-2xl text-xs font-semibold leading-relaxed">
-                                    Total Biaya: Rp30.000 (Mendapat akses Zoom Masterclass langsung, Recording, & Bahan Ajaran Lengkap)
+                                <div className="p-4 bg-canvas-paper border-2 border-[#171717] text-[#171717] text-xs font-semibold leading-relaxed">
+                                    Total Biaya: Coming Soon (Akses Zoom Masterclass langsung, Recording, dan Bahan Ajaran Lengkap)
                                 </div>
                             )}
 
                             <GoPayInfo />
-                            <PaymentUpload file={paymentFile} previewUrl={paymentPreview} onFileChange={handlePaymentChange} />
 
                             <Button
                                 type="submit"
-                                disabled={isLoading}
-                                className="w-full bg-[#827148] hover:bg-[#827148]/90 text-white h-12 rounded-xl text-sm font-bold shadow-xs transition-colors cursor-pointer disabled:opacity-50"
+                                disabled
+                                className="w-full bg-canvas-paper text-ink-muted border-2 border-[#171717] h-12 rounded-none font-mono text-xs font-bold uppercase cursor-not-allowed opacity-80"
                             >
-                                {isLoading ? (
-                                    <>
-                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                        Mengirim Bukti Pembayaran...
-                                    </>
-                                ) : (
-                                    "Kirim Konfirmasi Pembayaran"
-                                )}
+                                Coming Soon
                             </Button>
                         </div>
                     </div>

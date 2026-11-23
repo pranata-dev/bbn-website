@@ -14,6 +14,8 @@ export interface SubscriptionPlan {
     durationLabel: string
     price: number
     priceFormatted: string
+    priceLabel?: string
+    comingSoon?: boolean
     originalPrice?: number
     originalPriceFormatted?: string
     features: string[]
@@ -33,6 +35,8 @@ export const SUBSCRIPTION_PLANS: Record<SubscriptionPlanCode, SubscriptionPlan> 
         durationLabel: "Selamanya",
         price: 0,
         priceFormatted: "Gratis",
+        priceLabel: "Gratis",
+        comingSoon: false,
         features: [
             "Akses modul materi bertanda Preview Gratis",
             "1x simulasi tryout/latihan diagnostik gratis",
@@ -46,13 +50,14 @@ export const SUBSCRIPTION_PLANS: Record<SubscriptionPlanCode, SubscriptionPlan> 
         label: "Paket Bulanan",
         name: "Paket Bulanan All-Access",
         subtitle: "Akses Penuh Seluruh Mata Kuliah Jalur Terpilih",
-        badge: "30 HARI",
+        badge: "COMING SOON",
         durationDays: 30,
         durationLabel: "30 Hari",
         price: 35_000,
-        priceFormatted: "Rp 35.000",
+        priceFormatted: "Coming Soon",
+        priceLabel: "Coming Soon",
+        comingSoon: true,
         originalPrice: 50_000,
-        originalPriceFormatted: "Rp 50.000",
         features: [
             "Akses penuh ke semua modul materi & rumus",
             "Akses bank soal dan latihan berkala tanpa batas",
@@ -68,13 +73,14 @@ export const SUBSCRIPTION_PLANS: Record<SubscriptionPlanCode, SubscriptionPlan> 
         label: "Paket Semester",
         name: "Paket Semester All-Access",
         subtitle: "Persiapan Penuh UTS & UAS 1 Semester",
-        badge: "HEMAT 40%",
+        badge: "COMING SOON",
         durationDays: 180,
         durationLabel: "180 Hari (1 Semester)",
         price: 90_000,
-        priceFormatted: "Rp 90.000",
+        priceFormatted: "Coming Soon",
+        priceLabel: "Coming Soon",
+        comingSoon: true,
         originalPrice: 150_000,
-        originalPriceFormatted: "Rp 150.000",
         features: [
             "Semua fitur Paket Bulanan selama 1 semester penuh",
             "Akses seluruh materi persiapan UTS & UAS",
@@ -109,8 +115,8 @@ export interface OfflineTutoringPlan {
 export const OFFLINE_TUTORING_PLANS: OfflineTutoringPlan[] = [
     {
         name: "1 Pertemuan",
-        price: "Rp 55.000",
-        period: "/ sesi (1.5 jam)",
+        price: "Coming Soon",
+        period: "",
         isPopular: false,
         features: [
             "1 sesi bimbingan tatap muka / privat",
@@ -122,8 +128,8 @@ export const OFFLINE_TUTORING_PLANS: OfflineTutoringPlan[] = [
     },
     {
         name: "4 Pertemuan",
-        price: "Rp 205.000",
-        period: "/ 4 sesi bimbingan",
+        price: "Coming Soon",
+        period: "",
         isPopular: true,
         features: [
             "4 sesi bimbingan tatap muka / privat",
@@ -135,8 +141,8 @@ export const OFFLINE_TUTORING_PLANS: OfflineTutoringPlan[] = [
     },
     {
         name: "8 Pertemuan",
-        price: "Rp 380.000",
-        period: "/ paket intensif",
+        price: "Coming Soon",
+        period: "",
         isPopular: false,
         features: [
             "8 sesi bimbingan tatap muka / privat",
