@@ -1,5 +1,11 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createClient, createServiceClient } from "@/lib/supabase/server"
+import {
+    getEntitlements,
+    getExcellentBetaGrade,
+    getExcellentCourseRow,
+} from "@/lib/entitlements"
+import { getExcellentCourseByGrade } from "@/config/excellent"
 
 interface NestedCourse {
     slug?: string | null
@@ -54,8 +60,14 @@ export async function GET(request: NextRequest) {
         const subjectParam = searchParams.get("subject") || searchParams.get("course") || ""
         const normalizedParam = subjectParam.toLowerCase().trim()
 
-        const { getEntitlements } = await import("@/lib/entitlements")
-        const entitlements = await getEntitlements(userId)
+        const adminSupabase = createServiceClient()
+        const excellentGrade = getExcellentBetaGrade(user)
+        const excellentConfig = excellentGrade ? getExcellentCourseByGrade(excellentGrade) : null
+        const excellentCourse = excellentGrade
+            ? await getExcellentCourseRow(excellentGrade, adminSupabase)
+            : null
+
+        const entitlements = await getEntitlements(userId, adminSupabase, { authUser: user })
         const totalMaxQuota = entitlements.tier === "PAID" ? 99 : 1
 
         // Fetch submissions for this user with tryout & course info
@@ -70,11 +82,17 @@ export async function GET(request: NextRequest) {
 
         const typedSubmissions = (submissions || []) as unknown as SubmissionRow[]
 
-        // Filter submissions if a specific subject/course is requested
+        // Filter submissions: Excellent Beta users are strictly scoped to their grade course
         const allSubmissions = typedSubmissions.filter((sub) => {
             const tryoutRaw = sub.tryouts
             const tryout = Array.isArray(tryoutRaw) ? tryoutRaw[0] : tryoutRaw
             if (!tryout) return false
+
+            if (excellentGrade) {
+                if (!excellentCourse) return false
+                return tryout.course_id === excellentCourse.id
+            }
+
             if (!normalizedParam || normalizedParam === "all") return true
             const courseRaw = tryout.courses
             const course = Array.isArray(courseRaw) ? courseRaw[0] : courseRaw
@@ -181,17 +199,36 @@ export async function GET(request: NextRequest) {
         }))
 
         // --- Materials & Leaderboard Stats ---
-        const adminSupabase = await createServiceClient()
         const userTrack = entitlements.track || "PHYSICS_SEM_3"
 
-        const { data: materialsData } = await adminSupabase
-            .from("materials")
-            .select("id, title, slug, module_number, is_free_preview, courses!inner(track)")
-            .eq("is_published", true)
-            .eq("courses.track", userTrack)
-            .order("module_number", { ascending: true })
+        let trackMaterials: Array<{
+            id: string
+            title: string
+            slug: string | null
+            module_number: number | null
+            is_free_preview: boolean
+        }> = []
 
-        const trackMaterials = materialsData || []
+        if (excellentGrade) {
+            if (excellentCourse) {
+                const { data: gradeMaterials } = await adminSupabase
+                    .from("materials")
+                    .select("id, title, slug, module_number, is_free_preview")
+                    .eq("is_published", true)
+                    .eq("course_id", excellentCourse.id)
+                    .order("module_number", { ascending: true })
+                trackMaterials = gradeMaterials || []
+            }
+        } else {
+            const { data: materialsData } = await adminSupabase
+                .from("materials")
+                .select("id, title, slug, module_number, is_free_preview, courses!inner(track)")
+                .eq("is_published", true)
+                .eq("courses.track", userTrack)
+                .order("module_number", { ascending: true })
+            trackMaterials = materialsData || []
+        }
+
         const totalMaterialsCount = trackMaterials.length
         const unlockedOrCompletedMaterialsCount =
             entitlements.tier === "PAID"
@@ -203,13 +240,29 @@ export async function GET(request: NextRequest) {
             trackMaterials[0] ||
             null
 
-        const { data: globalSubs } = await adminSupabase
-            .from("submissions")
-            .select("user_id, score")
-            .in("status", ["SUBMITTED", "TIMED_OUT"])
+        let globalSubs: Array<{ user_id: string | null; score: number | null }> = []
+        if (excellentGrade) {
+            if (excellentCourse) {
+                const { data: betaSubs } = await adminSupabase
+                    .from("submissions")
+                    .select("user_id, score, tryouts!inner(course_id)")
+                    .in("status", ["SUBMITTED", "TIMED_OUT"])
+                    .eq("tryouts.course_id", excellentCourse.id)
+                globalSubs = (betaSubs || []).map((row) => ({
+                    user_id: row.user_id,
+                    score: row.score,
+                }))
+            }
+        } else {
+            const { data: allGlobalSubs } = await adminSupabase
+                .from("submissions")
+                .select("user_id, score")
+                .in("status", ["SUBMITTED", "TIMED_OUT"])
+            globalSubs = allGlobalSubs || []
+        }
 
         const scoreByUser = new Map<string, { sum: number; count: number }>()
-        for (const row of globalSubs || []) {
+        for (const row of globalSubs) {
             if (!row.user_id) continue
             const current = scoreByUser.get(row.user_id) || { sum: 0, count: 0 }
             current.sum += row.score || 0
@@ -254,6 +307,12 @@ export async function GET(request: NextRequest) {
                 totalParticipants: sortedUserAverages.length,
             },
             performancePerMateri,
+            excellentBeta: {
+                enabled: Boolean(excellentGrade),
+                grade: excellentGrade,
+                courseSlug: excellentConfig?.slug ?? null,
+                courseTitle: excellentConfig?.title ?? null,
+            },
         })
     } catch (error) {
         console.error("Dashboard stats error:", error)

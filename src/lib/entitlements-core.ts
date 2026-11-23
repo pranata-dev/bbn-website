@@ -7,6 +7,7 @@
  * `user_subject_access` are NOT consulted anywhere.)
  */
 import type { CourseTrack, SubscriptionPlanCode } from "@/config/plans"
+import type { ExcellentGrade } from "@/config/excellent"
 
 export interface SubscriptionLike {
     id: string
@@ -32,7 +33,10 @@ export interface GateableTryout {
 
 export interface UserEntitlements {
     tier: "FREE" | "PAID"
+    isFreeTier: boolean
     isAdmin: boolean
+    isExcellentBeta: boolean
+    excellentGrade: ExcellentGrade | null
     planCode: SubscriptionPlanCode
     track: CourseTrack
     expiresAt: string | null
@@ -57,6 +61,21 @@ export const FREE_SAMPLE_ATTEMPT_LIMIT = 1
 export const DEFAULT_PAID_TRYOUT_ATTEMPTS = 3
 
 /**
+ * Pure server-side grade isolation check for Excellent Beta users.
+ * Non-beta users pass through; beta users may only access content whose course_id
+ * strictly matches their grade's course row.
+ */
+export function canBetaAccessCourse(
+    excellentGrade: ExcellentGrade | null | undefined,
+    allowedCourseId: string | null | undefined,
+    targetCourseId: string | null | undefined
+): boolean {
+    if (!excellentGrade) return true
+    if (!allowedCourseId || !targetCourseId) return false
+    return allowedCourseId === targetCourseId
+}
+
+/**
  * Whether a subscription track grants access to content in a course track.
  * - `ALL` subscriptions unlock everything.
  * - Content without a course (or a course on the `ALL` track) is visible to every paid track.
@@ -79,6 +98,11 @@ export interface ResolveEntitlementsInput {
     /** Map of `courses.id` -> `courses.track`. Missing ids are treated as un-tracked content. */
     courseTracks?: Map<string, CourseTrack>
     now?: Date
+    /** Excellent Beta mode flags from Supabase Auth user_metadata. */
+    isExcellentBeta?: boolean
+    excellentGrade?: ExcellentGrade | null
+    /** When provided (including null when grade course is not seeded), enforces course_id match. */
+    excellentCourseId?: string | null
 }
 
 export function resolveEntitlements({
@@ -86,11 +110,17 @@ export function resolveEntitlements({
     subscriptions,
     courseTracks = new Map(),
     now = new Date(),
+    isExcellentBeta = false,
+    excellentGrade = null,
+    excellentCourseId,
 }: ResolveEntitlementsInput): UserEntitlements {
     if (role === "ADMIN") {
         return {
             tier: "PAID",
+            isFreeTier: false,
             isAdmin: true,
+            isExcellentBeta: false,
+            excellentGrade: null,
             planCode: "SEMESTER",
             track: "ALL",
             expiresAt: null,
@@ -100,6 +130,30 @@ export function resolveEntitlements({
             canStartTryout: () => true,
             canAccessPractice: true,
             tryoutAttemptLimit: () => Infinity,
+        }
+    }
+
+    if (isExcellentBeta && excellentGrade) {
+        const matchesGradeCourse = (courseId: string | null | undefined) => {
+            if (excellentCourseId === undefined) return true
+            return canBetaAccessCourse(excellentGrade, excellentCourseId, courseId)
+        }
+
+        return {
+            tier: "PAID",
+            isFreeTier: false,
+            isAdmin: false,
+            isExcellentBeta: true,
+            excellentGrade,
+            planCode: "SEMESTER",
+            track: "NON_PHYSICS",
+            expiresAt: null,
+            isExpired: false,
+            expiredSubscriptionIds: [],
+            canAccessMaterial: (m) => matchesGradeCourse(m.course_id),
+            canStartTryout: (t) => matchesGradeCourse(t.course_id),
+            canAccessPractice: true,
+            tryoutAttemptLimit: (t) => (matchesGradeCourse(t.course_id) ? Infinity : 0),
         }
     }
 
@@ -130,7 +184,10 @@ export function resolveEntitlements({
 
         return {
             tier: "PAID",
+            isFreeTier: false,
             isAdmin: false,
+            isExcellentBeta: false,
+            excellentGrade: null,
             planCode: primary.plan_code,
             track: paidTracks.size > 1 ? "ALL" : primary.track,
             expiresAt,
@@ -153,7 +210,10 @@ export function resolveEntitlements({
 
     return {
         tier: "FREE",
+        isFreeTier: true,
         isAdmin: false,
+        isExcellentBeta: false,
+        excellentGrade: null,
         planCode: "FREE",
         track: freeRow?.track ?? "ALL",
         expiresAt: null,

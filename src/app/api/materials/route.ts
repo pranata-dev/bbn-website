@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createClient, createServiceClient } from "@/lib/supabase/server"
-import { getEntitlements } from "@/lib/entitlements"
+import {
+    getEntitlements,
+    getExcellentBetaGrade,
+    getExcellentCourseRow,
+} from "@/lib/entitlements"
 
 export const dynamic = "force-dynamic"
 
@@ -26,7 +30,8 @@ export async function GET(request: NextRequest) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
         }
 
-        const entitlements = await getEntitlements(userRecord.id)
+        const excellentGrade = getExcellentBetaGrade(user)
+        const entitlements = await getEntitlements(userRecord.id, supabase, { authUser: user })
 
         const { searchParams } = new URL(request.url)
         const courseId = searchParams.get("course_id")
@@ -52,7 +57,25 @@ export async function GET(request: NextRequest) {
             .eq("is_published", true)
             .order("sort_order", { ascending: true })
 
-        if (courseId) {
+        if (excellentGrade) {
+            // Strictly scope Excellent Beta students to their unlocked grade course
+            const gradeCourse = await getExcellentCourseRow(excellentGrade, supabase)
+            if (!gradeCourse) {
+                return NextResponse.json({
+                    materials: [],
+                    entitlements: {
+                        isFreeTier: false,
+                        tier: entitlements.tier,
+                        planCode: entitlements.planCode,
+                        track: entitlements.track,
+                        isExpired: false,
+                        isExcellentBeta: true,
+                        excellentGrade,
+                    },
+                })
+            }
+            query = query.eq("course_id", gradeCourse.id)
+        } else if (courseId) {
             query = query.eq("course_id", courseId)
         } else if (subject && subject !== "all") {
             const normalized = subject.toLowerCase().trim()
@@ -90,11 +113,13 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({
             materials: annotated,
             entitlements: {
-                isFreeTier: entitlements.tier === "FREE",
+                isFreeTier: entitlements.isFreeTier,
                 tier: entitlements.tier,
                 planCode: entitlements.planCode,
                 track: entitlements.track,
                 isExpired: entitlements.isExpired,
+                isExcellentBeta: entitlements.isExcellentBeta,
+                excellentGrade: entitlements.excellentGrade,
             }
         })
     } catch (error) {

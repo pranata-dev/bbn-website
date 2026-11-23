@@ -1,6 +1,12 @@
 import { createServiceClient } from "@/lib/supabase/server"
 import type { CourseTrack } from "@/config/plans"
 import {
+    getExcellentBetaGrade,
+    getExcellentCourseByGrade,
+    type AuthUserMetadataLike,
+    type ExcellentGrade,
+} from "@/config/excellent"
+import {
     countFinishedAttempts,
     resolveEntitlements,
     type GateableTryout,
@@ -9,16 +15,57 @@ import {
 } from "@/lib/entitlements-core"
 
 export type { UserEntitlements } from "@/lib/entitlements-core"
-export { FINISHED_SUBMISSION_STATUSES, countFinishedAttempts } from "@/lib/entitlements-core"
+export {
+    FINISHED_SUBMISSION_STATUSES,
+    canBetaAccessCourse,
+    countFinishedAttempts,
+} from "@/lib/entitlements-core"
+export { getExcellentBetaGrade } from "@/config/excellent"
 
 type ServiceClient = ReturnType<typeof createServiceClient>
 
+export interface ExcellentCourseRow {
+    id: string
+    code: string
+    slug: string
+    title: string
+}
+
+/**
+ * Resolves the single `public.courses` row for an Excellent Beta grade.
+ * Returns null if the course has not been seeded yet.
+ */
+export async function getExcellentCourseRow(
+    grade: ExcellentGrade,
+    client?: ServiceClient
+): Promise<ExcellentCourseRow | null> {
+    const config = getExcellentCourseByGrade(grade)
+    if (!config) return null
+
+    const supabase = client ?? createServiceClient()
+    const { data } = await supabase
+        .from("courses")
+        .select("id, code, slug, title")
+        .or(`code.eq.${config.code},slug.eq.${config.slug}`)
+        .maybeSingle()
+
+    return (data as ExcellentCourseRow | null) ?? null
+}
+
+export interface GetEntitlementsOptions {
+    authUser?: AuthUserMetadataLike | null
+}
+
 /**
  * Server-side entitlement resolver.
- * Reads ONLY `users.role` (admin bypass) and the `subscriptions` table, and lazily
- * flips lapsed ACTIVE subscriptions to EXPIRED on read.
+ * Reads `users.role` (admin bypass), Excellent Beta metadata, and the `subscriptions` table,
+ * and lazily flips lapsed ACTIVE subscriptions to EXPIRED on read.
  */
-export async function getEntitlements(userId: string, client?: ServiceClient): Promise<UserEntitlements> {
+export async function getEntitlements(
+    userId: string,
+    client?: ServiceClient,
+    options?: GetEntitlementsOptions
+): Promise<UserEntitlements> {
     const supabase = client ?? createServiceClient()
 
     const [{ data: user }, { data: subscriptions }, { data: courses }] = await Promise.all([
@@ -27,17 +74,30 @@ export async function getEntitlements(userId: string, client?: ServiceClient): P
             .from("subscriptions")
             .select("id, plan_code, track, status, starts_at, expires_at, created_at")
             .eq("user_id", userId),
-        supabase.from("courses").select("id, track"),
+        supabase.from("courses").select("id, track, code, slug"),
     ])
 
     const courseTracks = new Map<string, CourseTrack>(
         (courses || []).map((c) => [c.id, c.track as CourseTrack])
     )
 
+    const excellentGrade = getExcellentBetaGrade(options?.authUser)
+    const excellentConfig = excellentGrade ? getExcellentCourseByGrade(excellentGrade) : undefined
+    const excellentCourseRow = excellentConfig
+        ? (courses || []).find(
+              (c) =>
+                  c.code.toUpperCase() === excellentConfig.code ||
+                  c.slug.toLowerCase() === excellentConfig.slug
+          )
+        : undefined
+
     const entitlements = resolveEntitlements({
         role: user?.role,
         subscriptions: (subscriptions || []) as SubscriptionLike[],
         courseTracks,
+        isExcellentBeta: Boolean(excellentGrade),
+        excellentGrade,
+        excellentCourseId: excellentGrade ? excellentCourseRow?.id ?? null : undefined,
     })
 
     if (entitlements.expiredSubscriptionIds.length > 0) {

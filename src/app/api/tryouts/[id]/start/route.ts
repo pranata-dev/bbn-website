@@ -2,7 +2,13 @@ import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
 import { createServiceClient } from "@/lib/supabase/server"
 import { v4 as uuidv4 } from "uuid"
-import { getEntitlements, getTryoutQuota } from "@/lib/entitlements"
+import {
+    canBetaAccessCourse,
+    getEntitlements,
+    getExcellentBetaGrade,
+    getExcellentCourseRow,
+    getTryoutQuota,
+} from "@/lib/entitlements"
 
 // POST /api/tryouts/[id]/start - Start a tryout attempt
 export async function POST(
@@ -46,7 +52,21 @@ export async function POST(
         }
 
         // 4. Entitlements & Permissions check
-        const entitlements = await getEntitlements(profile.id, supabase)
+        const excellentGrade = getExcellentBetaGrade(user)
+        if (excellentGrade) {
+            const gradeCourse = await getExcellentCourseRow(excellentGrade, supabase)
+            if (!canBetaAccessCourse(excellentGrade, gradeCourse?.id, tryout.course_id)) {
+                return NextResponse.json(
+                    {
+                        error: "Latihan atau tryout ini tidak tersedia untuk kelas kamu.",
+                        code: "FORBIDDEN_GRADE",
+                    },
+                    { status: 403 }
+                )
+            }
+        }
+
+        const entitlements = await getEntitlements(profile.id, supabase, { authUser: user })
         const canAccess = tryout.is_practice
             ? (entitlements.canAccessPractice || !!tryout.is_free_sample)
             : entitlements.canStartTryout(tryout)

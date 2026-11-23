@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createClient, createServiceClient } from "@/lib/supabase/server"
-import { getEntitlements } from "@/lib/entitlements"
+import {
+    canBetaAccessCourse,
+    getEntitlements,
+    getExcellentBetaGrade,
+    getExcellentCourseRow,
+} from "@/lib/entitlements"
 
 export const dynamic = "force-dynamic"
 
@@ -30,7 +35,8 @@ export async function GET(
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
         }
 
-        const entitlements = await getEntitlements(userRecord.id)
+        const excellentGrade = getExcellentBetaGrade(user)
+        const entitlements = await getEntitlements(userRecord.id, supabase, { authUser: user })
 
         // Try lookup by slug, fallback to ID
         const query = supabase
@@ -67,6 +73,25 @@ export async function GET(
             return NextResponse.json({ error: "Materi tidak ditemukan." }, { status: 404 })
         }
 
+        // Enforce strict grade isolation for Excellent Beta students
+        if (excellentGrade) {
+            const gradeCourse = await getExcellentCourseRow(excellentGrade, supabase)
+            if (!canBetaAccessCourse(excellentGrade, gradeCourse?.id, material.course_id)) {
+                return NextResponse.json({
+                    error: "FORBIDDEN_GRADE",
+                    message: "Materi ini bukan untuk kelas kamu.",
+                    entitlements: {
+                        isFreeTier: false,
+                        tier: entitlements.tier,
+                        planCode: entitlements.planCode,
+                        track: entitlements.track,
+                        isExcellentBeta: true,
+                        excellentGrade,
+                    },
+                }, { status: 403 })
+            }
+        }
+
         const isAccessible = entitlements.canAccessMaterial(material)
 
         if (!isAccessible) {
@@ -82,10 +107,12 @@ export async function GET(
                     is_free_preview: false,
                 },
                 entitlements: {
-                    isFreeTier: entitlements.tier === "FREE",
+                    isFreeTier: entitlements.isFreeTier,
                     tier: entitlements.tier,
                     planCode: entitlements.planCode,
                     track: entitlements.track,
+                    isExcellentBeta: entitlements.isExcellentBeta,
+                    excellentGrade: entitlements.excellentGrade,
                 }
             }, { status: 403 })
         }
@@ -120,10 +147,12 @@ export async function GET(
                 next_material: nextMaterial,
             },
             entitlements: {
-                isFreeTier: entitlements.tier === "FREE",
+                isFreeTier: entitlements.isFreeTier,
                 tier: entitlements.tier,
                 planCode: entitlements.planCode,
                 track: entitlements.track,
+                isExcellentBeta: entitlements.isExcellentBeta,
+                excellentGrade: entitlements.excellentGrade,
             }
         })
     } catch (error) {

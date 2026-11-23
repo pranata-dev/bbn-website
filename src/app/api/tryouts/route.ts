@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server"
-import { createClient } from "@/lib/supabase/server"
-import { getEntitlements } from "@/lib/entitlements"
+import { createClient, createServiceClient } from "@/lib/supabase/server"
+import {
+    getEntitlements,
+    getExcellentBetaGrade,
+    getExcellentCourseRow,
+} from "@/lib/entitlements"
 
 export const dynamic = "force-dynamic"
 
@@ -26,7 +30,9 @@ export async function GET(request: NextRequest) {
             return NextResponse.json({ tryouts: [] })
         }
 
-        const entitlements = await getEntitlements(profile.id)
+        const serviceSupabase = createServiceClient()
+        const excellentGrade = getExcellentBetaGrade(user)
+        const entitlements = await getEntitlements(profile.id, serviceSupabase, { authUser: user })
 
         const url = new URL(request.url)
         const subjectParam = url.searchParams.get("subject") || url.searchParams.get("course")
@@ -43,7 +49,17 @@ export async function GET(request: NextRequest) {
         }
 
         // Resolve course filter
-        if (subjectParam) {
+        if (excellentGrade) {
+            // Force-scope Excellent Beta students strictly to their unlocked grade course
+            const gradeCourse = await getExcellentCourseRow(excellentGrade, serviceSupabase)
+            if (!gradeCourse) {
+                return NextResponse.json({
+                    tryouts: [],
+                    excellentBeta: { enabled: true, grade: excellentGrade },
+                })
+            }
+            query = query.eq("course_id", gradeCourse.id)
+        } else if (subjectParam) {
             const normalized = subjectParam.toLowerCase().trim()
             const { data: matchedCourse } = await supabase
                 .from("courses")
@@ -73,7 +89,13 @@ export async function GET(request: NextRequest) {
             }
         })
 
-        return NextResponse.json({ tryouts: filtered })
+        return NextResponse.json({
+            tryouts: filtered,
+            excellentBeta: {
+                enabled: Boolean(excellentGrade),
+                grade: excellentGrade,
+            },
+        })
     } catch (error) {
         console.error("Tryouts API error:", error)
         return NextResponse.json({ error: "Internal error" }, { status: 500 })

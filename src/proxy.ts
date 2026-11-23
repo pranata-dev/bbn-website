@@ -2,7 +2,7 @@ import { createServerClient } from "@supabase/ssr"
 import { createClient as createSupabaseClient } from "@supabase/supabase-js"
 import { NextResponse, type NextRequest } from "next/server"
 
-const publicPaths = ["/", "/login", "/register", "/verify", "/set-password", "/auth/callback"]
+const publicPaths = ["/", "/login", "/excellent-login", "/register", "/verify", "/set-password", "/auth/callback"]
 
 function isAdminPage(pathname: string) {
     return pathname.startsWith("/admin") && !pathname.startsWith("/admin/login")
