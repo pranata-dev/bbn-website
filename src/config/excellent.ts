@@ -69,6 +69,24 @@ export function getExcellentCourseByCodeOrSlug(
     )
 }
 
+export interface NormalizedExcellentName {
+    displayName: string
+    canonicalName: string
+}
+
+/**
+ * Normalizes a student's name for Excellent Beta identity matching.
+ * Collapses repeated whitespace and trims edges for display, and lowercases
+ * for canonical case-insensitive comparison.
+ */
+export function normalizeExcellentName(rawName: string): NormalizedExcellentName {
+    const displayName = rawName.trim().replace(/\s+/g, " ")
+    return {
+        displayName,
+        canonicalName: displayName.toLowerCase(),
+    }
+}
+
 export interface AuthUserMetadataLike {
     user_metadata?: Record<string, unknown> | null
 }

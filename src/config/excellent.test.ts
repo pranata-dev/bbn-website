@@ -5,6 +5,7 @@ import {
     getExcellentCourseByCodeOrSlug,
     getExcellentCourseByGrade,
     isExcellentGrade,
+    normalizeExcellentName,
 } from "./excellent"
 
 describe("Excellent Beta Grade Course Configuration", () => {
@@ -92,6 +93,23 @@ describe("Excellent Beta Grade Course Configuration", () => {
             ).toBeNull()
 
             expect(getExcellentBetaGrade(null)).toBeNull()
+        })
+    })
+
+    describe("normalizeExcellentName", () => {
+        it("trims edges, collapses internal spaces, and lowercases canonicalName", () => {
+            expect(normalizeExcellentName("  Nata  ")).toEqual({
+                displayName: "Nata",
+                canonicalName: "nata",
+            })
+            expect(normalizeExcellentName("  Budi   Santoso \t Putra ")).toEqual({
+                displayName: "Budi Santoso Putra",
+                canonicalName: "budi santoso putra",
+            })
+            expect(normalizeExcellentName("   ")).toEqual({
+                displayName: "",
+                canonicalName: "",
+            })
         })
     })
 })
