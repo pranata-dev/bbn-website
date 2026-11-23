@@ -3,13 +3,26 @@
 import { useState, useEffect } from "react"
 import { useParams } from "next/navigation"
 import Link from "next/link"
+import { useSubject } from "@/contexts/SubjectContext"
+import { CATEGORY_LABELS, type QuestionCategory } from "@/types"
 
 interface LatihanDetailData {
   id: string
   title: string
   description: string | null
   category: string | null
+  practicePart: number | null
   questionCount: number
+}
+
+const BETA_CATEGORY_LABELS: Record<string, string> = {
+  WEEK_1: "Paket 1",
+  WEEK_2: "Paket 2",
+  WEEK_3: "Paket 3",
+  WEEK_4: "Paket 4",
+  WEEK_5: "Paket 5",
+  WEEK_6: "Paket 6",
+  WEEK_7: "Paket 7",
 }
 
 interface SubmissionRecord {
@@ -21,6 +34,7 @@ interface SubmissionRecord {
 export default function LatihanDetailPage() {
   const params = useParams()
   const validId = typeof params?.id === "string" ? params.id : null
+  const { isExcellentBeta } = useSubject()
 
   const [latihan, setLatihan] = useState<LatihanDetailData | null>(null)
   const [previousSubmission, setPreviousSubmission] = useState<SubmissionRecord | null>(null)
@@ -51,6 +65,7 @@ export default function LatihanDetailPage() {
           title: data.title,
           description: data.description,
           category: data.category,
+          practicePart: data.practice_part ?? null,
           questionCount: data.tryout_questions?.length || 0,
         })
 
@@ -147,7 +162,13 @@ export default function LatihanDetailPage() {
           <div className="border-b-2 border-[#171717] dark:border-[#3F3F46] bg-canvas-paper px-6 py-5 sm:px-8 sm:py-6">
             <div className="flex items-center gap-2 mb-2 flex-wrap">
               <span className="font-mono text-[10px] font-bold text-[#171717] dark:text-[#F5F4EE] bg-surface-white border border-[#171717] dark:border-[#3F3F46] px-2.5 py-0.5 uppercase tracking-wider">
-                {latihan.category || "Semua Materi"}
+                {isExcellentBeta
+                  ? latihan.practicePart
+                    ? `Paket ${latihan.practicePart}`
+                    : (latihan.category && BETA_CATEGORY_LABELS[latihan.category]) || "Latihan SAS"
+                  : (latihan.category && CATEGORY_LABELS[latihan.category as QuestionCategory]) ||
+                    latihan.category ||
+                    "Semua Materi"}
               </span>
               <span className="font-mono text-[10px] font-black uppercase tracking-wider px-2 py-0.5 bg-accent-canary text-[#171717] border border-[#171717]">
                 MODE MANDIRI

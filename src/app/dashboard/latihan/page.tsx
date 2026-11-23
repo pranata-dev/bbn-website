@@ -23,6 +23,30 @@ interface LatihanItem {
   tryout_questions: { count: number }[]
 }
 
+const BETA_CATEGORY_LABELS: Partial<Record<QuestionCategory, string>> = {
+  WEEK_1: "Paket 1",
+  WEEK_2: "Paket 2",
+  WEEK_3: "Paket 3",
+  WEEK_4: "Paket 4",
+  WEEK_5: "Paket 5",
+  WEEK_6: "Paket 6",
+  WEEK_7: "Paket 7",
+}
+
+function getLatihanCategoryLabel(latihan: LatihanItem, isExcellentBeta: boolean): string {
+  if (isExcellentBeta) {
+    if (latihan.practice_part && latihan.practice_part > 0) {
+      return `Paket ${latihan.practice_part}`
+    }
+    if (latihan.category && BETA_CATEGORY_LABELS[latihan.category]) {
+      return BETA_CATEGORY_LABELS[latihan.category]!
+    }
+    return "Latihan SAS"
+  }
+
+  return latihan.category ? CATEGORY_LABELS[latihan.category] : "Semua Materi"
+}
+
 export default function LatihanPage() {
   const [latihans, setLatihans] = useState<LatihanItem[]>([])
   const [loading, setLoading] = useState(true)
@@ -182,7 +206,7 @@ export default function LatihanPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {filteredLatihans.map((latihan, idx) => {
               const isLocked = Boolean(latihan.is_locked)
-              const categoryLabel = latihan.category ? CATEGORY_LABELS[latihan.category] : "Semua Materi"
+              const categoryLabel = getLatihanCategoryLabel(latihan, isExcellentBeta)
 
               return (
                 <div
