@@ -85,7 +85,7 @@ isOneToOne: false
                   ]
                 },"materials": {
                   Row: {
-                    "content_md": string | null,"course_id": string | null,"created_at": string,"drive_url": string,"id": string,"is_free_preview": boolean,"is_published": boolean,"module_number": number | null,"podcast_url": string | null,"reading_time_minutes": number | null,"slug": string | null,"sort_order": number,"summary": string | null,"title": string,"updated_at": string
+                    "content_md": string | null,"course_id": string | null,"created_at": string,"drive_url": string,"has_content": boolean | null,"id": string,"is_free_preview": boolean,"is_published": boolean,"module_number": number | null,"podcast_url": string | null,"reading_time_minutes": number | null,"slug": string | null,"sort_order": number,"summary": string | null,"title": string,"updated_at": string
                   }
                   ComputedFields: never
                   Insert: {
@@ -122,6 +122,20 @@ isOneToOne: false
       referencedRelation: "courses"
       referencedColumns: ["id"]
     }
+                  ]
+                },"rate_limit_buckets": {
+                  Row: {
+                    "count": number,"expires_at": string,"key": string,"window_start": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "count"?: number,"expires_at": string,"key": string,"window_start"?: string
+                  }
+                  Update: {
+                    "count"?: number,"expires_at"?: string,"key"?: string,"window_start"?: string
+                  }
+                  Relationships: [
+
                   ]
                 },"registrations": {
                   Row: {
@@ -261,16 +275,26 @@ isOneToOne: false
             [_ in never]: never
           }
           Functions: {
-            "increment_submission_tab_switch":
+            "check_rate_limit":
+{ Args: { "p_key": string,"p_max_requests"?: number,"p_window_seconds"?: number }; Returns: { "allowed": boolean,"current_count": number,"retry_after_seconds": number }[]
+                           },"get_leaderboard":
+{ Args: { "p_category"?: string | null,"p_course_id"?: string | null,"p_is_excellent_beta"?: boolean,"p_limit"?: number }; Returns: { "avatar_url": string | null,"average_score": number,"rank": number,"total_score": number,"total_tryouts": number,"user_id": string,"user_name": string }[]
+                           },"get_top_tryout_performers":
+{ Args: { "p_limit"?: number }; Returns: { "avatar_url": string | null,"highest_score": number,"tryout_title": string,"user_email": string,"user_id": string,"user_name": string }[]
+                           },"get_user_leaderboard_rank":
+{ Args: { "p_course_id"?: string | null,"p_is_excellent_beta"?: boolean,"p_user_id": string }; Returns: { "total_participants": number,"user_rank": number | null }[]
+                           },"increment_submission_tab_switch":
 { Args: { "p_submission_id": string }; Returns: number
                            },"is_admin":
 { Args: Record<PropertyKey, never>; Returns: boolean
+                           },"peek_rate_limit":
+{ Args: { "p_key": string,"p_max_requests"?: number }; Returns: { "allowed": boolean,"current_count": number,"retry_after_seconds": number }[]
                            },"upsert_submission_answer":
 { Args: { "p_answer"?: string | null,"p_flagged"?: boolean,"p_has_answer"?: boolean,"p_has_flagged"?: boolean,"p_question_id": string,"p_submission_id": string }; Returns: boolean
                            }
           }
           Enums: {
-            "QuestionCategory": "WEEK_1"|"WEEK_2"|"WEEK_3"|"WEEK_4"|"WEEK_5"|"WEEK_6"|"WEEK_7"|"SERIES_POWER"|"COMPLEX_NUMBERS"|"LINEAR_ALGEBRA","QuestionType": "MULTIPLE_CHOICE"|"ESSAY","RegistrationStatus": "PENDING"|"APPROVED"|"REJECTED","RegistrationType": "REGULAR"|"UTS"|"KELAS_BESAR","SubmissionStatus": "IN_PROGRESS"|"SUBMITTED"|"TIMED_OUT","TryoutStatus": "DRAFT"|"ACTIVE"|"ARCHIVED"
+            "QuestionCategory": "WEEK_1"|"WEEK_2"|"WEEK_3"|"WEEK_4"|"WEEK_5"|"WEEK_6"|"WEEK_7"|"SERIES_POWER"|"COMPLEX_NUMBERS"|"LINEAR_ALGEBRA","QuestionType": "MULTIPLE_CHOICE"|"ESSAY","RegistrationStatus": "PENDING"|"APPROVED"|"REJECTED","RegistrationType": "REGULAR"|"UTS"|"KELAS_BESAR","SubmissionStatus": "IN_PROGRESS"|"SUBMITTED"|"TIMED_OUT"|"COMPLETED","TryoutStatus": "DRAFT"|"ACTIVE"|"ARCHIVED"
           }
           CompositeTypes: {
             [_ in never]: never
