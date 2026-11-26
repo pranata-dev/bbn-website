@@ -97,6 +97,8 @@ export interface ResolveEntitlementsInput {
     subscriptions: SubscriptionLike[]
     /** Map of `courses.id` -> `courses.track`. Missing ids are treated as un-tracked content. */
     courseTracks?: Map<string, CourseTrack>
+    /** Course IDs reserved exclusively for Excellent Beta high-school students (FISIKA_X/XI/XII). */
+    excellentCourseIds?: ReadonlySet<string>
     now?: Date
     /** Excellent Beta mode flags from Supabase Auth user_metadata. */
     isExcellentBeta?: boolean
@@ -109,6 +111,7 @@ export function resolveEntitlements({
     role,
     subscriptions,
     courseTracks = new Map(),
+    excellentCourseIds,
     now = new Date(),
     isExcellentBeta = false,
     excellentGrade = null,
@@ -172,10 +175,13 @@ export function resolveEntitlements({
 
     const courseTrackOf = (courseId: string | null | undefined) =>
         courseId ? courseTracks.get(courseId) ?? null : null
+    const isExcellentBetaCourse = (courseId: string | null | undefined) =>
+        Boolean(courseId && excellentCourseIds?.has(courseId))
 
     if (livePaid.length > 0) {
         const paidTracks = new Set(livePaid.map((s) => s.track))
         const allows = (courseId: string | null | undefined) =>
+            !isExcellentBetaCourse(courseId) &&
             [...paidTracks].some((t) => trackAllows(t, courseTrackOf(courseId)))
         const primary = livePaid[0]
         // Latest expiry across concurrent paid subscriptions (null = open-ended).
@@ -193,10 +199,13 @@ export function resolveEntitlements({
             expiresAt,
             isExpired: false,
             expiredSubscriptionIds,
-            canAccessMaterial: (m) => !!m.is_free_preview || allows(m.course_id),
-            canStartTryout: (t) => !!t.is_free_sample || allows(t.course_id),
+            canAccessMaterial: (m) =>
+                !isExcellentBetaCourse(m.course_id) && (!!m.is_free_preview || allows(m.course_id)),
+            canStartTryout: (t) =>
+                !isExcellentBetaCourse(t.course_id) && (!!t.is_free_sample || allows(t.course_id)),
             canAccessPractice: true,
             tryoutAttemptLimit: (t) => {
+                if (isExcellentBetaCourse(t.course_id)) return 0
                 if (!t.is_free_sample && !allows(t.course_id)) return 0
                 if (t.is_practice) return Infinity
                 return t.max_attempts && t.max_attempts > 0 ? t.max_attempts : DEFAULT_PAID_TRYOUT_ATTEMPTS
@@ -204,7 +213,7 @@ export function resolveEntitlements({
         }
     }
 
-    // FREE tier — track comes from the FREE baseline subscription, if any.
+    // FREE tier - track comes from the FREE baseline subscription, if any.
     const freeRow = active.filter((s) => s.plan_code === "FREE").sort(newestFirst)[0]
     const hadPaid = subscriptions.some((s) => s.plan_code !== "FREE" && (s.status === "EXPIRED" || isLapsed(s)))
 
@@ -219,9 +228,10 @@ export function resolveEntitlements({
         expiresAt: null,
         isExpired: hadPaid,
         expiredSubscriptionIds,
-        canAccessMaterial: (m) => !!m.is_free_preview,
-        canStartTryout: (t) => !!t.is_free_sample,
+        canAccessMaterial: (m) => !isExcellentBetaCourse(m.course_id) && !!m.is_free_preview,
+        canStartTryout: (t) => !isExcellentBetaCourse(t.course_id) && !!t.is_free_sample,
         canAccessPractice: false,
-        tryoutAttemptLimit: (t) => (t.is_free_sample ? FREE_SAMPLE_ATTEMPT_LIMIT : 0),
+        tryoutAttemptLimit: (t) =>
+            !isExcellentBetaCourse(t.course_id) && t.is_free_sample ? FREE_SAMPLE_ATTEMPT_LIMIT : 0,
     }
 }

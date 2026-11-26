@@ -2,6 +2,7 @@ import { createClient } from "@supabase/supabase-js"
 import { v4 as uuidv4 } from "uuid"
 import { QuestionCategory, Subject } from "@/types"
 import { questionSchema } from "@/lib/validations/admin"
+import { normalizeIdentifier } from "@/lib/postgrest-safe"
 
 export interface ParsedQuestion {
     text: string
@@ -132,12 +133,25 @@ export class DataImporter {
         let skipped = 0
         const questionIds: string[] = []
 
-        const { data: matchedCourse } = await supabase
-            .from("courses")
-            .select("id")
-            .or(`code.ilike.${subject},slug.ilike.${subject}`)
-            .maybeSingle()
-        const courseId = matchedCourse?.id || null
+        let courseId: string | null = null
+        const safeSubject = normalizeIdentifier(subject)
+        if (safeSubject) {
+            const { data: byCode } = await supabase
+                .from("courses")
+                .select("id")
+                .eq("code", safeSubject.toUpperCase())
+                .maybeSingle()
+            if (byCode?.id) {
+                courseId = byCode.id
+            } else {
+                const { data: bySlug } = await supabase
+                    .from("courses")
+                    .select("id")
+                    .eq("slug", safeSubject.toLowerCase())
+                    .maybeSingle()
+                courseId = bySlug?.id || null
+            }
+        }
 
         for (const q of questions) {
             const text = q.text.trim()

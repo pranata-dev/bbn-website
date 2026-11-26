@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { requireAdmin } from "@/lib/admin-auth"
 import { createServiceClient } from "@/lib/supabase/server"
+import { findCourseIdByIdentifier } from "@/lib/postgrest-safe"
 import type { Database } from "@/types/database.types"
 
 type DbQuestionCategory = Database["public"]["Enums"]["QuestionCategory"]
@@ -93,12 +94,7 @@ export async function PATCH(
 
         let courseId = (formData.get("course_id") as string) || null
         if (!courseId && subject) {
-            const { data: c } = await supabase
-                .from("courses")
-                .select("id")
-                .or(`id.eq.${subject},code.ilike.${subject},slug.ilike.${subject}`)
-                .maybeSingle()
-            if (c) courseId = c.id
+            courseId = await findCourseIdByIdentifier(supabase, subject, { allowId: true })
         }
 
         // Update question in the database

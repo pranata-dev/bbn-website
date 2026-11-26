@@ -2,9 +2,9 @@ import { NextRequest, NextResponse } from "next/server"
 import { createClient, createServiceClient } from "@/lib/supabase/server"
 import {
     getEntitlements,
-    getExcellentBetaGrade,
     getExcellentCourseRow,
 } from "@/lib/entitlements"
+import { findCourseIdByIdentifier, normalizeIdentifier } from "@/lib/postgrest-safe"
 
 export const dynamic = "force-dynamic"
 
@@ -31,8 +31,8 @@ export async function GET(request: NextRequest) {
         }
 
         const serviceSupabase = createServiceClient()
-        const excellentGrade = getExcellentBetaGrade(user)
         const entitlements = await getEntitlements(profile.id, serviceSupabase, { authUser: user })
+        const excellentGrade = entitlements.excellentGrade
 
         const url = new URL(request.url)
         const subjectParam = url.searchParams.get("subject") || url.searchParams.get("course")
@@ -48,9 +48,7 @@ export async function GET(request: NextRequest) {
             query = query.eq("is_practice", isPracticeParam === "true")
         }
 
-        // Resolve course filter
         if (excellentGrade) {
-            // Force-scope Excellent Beta students strictly to their unlocked grade course
             const gradeCourse = await getExcellentCourseRow(excellentGrade, serviceSupabase)
             if (!gradeCourse) {
                 return NextResponse.json({
@@ -59,16 +57,13 @@ export async function GET(request: NextRequest) {
                 })
             }
             query = query.eq("course_id", gradeCourse.id)
-        } else if (subjectParam) {
-            const normalized = subjectParam.toLowerCase().trim()
-            const { data: matchedCourse } = await supabase
-                .from("courses")
-                .select("id, code, slug")
-                .or(`slug.ilike.${normalized},code.ilike.${subjectParam.toUpperCase()}`)
-                .maybeSingle()
-
-            if (matchedCourse) {
-                query = query.eq("course_id", matchedCourse.id)
+        } else if (subjectParam && subjectParam !== "all") {
+            if (!normalizeIdentifier(subjectParam)) {
+                return NextResponse.json({ error: "Parameter mata kuliah tidak valid." }, { status: 400 })
+            }
+            const matchedCourseId = await findCourseIdByIdentifier(supabase, subjectParam)
+            if (matchedCourseId) {
+                query = query.eq("course_id", matchedCourseId)
             }
         }
 
@@ -79,15 +74,10 @@ export async function GET(request: NextRequest) {
             return NextResponse.json({ error: "Failed to fetch tryouts" }, { status: 500 })
         }
 
-        // Apply entitlements (paid tier vs free sample)
-        const filtered = (tryouts || []).map((t) => {
-            const canStart = entitlements.canStartTryout(t)
-            const canAccessPractice = t.is_practice ? (entitlements.canAccessPractice || !!t.is_free_sample) : canStart
-            return {
-                ...t,
-                is_locked: !canAccessPractice,
-            }
-        })
+        const filtered = (tryouts || []).map((t) => ({
+            ...t,
+            is_locked: !entitlements.canStartTryout(t),
+        }))
 
         return NextResponse.json({
             tryouts: filtered,

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { requireAdmin } from "@/lib/admin-auth"
 import { createAdminClient, createServiceClient } from "@/lib/supabase/server"
+import { findCourseIdByIdentifier } from "@/lib/postgrest-safe"
 
 export const dynamic = "force-dynamic"
 
@@ -78,8 +79,8 @@ export async function PATCH(
         if (course_id) {
             updateData.course_id = course_id
         } else if (subject) {
-            const { data: c } = await supabase.from("courses").select("id").or(`code.ilike.${subject},slug.ilike.${subject}`).maybeSingle()
-            if (c) updateData.course_id = c.id
+            const matchedCourseId = await findCourseIdByIdentifier(supabase, subject)
+            if (matchedCourseId) updateData.course_id = matchedCourseId
         }
 
         // 1. Update Tryout metadata

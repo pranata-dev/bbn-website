@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { requireAdmin } from "@/lib/admin-auth"
 import { createServiceClient } from "@/lib/supabase/server"
+import { findCourseIdByIdentifier } from "@/lib/postgrest-safe"
 import { v4 as uuidv4 } from "uuid"
 import { questionSchema } from "@/lib/validations/admin"
 import type { Database } from "@/types/database.types"
@@ -30,12 +31,8 @@ export async function GET(request: NextRequest) {
         }
 
         if (subject && subject !== "all") {
-            const { data: c } = await adminSupabase
-                .from("courses")
-                .select("id")
-                .or(`id.eq.${subject},code.ilike.${subject},slug.ilike.${subject}`)
-                .maybeSingle()
-            if (c) query = query.eq("course_id", c.id)
+            const matchedCourseId = await findCourseIdByIdentifier(adminSupabase, subject, { allowId: true })
+            if (matchedCourseId) query = query.eq("course_id", matchedCourseId)
         }
 
         const { data: rawQuestions, error } = await query
@@ -126,12 +123,7 @@ export async function POST(request: NextRequest) {
 
         let courseId = (formData.get("course_id") as string) || null
         if (!courseId && subject) {
-            const { data: c } = await supabase
-                .from("courses")
-                .select("id")
-                .or(`id.eq.${subject},code.ilike.${subject},slug.ilike.${subject}`)
-                .maybeSingle()
-            if (c) courseId = c.id
+            courseId = await findCourseIdByIdentifier(supabase, subject, { allowId: true })
         }
 
         // Generate UUID manually since Prisma's @default(uuid()) doesn't apply when using Supabase client directly
@@ -207,12 +199,8 @@ export async function DELETE(request: NextRequest) {
         }
 
         if (subject && subject !== "all") {
-            const { data: c } = await supabase
-                .from("courses")
-                .select("id")
-                .or(`id.eq.${subject},code.ilike.${subject},slug.ilike.${subject}`)
-                .maybeSingle()
-            if (c) query = query.eq("course_id", c.id)
+            const matchedCourseId = await findCourseIdByIdentifier(supabase, subject, { allowId: true })
+            if (matchedCourseId) query = query.eq("course_id", matchedCourseId)
         }
 
         const { error } = await query

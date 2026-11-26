@@ -2,9 +2,9 @@ import { NextRequest, NextResponse } from "next/server"
 import { createClient, createServiceClient } from "@/lib/supabase/server"
 import {
     getEntitlements,
-    getExcellentBetaGrade,
     getExcellentCourseRow,
 } from "@/lib/entitlements"
+import { findCourseIdByIdentifier, normalizeIdentifier } from "@/lib/postgrest-safe"
 
 export const dynamic = "force-dynamic"
 
@@ -30,8 +30,8 @@ export async function GET(request: NextRequest) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
         }
 
-        const excellentGrade = getExcellentBetaGrade(user)
         const entitlements = await getEntitlements(userRecord.id, supabase, { authUser: user })
+        const excellentGrade = entitlements.excellentGrade
 
         const { searchParams } = new URL(request.url)
         const courseId = searchParams.get("course_id")
@@ -79,14 +79,12 @@ export async function GET(request: NextRequest) {
         } else if (courseId) {
             query = query.eq("course_id", courseId)
         } else if (subject && subject !== "all") {
-            const normalized = subject.toLowerCase().trim()
-            const { data: matchedCourse } = await supabase
-                .from("courses")
-                .select("id")
-                .or(`slug.ilike.${normalized},code.ilike.${subject.toUpperCase()}`)
-                .maybeSingle()
-            if (matchedCourse) {
-                query = query.eq("course_id", matchedCourse.id)
+            if (!normalizeIdentifier(subject)) {
+                return NextResponse.json({ error: "Parameter mata kuliah tidak valid." }, { status: 400 })
+            }
+            const matchedCourseId = await findCourseIdByIdentifier(supabase, subject)
+            if (matchedCourseId) {
+                query = query.eq("course_id", matchedCourseId)
             }
         }
 

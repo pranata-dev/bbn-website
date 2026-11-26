@@ -3,11 +3,35 @@ import { createClient, createServiceClient } from "@/lib/supabase/server"
 import {
     canBetaAccessCourse,
     getEntitlements,
-    getExcellentBetaGrade,
     getExcellentCourseRow,
 } from "@/lib/entitlements"
+import { normalizeIdentifier } from "@/lib/postgrest-safe"
 
 export const dynamic = "force-dynamic"
+
+const MATERIAL_SELECT = `
+    id,
+    course_id,
+    slug,
+    title,
+    summary,
+    content_md,
+    module_number,
+    sort_order,
+    reading_time_minutes,
+    is_free_preview,
+    is_published,
+    drive_url,
+    podcast_url,
+    created_at,
+    courses (
+        id,
+        title,
+        slug,
+        code,
+        track
+    )
+`
 
 // GET /api/materials/[slug] - Read single material with entitlement gate
 export async function GET(
@@ -16,8 +40,15 @@ export async function GET(
 ) {
     try {
         const { slug } = await params
+        const normalizedSlug = normalizeIdentifier(slug)
+        if (!normalizedSlug) {
+            return NextResponse.json({ error: "Identifier materi tidak valid." }, { status: 400 })
+        }
+
         const authClient = await createClient()
-        const { data: { user } } = await authClient.auth.getUser()
+        const {
+            data: { user },
+        } = await authClient.auth.getUser()
 
         if (!user) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
@@ -35,89 +66,87 @@ export async function GET(
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
         }
 
-        const excellentGrade = getExcellentBetaGrade(user)
         const entitlements = await getEntitlements(userRecord.id, supabase, { authUser: user })
+        const excellentGrade = entitlements.excellentGrade
 
-        // Try lookup by slug, fallback to ID
-        const query = supabase
-            .from("materials")
-            .select(`
-                id,
-                course_id,
-                slug,
-                title,
-                summary,
-                content_md,
-                module_number,
-                sort_order,
-                reading_time_minutes,
-                is_free_preview,
-                is_published,
-                drive_url,
-                podcast_url,
-                created_at,
-                courses (
-                    id,
-                    title,
-                    slug,
-                    code,
-                    track
-                )
-            `)
-            .or(`slug.eq.${slug},id.eq.${slug}`)
-            .maybeSingle()
+        const findMaterial = async (column: "slug" | "id") => {
+            let query = supabase
+                .from("materials")
+                .select(MATERIAL_SELECT)
+                .eq(column, normalizedSlug)
+            if (!entitlements.isAdmin) {
+                query = query.eq("is_published", true)
+            }
+            return query.maybeSingle()
+        }
 
-        const { data: material, error } = await query
-
-        if (error || !material) {
+        const { data: bySlug, error: slugError } = await findMaterial("slug")
+        if (slugError) {
             return NextResponse.json({ error: "Materi tidak ditemukan." }, { status: 404 })
         }
 
-        // Enforce strict grade isolation for Excellent Beta students
+        let material = bySlug
+        if (!material) {
+            const { data: byId, error: idError } = await findMaterial("id")
+            if (idError) {
+                return NextResponse.json({ error: "Materi tidak ditemukan." }, { status: 404 })
+            }
+            material = byId
+        }
+
+        if (!material) {
+            return NextResponse.json({ error: "Materi tidak ditemukan." }, { status: 404 })
+        }
+
         if (excellentGrade) {
             const gradeCourse = await getExcellentCourseRow(excellentGrade, supabase)
             if (!canBetaAccessCourse(excellentGrade, gradeCourse?.id, material.course_id)) {
-                return NextResponse.json({
-                    error: "FORBIDDEN_GRADE",
-                    message: "Materi ini bukan untuk kelas kamu.",
-                    entitlements: {
-                        isFreeTier: false,
-                        tier: entitlements.tier,
-                        planCode: entitlements.planCode,
-                        track: entitlements.track,
-                        isExcellentBeta: true,
-                        excellentGrade,
+                return NextResponse.json(
+                    {
+                        error: "FORBIDDEN_GRADE",
+                        message: "Materi ini bukan untuk kelas kamu.",
+                        entitlements: {
+                            isFreeTier: false,
+                            tier: entitlements.tier,
+                            planCode: entitlements.planCode,
+                            track: entitlements.track,
+                            isExcellentBeta: true,
+                            excellentGrade,
+                        },
                     },
-                }, { status: 403 })
+                    { status: 403 }
+                )
             }
         }
 
         const isAccessible = entitlements.canAccessMaterial(material)
 
         if (!isAccessible) {
-            return NextResponse.json({
-                error: "UPGRADE_REQUIRED",
-                message: "Materi ini adalah materi premium. Tingkatkan paketmu untuk membuka modul ini.",
-                material: {
-                    id: material.id,
-                    slug: material.slug,
-                    title: material.title,
-                    summary: material.summary,
-                    module_number: material.module_number,
-                    is_free_preview: false,
+            return NextResponse.json(
+                {
+                    error: "UPGRADE_REQUIRED",
+                    message: "Materi ini adalah materi premium. Tingkatkan paketmu untuk membuka modul ini.",
+                    material: {
+                        id: material.id,
+                        slug: material.slug,
+                        title: material.title,
+                        summary: material.summary,
+                        module_number: material.module_number,
+                        is_free_preview: false,
+                    },
+                    entitlements: {
+                        isFreeTier: entitlements.isFreeTier,
+                        tier: entitlements.tier,
+                        planCode: entitlements.planCode,
+                        track: entitlements.track,
+                        isExcellentBeta: entitlements.isExcellentBeta,
+                        excellentGrade: entitlements.excellentGrade,
+                    },
                 },
-                entitlements: {
-                    isFreeTier: entitlements.isFreeTier,
-                    tier: entitlements.tier,
-                    planCode: entitlements.planCode,
-                    track: entitlements.track,
-                    isExcellentBeta: entitlements.isExcellentBeta,
-                    excellentGrade: entitlements.excellentGrade,
-                }
-            }, { status: 403 })
+                { status: 403 }
+            )
         }
 
-        // Find previous and next modules in the same course
         let prevMaterial = null
         let nextMaterial = null
 
@@ -130,7 +159,9 @@ export async function GET(
                 .order("sort_order", { ascending: true })
 
             if (siblings && siblings.length > 0) {
-                const currentIndex = siblings.findIndex((s) => s.id === material.id || (material.slug && s.slug === material.slug))
+                const currentIndex = siblings.findIndex(
+                    (s) => s.id === material.id || (material.slug && s.slug === material.slug)
+                )
                 if (currentIndex > 0) {
                     prevMaterial = siblings[currentIndex - 1]
                 }
@@ -153,7 +184,7 @@ export async function GET(
                 track: entitlements.track,
                 isExcellentBeta: entitlements.isExcellentBeta,
                 excellentGrade: entitlements.excellentGrade,
-            }
+            },
         })
     } catch (error) {
         console.error("GET material slug error:", error)

@@ -277,6 +277,155 @@ describe("Entitlements & RBAC Authorization Rules", () => {
             expect(canBetaAccessCourse("X", null, "course-x")).toBe(false)
             expect(canBetaAccessCourse("X", "course-x", null)).toBe(false)
         })
+
+        it("blocks cross-track practice access for single-track paid subscribers while allowing free samples", () => {
+            const future = new Date(Date.now() + 20 * 86400000).toISOString()
+            const entitlements = resolveEntitlements({
+                role: "STUDENT",
+                subscriptions: [
+                    {
+                        id: "sub-phys-only",
+                        plan_code: "MONTHLY",
+                        track: "PHYSICS_SEM_3",
+                        status: "ACTIVE",
+                        expires_at: future,
+                        created_at: new Date().toISOString(),
+                    },
+                ],
+                courseTracks,
+            })
+
+            expect(
+                entitlements.canStartTryout({
+                    course_id: "course-physics-1",
+                    is_practice: true,
+                    is_free_sample: false,
+                })
+            ).toBe(true)
+            expect(
+                entitlements.canStartTryout({
+                    course_id: "course-non-physics-1",
+                    is_practice: true,
+                    is_free_sample: false,
+                })
+            ).toBe(false)
+            expect(
+                entitlements.tryoutAttemptLimit({
+                    course_id: "course-non-physics-1",
+                    is_practice: true,
+                    is_free_sample: false,
+                })
+            ).toBe(0)
+            expect(
+                entitlements.canStartTryout({
+                    course_id: "course-non-physics-1",
+                    is_practice: true,
+                    is_free_sample: true,
+                })
+            ).toBe(true)
+        })
+
+        it("isolates Excellent Beta courses (FISIKA_X/XI/XII) from non-beta university subscribers", () => {
+            const future = new Date(Date.now() + 60 * 86400000).toISOString()
+            const extendedCourseTracks = new Map<string, CourseTrack>([
+                ...courseTracks.entries(),
+                ["course-fisika-x", "NON_PHYSICS"],
+                ["course-fisika-xi", "NON_PHYSICS"],
+                ["course-fisika-xii", "NON_PHYSICS"],
+            ])
+            const excellentCourseIds = new Set([
+                "course-fisika-x",
+                "course-fisika-xi",
+                "course-fisika-xii",
+            ])
+
+            const nonPhysicsStudent = resolveEntitlements({
+                role: "STUDENT",
+                subscriptions: [
+                    {
+                        id: "sub-non-phys",
+                        plan_code: "SEMESTER",
+                        track: "NON_PHYSICS",
+                        status: "ACTIVE",
+                        expires_at: future,
+                        created_at: new Date().toISOString(),
+                    },
+                ],
+                courseTracks: extendedCourseTracks,
+                excellentCourseIds,
+            })
+
+            expect(
+                nonPhysicsStudent.canAccessMaterial({
+                    course_id: "course-fisika-x",
+                    is_free_preview: true,
+                })
+            ).toBe(false)
+            expect(
+                nonPhysicsStudent.canStartTryout({
+                    course_id: "course-fisika-xi",
+                    is_practice: true,
+                    is_free_sample: true,
+                })
+            ).toBe(false)
+            expect(
+                nonPhysicsStudent.tryoutAttemptLimit({
+                    course_id: "course-fisika-xii",
+                    is_practice: true,
+                    is_free_sample: true,
+                })
+            ).toBe(0)
+
+            const allTrackStudent = resolveEntitlements({
+                role: "STUDENT",
+                subscriptions: [
+                    {
+                        id: "sub-all",
+                        plan_code: "SEMESTER",
+                        track: "ALL",
+                        status: "ACTIVE",
+                        expires_at: future,
+                        created_at: new Date().toISOString(),
+                    },
+                ],
+                courseTracks: extendedCourseTracks,
+                excellentCourseIds,
+            })
+
+            expect(
+                allTrackStudent.canAccessMaterial({
+                    course_id: "course-fisika-x",
+                    is_free_preview: false,
+                })
+            ).toBe(false)
+            expect(
+                allTrackStudent.canStartTryout({
+                    course_id: "course-fisika-x",
+                    is_practice: false,
+                    is_free_sample: false,
+                })
+            ).toBe(false)
+
+            const freeStudent = resolveEntitlements({
+                role: "STUDENT",
+                subscriptions: [],
+                courseTracks: extendedCourseTracks,
+                excellentCourseIds,
+            })
+
+            expect(
+                freeStudent.canAccessMaterial({
+                    course_id: "course-fisika-x",
+                    is_free_preview: true,
+                })
+            ).toBe(false)
+            expect(
+                freeStudent.canStartTryout({
+                    course_id: "course-fisika-x",
+                    is_free_sample: true,
+                })
+            ).toBe(false)
+        })
     })
 })
 

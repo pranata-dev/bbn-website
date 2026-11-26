@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { requireAdmin } from "@/lib/admin-auth"
 import { createAdminClient } from "@/lib/supabase/server"
+import { findCourseIdByIdentifier } from "@/lib/postgrest-safe"
 
 export const dynamic = "force-dynamic"
 
@@ -38,8 +39,7 @@ export async function PATCH(
 
         let targetCourseId = course_id || null
         if (!targetCourseId && subject) {
-            const { data: c } = await supabase.from("courses").select("id").or(`code.ilike.${subject},slug.ilike.${subject}`).maybeSingle()
-            if (c) targetCourseId = c.id
+            targetCourseId = await findCourseIdByIdentifier(supabase, subject)
         }
 
         const now = new Date().toISOString()

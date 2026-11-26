@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { requireAdmin } from "@/lib/admin-auth"
 import { createAdminClient } from "@/lib/supabase/server"
+import { findCourseIdByIdentifier } from "@/lib/postgrest-safe"
 
 export const dynamic = "force-dynamic"
 
@@ -22,8 +23,8 @@ export async function GET(request: NextRequest) {
         if (courseId) {
             query = query.eq("course_id", courseId)
         } else if (subject && subject !== "all") {
-            const { data: c } = await supabase.from("courses").select("id").or(`code.ilike.${subject},slug.ilike.${subject}`).maybeSingle()
-            if (c) query = query.eq("course_id", c.id)
+            const matchedCourseId = await findCourseIdByIdentifier(supabase, subject)
+            if (matchedCourseId) query = query.eq("course_id", matchedCourseId)
         }
 
         const { data: rawMaterials, error } = await query
@@ -76,8 +77,7 @@ export async function POST(request: NextRequest) {
 
         let targetCourseId = course_id || null
         if (!targetCourseId && subject) {
-            const { data: c } = await supabase.from("courses").select("id").or(`code.ilike.${subject},slug.ilike.${subject}`).maybeSingle()
-            if (c) targetCourseId = c.id
+            targetCourseId = await findCourseIdByIdentifier(supabase, subject)
         }
 
         const now = new Date().toISOString()

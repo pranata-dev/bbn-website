@@ -2,6 +2,7 @@ import { createServiceClient } from "@/lib/supabase/server"
 import type { CourseTrack } from "@/config/plans"
 import {
     getExcellentBetaGrade,
+    getExcellentCourseByCodeOrSlug,
     getExcellentCourseByGrade,
     type AuthUserMetadataLike,
     type ExcellentGrade,
@@ -43,13 +44,32 @@ export async function getExcellentCourseRow(
     if (!config) return null
 
     const supabase = client ?? createServiceClient()
-    const { data } = await supabase
+    const { data: byCode } = await supabase
         .from("courses")
         .select("id, code, slug, title")
-        .or(`code.eq.${config.code},slug.eq.${config.slug}`)
+        .eq("code", config.code)
         .maybeSingle()
 
-    return (data as ExcellentCourseRow | null) ?? null
+    if (byCode) {
+        return byCode as ExcellentCourseRow
+    }
+
+    const { data: bySlug } = await supabase
+        .from("courses")
+        .select("id, code, slug, title")
+        .eq("slug", config.slug)
+        .maybeSingle()
+
+    return (bySlug as ExcellentCourseRow | null) ?? null
+}
+
+function matchesExcellentSyntheticEmail(email: string | null | undefined, grade: ExcellentGrade): boolean {
+    if (!email) return false
+    const normalized = email.trim().toLowerCase()
+    return (
+        normalized.startsWith(`excellent.${grade.toLowerCase()}.`) &&
+        normalized.endsWith("@beta.bbn.local")
+    )
 }
 
 export interface GetEntitlementsOptions {
@@ -58,7 +78,7 @@ export interface GetEntitlementsOptions {
 
 /**
  * Server-side entitlement resolver.
- * Reads `users.role` (admin bypass), Excellent Beta metadata, and the `subscriptions` table,
+ * Reads `users.role` (admin bypass), verified Excellent Beta identity, and the `subscriptions` table,
  * and lazily flips lapsed ACTIVE subscriptions to EXPIRED on read.
  */
 export async function getEntitlements(
@@ -69,7 +89,7 @@ export async function getEntitlements(
     const supabase = client ?? createServiceClient()
 
     const [{ data: user }, { data: subscriptions }, { data: courses }] = await Promise.all([
-        supabase.from("users").select("id, role").eq("id", userId).maybeSingle(),
+        supabase.from("users").select("id, role, email").eq("id", userId).maybeSingle(),
         supabase
             .from("subscriptions")
             .select("id, plan_code, track, status, starts_at, expires_at, created_at")
@@ -81,7 +101,17 @@ export async function getEntitlements(
         (courses || []).map((c) => [c.id, c.track as CourseTrack])
     )
 
-    const excellentGrade = getExcellentBetaGrade(options?.authUser)
+    const excellentCourseIds = new Set<string>(
+        (courses || [])
+            .filter((c) => Boolean(getExcellentCourseByCodeOrSlug(c.code) || getExcellentCourseByCodeOrSlug(c.slug)))
+            .map((c) => c.id)
+    )
+
+    const rawExcellentGrade = getExcellentBetaGrade(options?.authUser)
+    const excellentGrade =
+        rawExcellentGrade && matchesExcellentSyntheticEmail(user?.email, rawExcellentGrade)
+            ? rawExcellentGrade
+            : null
     const excellentConfig = excellentGrade ? getExcellentCourseByGrade(excellentGrade) : undefined
     const excellentCourseRow = excellentConfig
         ? (courses || []).find(
@@ -95,6 +125,7 @@ export async function getEntitlements(
         role: user?.role,
         subscriptions: (subscriptions || []) as SubscriptionLike[],
         courseTracks,
+        excellentCourseIds,
         isExcellentBeta: Boolean(excellentGrade),
         excellentGrade,
         excellentCourseId: excellentGrade ? excellentCourseRow?.id ?? null : undefined,
