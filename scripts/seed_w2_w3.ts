@@ -1,6 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import * as dotenv from 'dotenv';
-import { v4 as uuidv4 } from 'uuid';
+import { randomUUID } from "node:crypto"
 import { week2Questions } from '../src/lib/data/week2';
 import { week3Questions } from '../src/lib/data/week3';
 
@@ -41,7 +41,7 @@ async function seedWeek(weekName: string, category: string, questions: any[]) {
             continue;
         }
 
-        const id = uuidv4();
+        const id = randomUUID();
         const now = new Date().toISOString();
 
         const payload = {
@@ -86,7 +86,7 @@ async function seedWeek(weekName: string, category: string, questions: any[]) {
         tryoutId = tryouts[0].id;
         console.log(`Tryout exists: ${tryoutId}`);
     } else {
-        tryoutId = uuidv4();
+        tryoutId = randomUUID();
         const now = new Date().toISOString();
         const { error: trInsertErr } = await supabase
             .from('tryouts')
@@ -130,7 +130,7 @@ async function seedWeek(weekName: string, category: string, questions: any[]) {
                 
             if (!linkedCheck || linkedCheck.length === 0) {
                 await supabase.from('tryout_questions').insert({
-                    id: uuidv4(),
+                    id: randomUUID(),
                     tryout_id: tryoutId,
                     question_id: qid,
                     order: i

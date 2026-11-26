@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server"
 import { requireAdmin } from "@/lib/admin-auth"
 import { createServiceClient } from "@/lib/supabase/server"
 import { findCourseIdByIdentifier } from "@/lib/postgrest-safe"
-import { v4 as uuidv4 } from "uuid"
 import { questionSchema } from "@/lib/validations/admin"
 import type { Database } from "@/types/database.types"
 
@@ -127,7 +126,7 @@ export async function POST(request: NextRequest) {
         }
 
         // Generate UUID manually since Prisma's @default(uuid()) doesn't apply when using Supabase client directly
-        const questionId = uuidv4()
+        const questionId = crypto.randomUUID()
         const now = new Date().toISOString()
 
         // Insert question into the database

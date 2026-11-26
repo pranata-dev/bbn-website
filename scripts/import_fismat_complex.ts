@@ -2,7 +2,7 @@ import * as fs from "fs"
 import * as path from "path"
 import * as dotenv from "dotenv"
 import { Client } from "pg"
-import { v4 as uuidv4 } from "uuid"
+import { randomUUID } from "node:crypto"
 
 dotenv.config({ path: path.resolve(__dirname, "../.env.local") })
 
@@ -147,7 +147,7 @@ async function run() {
                 continue
             }
 
-            const qId = uuidv4()
+            const qId = randomUUID()
             const now = new Date().toISOString()
 
             try {
@@ -181,7 +181,7 @@ async function run() {
         const start = (part - 1) * QUESTIONS_PER_PART
         const chunk = shuffled.slice(start, start + QUESTIONS_PER_PART)
 
-        const tryoutId = uuidv4()
+        const tryoutId = randomUUID()
         const now = new Date().toISOString()
 
         try {
@@ -200,7 +200,7 @@ async function run() {
                 await client.query(
                     `INSERT INTO tryout_questions (id, tryout_id, question_id, "order")
                      VALUES ($1, $2, $3, $4)`,
-                    [uuidv4(), tryoutId, chunk[idx], idx + 1]
+                    [randomUUID(), tryoutId, chunk[idx], idx + 1]
                 )
             }
 

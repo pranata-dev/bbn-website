@@ -1,6 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import * as dotenv from 'dotenv';
-import { v4 as uuidv4 } from 'uuid';
+import { randomUUID } from "node:crypto"
 import { week1Questions } from './data/week1';
 import { week6Questions } from './data/week6';
 import { week7Questions } from './data/week7';
@@ -91,7 +91,7 @@ async function seedWeek(weekName: string, rawQuestions: any[], existingMap: Map<
           }
       } else {
           // Insert new record, manually providing ID since DB default is missing/not working
-          const newId = uuidv4();
+          const newId = randomUUID();
           const { error } = await supabase.from('questions').insert({
               ...q,
               id: newId

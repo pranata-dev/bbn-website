@@ -3,7 +3,6 @@ import { requireAdmin } from "@/lib/admin-auth"
 import { createServiceClient } from "@/lib/supabase/server"
 import { findCourseIdByIdentifier } from "@/lib/postgrest-safe"
 import { adminCreateTryoutSchema } from "@/lib/validations/api"
-import { v4 as uuidv4 } from "uuid"
 
 export const dynamic = "force-dynamic"
 
@@ -76,7 +75,7 @@ export async function POST(request: NextRequest) {
             targetCourseId = await findCourseIdByIdentifier(supabase, subject)
         }
 
-        const tryoutId = uuidv4()
+        const tryoutId = crypto.randomUUID()
         const now = new Date().toISOString()
 
         // 1. Create Tryout
@@ -104,7 +103,7 @@ export async function POST(request: NextRequest) {
 
         // 2. Map questions to tryout
         const tryoutQuestions = questionIds.map((qId: string, index: number) => ({
-            id: uuidv4(),
+            id: crypto.randomUUID(),
             tryout_id: tryoutId,
             question_id: qId,
             order: index, // Preserve submission order

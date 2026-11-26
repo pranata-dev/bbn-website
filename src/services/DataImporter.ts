@@ -1,5 +1,5 @@
+import { randomUUID } from "node:crypto"
 import { createClient } from "@supabase/supabase-js"
-import { v4 as uuidv4 } from "uuid"
 import { QuestionCategory, Subject } from "@/types"
 import { questionSchema } from "@/lib/validations/admin"
 import { normalizeIdentifier } from "@/lib/postgrest-safe"
@@ -172,7 +172,7 @@ export class DataImporter {
                 continue
             }
 
-            const id = uuidv4()
+            const id = randomUUID()
             const now = new Date().toISOString()
 
             const payload = {
@@ -223,7 +223,7 @@ export class DataImporter {
                 tryoutId = tryouts[0].id
                 console.log(`Tryout exists: ${tryoutId}`)
             } else {
-                tryoutId = uuidv4()
+                tryoutId = randomUUID()
                 const now = new Date().toISOString()
                 const { error: trInsertErr } = await supabase
                     .from("tryouts")
@@ -261,7 +261,7 @@ export class DataImporter {
 
                     if (!linkedCheck || linkedCheck.length === 0) {
                         await supabase.from("tryout_questions").insert({
-                            id: uuidv4(),
+                            id: randomUUID(),
                             tryout_id: tryoutId,
                             question_id: qid,
                             order: i

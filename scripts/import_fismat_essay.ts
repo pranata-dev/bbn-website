@@ -2,7 +2,7 @@ import * as fs from "fs"
 import * as path from "path"
 import * as dotenv from "dotenv"
 import { createClient } from "@supabase/supabase-js"
-import { v4 as uuidv4 } from "uuid"
+import { randomUUID } from "node:crypto"
 
 dotenv.config({ path: path.resolve(__dirname, "../.env.local") })
 
@@ -134,7 +134,7 @@ async function run() {
             }
 
             const payload = {
-                id: uuidv4(),
+                id: randomUUID(),
                 text: questionText,
                 category: CATEGORY,
                 subject: SUBJECT,

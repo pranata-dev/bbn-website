@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createClient, createServiceClient } from "@/lib/supabase/server"
-import { v4 as uuidv4 } from "uuid"
 import {
     canBetaAccessCourse,
     getEntitlements,
@@ -147,7 +146,7 @@ export async function POST(
         )
         const shuffled = [...questionIds].sort(() => Math.random() - 0.5)
 
-        const submissionId = uuidv4()
+        const submissionId = crypto.randomUUID()
         const now = new Date()
         const startedAt = now.toISOString()
         const durationMs = (tryout.duration || 0) * 60 * 1000

@@ -2,7 +2,7 @@ import * as fs from "fs"
 import * as path from "path"
 import * as dotenv from "dotenv"
 import { createClient } from "@supabase/supabase-js"
-import { v4 as uuidv4 } from "uuid"
+import { randomUUID } from "node:crypto"
 
 dotenv.config({ path: path.resolve(__dirname, "../.env.local") })
 
@@ -82,7 +82,7 @@ async function run() {
 
                 if (questionText.length > 5) {
                     newQuestions.push({
-                        id: uuidv4(),
+                        id: randomUUID(),
                         text: questionText,
                         category: CATEGORY,
                         subject: SUBJECT,
@@ -180,7 +180,7 @@ async function run() {
         const startIdx = i * QUESTIONS_PER_PART
         const partQuestions = shuffled.slice(startIdx, startIdx + QUESTIONS_PER_PART)
 
-        const tryoutId = uuidv4()
+        const tryoutId = randomUUID()
         const now = new Date().toISOString()
         const title = `Latihan Soal Deret Tak Hingga dan Deret Pangkat Part ${partNum}`
 
@@ -206,7 +206,7 @@ async function run() {
 
         // Link questions
         const tqPayload = partQuestions.map((q, j) => ({
-            id: uuidv4(),
+            id: randomUUID(),
             tryout_id: tryoutId,
             question_id: q.id,
             order: j

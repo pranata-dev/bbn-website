@@ -1,7 +1,7 @@
 import * as dotenv from "dotenv"
 import * as path from "path"
 import { createClient } from "@supabase/supabase-js"
-import { v4 as uuidv4 } from "uuid"
+import { randomUUID } from "node:crypto"
 
 dotenv.config({ path: path.resolve(__dirname, "../.env.local") })
 
@@ -71,7 +71,7 @@ async function run() {
         const startIdx = i * QUESTIONS_PER_PART
         const partQuestions = shuffled.slice(startIdx, startIdx + QUESTIONS_PER_PART)
 
-        const tryoutId = uuidv4()
+        const tryoutId = randomUUID()
         const now = new Date().toISOString()
 
         const title = `Latihan Soal Deret Tak Hingga dan Deret Pangkat Part ${partNum}`
@@ -99,7 +99,7 @@ async function run() {
         // Link questions
         for (let j = 0; j < partQuestions.length; j++) {
             await supabase.from("tryout_questions").insert({
-                id: uuidv4(),
+                id: randomUUID(),
                 tryout_id: tryoutId,
                 question_id: partQuestions[j].id,
                 order: j
