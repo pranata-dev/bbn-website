@@ -5,6 +5,7 @@ import Link from "next/link"
 import { PageHeader } from "@/components/dashboard/PageHeader"
 import { EmptyState } from "@/components/dashboard/EmptyState"
 import { Button } from "@/components/ui/button"
+import { parseUtcTimestamp } from "@/lib/timestamp"
 
 interface HistoryItem {
   id: string
@@ -47,19 +48,15 @@ export default function HistoryPage() {
   }, [])
 
   const formatDate = (dateStr: string) => {
-    try {
-      const utcStr = dateStr.endsWith("Z") ? dateStr : dateStr + "Z"
-      const d = new Date(utcStr)
-      return d.toLocaleDateString("id-ID", {
-        day: "2-digit",
-        month: "short",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-      }).toUpperCase()
-    } catch {
-      return dateStr
-    }
+    const timestamp = parseUtcTimestamp(dateStr)
+    if (timestamp === null) return dateStr
+    return new Date(timestamp).toLocaleDateString("id-ID", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    }).toUpperCase()
   }
 
   const completedSubmissions = submissions.filter(

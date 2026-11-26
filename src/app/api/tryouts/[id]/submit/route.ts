@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
-import { submitTryout, SubmitTryoutResponse } from "@/services/tryoutService"
+import { submitTryout, SubmitTryoutResponse, TryoutSubmitError } from "@/services/tryoutService"
 import { submitTryoutSchema } from "@/lib/validators"
 
 // POST /api/tryouts/[id]/submit - Submit tryout answers
@@ -48,16 +48,20 @@ export async function POST(
         
     } catch (error: unknown) {
         console.error("Submit tryout error:", error)
-        
+
+        if (error instanceof TryoutSubmitError) {
+            return NextResponse.json({ error: error.message }, { status: error.status })
+        }
+
         const errorMessage = error instanceof Error ? error.message : "Internal error"
         let status = 500
-        
+
         if (errorMessage === "Profile not found" || errorMessage === "Submission tidak ditemukan.") {
             status = 404
         } else if (errorMessage === "Tryout sudah di-submit." || errorMessage.includes("Gagal menyimpan jawaban")) {
             status = 400
         }
-        
+
         return NextResponse.json({ error: errorMessage }, { status })
     }
 }

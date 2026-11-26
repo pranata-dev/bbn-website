@@ -1,11 +1,10 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createClient, createServiceClient } from "@/lib/supabase/server"
-import { v4 as uuidv4 } from "uuid"
-
-interface TryoutMeta {
-    duration?: number | null
-    is_practice?: boolean | null
-}
+import {
+    createSupabaseTryoutStore,
+    finalizeTimedOutSubmission,
+    isSubmissionExpired,
+} from "@/services/tryoutService"
 
 // PATCH /api/submissions/[id]/answers - Auto-save single answer, flagged state, or tab_switch_count
 export async function PATCH(
@@ -14,67 +13,57 @@ export async function PATCH(
 ) {
     try {
         const { id: submissionId } = await params
-        const body = await request.json()
-        const { questionId, answer, flagged, incrementTabSwitch } = body as {
+        const body = (await request.json()) as {
             questionId?: string
             answer?: string | null
             flagged?: boolean
             incrementTabSwitch?: boolean
         }
+        const { questionId, answer, flagged, incrementTabSwitch } = body
 
         if (!questionId && !incrementTabSwitch) {
             return NextResponse.json({ error: "questionId or incrementTabSwitch required" }, { status: 400 })
         }
 
         const authClient = await createClient()
-        const { data: { user } } = await authClient.auth.getUser()
+        const {
+            data: { user },
+        } = await authClient.auth.getUser()
 
         if (!user) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
         }
 
         const supabase = createServiceClient()
+        const store = createSupabaseTryoutStore(supabase)
 
-        // Verify user owns submission
-        const { data: userRecord } = await supabase
-            .from("users")
-            .select("id")
-            .eq("auth_id", user.id)
-            .single()
+        const profileId = await store.findProfileId(user.id)
+        if (!profileId) {
+            return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+        }
 
-        if (!userRecord) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-
-        // Check if submission belongs to this user and is IN_PROGRESS
-        const { data: submission } = await supabase
-            .from("submissions")
-            .select("id, status, started_at, tab_switch_count, tryouts(duration, is_practice)")
-            .eq("id", submissionId)
-            .eq("user_id", userRecord.id)
-            .single()
-
-        if (!submission || submission.status !== "IN_PROGRESS") {
+        const submission = await store.findSubmission(submissionId, profileId)
+        if (!submission) {
             return NextResponse.json({ error: "Sesi tidak valid atau sudah selesai" }, { status: 400 })
         }
 
-        const tryoutRaw = submission.tryouts as unknown as TryoutMeta | TryoutMeta[] | null
-        const tryoutMeta = Array.isArray(tryoutRaw) ? tryoutRaw[0] : tryoutRaw
-        const isPractice = Boolean(tryoutMeta?.is_practice)
-        const durationMinutes = tryoutMeta?.duration || 0
-        const startStr = submission.started_at
-        const utcStartStr = startStr.endsWith("Z") ? startStr : startStr + "Z"
-        const startedAtMs = new Date(utcStartStr).getTime()
-        const gracePeriodMs = 30000
+        if (submission.status === "TIMED_OUT" && submission.score === null) {
+            await finalizeTimedOutSubmission(store, submission)
+            return NextResponse.json(
+                { error: "Waktu pengerjaan tryout telah habis.", status: "TIMED_OUT" },
+                { status: 403 }
+            )
+        }
 
-        // Only enforce timer timeout for non-practice tryout exams
-        if (
-            !isPractice &&
-            durationMinutes > 0 &&
-            Date.now() > startedAtMs + durationMinutes * 60 * 1000 + gracePeriodMs
-        ) {
-            await supabase
-                .from("submissions")
-                .update({ status: "TIMED_OUT" })
-                .eq("id", submissionId)
+        if (submission.status !== "IN_PROGRESS") {
+            return NextResponse.json(
+                { error: "Sesi tidak valid atau sudah selesai", status: submission.status },
+                { status: 409 }
+            )
+        }
+
+        if (isSubmissionExpired(submission, Date.now())) {
+            await finalizeTimedOutSubmission(store, submission)
             return NextResponse.json(
                 { error: "Waktu pengerjaan tryout telah habis.", status: "TIMED_OUT" },
                 { status: 403 }
@@ -82,49 +71,50 @@ export async function PATCH(
         }
 
         if (incrementTabSwitch) {
-            await supabase
-                .from("submissions")
-                .update({ tab_switch_count: (submission.tab_switch_count || 0) + 1 })
-                .eq("id", submissionId)
+            const { data: nextCount, error: tabError } = await supabase.rpc(
+                "increment_submission_tab_switch",
+                { p_submission_id: submissionId }
+            )
+
+            if (tabError) {
+                console.error("Failed to increment tab_switch_count:", tabError)
+                return NextResponse.json({ error: "Gagal mencatat perpindahan tab" }, { status: 500 })
+            }
+
+            if (nextCount === null) {
+                return NextResponse.json(
+                    { error: "Sesi tidak valid atau sudah selesai" },
+                    { status: 409 }
+                )
+            }
         }
 
         if (questionId) {
-            const { data: existing } = await supabase
-                .from("answers")
-                .select("id, answer, flagged")
-                .eq("submission_id", submissionId)
-                .eq("question_id", questionId)
-                .maybeSingle()
+            const hasAnswer = answer !== undefined
+            const hasFlagged = flagged !== undefined
 
-            if (existing) {
-                const updatePayload: { answer?: string | null; flagged?: boolean } = {}
-                if (answer !== undefined) updatePayload.answer = answer
-                if (flagged !== undefined) updatePayload.flagged = flagged
-
-                const { error: updateError } = await supabase
-                    .from("answers")
-                    .update(updatePayload)
-                    .eq("id", existing.id)
-
-                if (updateError) {
-                    console.error("Failed to update answer:", updateError)
-                    return NextResponse.json({ error: "Gagal mengupdate jawaban" }, { status: 500 })
+            const { data: saved, error: upsertError } = await supabase.rpc(
+                "upsert_submission_answer",
+                {
+                    p_submission_id: submissionId,
+                    p_question_id: questionId,
+                    p_answer: hasAnswer ? answer : null,
+                    p_has_answer: hasAnswer,
+                    p_flagged: hasFlagged ? Boolean(flagged) : false,
+                    p_has_flagged: hasFlagged,
                 }
-            } else {
-                const { error: insertError } = await supabase
-                    .from("answers")
-                    .insert({
-                        id: uuidv4(),
-                        submission_id: submissionId,
-                        question_id: questionId,
-                        answer: answer ?? null,
-                        flagged: flagged ?? false,
-                    })
+            )
 
-                if (insertError) {
-                    console.error("Failed to insert answer:", insertError)
-                    return NextResponse.json({ error: "Gagal menyimpan jawaban" }, { status: 500 })
-                }
+            if (upsertError) {
+                console.error("Failed to upsert answer:", upsertError)
+                return NextResponse.json({ error: "Gagal menyimpan jawaban" }, { status: 500 })
+            }
+
+            if (!saved) {
+                return NextResponse.json(
+                    { error: "Sesi tidak valid atau sudah selesai" },
+                    { status: 409 }
+                )
             }
         }
 
