@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import { Geist, JetBrains_Mono } from "next/font/google"
 import { Toaster } from "@/components/ui/sonner"
+import { Analytics } from '@vercel/analytics/next'
 import "./globals.css"
 
 const geist = Geist({
@@ -47,6 +48,7 @@ export default function RootLayout({
       <body className={`${geist.variable} ${jetbrainsMono.variable} font-sans antialiased bg-background text-foreground selection:bg-accent selection:text-accent-foreground`}>
         {children}
         <Toaster position="top-right" richColors />
+        <Analytics />
       </body>
     </html>
   )
