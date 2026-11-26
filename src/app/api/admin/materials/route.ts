@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server"
 import { requireAdmin } from "@/lib/admin-auth"
-import { createAdminClient } from "@/lib/supabase/server"
+import { createServiceClient } from "@/lib/supabase/server"
 import { findCourseIdByIdentifier } from "@/lib/postgrest-safe"
+import { adminCreateMaterialSchema } from "@/lib/validations/api"
 
 export const dynamic = "force-dynamic"
 
@@ -10,7 +11,7 @@ export async function GET(request: NextRequest) {
     if (!guard.ok) return guard.response
 
     try {
-        const supabase = await createAdminClient()
+        const supabase = createServiceClient()
         let query = supabase
             .from("materials")
             .select("*, courses(id, title, code, slug)")
@@ -52,8 +53,16 @@ export async function POST(request: NextRequest) {
     if (!guard.ok) return guard.response
 
     try {
-        const supabase = await createAdminClient()
-        const body = await request.json()
+        const supabase = createServiceClient()
+        const body = await request.json().catch(() => null)
+        const parsed = adminCreateMaterialSchema.safeParse(body)
+        if (!parsed.success) {
+            return NextResponse.json(
+                { error: parsed.error.issues[0]?.message || "Invalid material payload." },
+                { status: 400 }
+            )
+        }
+
         const {
             title,
             slug,
@@ -69,11 +78,7 @@ export async function POST(request: NextRequest) {
             readingTimeMinutes,
             subject,
             course_id,
-        } = body
-
-        if (!title) {
-            return NextResponse.json({ error: "Title is required." }, { status: 400 })
-        }
+        } = parsed.data
 
         let targetCourseId = course_id || null
         if (!targetCourseId && subject) {

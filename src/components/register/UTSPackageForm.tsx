@@ -451,7 +451,7 @@ export function UTSPackageForm({
                   <input
                     type="text"
                     required
-                    placeholder="Contoh: Najwa Aaliyah Priyatna"
+                    placeholder="Contoh: Budi Santoso"
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
                     className="w-full bg-canvas-paper border-2 border-[#171717] rounded-none px-3.5 py-2.5 text-xs font-mono text-[#171717] placeholder:text-ink-muted/50 focus:outline-none focus:ring-0 focus:border-alert-rust focus:bg-surface-white transition-colors"

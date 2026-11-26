@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { requireAdmin } from "@/lib/admin-auth"
-import { createAdminClient } from "@/lib/supabase/server"
+import { createServiceClient } from "@/lib/supabase/server"
+import { adminBulkIdsSchema, adminBulkUpdateTryoutsSchema } from "@/lib/validations/api"
 
 export const dynamic = "force-dynamic"
 
@@ -10,21 +11,21 @@ export async function PATCH(request: NextRequest) {
     if (!guard.ok) return guard.response
 
     try {
-        const supabase = await createAdminClient()
-        const body = await request.json()
-        
-        const { ids, status } = body
-        if (!ids || !Array.isArray(ids) || ids.length === 0) {
-            return NextResponse.json({ error: "No tryout IDs provided." }, { status: 400 })
-        }
-        if (!status) {
-            return NextResponse.json({ error: "Status is required." }, { status: 400 })
+        const supabase = createServiceClient()
+        const body = await request.json().catch(() => null)
+        const parsed = adminBulkUpdateTryoutsSchema.safeParse(body)
+
+        if (!parsed.success) {
+            return NextResponse.json(
+                { error: parsed.error.issues[0]?.message || "Invalid bulk update payload." },
+                { status: 400 }
+            )
         }
 
         const { error } = await supabase
             .from("tryouts")
-            .update({ status })
-            .in("id", ids)
+            .update({ status: parsed.data.status })
+            .in("id", parsed.data.ids)
 
         if (error) {
             console.error("Bulk patch error:", error)
@@ -50,18 +51,21 @@ export async function DELETE(request: NextRequest) {
     if (!guard.ok) return guard.response
 
     try {
-        const supabase = await createAdminClient()
-        const body = await request.json()
-        
-        const { ids } = body
-        if (!ids || !Array.isArray(ids) || ids.length === 0) {
-            return NextResponse.json({ error: "No tryout IDs provided." }, { status: 400 })
+        const supabase = createServiceClient()
+        const body = await request.json().catch(() => null)
+        const parsed = adminBulkIdsSchema.safeParse(body)
+
+        if (!parsed.success) {
+            return NextResponse.json(
+                { error: parsed.error.issues[0]?.message || "No tryout IDs provided." },
+                { status: 400 }
+            )
         }
 
         const { error } = await supabase
             .from("tryouts")
             .delete()
-            .in("id", ids)
+            .in("id", parsed.data.ids)
 
         if (error) {
             console.error("Bulk delete error:", error)

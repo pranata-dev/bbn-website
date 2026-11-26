@@ -5,6 +5,7 @@ import {
     finalizeTimedOutSubmission,
     isSubmissionExpired,
 } from "@/services/tryoutService"
+import { patchSubmissionAnswerSchema } from "@/lib/validations/api"
 
 // PATCH /api/submissions/[id]/answers - Auto-save single answer, flagged state, or tab_switch_count
 export async function PATCH(
@@ -13,17 +14,15 @@ export async function PATCH(
 ) {
     try {
         const { id: submissionId } = await params
-        const body = (await request.json()) as {
-            questionId?: string
-            answer?: string | null
-            flagged?: boolean
-            incrementTabSwitch?: boolean
+        const body = await request.json().catch(() => null)
+        const parsed = patchSubmissionAnswerSchema.safeParse(body)
+        if (!parsed.success) {
+            return NextResponse.json(
+                { error: parsed.error.issues[0]?.message || "questionId or incrementTabSwitch required" },
+                { status: 400 }
+            )
         }
-        const { questionId, answer, flagged, incrementTabSwitch } = body
-
-        if (!questionId && !incrementTabSwitch) {
-            return NextResponse.json({ error: "questionId or incrementTabSwitch required" }, { status: 400 })
-        }
+        const { questionId, answer, flagged, incrementTabSwitch } = parsed.data
 
         const authClient = await createClient()
         const {

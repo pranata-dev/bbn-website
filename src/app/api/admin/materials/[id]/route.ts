@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server"
 import { requireAdmin } from "@/lib/admin-auth"
-import { createAdminClient } from "@/lib/supabase/server"
+import { createServiceClient } from "@/lib/supabase/server"
 import { findCourseIdByIdentifier } from "@/lib/postgrest-safe"
+import { adminUpdateMaterialSchema } from "@/lib/validations/api"
 
 export const dynamic = "force-dynamic"
 
@@ -14,8 +15,16 @@ export async function PATCH(
 
     try {
         const { id } = await context.params
-        const supabase = await createAdminClient()
-        const body = await request.json()
+        const supabase = createServiceClient()
+        const body = await request.json().catch(() => null)
+        const parsed = adminUpdateMaterialSchema.safeParse(body)
+        if (!parsed.success) {
+            return NextResponse.json(
+                { error: parsed.error.issues[0]?.message || "Invalid material payload." },
+                { status: 400 }
+            )
+        }
+
         const {
             title,
             slug,
@@ -31,11 +40,7 @@ export async function PATCH(
             readingTimeMinutes,
             subject,
             course_id,
-        } = body
-
-        if (!title) {
-            return NextResponse.json({ error: "Title is required." }, { status: 400 })
-        }
+        } = parsed.data
 
         let targetCourseId = course_id || null
         if (!targetCourseId && subject) {
@@ -59,13 +64,13 @@ export async function PATCH(
                 course_id: targetCourseId !== null ? targetCourseId : undefined,
                 summary: summary !== undefined ? summary : undefined,
                 content_md: contentMd !== undefined ? contentMd : undefined,
-                drive_url: resolvedDriveUrl,
+                drive_url: resolvedDriveUrl ?? undefined,
                 podcast_url: podcastUrl !== undefined ? podcastUrl : undefined,
-                module_number: moduleNumber !== undefined ? Number(moduleNumber) : undefined,
-                sort_order: sortOrder !== undefined ? Number(sortOrder) : undefined,
+                module_number: moduleNumber !== undefined ? moduleNumber : undefined,
+                sort_order: sortOrder !== undefined && sortOrder !== null ? sortOrder : undefined,
                 is_free_preview: isFreePreview !== undefined ? Boolean(isFreePreview) : undefined,
                 is_published: isPublished !== undefined ? Boolean(isPublished) : undefined,
-                reading_time_minutes: readingTimeMinutes !== undefined ? Number(readingTimeMinutes) : undefined,
+                reading_time_minutes: readingTimeMinutes !== undefined ? readingTimeMinutes : undefined,
                 updated_at: now,
             })
             .eq("id", id)
@@ -93,7 +98,7 @@ export async function DELETE(
 
     try {
         const { id } = await context.params
-        const supabase = await createAdminClient()
+        const supabase = createServiceClient()
 
         const { error } = await supabase
             .from("materials")

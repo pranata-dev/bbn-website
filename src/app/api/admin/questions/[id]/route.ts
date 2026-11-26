@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server"
 import { requireAdmin } from "@/lib/admin-auth"
 import { createServiceClient } from "@/lib/supabase/server"
 import { findCourseIdByIdentifier } from "@/lib/postgrest-safe"
+import { validateImageUpload } from "@/lib/file-validation"
+import { adminQuestionPatchSchema } from "@/lib/validations/api"
 import type { Database } from "@/types/database.types"
 
 type DbQuestionCategory = Database["public"]["Enums"]["QuestionCategory"]
@@ -24,28 +26,46 @@ export async function PATCH(
 
         const formData = await request.formData()
 
-        // Extract text fields from FormData
-        const text = formData.get("text") as string
-        const category = formData.get("category") as string
-        const subject = formData.get("subject") as string
-        const optionA = (formData.get("optionA") ?? formData.get("option_a")) as string
-        const optionB = (formData.get("optionB") ?? formData.get("option_b")) as string
-        const optionC = (formData.get("optionC") ?? formData.get("option_c")) as string
-        const optionD = (formData.get("optionD") ?? formData.get("option_d")) as string
-        const optionE = (formData.get("optionE") ?? formData.get("option_e") ?? null) as string | null
-        const correctAnswer = (formData.get("correctAnswer") ?? formData.get("correct_answer")) as string
-        const explanation = (formData.get("explanation") as string) || null
-        const weight = parseFloat(formData.get("weight") as string) || 1
-        const imageFile = formData.get("image") as File | null
-        const removeImage = formData.get("removeImage") === "true"
+        const parsed = adminQuestionPatchSchema.safeParse({
+            text: formData.get("text"),
+            category: formData.get("category"),
+            subject: formData.get("subject") ?? null,
+            course_id: formData.get("course_id") ?? null,
+            optionA: formData.get("optionA") ?? formData.get("option_a"),
+            optionB: formData.get("optionB") ?? formData.get("option_b"),
+            optionC: formData.get("optionC") ?? formData.get("option_c"),
+            optionD: formData.get("optionD") ?? formData.get("option_d"),
+            optionE: formData.get("optionE") ?? formData.get("option_e") ?? null,
+            correctAnswer: formData.get("correctAnswer") ?? formData.get("correct_answer"),
+            explanation: formData.get("explanation") || null,
+            weight: formData.get("weight") || 1,
+            removeImage: formData.get("removeImage") === "true",
+        })
 
-        // Validate required fields
-        if (!text || !category || !optionA || !optionB || !optionC || !optionD || !correctAnswer) {
+        if (!parsed.success) {
             return NextResponse.json(
-                { error: "Missing required fields" },
+                { error: parsed.error.issues[0]?.message || "Missing or invalid required fields" },
                 { status: 400 }
             )
         }
+
+        const {
+            text,
+            category,
+            subject,
+            course_id: rawCourseId,
+            optionA,
+            optionB,
+            optionC,
+            optionD,
+            optionE,
+            correctAnswer,
+            explanation,
+            weight,
+            removeImage,
+        } = parsed.data
+        const imageEntry = formData.get("image")
+        const imageFile = imageEntry instanceof Blob && imageEntry.size > 0 ? imageEntry : null
 
         // Get existing question to potentially delete old image or preserve its URL
         const { data: existingQuestion, error: fetchError } = await supabase
@@ -63,15 +83,21 @@ export async function PATCH(
         // Handle image update or removal
         if (removeImage) {
             imageUrl = null
-            // Optionally delete old image from storage
-        } else if (imageFile && imageFile.size > 0) {
-            const timestamp = Date.now()
-            const filePath = `questions/${timestamp}_${imageFile.name}`
+        } else if (imageFile) {
+            const verifiedImage = await validateImageUpload(imageFile)
+            if (!verifiedImage.ok) {
+                return NextResponse.json(
+                    { error: verifiedImage.error },
+                    { status: verifiedImage.status }
+                )
+            }
+
+            const filePath = `questions/${Date.now()}-${crypto.randomUUID()}.${verifiedImage.ext}`
 
             const { error: uploadError } = await supabase.storage
                 .from("question-images")
-                .upload(filePath, imageFile, {
-                    contentType: imageFile.type || "image/webp",
+                .upload(filePath, verifiedImage.bytes, {
+                    contentType: verifiedImage.mime,
                     upsert: false,
                 })
 
@@ -92,7 +118,7 @@ export async function PATCH(
 
         const now = new Date().toISOString()
 
-        let courseId = (formData.get("course_id") as string) || null
+        let courseId = rawCourseId || null
         if (!courseId && subject) {
             courseId = await findCourseIdByIdentifier(supabase, subject, { allowId: true })
         }

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { requireAdmin } from "@/lib/admin-auth"
-import { createAdminClient } from "@/lib/supabase/server"
+import { createServiceClient } from "@/lib/supabase/server"
 
 export const dynamic = "force-dynamic"
 
@@ -14,7 +14,7 @@ export async function DELETE(
 
     try {
         const { id } = await params
-        const supabase = await createAdminClient()
+        const supabase = createServiceClient()
 
         // Supabase REST API doesn't easily let us delete auth users without admin privileges,
         // but Since we use service_role key derived adminClient, we can delete from the 'users' table 

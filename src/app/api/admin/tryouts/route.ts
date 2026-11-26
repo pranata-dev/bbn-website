@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { requireAdmin } from "@/lib/admin-auth"
 import { createServiceClient } from "@/lib/supabase/server"
 import { findCourseIdByIdentifier } from "@/lib/postgrest-safe"
+import { adminCreateTryoutSchema } from "@/lib/validations/api"
 import { v4 as uuidv4 } from "uuid"
 
 export const dynamic = "force-dynamic"
@@ -59,12 +60,16 @@ export async function POST(request: NextRequest) {
 
     try {
         const supabase = createServiceClient()
-        const body = await request.json()
-        const { title, description, category, duration, isPractice, questionIds, subject, course_id } = body
-
-        if (!title || typeof duration === 'undefined' || !Array.isArray(questionIds) || questionIds.length === 0) {
-            return NextResponse.json({ error: "Missing required fields or no questions attached" }, { status: 400 })
+        const body = await request.json().catch(() => null)
+        const parsed = adminCreateTryoutSchema.safeParse(body)
+        if (!parsed.success) {
+            return NextResponse.json(
+                { error: parsed.error.issues[0]?.message || "Missing required fields or no questions attached" },
+                { status: 400 }
+            )
         }
+
+        const { title, description, category, duration, isPractice, questionIds, subject, course_id } = parsed.data
 
         let targetCourseId = course_id || null
         if (!targetCourseId && subject) {
@@ -83,8 +88,8 @@ export async function POST(request: NextRequest) {
                 description: description || null,
                 category: category || null,
                 course_id: targetCourseId,
-                duration: parseInt(duration as string, 10),
-                status: "DRAFT", // Default state
+                duration,
+                status: "DRAFT",
                 max_attempts: 1,
                 is_practice: isPractice === true,
                 created_at: now,

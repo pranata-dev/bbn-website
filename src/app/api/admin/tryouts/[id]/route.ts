@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server"
 import { requireAdmin } from "@/lib/admin-auth"
-import { createAdminClient, createServiceClient } from "@/lib/supabase/server"
+import { createServiceClient } from "@/lib/supabase/server"
 import { findCourseIdByIdentifier } from "@/lib/postgrest-safe"
+import { adminUpdateTryoutSchema } from "@/lib/validations/api"
 
 export const dynamic = "force-dynamic"
 
@@ -15,7 +16,7 @@ export async function GET(
 
     try {
         const { id } = await params
-        const supabase = await createAdminClient()
+        const supabase = createServiceClient()
 
         const { data: tryout, error } = await supabase
             .from("tryouts")
@@ -59,23 +60,25 @@ export async function PATCH(
     try {
         const { id } = await params
         const supabase = createServiceClient()
-        const body = await request.json()
-        const { status, title, description, duration, questionIds, subject, course_id } = body
+        const body = await request.json().catch(() => null)
+        const parsed = adminUpdateTryoutSchema.safeParse(body)
+        if (!parsed.success) {
+            return NextResponse.json(
+                { error: parsed.error.issues[0]?.message || "Invalid tryout update payload" },
+                { status: 400 }
+            )
+        }
+
+        const { status, title, description, duration, questionIds, subject, course_id } = parsed.data
 
         const updateData: Record<string, unknown> = {
             updated_at: new Date().toISOString(),
         }
 
-        if (status) {
-            if (!["DRAFT", "ACTIVE", "ARCHIVED"].includes(status)) {
-                return NextResponse.json({ error: "Invalid status" }, { status: 400 })
-            }
-            updateData.status = status
-        }
-
+        if (status) updateData.status = status
         if (title) updateData.title = title
         if (typeof description !== "undefined") updateData.description = description
-        if (typeof duration !== "undefined") updateData.duration = parseInt(duration as string, 10)
+        if (typeof duration !== "undefined") updateData.duration = duration
         if (course_id) {
             updateData.course_id = course_id
         } else if (subject) {
