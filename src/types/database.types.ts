@@ -125,14 +125,14 @@ isOneToOne: false
                   ]
                 },"registrations": {
                   Row: {
-                    "calculated_price": number | null,"created_at": string,"email": string,"id": string,"name": string,"nim": string,"payment_proof_url": string,"plan_code": string | null,"pricing_tier": string | null,"reviewed_at": string | null,"reviewed_by": string | null,"status": Database["public"]['Enums']["RegistrationStatus"],"subject": string,"track": string | null,"type": Database["public"]['Enums']["RegistrationType"],"updated_at": string,"user_id": string | null,"whatsapp": string
+                    "calculated_price": number | null,"created_at": string,"email": string,"group_size": number | null,"id": string,"name": string,"nim": string,"notes": string | null,"payment_proof_url": string,"scheduled_date": string | null,"scheduled_time": string | null,"session_count": number | null,"plan_code": string | null,"pricing_tier": string | null,"reviewed_at": string | null,"reviewed_by": string | null,"status": Database["public"]['Enums']["RegistrationStatus"],"subject": string,"track": string | null,"type": Database["public"]['Enums']["RegistrationType"],"updated_at": string,"user_id": string | null,"whatsapp": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "calculated_price"?: number | null,"created_at"?: string,"email": string,"id"?: string,"name": string,"nim": string,"payment_proof_url": string,"plan_code"?: string | null,"pricing_tier"?: string | null,"reviewed_at"?: string | null,"reviewed_by"?: string | null,"status"?: Database["public"]['Enums']["RegistrationStatus"],"subject": string,"track"?: string | null,"type": Database["public"]['Enums']["RegistrationType"],"updated_at"?: string,"user_id"?: string | null,"whatsapp": string
+                    "calculated_price"?: number | null,"created_at"?: string,"email": string,"group_size"?: number | null,"id"?: string,"name": string,"nim": string,"notes"?: string | null,"payment_proof_url": string,"scheduled_date"?: string | null,"scheduled_time"?: string | null,"session_count"?: number | null,"plan_code"?: string | null,"pricing_tier"?: string | null,"reviewed_at"?: string | null,"reviewed_by"?: string | null,"status"?: Database["public"]['Enums']["RegistrationStatus"],"subject": string,"track"?: string | null,"type": Database["public"]['Enums']["RegistrationType"],"updated_at"?: string,"user_id"?: string | null,"whatsapp": string
                   }
                   Update: {
-                    "calculated_price"?: number | null,"created_at"?: string,"email"?: string,"id"?: string,"name"?: string,"nim"?: string,"payment_proof_url"?: string,"plan_code"?: string | null,"pricing_tier"?: string | null,"reviewed_at"?: string | null,"reviewed_by"?: string | null,"status"?: Database["public"]['Enums']["RegistrationStatus"],"subject"?: string,"track"?: string | null,"type"?: Database["public"]['Enums']["RegistrationType"],"updated_at"?: string,"user_id"?: string | null,"whatsapp"?: string
+                    "calculated_price"?: number | null,"created_at"?: string,"email"?: string,"group_size"?: number | null,"id"?: string,"name"?: string,"nim"?: string,"notes"?: string | null,"payment_proof_url"?: string,"scheduled_date"?: string | null,"scheduled_time"?: string | null,"session_count"?: number | null,"plan_code"?: string | null,"pricing_tier"?: string | null,"reviewed_at"?: string | null,"reviewed_by"?: string | null,"status"?: Database["public"]['Enums']["RegistrationStatus"],"subject"?: string,"track"?: string | null,"type"?: Database["public"]['Enums']["RegistrationType"],"updated_at"?: string,"user_id"?: string | null,"whatsapp"?: string
                   }
                   Relationships: [
                     {
@@ -261,8 +261,12 @@ isOneToOne: false
             [_ in never]: never
           }
           Functions: {
-            "is_admin":
+            "increment_submission_tab_switch":
+{ Args: { "p_submission_id": string }; Returns: number
+                           },"is_admin":
 { Args: Record<PropertyKey, never>; Returns: boolean
+                           },"upsert_submission_answer":
+{ Args: { "p_answer"?: string | null,"p_flagged"?: boolean,"p_has_answer"?: boolean,"p_has_flagged"?: boolean,"p_question_id": string,"p_submission_id": string }; Returns: boolean
                            }
           }
           Enums: {
