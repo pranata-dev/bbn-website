@@ -1,45 +1,38 @@
 import { NextResponse } from "next/server"
 import { requireAdmin } from "@/lib/admin-auth"
-import { createAdminClient } from "@/lib/supabase/server"
+import { createServiceClient } from "@/lib/supabase/server"
+
+export const dynamic = "force-dynamic"
 
 export async function GET() {
     const guard = await requireAdmin()
     if (!guard.ok) return guard.response
 
     try {
-        const adminSupabase = await createAdminClient()
+        const adminSupabase = createServiceClient()
 
-        // 3. Aggregate Statistics
-        // Using multiple count queries (Supabase doesn't support easy multi-table counts in one RPC)
-
-        // Users count
-        const { count: userCount } = await adminSupabase
-            .from("users")
-            .select("*", { count: "exact", head: true })
-
-        // Pending verifications (Registrations OR Payments pending)
-        // We'll prioritize 'registrations' table which is the new system
-        const { count: pendingCount } = await adminSupabase
-            .from("registrations")
-            .select("*", { count: "exact", head: true })
-            .eq("status", "PENDING")
-
-        // Regular Tryouts count
-        const { count: tryoutCount } = await adminSupabase
-            .from("tryouts")
-            .select("*", { count: "exact", head: true })
-            .eq("is_practice", false)
-
-        // Practice Latihan count
-        const { count: practiceCount } = await adminSupabase
-            .from("tryouts")
-            .select("*", { count: "exact", head: true })
-            .eq("is_practice", true)
-
-        // Questions count
-        const { count: questionCount } = await adminSupabase
-            .from("questions")
-            .select("*", { count: "exact", head: true })
+        const [
+            { count: userCount },
+            { count: pendingCount },
+            { count: tryoutCount },
+            { count: practiceCount },
+            { count: questionCount },
+        ] = await Promise.all([
+            adminSupabase.from("users").select("*", { count: "exact", head: true }),
+            adminSupabase
+                .from("registrations")
+                .select("*", { count: "exact", head: true })
+                .eq("status", "PENDING"),
+            adminSupabase
+                .from("tryouts")
+                .select("*", { count: "exact", head: true })
+                .eq("is_practice", false),
+            adminSupabase
+                .from("tryouts")
+                .select("*", { count: "exact", head: true })
+                .eq("is_practice", true),
+            adminSupabase.from("questions").select("*", { count: "exact", head: true }),
+        ])
 
         return NextResponse.json({
             stats: {
@@ -48,9 +41,8 @@ export async function GET() {
                 totalTryouts: tryoutCount || 0,
                 totalPractices: practiceCount || 0,
                 totalQuestions: questionCount || 0,
-            }
+            },
         })
-
     } catch (error) {
         console.error("Stats API error:", error)
         return NextResponse.json({ error: "Internal error" }, { status: 500 })

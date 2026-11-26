@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createClient, createServiceClient } from "@/lib/supabase/server"
 import {
+    FINISHED_SUBMISSION_STATUSES,
     getEntitlements,
-    getExcellentBetaGrade,
     getExcellentCourseRow,
 } from "@/lib/entitlements"
 import { getExcellentCourseByGrade } from "@/config/excellent"
@@ -32,17 +32,29 @@ interface SubmissionRow {
     tryouts: NestedTryout | NestedTryout[] | null
 }
 
+interface TrackMaterialRow {
+    id: string
+    title: string
+    slug: string | null
+    has_content: boolean | null
+    module_number: number | null
+    is_free_preview: boolean
+}
+
+const FINISHED_STATUS_SET = new Set<string>(FINISHED_SUBMISSION_STATUSES)
+
 // GET /api/dashboard/stats - Get user-specific dashboard data
 export async function GET(request: NextRequest) {
     try {
         const supabase = await createClient()
-        const { data: { user } } = await supabase.auth.getUser()
+        const {
+            data: { user },
+        } = await supabase.auth.getUser()
 
         if (!user) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
         }
 
-        // Get the internal user id
         const { data: dbUser } = await supabase
             .from("users")
             .select("id")
@@ -54,24 +66,22 @@ export async function GET(request: NextRequest) {
         }
 
         const userId = dbUser.id
-
-        // Read the optional subject/course filter from the URL query parameter
         const { searchParams } = new URL(request.url)
         const subjectParam = searchParams.get("subject") || searchParams.get("course") || ""
         const normalizedParam = subjectParam.toLowerCase().trim()
 
         const adminSupabase = createServiceClient()
-        const excellentGrade = getExcellentBetaGrade(user)
+        const entitlements = await getEntitlements(userId, adminSupabase, { authUser: user })
+        const excellentGrade = entitlements.excellentGrade
         const excellentConfig = excellentGrade ? getExcellentCourseByGrade(excellentGrade) : null
         const excellentCourse = excellentGrade
             ? await getExcellentCourseRow(excellentGrade, adminSupabase)
             : null
 
-        const entitlements = await getEntitlements(userId, adminSupabase, { authUser: user })
         const totalMaxQuota = entitlements.tier === "PAID" ? 99 : 1
+        const userTrack = entitlements.track || "PHYSICS_SEM_3"
 
-        // Fetch submissions for this user with tryout & course info
-        const { data: submissions } = await supabase
+        const fetchUserSubmissions = supabase
             .from("submissions")
             .select(`
                 id, status, score, correct_count, total_count, created_at, tryout_id,
@@ -80,9 +90,58 @@ export async function GET(request: NextRequest) {
             .eq("user_id", userId)
             .order("created_at", { ascending: false })
 
+        const fetchTrackMaterials = async (): Promise<TrackMaterialRow[]> => {
+            if (excellentGrade) {
+                if (!excellentCourse) return []
+                const { data } = await adminSupabase
+                    .from("materials")
+                    .select("id, title, slug, has_content, module_number, is_free_preview")
+                    .eq("is_published", true)
+                    .eq("course_id", excellentCourse.id)
+                    .order("module_number", { ascending: true })
+                return (data || []) as TrackMaterialRow[]
+            }
+
+            const { data } = await adminSupabase
+                .from("materials")
+                .select("id, title, slug, has_content, module_number, is_free_preview, courses!inner(track)")
+                .eq("is_published", true)
+                .eq("courses.track", userTrack)
+                .order("module_number", { ascending: true })
+            return (data || []) as unknown as TrackMaterialRow[]
+        }
+
+        const fetchLeaderboardRank = async (): Promise<{ rank: number | null; totalParticipants: number }> => {
+            if (excellentGrade && !excellentCourse) {
+                return { rank: null, totalParticipants: 0 }
+            }
+
+            const { data, error } = await adminSupabase.rpc("get_user_leaderboard_rank", {
+                p_user_id: userId,
+                p_is_excellent_beta: Boolean(excellentGrade),
+                p_course_id: excellentGrade ? excellentCourse?.id ?? null : null,
+            })
+
+            if (error) {
+                console.error("User leaderboard rank RPC error:", error)
+                return { rank: null, totalParticipants: 0 }
+            }
+
+            const row = Array.isArray(data) ? data[0] : data
+            return {
+                rank: row?.user_rank !== null && row?.user_rank !== undefined ? Number(row.user_rank) : null,
+                totalParticipants: Number(row?.total_participants ?? 0),
+            }
+        }
+
+        const [{ data: submissions }, trackMaterials, leaderboardStats] = await Promise.all([
+            fetchUserSubmissions,
+            fetchTrackMaterials(),
+            fetchLeaderboardRank(),
+        ])
+
         const typedSubmissions = (submissions || []) as unknown as SubmissionRow[]
 
-        // Filter submissions: Excellent Beta users are strictly scoped to their grade course
         const allSubmissions = typedSubmissions.filter((sub) => {
             const tryoutRaw = sub.tryouts
             const tryout = Array.isArray(tryoutRaw) ? tryoutRaw[0] : tryoutRaw
@@ -103,29 +162,23 @@ export async function GET(request: NextRequest) {
             )
         })
 
-        // --- Recent Activity (most recent 5, finished only) ---
-        const finishedSubmissions = allSubmissions.filter(
-            (sub) => sub.status === "SUBMITTED" || sub.status === "TIMED_OUT"
-        )
+        const finishedSubmissions = allSubmissions.filter((sub) => FINISHED_STATUS_SET.has(sub.status))
 
-        const recentActivity = finishedSubmissions
-            .slice(0, 5)
-            .map((sub) => {
-                const tryoutRaw = sub.tryouts
-                const tryout = Array.isArray(tryoutRaw) ? tryoutRaw[0] : tryoutRaw
-                return {
-                    id: sub.id,
-                    tryoutId: sub.tryout_id,
-                    title: tryout?.title || "Evaluasi Akademik",
-                    type: tryout?.is_practice ? "Latihan" : "Tryout",
-                    score: Math.round(sub.score || 0),
-                    correctCount: sub.correct_count || 0,
-                    totalCount: sub.total_count || 0,
-                    createdAt: sub.created_at,
-                }
-            })
+        const recentActivity = finishedSubmissions.slice(0, 5).map((sub) => {
+            const tryoutRaw = sub.tryouts
+            const tryout = Array.isArray(tryoutRaw) ? tryoutRaw[0] : tryoutRaw
+            return {
+                id: sub.id,
+                tryoutId: sub.tryout_id,
+                title: tryout?.title || "Evaluasi Akademik",
+                type: tryout?.is_practice ? "Latihan" : "Tryout",
+                score: Math.round(sub.score || 0),
+                correctCount: sub.correct_count || 0,
+                totalCount: sub.total_count || 0,
+                createdAt: sub.created_at,
+            }
+        })
 
-        // --- Tryout Stats (is_practice = false) ---
         const tryoutSubmissions = allSubmissions.filter((sub) => {
             const tryoutRaw = sub.tryouts
             const tryout = Array.isArray(tryoutRaw) ? tryoutRaw[0] : tryoutRaw
@@ -133,9 +186,7 @@ export async function GET(request: NextRequest) {
         })
 
         const tryoutUsed = tryoutSubmissions.length
-        const tryoutCompleted = tryoutSubmissions.filter(
-            (s) => s.status === "SUBMITTED" || s.status === "TIMED_OUT"
-        )
+        const tryoutCompleted = tryoutSubmissions.filter((s) => FINISHED_STATUS_SET.has(s.status))
 
         const tryoutAvgScore =
             tryoutCompleted.length > 0
@@ -156,16 +207,13 @@ export async function GET(request: NextRequest) {
                 : latestFinishedTryout.tryouts
             : null
 
-        // --- Latihan Stats (is_practice = true) ---
         const latihanSubmissions = allSubmissions.filter((sub) => {
             const tryoutRaw = sub.tryouts
             const tryout = Array.isArray(tryoutRaw) ? tryoutRaw[0] : tryoutRaw
             return tryout?.is_practice === true
         })
 
-        const latihanCompleted = latihanSubmissions.filter(
-            (s) => s.status === "SUBMITTED" || s.status === "TIMED_OUT"
-        )
+        const latihanCompleted = latihanSubmissions.filter((s) => FINISHED_STATUS_SET.has(s.status))
 
         const latihanAvgScore =
             latihanCompleted.length > 0
@@ -179,7 +227,6 @@ export async function GET(request: NextRequest) {
                 ? Math.round(Math.max(...latihanCompleted.map((s) => s.score || 0)))
                 : 0
 
-        // --- Performance Per Materi (Tryout only) ---
         const materiMap: Record<string, { totalScore: number; count: number }> = {}
         for (const sub of tryoutSubmissions) {
             const tryoutRaw = sub.tryouts
@@ -198,84 +245,21 @@ export async function GET(request: NextRequest) {
             totalAttempts: data.count,
         }))
 
-        // --- Materials & Leaderboard Stats ---
-        const userTrack = entitlements.track || "PHYSICS_SEM_3"
-
-        let trackMaterials: Array<{
-            id: string
-            title: string
-            slug: string | null
-            content_md: string | null
-            module_number: number | null
-            is_free_preview: boolean
-        }> = []
-
-        if (excellentGrade) {
-            if (excellentCourse) {
-                const { data: gradeMaterials } = await adminSupabase
-                    .from("materials")
-                    .select("id, title, slug, content_md, module_number, is_free_preview")
-                    .eq("is_published", true)
-                    .eq("course_id", excellentCourse.id)
-                    .order("module_number", { ascending: true })
-                trackMaterials = gradeMaterials || []
-            }
-        } else {
-            const { data: materialsData } = await adminSupabase
-                .from("materials")
-                .select("id, title, slug, content_md, module_number, is_free_preview, courses!inner(track)")
-                .eq("is_published", true)
-                .eq("courses.track", userTrack)
-                .order("module_number", { ascending: true })
-            trackMaterials = materialsData || []
-        }
-
         const totalMaterialsCount = trackMaterials.length
         const unlockedOrCompletedMaterialsCount =
             entitlements.tier === "PAID"
-                ? Math.min(totalMaterialsCount, finishedSubmissions.length + trackMaterials.filter((m) => m.is_free_preview).length)
+                ? Math.min(
+                      totalMaterialsCount,
+                      finishedSubmissions.length + trackMaterials.filter((m) => m.is_free_preview).length
+                  )
                 : trackMaterials.filter((m) => m.is_free_preview).length
 
         const nextMaterialRow =
-            trackMaterials[Math.min(unlockedOrCompletedMaterialsCount, Math.max(0, trackMaterials.length - 1))] ||
+            trackMaterials[
+                Math.min(unlockedOrCompletedMaterialsCount, Math.max(0, trackMaterials.length - 1))
+            ] ||
             trackMaterials[0] ||
             null
-
-        let globalSubs: Array<{ user_id: string | null; score: number | null }> = []
-        if (excellentGrade) {
-            if (excellentCourse) {
-                const { data: betaSubs } = await adminSupabase
-                    .from("submissions")
-                    .select("user_id, score, tryouts!inner(course_id)")
-                    .in("status", ["SUBMITTED", "TIMED_OUT"])
-                    .eq("tryouts.course_id", excellentCourse.id)
-                globalSubs = (betaSubs || []).map((row) => ({
-                    user_id: row.user_id,
-                    score: row.score,
-                }))
-            }
-        } else {
-            const { data: allGlobalSubs } = await adminSupabase
-                .from("submissions")
-                .select("user_id, score")
-                .in("status", ["SUBMITTED", "TIMED_OUT"])
-            globalSubs = allGlobalSubs || []
-        }
-
-        const scoreByUser = new Map<string, { sum: number; count: number }>()
-        for (const row of globalSubs) {
-            if (!row.user_id) continue
-            const current = scoreByUser.get(row.user_id) || { sum: 0, count: 0 }
-            current.sum += row.score || 0
-            current.count += 1
-            scoreByUser.set(row.user_id, current)
-        }
-
-        const sortedUserAverages = Array.from(scoreByUser.entries())
-            .map(([uid, val]) => ({ userId: uid, avg: val.sum / val.count }))
-            .sort((a, b) => b.avg - a.avg)
-
-        const userRankIdx = sortedUserAverages.findIndex((u) => u.userId === userId)
 
         return NextResponse.json({
             recentActivity,
@@ -300,17 +284,11 @@ export async function GET(request: NextRequest) {
                           title: nextMaterialRow.title,
                           slug: nextMaterialRow.slug,
                           moduleNumber: nextMaterialRow.module_number,
-                          hasContent: Boolean(
-                              nextMaterialRow.content_md &&
-                                  nextMaterialRow.content_md.trim().length > 0
-                          ),
+                          hasContent: Boolean(nextMaterialRow.has_content),
                       }
                     : null,
             },
-            leaderboardStats: {
-                rank: userRankIdx >= 0 ? userRankIdx + 1 : null,
-                totalParticipants: sortedUserAverages.length,
-            },
+            leaderboardStats,
             performancePerMateri,
             excellentBeta: {
                 enabled: Boolean(excellentGrade),
