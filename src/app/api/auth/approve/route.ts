@@ -5,6 +5,7 @@ import { requireAdmin } from "@/lib/admin-auth"
 import { BrevoClient } from "@getbrevo/brevo"
 import { BUSINESS_CONFIG } from "@/config/business"
 import { escapeLikePattern } from "@/lib/postgrest-safe"
+import { approveRegistrationSchema } from "@/lib/validations/api"
 import {
     buildApprovalEmail,
     hasLiveSubscription,
@@ -21,22 +22,25 @@ export async function POST(request: NextRequest) {
     const guard = await requireAdmin()
     if (!guard.ok) return guard.response
 
-    const rateLimitResponse = checkRateLimit(request)
+    const rateLimitResponse = await checkRateLimit(request, {
+        namespace: "admin-approve",
+        key: guard.user.id,
+        maxRequests: 60,
+        windowSeconds: 60,
+    })
     if (rateLimitResponse) return rateLimitResponse
 
     try {
-        const body = (await request.json()) as {
-            registrationId?: unknown
-            action?: unknown
-            notes?: unknown
+        const body = await request.json().catch(() => null)
+        const parsed = approveRegistrationSchema.safeParse(body)
+        if (!parsed.success) {
+            return NextResponse.json(
+                { error: parsed.error.issues[0]?.message || "Invalid request" },
+                { status: 400 }
+            )
         }
-        const registrationId = typeof body.registrationId === "string" ? body.registrationId.trim() : ""
-        const action = typeof body.action === "string" ? body.action.trim().toUpperCase() : ""
-        const notes = typeof body.notes === "string" ? body.notes.trim() : ""
 
-        if (!registrationId || (action !== "APPROVED" && action !== "REJECTED")) {
-            return NextResponse.json({ error: "Invalid request" }, { status: 400 })
-        }
+        const { registrationId, action, notes = "" } = parsed.data
 
         const adminClient = createServiceClient()
 

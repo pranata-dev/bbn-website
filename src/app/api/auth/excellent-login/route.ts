@@ -2,7 +2,7 @@ import { timingSafeEqual } from "node:crypto"
 import { NextRequest, NextResponse } from "next/server"
 import { z } from "zod"
 import { createClient, createServiceClient } from "@/lib/supabase/server"
-import { checkRateLimit } from "@/lib/rate-limit"
+import { checkRateLimit, peekRateLimit, recordRateLimitFailure } from "@/lib/rate-limit"
 import {
     getExcellentCourseByGrade,
     normalizeExcellentName,
@@ -166,9 +166,24 @@ function createSupabaseExcellentAuthStore(
 }
 
 export async function POST(request: NextRequest) {
-    const rateLimitResponse = checkRateLimit(request)
-    if (rateLimitResponse) {
-        return rateLimitResponse
+    // Classroom NAT-safe outer burst guard (60/min/IP)
+    const burstLimitResponse = await checkRateLimit(request, {
+        namespace: "excellent-login",
+        maxRequests: 60,
+        windowSeconds: 60,
+    })
+    if (burstLimitResponse) {
+        return burstLimitResponse
+    }
+
+    // Read-only pre-check on brute-force failure bucket (10 failures / 5 min)
+    const lockoutPrecheck = await peekRateLimit(request, {
+        namespace: "excellent-login-fail",
+        maxRequests: 10,
+        errorMessage: "Terlalu banyak percobaan password salah. Silakan tunggu beberapa menit.",
+    })
+    if (lockoutPrecheck) {
+        return lockoutPrecheck
     }
 
     try {
@@ -194,6 +209,15 @@ export async function POST(request: NextRequest) {
         }
 
         if (!grade) {
+            const lockoutResponse = await recordRateLimitFailure(request, {
+                namespace: "excellent-login-fail",
+                maxRequests: 10,
+                windowSeconds: 300,
+                errorMessage: "Terlalu banyak percobaan password salah. Silakan tunggu beberapa menit.",
+            })
+            if (lockoutResponse) {
+                return lockoutResponse
+            }
             return NextResponse.json(
                 { error: "Password kelas tidak sesuai. Periksa kembali password dari pengajar." },
                 { status: 401 }

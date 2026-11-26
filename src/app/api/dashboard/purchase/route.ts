@@ -12,10 +12,6 @@ const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/
 const TIME_PATTERN = /^[0-2][0-9]:[0-5][0-9]$/
 
 export async function POST(request: NextRequest) {
-    // Check rate limit
-    const rateLimitResponse = checkRateLimit(request)
-    if (rateLimitResponse) return rateLimitResponse
-
     try {
         const supabase = await createClient()
         const { data: { user }, error: authError } = await supabase.auth.getUser()
@@ -23,6 +19,14 @@ export async function POST(request: NextRequest) {
         if (authError || !user || !user.email) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
         }
+
+        const rateLimitResponse = await checkRateLimit(request, {
+            namespace: "purchase",
+            key: user.id,
+            maxRequests: 5,
+            windowSeconds: 60,
+        })
+        if (rateLimitResponse) return rateLimitResponse
 
         const formData = await request.formData()
 

@@ -17,8 +17,12 @@ const TIME_PATTERN = /^[0-2][0-9]:[0-5][0-9]$/
 export const dynamic = "force-dynamic"
 
 export async function POST(request: NextRequest) {
-  const rateLimitResponse = checkRateLimit(request)
-  if (rateLimitResponse) return rateLimitResponse
+  const ipRateLimitResponse = await checkRateLimit(request, {
+    namespace: "register",
+    maxRequests: 10,
+    windowSeconds: 60,
+  })
+  if (ipRateLimitResponse) return ipRateLimitResponse
 
   try {
     // 1. Authenticate caller and derive auth_id + email strictly from verified session
@@ -34,6 +38,14 @@ export async function POST(request: NextRequest) {
         { status: 401 }
       )
     }
+
+    const sessionRateLimitResponse = await checkRateLimit(request, {
+      namespace: "register-user",
+      key: authUser.id,
+      maxRequests: 5,
+      windowSeconds: 60,
+    })
+    if (sessionRateLimitResponse) return sessionRateLimitResponse
 
     const sessionAuthId = authUser.id
     const sessionEmail = authUser.email.trim().toLowerCase()

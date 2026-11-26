@@ -32,11 +32,6 @@ const createFeedbackSchema = z.object({
 })
 
 export async function POST(request: NextRequest) {
-    const rateLimitResponse = checkRateLimit(request)
-    if (rateLimitResponse) {
-        return rateLimitResponse
-    }
-
     try {
         const authClient = await createClient()
         const {
@@ -45,6 +40,16 @@ export async function POST(request: NextRequest) {
 
         if (!user) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+        }
+
+        const rateLimitResponse = await checkRateLimit(request, {
+            namespace: "feedback",
+            key: user.id,
+            maxRequests: 5,
+            windowSeconds: 60,
+        })
+        if (rateLimitResponse) {
+            return rateLimitResponse
         }
 
         const body = await request.json().catch(() => null)
