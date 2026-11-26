@@ -128,6 +128,7 @@ export function UTSPackageForm({
   const [fullName, setFullName] = useState("")
   const [email, setEmail] = useState("")
   const [whatsapp, setWhatsapp] = useState("")
+  const [password, setPassword] = useState("")
 
   // Determine initial plan from query param (`free`, `monthly`, `semester`)
   const normalizedInitPlan = (initialPlan || "").trim().toUpperCase()
@@ -143,7 +144,7 @@ export function UTSPackageForm({
   const [billingCycle, setBillingCycle] = useState<BillingCycle>(defaultCycle)
   const [selectedPackageId, setSelectedPackageId] = useState<string>(defaultCycle.toLowerCase())
 
-  // Check existing Supabase auth session on mount & verify duplicate
+  // Check existing Supabase auth session on mount & detect already-onboarded users
   useEffect(() => {
     const checkAuthAndDuplicate = async () => {
       try {
@@ -162,16 +163,17 @@ export function UTSPackageForm({
           if (metaName) setFullName(metaName)
           if (user.email) setEmail(user.email)
 
-          // Check if this email already exists in users database
           if (user.email) {
-            const checkRes = await fetch("/api/auth/check-email", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ email: user.email }),
-            })
-            const checkData = await checkRes.json()
+            const [{ count: subCount }, { count: regCount }] = await Promise.all([
+              supabase
+                .from("subscriptions")
+                .select("id", { count: "exact", head: true }),
+              supabase
+                .from("registrations")
+                .select("id", { count: "exact", head: true }),
+            ])
 
-            if (checkData.exists) {
+            if ((subCount ?? 0) > 0 || (regCount ?? 0) > 0) {
               setDuplicateEmail(user.email)
               setShowDuplicateModal(true)
             }
@@ -245,53 +247,66 @@ export function UTSPackageForm({
       return
     }
 
-    if (!fullName || fullName.length < 3) {
+    if (!fullName || fullName.trim().length < 3) {
       toast.error("Nama lengkap minimal 3 karakter.")
       return
     }
-    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    const normalizedEmail = email.trim().toLowerCase()
+    if (!normalizedEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) {
       toast.error("Alamat email tidak valid.")
       return
     }
-    if (!whatsapp) {
+    if (!whatsapp || whatsapp.trim().length < 8) {
       toast.error("Masukkan nomor WhatsApp yang valid.")
       return
     }
-
-    // Check duplicate account before submission
-    try {
-      const checkRes = await fetch("/api/auth/check-email", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
-      })
-      const checkData = await checkRes.json()
-      if (checkData.exists) {
-        setDuplicateEmail(email)
-        setShowDuplicateModal(true)
-        return
-      }
-    } catch (err) {
-      console.warn("Pre-check error:", err)
+    if (!currentUser && (!password || password.length < 6)) {
+      toast.error("Kata sandi minimal 6 karakter.")
+      return
     }
 
     setIsSubmitting(true)
 
     try {
-      // Ensure auth session is resolved if already logged in via Google
       const supabase = createClient()
       const {
-        data: { session },
-      } = await supabase.auth.getSession()
-      const resolvedAuthId = session?.user?.id || currentUser?.id
+        data: { user: existingAuthUser },
+      } = await supabase.auth.getUser()
+
+      if (!existingAuthUser) {
+        const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+          email: normalizedEmail,
+          password,
+          options: {
+            data: {
+              name: fullName.trim(),
+              full_name: fullName.trim(),
+            },
+          },
+        })
+
+        if (signUpError) {
+          if (/already\s+(been\s+)?registered|already\s+exists/i.test(signUpError.message)) {
+            setDuplicateEmail(normalizedEmail)
+            setShowDuplicateModal(true)
+            return
+          }
+          throw new Error(signUpError.message || "Gagal membuat akun.")
+        }
+
+        if (!signUpData.session) {
+          toast.info("Cek email kamu untuk konfirmasi akun sebelum melanjutkan")
+          return
+        }
+      }
 
       const formPayload = new FormData()
       formPayload.append("type", "UTS")
-      formPayload.append("fullName", fullName)
-      formPayload.append("name", fullName)
-      formPayload.append("email", email)
-      formPayload.append("whatsapp", whatsapp)
-      formPayload.append("phone", whatsapp)
+      formPayload.append("fullName", fullName.trim())
+      formPayload.append("name", fullName.trim())
+      formPayload.append("email", normalizedEmail)
+      formPayload.append("whatsapp", whatsapp.trim())
+      formPayload.append("phone", whatsapp.trim())
       formPayload.append("studentCategory", studentCategory)
       formPayload.append("student_category", studentCategory)
       formPayload.append("billingCycle", selectedPackage.planCode)
@@ -300,10 +315,6 @@ export function UTSPackageForm({
       formPayload.append("selectedPackageId", selectedPackage.id)
       formPayload.append("selectedPackageName", selectedPackage.name)
       formPayload.append("packageType", selectedPackage.id)
-      formPayload.append("price", String(selectedPackage.price))
-      if (resolvedAuthId) {
-        formPayload.append("authId", resolvedAuthId)
-      }
 
       const res = await fetch("/api/register", {
         method: "POST",
@@ -312,12 +323,19 @@ export function UTSPackageForm({
 
       const data = await res.json()
 
+      if (res.status === 409) {
+        setDuplicateEmail(normalizedEmail)
+        setShowDuplicateModal(true)
+        return
+      }
+
       if (!res.ok) {
         throw new Error(data.error || "Gagal memproses pendaftaran.")
       }
 
       toast.success("Akun Paket Gratis aktif! Mengalihkan...")
-      router.push(resolvedAuthId ? "/dashboard" : "/login")
+      router.push("/dashboard")
+      router.refresh()
     } catch (error) {
       console.error("Submission error:", error)
       const message = error instanceof Error ? error.message : "Terjadi kesalahan saat mendaftar."
@@ -448,10 +466,11 @@ export function UTSPackageForm({
                   <input
                     type="email"
                     required
+                    readOnly={Boolean(currentUser)}
                     placeholder="nama@email.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full bg-canvas-paper border-2 border-[#171717] rounded-none px-3.5 py-2.5 text-xs font-mono text-[#171717] placeholder:text-ink-muted/50 focus:outline-none focus:ring-0 focus:border-alert-rust focus:bg-surface-white transition-colors"
+                    className="w-full bg-canvas-paper border-2 border-[#171717] rounded-none px-3.5 py-2.5 text-xs font-mono text-[#171717] placeholder:text-ink-muted/50 focus:outline-none focus:ring-0 focus:border-alert-rust focus:bg-surface-white transition-colors read-only:opacity-80"
                   />
                 </div>
 
@@ -469,6 +488,25 @@ export function UTSPackageForm({
                     className="w-full bg-canvas-paper border-2 border-[#171717] rounded-none px-3.5 py-2.5 text-xs font-mono text-[#171717] placeholder:text-ink-muted/50 focus:outline-none focus:ring-0 focus:border-alert-rust focus:bg-surface-white transition-colors"
                   />
                 </div>
+
+                {/* Password (Manual Registration Only) */}
+                {!currentUser && (
+                  <div>
+                    <label className="font-mono text-[10px] sm:text-xs font-bold text-[#171717] uppercase tracking-wider mb-1 block">
+                      [04] KATA SANDI AKUN *
+                    </label>
+                    <input
+                      type="password"
+                      required
+                      minLength={6}
+                      autoComplete="new-password"
+                      placeholder="Minimal 6 karakter"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="w-full bg-canvas-paper border-2 border-[#171717] rounded-none px-3.5 py-2.5 text-xs font-mono text-[#171717] placeholder:text-ink-muted/50 focus:outline-none focus:ring-0 focus:border-alert-rust focus:bg-surface-white transition-colors"
+                    />
+                  </div>
+                )}
               </div>
             </div>
 

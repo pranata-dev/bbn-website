@@ -4,6 +4,7 @@ import { useState, useRef, useEffect, Suspense } from "react"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 import { toast } from "sonner"
+import { createClient } from "@/lib/supabase/client"
 import {
   ProductSelector,
   RegularClassForm,
@@ -127,38 +128,52 @@ function RegisterContent() {
       return
     }
 
-    // Check duplicate account
-    try {
-      const checkRes = await fetch("/api/auth/check-email", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: kelasBesarData.email }),
-      })
-      const checkData = await checkRes.json()
-      if (checkData.exists) {
-        setDuplicateEmail(kelasBesarData.email)
-        setShowDuplicateModal(true)
-        isSubmittingRef.current = false
-        return
-      }
-    } catch (err) {
-      console.warn("Pre-check error:", err)
-    }
-
     setIsLoading(true)
 
     try {
+      const normalizedEmail = kelasBesarData.email.trim().toLowerCase()
+      const supabase = createClient()
+      const {
+        data: { user: existingAuthUser },
+      } = await supabase.auth.getUser()
+
+      if (!existingAuthUser) {
+        const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+          email: normalizedEmail,
+          password: kelasBesarData.password,
+          options: {
+            data: {
+              name: kelasBesarData.name.trim(),
+              full_name: kelasBesarData.name.trim(),
+            },
+          },
+        })
+
+        if (signUpError) {
+          if (/already\s+(been\s+)?registered|already\s+exists/i.test(signUpError.message)) {
+            setDuplicateEmail(normalizedEmail)
+            setShowDuplicateModal(true)
+            return
+          }
+          throw new Error(signUpError.message || "Gagal membuat akun.")
+        }
+
+        if (!signUpData.session) {
+          toast.info("Cek email kamu untuk konfirmasi akun sebelum melanjutkan")
+          return
+        }
+      }
+
       const formPayload = new FormData()
       formPayload.append("type", "KELAS_BESAR")
       formPayload.append("paymentProof", paymentFile!)
-      formPayload.append("name", kelasBesarData.name)
-      formPayload.append("fullName", kelasBesarData.name)
-      formPayload.append("email", kelasBesarData.email)
-      formPayload.append("password", kelasBesarData.password)
-      formPayload.append("nim", kelasBesarData.nim)
+      formPayload.append("name", kelasBesarData.name.trim())
+      formPayload.append("fullName", kelasBesarData.name.trim())
+      formPayload.append("email", normalizedEmail)
+      formPayload.append("nim", kelasBesarData.nim.trim())
       formPayload.append("subject", kelasBesarData.subject)
-      formPayload.append("whatsapp", kelasBesarData.whatsapp)
-      formPayload.append("phone", kelasBesarData.whatsapp)
+      formPayload.append("whatsapp", kelasBesarData.whatsapp.trim())
+      formPayload.append("phone", kelasBesarData.whatsapp.trim())
 
       const response = await fetch("/api/register", {
         method: "POST",
@@ -166,6 +181,12 @@ function RegisterContent() {
       })
 
       const data = await response.json()
+
+      if (response.status === 409) {
+        setDuplicateEmail(normalizedEmail)
+        setShowDuplicateModal(true)
+        return
+      }
 
       if (!response.ok) {
         throw new Error(data.error || "Terjadi kesalahan saat mendaftar.")

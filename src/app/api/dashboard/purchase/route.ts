@@ -4,10 +4,12 @@ import { UTS_PACKAGES } from "@/constants"
 import { checkRateLimit } from "@/lib/rate-limit"
 import { calculatePrice } from "@/lib/pricing"
 import { getPlanByCode, SUBSCRIPTION_PLANS } from "@/config/plans"
+import { validateImageUpload } from "@/lib/file-validation"
+import { normalizeRegistrationTrack } from "@/lib/register-security"
 
 const ACCEPTED_TYPES = ["REGULAR", "UTS", "KELAS_BESAR"] as const
-const ACCEPTED_FILE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"]
-const MAX_FILE_SIZE = 5 * 1024 * 1024
+const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/
+const TIME_PATTERN = /^[0-2][0-9]:[0-5][0-9]$/
 
 export async function POST(request: NextRequest) {
     // Check rate limit
@@ -27,7 +29,7 @@ export async function POST(request: NextRequest) {
         // Extract common fields
         const type = ((formData.get("type") as string) || "").trim() as "REGULAR" | "UTS" | "KELAS_BESAR"
         const subject = ((formData.get("subject") as string) || "Fisika Smt 3").trim()
-        const track = ((formData.get("track") as string) || "PHYSICS_SEM_3").trim()
+        const track = normalizeRegistrationTrack((formData.get("track") as string) || "PHYSICS_SEM_3")
         const rawPlanCode = ((formData.get("plan_code") as string) || (formData.get("packageType") as string) || "SEMESTER")
             .trim()
             .toUpperCase()
@@ -49,34 +51,29 @@ export async function POST(request: NextRequest) {
             )
         }
 
-        // Validate file
-        if (!paymentProof || !(paymentProof instanceof File)) {
+        // Validate payment proof via binary magic bytes and size limit
+        const paymentProofBlob = paymentProof instanceof Blob ? paymentProof : null
+        const fileValidation = await validateImageUpload(paymentProofBlob)
+        if (!fileValidation.ok) {
             return NextResponse.json(
-                { error: "Mohon unggah bukti pembayaran." },
-                { status: 400 }
+                { error: fileValidation.error },
+                { status: fileValidation.status }
             )
         }
 
-        if (!ACCEPTED_FILE_TYPES.includes(paymentProof.type)) {
-            return NextResponse.json(
-                { error: "Format file tidak didukung. Gunakan JPG, PNG, atau WebP." },
-                { status: 400 }
-            )
-        }
-
-        if (paymentProof.size > MAX_FILE_SIZE) {
-            return NextResponse.json(
-                { error: "Ukuran file maksimal 5MB." },
-                { status: 400 }
-            )
-        }
+        let regularGroupSize: number | null = null
+        let regularSessionCount: number | null = null
+        let regularScheduledDate: string | null = null
+        let regularScheduledTime: string | null = null
+        const rawNotes = typeof formData.get("notes") === "string" ? (formData.get("notes") as string).trim() : ""
+        const registrationNotes = rawNotes ? rawNotes.slice(0, 1000) : null
 
         // Validate type-specific fields
         if (type === "REGULAR") {
             const groupSize = parseInt(formData.get("groupSize") as string, 10)
             const sessionCount = parseInt(formData.get("sessionCount") as string, 10)
-            const scheduledDate = formData.get("scheduledDate") as string
-            const scheduledTime = formData.get("scheduledTime") as string
+            const scheduledDate = ((formData.get("scheduledDate") as string) || "").trim()
+            const scheduledTime = ((formData.get("scheduledTime") as string) || "").trim()
 
             if (!groupSize || groupSize < 1 || groupSize > 20) {
                 return NextResponse.json({ error: "Jumlah orang harus antara 1-20." }, { status: 400 })
@@ -87,6 +84,14 @@ export async function POST(request: NextRequest) {
             if (!scheduledDate || !scheduledTime) {
                 return NextResponse.json({ error: "Pilih tanggal dan waktu kelas." }, { status: 400 })
             }
+            if (!DATE_PATTERN.test(scheduledDate) || !TIME_PATTERN.test(scheduledTime)) {
+                return NextResponse.json({ error: "Format tanggal atau waktu kelas tidak valid." }, { status: 400 })
+            }
+
+            regularGroupSize = groupSize
+            regularSessionCount = sessionCount
+            regularScheduledDate = scheduledDate
+            regularScheduledTime = scheduledTime
         }
 
         const adminClient = createServiceClient()
@@ -115,12 +120,12 @@ export async function POST(request: NextRequest) {
         const whatsapp = pastReg?.whatsapp || "-"
         const name = dbUser.name || user.email.split("@")[0]
 
-        // Upload payment proof
-        const fileExt = paymentProof.name.split(".").pop() || "jpg"
-        const fileName = `dashboard-purchases/${Date.now()}-${dbUser.id}.${fileExt}`
+        // Upload validated payment proof using binary-derived extension and MIME type
+        const fileName = `${user.id}/${Date.now()}-${crypto.randomUUID()}.${fileValidation.ext}`
         const { error: uploadError } = await adminClient.storage
             .from("payment-proofs")
-            .upload(fileName, paymentProof, {
+            .upload(fileName, fileValidation.bytes, {
+                contentType: fileValidation.mime,
                 cacheControl: "3600",
                 upsert: false,
             })
@@ -132,10 +137,6 @@ export async function POST(request: NextRequest) {
                 { status: 500 }
             )
         }
-
-        const { data: { publicUrl } } = adminClient.storage
-            .from("payment-proofs")
-            .getPublicUrl(fileName)
 
         // Calculate price
         let calculatedPrice: number | null = null
@@ -169,16 +170,21 @@ export async function POST(request: NextRequest) {
             .insert({
                 id: registrationId,
                 type,
-                plan_code: planCode,
-                track: track === "NON_PHYSICS" ? "NON_PHYSICS" : "PHYSICS_SEM_3",
+                plan_code: type === "UTS" ? planCode : null,
+                track,
                 name,
                 email: user.email,
                 nim,
                 subject,
                 whatsapp,
-                payment_proof_url: publicUrl,
+                payment_proof_url: fileName,
                 calculated_price: calculatedPrice,
                 pricing_tier: pricingTier,
+                group_size: regularGroupSize,
+                session_count: regularSessionCount,
+                scheduled_date: regularScheduledDate,
+                scheduled_time: regularScheduledTime,
+                notes: registrationNotes,
                 status: "PENDING",
                 updated_at: new Date().toISOString(),
                 user_id: dbUser.id,
