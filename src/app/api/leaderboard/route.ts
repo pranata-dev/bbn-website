@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createClient, createServiceClient } from "@/lib/supabase/server"
 import { getEntitlements, getExcellentCourseRow } from "@/lib/entitlements"
-import { getExcellentCourseByCodeOrSlug } from "@/config/excellent"
-import { findCourseIdByIdentifier, normalizeIdentifier } from "@/lib/postgrest-safe"
+import { findCourseIdByIdentifier } from "@/lib/postgrest-safe"
+import { resolveLeaderboardQuery } from "@/lib/leaderboard-query"
 
 export const dynamic = "force-dynamic"
 
@@ -28,61 +28,30 @@ export async function GET(request: NextRequest) {
         const entitlements = profile
             ? await getEntitlements(profile.id, supabase, { authUser: user })
             : null
-        const excellentGrade = entitlements?.excellentGrade ?? null
 
         const { searchParams } = new URL(request.url)
-        const rawCategory = searchParams.get("category")
-        const rawSubject = searchParams.get("subject") || searchParams.get("course")
-        const rawLimit = Number.parseInt(searchParams.get("limit") || "50", 10)
-        const limit = Number.isFinite(rawLimit) ? Math.min(Math.max(rawLimit, 1), 200) : 50
+        const resolved = await resolveLeaderboardQuery({
+            isAdmin: Boolean(entitlements?.isAdmin),
+            excellentGrade: entitlements?.excellentGrade ?? null,
+            rawCategory: searchParams.get("category"),
+            rawSubject: searchParams.get("subject") || searchParams.get("course"),
+            rawLimit: searchParams.get("limit"),
+            resolveExcellentCourseId: async (grade) => {
+                const course = await getExcellentCourseRow(grade, supabase)
+                return course?.id ?? null
+            },
+            resolveCourseIdBySubject: (subject) => findCourseIdByIdentifier(supabase, subject),
+        })
 
-        let isExcellentBeta = false
-        let courseId: string | null = null
-        let category: string | null = null
-
-        if (excellentGrade) {
-            // Strictly scope Excellent Beta students to their verified grade course;
-            // ignore any client-supplied subject, course, or category filters.
-            const gradeCourse = await getExcellentCourseRow(excellentGrade, supabase)
-            if (!gradeCourse) {
-                return NextResponse.json({ leaderboard: [] })
-            }
-            isExcellentBeta = true
-            courseId = gradeCourse.id
-            category = null
-        } else {
-            if (rawCategory && rawCategory !== "all") {
-                const safeCategory = normalizeIdentifier(rawCategory)
-                if (!safeCategory) {
-                    return NextResponse.json({ error: "Kategori tidak valid." }, { status: 400 })
-                }
-                category = safeCategory.toUpperCase()
-            }
-
-            if (rawSubject && rawSubject !== "all") {
-                const safeSubject = normalizeIdentifier(rawSubject)
-                if (!safeSubject) {
-                    return NextResponse.json({ error: "Parameter mata kuliah tidak valid." }, { status: 400 })
-                }
-                const isBetaCourseFilter = Boolean(getExcellentCourseByCodeOrSlug(safeSubject))
-                if (isBetaCourseFilter && !entitlements?.isAdmin) {
-                    return NextResponse.json({ leaderboard: [] })
-                }
-                const matchedCourseId = await findCourseIdByIdentifier(supabase, safeSubject)
-                if (!matchedCourseId) {
-                    return NextResponse.json({ leaderboard: [] })
-                }
-                courseId = matchedCourseId
-                isExcellentBeta = isBetaCourseFilter && Boolean(entitlements?.isAdmin)
-            }
+        if (resolved.kind === "error") {
+            return NextResponse.json({ error: resolved.error }, { status: resolved.status })
         }
 
-        const { data: rows, error } = await supabase.rpc("get_leaderboard", {
-            p_is_excellent_beta: isExcellentBeta,
-            p_course_id: courseId,
-            p_category: category,
-            p_limit: limit,
-        })
+        if (resolved.kind === "empty") {
+            return NextResponse.json({ leaderboard: [] })
+        }
+
+        const { data: rows, error } = await supabase.rpc("get_leaderboard", resolved.params)
 
         if (error) {
             console.error("Leaderboard RPC error:", error)
