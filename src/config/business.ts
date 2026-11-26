@@ -23,6 +23,21 @@ export const BUSINESS_CONFIG = {
             }
             return ""
         },
+        getSchedule: (subject: string): string => {
+            try {
+                if (process.env.ZOOM_SCHEDULES_JSON) {
+                    const parsed: unknown = JSON.parse(process.env.ZOOM_SCHEDULES_JSON)
+                    if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+                        const record = parsed as Record<string, unknown>
+                        const value = record[subject] ?? record.default
+                        return typeof value === "string" ? value : ""
+                    }
+                }
+            } catch {
+                return ""
+            }
+            return ""
+        },
     },
 }
 

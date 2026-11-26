@@ -1,33 +1,45 @@
 import { NextRequest, NextResponse } from "next/server"
-import { createAdminClient } from "@/lib/supabase/server"
+import { createServiceClient } from "@/lib/supabase/server"
 import { checkRateLimit } from "@/lib/rate-limit"
 import { requireAdmin } from "@/lib/admin-auth"
 import { BrevoClient } from "@getbrevo/brevo"
 import { BUSINESS_CONFIG } from "@/config/business"
+import { escapeLikePattern } from "@/lib/postgrest-safe"
+import {
+    buildApprovalEmail,
+    hasLiveSubscription,
+    resolveApprovalProvisioning,
+    resolveMasterclassSchedule,
+    type ApprovalRegistrationType,
+} from "@/lib/billing-approval"
 
 const brevoClient = new BrevoClient({
-    apiKey: process.env.BREVO_API_KEY || ""
+    apiKey: process.env.BREVO_API_KEY || "",
 })
 
 export async function POST(request: NextRequest) {
     const guard = await requireAdmin()
     if (!guard.ok) return guard.response
 
-    // Check rate limit
     const rateLimitResponse = checkRateLimit(request)
     if (rateLimitResponse) return rateLimitResponse
 
     try {
-        const body = await request.json()
-        const { registrationId, action, notes } = body
+        const body = (await request.json()) as {
+            registrationId?: unknown
+            action?: unknown
+            notes?: unknown
+        }
+        const registrationId = typeof body.registrationId === "string" ? body.registrationId.trim() : ""
+        const action = typeof body.action === "string" ? body.action.trim().toUpperCase() : ""
+        const notes = typeof body.notes === "string" ? body.notes.trim() : ""
 
-        if (!registrationId || !["APPROVED", "REJECTED"].includes(action)) {
+        if (!registrationId || (action !== "APPROVED" && action !== "REJECTED")) {
             return NextResponse.json({ error: "Invalid request" }, { status: 400 })
         }
 
-        const adminClient = await createAdminClient()
+        const adminClient = createServiceClient()
 
-        // Get registration data
         const { data: registration, error: regError } = await adminClient
             .from("registrations")
             .select("*")
@@ -38,150 +50,266 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: "Registration not found" }, { status: 404 })
         }
 
-        // Prevent re-approval (especially important to avoid duplicate account provisioning)
         if (registration.status === "APPROVED" && action === "APPROVED") {
-            return NextResponse.json({ error: "Pendaftaran ini sudah disetujui sebelumnya." }, { status: 400 })
+            return NextResponse.json(
+                { error: "Pendaftaran ini sudah disetujui sebelumnya." },
+                { status: 400 }
+            )
         }
 
-        // Update registration status
-        const { error: regUpdateError } = await adminClient
-            .from("registrations")
-            .update({
-                status: action,
-                reviewed_by: guard.user.email || "ADMIN_SYSTEM",
-                reviewed_at: new Date().toISOString(),
-            })
-            .eq("id", registrationId)
+        const now = new Date()
+        const nowIso = now.toISOString()
+        const reviewerEmail = guard.user.email || "ADMIN_SYSTEM"
 
-        if (regUpdateError) {
-            console.error("Registration update error:", regUpdateError)
-            return NextResponse.json({ error: "Gagal memperbarui status pendaftaran." }, { status: 500 })
-        }
-
-        // Get existing user to sync payment status and provision access
-        const { data: existingUser } = await adminClient
-            .from("users")
-            .select("id, email, auth_id")
-            .ilike("email", registration.email)
-            .maybeSingle()
-
-        if (action === "APPROVED" && existingUser) {
-            // 1. Update user status to active
-            const { error: userUpdateError } = await adminClient
-                .from("users")
+        if (action === "REJECTED") {
+            const { error: rejectError } = await adminClient
+                .from("registrations")
                 .update({
-                    is_active: true,
-                    updated_at: new Date().toISOString(),
+                    status: "REJECTED",
+                    reviewed_by: reviewerEmail,
+                    reviewed_at: nowIso,
+                    updated_at: nowIso,
                 })
-                .eq("id", existingUser.id)
+                .eq("id", registrationId)
 
-            if (userUpdateError) {
-                console.error("User activation update error:", userUpdateError)
+            if (rejectError) {
+                console.error("Registration rejection error:", rejectError)
+                return NextResponse.json(
+                    { error: "Gagal memperbarui status pendaftaran." },
+                    { status: 500 }
+                )
             }
 
-            // 2. Provision subscription
-            const planCode: "FREE" | "MONTHLY" | "SEMESTER" =
-                registration.plan_code === "MONTHLY" ? "MONTHLY" : "SEMESTER"
+            return NextResponse.json({ message: "Pendaftaran ditolak." })
+        }
 
-            const rawTrack = (registration.track || "").toUpperCase()
-            const track: "PHYSICS_SEM_3" | "NON_PHYSICS" | "LEGACY" | "ALL" =
-                rawTrack === "NON_PHYSICS" ? "NON_PHYSICS" : "PHYSICS_SEM_3"
+        // Resolve owning user BEFORE mutating registration status
+        let existingUser: { id: string; email: string; auth_id: string } | null = null
+        if (registration.user_id) {
+            const { data: byId } = await adminClient
+                .from("users")
+                .select("id, email, auth_id")
+                .eq("id", registration.user_id)
+                .maybeSingle()
+            existingUser = byId
+        }
+        if (!existingUser && registration.email) {
+            const { data: byEmail } = await adminClient
+                .from("users")
+                .select("id, email, auth_id")
+                .ilike("email", escapeLikePattern(registration.email.trim().toLowerCase()))
+                .maybeSingle()
+            existingUser = byEmail
+        }
 
-            const durationDays = planCode === "MONTHLY" ? 30 : 180
-            const expiresAt = new Date(Date.now() + durationDays * 86400000).toISOString()
+        if (!existingUser) {
+            return NextResponse.json(
+                { error: "Akun pengguna untuk email pendaftaran ini tidak ditemukan." },
+                { status: 404 }
+            )
+        }
 
-            // Supersede previous active subscriptions
-            await adminClient
+        const { data: currentSubs, error: subsFetchError } = await adminClient
+            .from("subscriptions")
+            .select("status, expires_at")
+            .eq("user_id", existingUser.id)
+
+        if (subsFetchError) {
+            console.error("Subscription lookup error:", subsFetchError)
+            return NextResponse.json(
+                { error: "Gagal memeriksa status langganan pengguna." },
+                { status: 500 }
+            )
+        }
+
+        const provisioning = resolveApprovalProvisioning({
+            type: registration.type,
+            planCode: registration.plan_code,
+            track: registration.track,
+            hasLiveSubscription: hasLiveSubscription(currentSubs || [], now),
+            now,
+        })
+
+        if (!provisioning.ok) {
+            return NextResponse.json({ error: provisioning.error }, { status: provisioning.status })
+        }
+
+        // 1. Activate user account FIRST and fail fast on any DB error
+        const { error: userUpdateError } = await adminClient
+            .from("users")
+            .update({
+                is_active: true,
+                updated_at: nowIso,
+            })
+            .eq("id", existingUser.id)
+
+        if (userUpdateError) {
+            console.error("User activation update error:", userUpdateError)
+            return NextResponse.json(
+                { error: "Gagal mengaktifkan akun pengguna." },
+                { status: 500 }
+            )
+        }
+
+        // 2. Provision subscription BEFORE marking registration APPROVED
+        if (provisioning.kind === "PAID") {
+            const { error: cancelTrackError } = await adminClient
                 .from("subscriptions")
                 .update({ status: "CANCELLED" })
                 .eq("user_id", existingUser.id)
                 .eq("status", "ACTIVE")
+                .in("track", provisioning.cancelTracks)
 
-            const { error: subError } = await adminClient
+            if (cancelTrackError) {
+                console.error("Scoped track cancellation error:", cancelTrackError)
+                return NextResponse.json(
+                    { error: "Gagal memperbarui langganan sebelumnya." },
+                    { status: 500 }
+                )
+            }
+
+            const { error: cancelFreeError } = await adminClient
                 .from("subscriptions")
-                .insert({
-                    user_id: existingUser.id,
-                    plan_code: planCode,
-                    track,
-                    status: "ACTIVE",
-                    starts_at: new Date().toISOString(),
-                    expires_at: expiresAt,
-                    registration_id: registration.id,
-                    granted_by: guard.user.email || "ADMIN_APPROVAL",
-                    notes: notes || `Approved registration (${registration.id})`,
-                })
+                .update({ status: "CANCELLED" })
+                .eq("user_id", existingUser.id)
+                .eq("status", "ACTIVE")
+                .eq("plan_code", "FREE")
+
+            if (cancelFreeError) {
+                console.error("Free baseline cancellation error:", cancelFreeError)
+                return NextResponse.json(
+                    { error: "Gagal memperbarui paket gratis sebelumnya." },
+                    { status: 500 }
+                )
+            }
+
+            const { error: subError } = await adminClient.from("subscriptions").insert({
+                user_id: existingUser.id,
+                plan_code: provisioning.planCode,
+                track: provisioning.track,
+                status: "ACTIVE",
+                starts_at: provisioning.startsAt,
+                expires_at: provisioning.expiresAt,
+                registration_id: registration.id,
+                granted_by: guard.user.email || "ADMIN_APPROVAL",
+                notes: notes || `Approved registration (${registration.id})`,
+            })
 
             if (subError) {
                 console.error("Subscription provisioning error:", subError)
-            }
-
-            // Send activation email via Brevo
-            try {
-                const isKelasBesar = registration.type === "KELAS_BESAR"
-                const subject = (registration.subject || "").toUpperCase()
-                
-                let emailHtml = ""
-                let emailSubject = "Akun Belajar Bareng Nata Telah Aktif!"
-
-                if (isKelasBesar) {
-                    emailSubject = "Link Zoom Masterclass Belajar Bareng Nata"
-                    const zoomLink = BUSINESS_CONFIG.zoom.getLink(subject) ||
-                        (subject === "FISMAT"
-                            ? (process.env.ZOOM_LINK_FISMAT || "")
-                            : (process.env.ZOOM_LINK_FISDAS2 || ""))
-                    
-                    const schedule = subject === "FISMAT"
-                        ? "Minggu, 5 April 2026 pukul 19:00"
-                        : "Senin, 6 April 2026 pukul 19:00"
-
-                    emailHtml = `
-                        <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; color: #333;">
-                            <h2 style="color: #4A3C31;">Halo, ${registration.name}!</h2>
-                            <p>Pembayaran kamu untuk <strong>Kelas Tutor Besar (Masterclass)</strong> telah berhasil diverifikasi.</p>
-                            <p>Berikut adalah detail pendaftaran dan link Zoom untuk sesi masterclass kamu:</p>
-                            <div style="background-color: #FDFBF7; border: 1px solid #EFE8DF; padding: 25px; border-radius: 16px; margin: 25px 0;">
-                                <p style="margin: 0 0 10px 0; font-size: 14px;"><strong>Mata Kuliah:</strong> ${subject === "FISMAT" ? "Fisika-Matematika" : "Fisika Dasar 2"}</p>
-                                <p style="margin: 0 0 25px 0; font-size: 14px;"><strong>Jadwal:</strong> ${schedule}</p>
-                                <a href="${zoomLink}" style="background-color: #4A3C31; color: #ffffff; padding: 14px 28px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: bold; font-size: 16px;">Klik untuk Bergabung ke Zoom</a>
-                            </div>
-                            <p style="font-size: 12px; color: #666; line-height: 1.5;">Jika tombol di atas tidak berfungsi, kamu juga bisa menyalin link berikut ke browsermu:<br/>
-                            <span style="color: #4A3C31; word-break: break-all;">${zoomLink}</span></p>
-                            <br/>
-                            <p>Selamat belajar dan semoga sukses!<br/><strong>Tim Belajar Bareng Nata</strong></p>
-                        </div>
-                    `
-                } else {
-                    emailHtml = `
-                        <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
-                            <h2 style="color: #4A3C31;">Halo, ${registration.name}!</h2>
-                            <p>Pembayaran kamu untuk paket <strong>${planCode === "MONTHLY" ? "Bulanan" : "Semester"}</strong> telah berhasil diverifikasi oleh Admin.</p>
-                            <p>Akun kamu kini sudah <strong>AKTIF</strong> dan kamu dapat langsung masuk ke dashboard belajar.</p>
-                            <br/>
-                            <a href="${process.env.NEXT_PUBLIC_APP_URL || "https://belajarbarengnata.com"}/login" style="background-color: #4A3C31; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: bold;">Login ke Dashboard</a>
-                            <br/><br/>
-                            <p>Selamat belajar dan semoga sukses!<br/>Tim Belajar Bareng Nata</p>
-                        </div>
-                    `
+                if (subError.code === "23505") {
+                    return NextResponse.json(
+                        { error: "Pendaftaran ini sedang atau sudah diproses." },
+                        { status: 409 }
+                    )
                 }
+                return NextResponse.json(
+                    { error: "Gagal mengaktifkan langganan pengguna." },
+                    { status: 500 }
+                )
+            }
+        } else if (provisioning.kind === "FREE_BASELINE") {
+            const { error: freeSubError } = await adminClient.from("subscriptions").insert({
+                user_id: existingUser.id,
+                plan_code: "FREE",
+                track: provisioning.track,
+                status: "ACTIVE",
+                starts_at: provisioning.startsAt,
+                expires_at: null,
+                registration_id: registration.id,
+                granted_by: guard.user.email || "ADMIN_APPROVAL",
+                notes: notes || `Baseline access for approved ${registration.type} (${registration.id})`,
+            })
 
-                await brevoClient.transactionalEmails.sendTransacEmail({
-                    subject: emailSubject,
-                    htmlContent: emailHtml,
-                    sender: {
-                        name: BUSINESS_CONFIG.contact.emailSenderName,
-                        email: BUSINESS_CONFIG.contact.emailSenderAddress,
-                    },
-                    to: [{ email: registration.email, name: registration.name }]
-                })
-            } catch (emailError) {
-                console.error("Failed to send activation email via Brevo:", emailError)
+            if (freeSubError) {
+                console.error("Free baseline provisioning error:", freeSubError)
+                if (freeSubError.code === "23505") {
+                    return NextResponse.json(
+                        { error: "Pendaftaran ini sedang atau sudah diproses." },
+                        { status: 409 }
+                    )
+                }
+                return NextResponse.json(
+                    { error: "Gagal mengaktifkan akses dasar pengguna." },
+                    { status: 500 }
+                )
             }
         }
 
+        // 3. Mark registration APPROVED only after account activation and subscription provisioning succeed
+        const { data: updatedRegs, error: regUpdateError } = await adminClient
+            .from("registrations")
+            .update({
+                status: "APPROVED",
+                reviewed_by: reviewerEmail,
+                reviewed_at: nowIso,
+                updated_at: nowIso,
+            })
+            .eq("id", registrationId)
+            .neq("status", "APPROVED")
+            .select("id")
+
+        if (regUpdateError) {
+            console.error("Registration approval finalize error:", regUpdateError)
+            return NextResponse.json(
+                { error: "Gagal memperbarui status pendaftaran." },
+                { status: 500 }
+            )
+        }
+
+        if (!updatedRegs || updatedRegs.length === 0) {
+            return NextResponse.json(
+                { error: "Pendaftaran ini sudah disetujui sebelumnya." },
+                { status: 409 }
+            )
+        }
+
+        // 4. Send HTML-escaped activation email via Brevo
+        try {
+            const subjectCode = (registration.subject || "").trim().toUpperCase()
+            const zoomLink =
+                registration.type === "KELAS_BESAR"
+                    ? BUSINESS_CONFIG.zoom.getLink(subjectCode) ||
+                      (subjectCode === "FISMAT"
+                          ? process.env.ZOOM_LINK_FISMAT || ""
+                          : process.env.ZOOM_LINK_FISDAS2 || "")
+                    : null
+            const schedule =
+                registration.type === "KELAS_BESAR"
+                    ? resolveMasterclassSchedule(
+                          BUSINESS_CONFIG.zoom.getSchedule(subjectCode),
+                          registration
+                      )
+                    : null
+
+            const emailContent = buildApprovalEmail({
+                type: registration.type as ApprovalRegistrationType,
+                name: registration.name,
+                subject: registration.subject,
+                planCode: provisioning.kind === "PAID" ? provisioning.planCode : null,
+                zoomLink,
+                schedule,
+                appUrl: process.env.NEXT_PUBLIC_APP_URL || "https://belajarbarengnata.com",
+            })
+
+            await brevoClient.transactionalEmails.sendTransacEmail({
+                subject: emailContent.subject,
+                htmlContent: emailContent.html,
+                sender: {
+                    name: BUSINESS_CONFIG.contact.emailSenderName,
+                    email: BUSINESS_CONFIG.contact.emailSenderAddress,
+                },
+                to: [{ email: registration.email, name: registration.name }],
+            })
+        } catch (emailError) {
+            console.error("Failed to send activation email via Brevo:", emailError)
+        }
+
         return NextResponse.json({
-            message: action === "APPROVED"
-                ? "Pendaftaran disetujui. Akun berhasil diaktifkan dan langganan telah aktif."
-                : "Pendaftaran ditolak.",
+            message:
+                provisioning.kind === "PAID"
+                    ? "Pendaftaran disetujui. Akun berhasil diaktifkan dan langganan telah aktif."
+                    : "Pendaftaran disetujui. Akun pengguna berhasil diaktifkan.",
         })
     } catch (error) {
         console.error("Approval error:", error)
